@@ -1,0 +1,170 @@
+.
+├── .gitignore
+├── .vercel
+│   ├── README.txt
+│   └── project.json
+├── README.md
+├── app
+│   ├── 404
+│   │   └── page.js
+│   ├── :api:save-product: 
+│   ├── ClientProviders.jsx
+│   ├── abbigliamento
+│   │   ├── page-abbigliamento.js
+│   │   └── page.js
+│   ├── accessori
+│   │   ├── page copy.js
+│   │   └── page.js
+│   ├── admin
+│   │   ├── clienti
+│   │   │   └── page.js
+│   │   ├── edit
+│   │   │   ├── [id]
+│   │   │   │   ├── page.tsx
+│   │   │   │   └── tsconfig.json
+│   │   │   ├── data
+│   │   │   │   └── products.json
+│   │   │   └── id
+│   │   │       └── page.tsx
+│   │   ├── inventario
+│   │   │   └── page.js
+│   │   ├── login
+│   │   │   └── page.js
+│   │   ├── ordini
+│   │   │   └── page.js
+│   │   ├── page.js
+│   │   ├── page_v0.1.js
+│   │   ├── page_v0.2.js
+│   │   └── vendite
+│   │       ├── VenditePageContent.js
+│   │       └── page.js
+│   ├── api
+│   │   ├── admin-log
+│   │   │   └── route.js
+│   │   ├── auth
+│   │   │   ├── login.js
+│   │   │   └── register.js
+│   │   ├── products
+│   │   │   ├── id
+│   │   │   │   ├── route.ts
+│   │   │   │   └── route_v0.1.ts
+│   │   │   ├── rou.ts
+│   │   │   └── route.js
+│   │   ├── save-ordini
+│   │   │   └── route.js
+│   │   ├── save-product
+│   │   │   ├── route copy.js
+│   │   │   └── route.js
+│   │   └── upload-image
+│   │       ├── route copy.js
+│   │       └── route.js
+│   ├── ar
+│   │   └── page.js
+│   ├── brand
+│   │   └── page.js
+│   ├── checkout
+│   │   ├── page copy.js
+│   │   └── page.js
+│   ├── de
+│   │   └── page.js
+│   ├── en
+│   │   └── page.js
+│   ├── es
+│   │   └── page.js
+│   ├── eventi
+│   │   └── page.js
+│   ├── favicon.ico
+│   ├── fr
+│   │   └── page.js
+│   ├── gioielli
+│   │   ├── page.js
+│   │   ├── page_v0.1.js
+│   │   ├── page_v0.2.js
+│   │   └── page_v0.3.js
+│   ├── globals.css
+│   ├── globals_v0.1.css
+│   ├── it
+│   │   └── page.js
+│   ├── ja
+│   │   └── page.js
+│   ├── layout.js
+│   ├── layout_v0.1.js
+│   ├── layout_v0.2.js
+│   ├── layout_v0.3.js
+│   ├── offerte
+│   │   └── page.js
+│   ├── page.js
+│   ├── page_v0.1.js
+│   ├── page_v0.2.js
+│   ├── page_v0.3.js
+│   ├── servizi
+│   │   └── page.js
+│   └── zh
+│       └── page.js
+├── components
+│   ├── CategoryButtons.js
+│   ├── CategoryButtons_v0.1.js
+│   ├── CategoryButtonsxsitogr.js
+│   ├── FlagLanguageSwitcher.js
+│   ├── FlagLanguageSwitcher_v0.1.js
+│   ├── LoginSidebar.jsx
+│   ├── MobileMenu.js
+│   ├── MobileMenu_v0.1.js
+│   ├── MobileMenu_v0.2.js
+│   └── TopRightMenu.js
+├── eslint.config.mjs
+├── inizializzazione di localhost:3000.txt
+├── jsconfig.json
+├── modules diagrams_scripts&explanation
+│   ├── layoutjs_detailed_explanation_final.pdf
+│   ├── manuale_completo_con_flussi_operativi-1.pdf
+│   ├── manuale_struttura_moduli_gabriella_romeo.pdf
+│   ├── package_json_detailed_explanation_with_diagram.pdf
+│   ├── page_js_detailed_explanation_final.pdf
+│   └── progetto_struttura_ascii_tree_finale.pdf
+├── next-env.d.ts
+├── next.config.mjs
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── postcss.config.mjs
+├── public
+│   ├── DSC00229.JPG
+│   ├── conqr hero.png
+│   ├── data
+│   │   ├── clienti.json
+│   │   ├── gg.jpg
+│   │   ├── gianluigi.jpg
+│   │   ├── images
+│   │   └── products.json
+│   ├── distortohero.png
+│   ├── file.svg
+│   ├── fonts
+│   │   ├── GRGabriellaFinal.ttf
+│   │   ├── GRGabriellaModern.ttf
+│   │   └── GRGabriellaUltraCustom.ttf
+│   ├── globe.svg
+│   ├── hero copy.png
+│   ├── hero.png
+│   ├── hero1.png
+│   ├── hero4.png
+│   ├── next.svg
+│   ├── product.json
+│   ├── products.json
+│   ├── qr-instagram.png
+│   ├── uploads
+│   │   ├── DSC00229.JPG
+│   │   ├── QVLIN035.jpg
+│   │   ├── QVLIN041.jpg
+│   │   ├── QVLIN042.jpg
+│   │   ├── QVLIN069.jpg
+│   │   ├── gg.jpg
+│   │   └── gianluigi.jpg
+│   ├── vecchio hero.png
+│   ├── vercel.svg
+│   └── window.svg
+├── struttura_progetto.txt
+├── tailwind.config.js
+└── tsconfig.json
+
+45 directories, 123 files

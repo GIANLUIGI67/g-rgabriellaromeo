@@ -1,0 +1,29 @@
+[
+    {
+      "id": "1",
+      "names": {
+        "IT": "Anello d'oro",
+        "EN": "Gold Ring",
+        "ES": "Anillo de oro",
+        "DE": "Goldring",
+        "FR": "Bague en or",
+        "AR": "خاتم ذهب",
+        "ZH": "金戒指",
+        "JA": "ゴールドリング"
+      },
+      "descriptions": {
+        "IT": "Anello elegante in oro giallo 18kt con finitura lucida.",
+        "EN": "Elegant 18kt yellow gold ring with polished finish.",
+        "ES": "Anillo elegante de oro amarillo de 18kt con acabado pulido.",
+        "DE": "Eleganter 18kt Gelbgoldring mit polierter Oberfläche.",
+        "FR": "Bague élégante en or jaune 18kt avec finition polie.",
+        "AR": "خاتم أنيق من الذهب الأصفر عيار 18 مع لمسة نهائية مصقولة.",
+        "ZH": "优雅的18kt黄金戒指，抛光表面。",
+        "JA": "ポリッシュ仕上げのエレガントな18金イエローゴールドリング。"
+      },
+      "price": "249.99",
+      "category": "Gioielleria",
+      "image": "anello-oro.jpg"
+    }
+  ]
+  

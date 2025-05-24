@@ -1,0 +1,29 @@
+{
+    "name": "gr-gabriella-clean",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint"
+    },
+    "dependencies": {
+        "lucide-react": "^0.511.0",
+        "next": "^13.5.11",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1"
+    },
+    "devDependencies": {
+        "@tailwindcss/postcss": "^4.1.7",
+        "@types/node": "^20.11.30",
+        "@types/react": "^18.2.42",
+        "autoprefixer": "^10.4.21",
+        "eslint": "^9.27.0",
+        "eslint-config-next": "^15.3.2",
+        "postcss": "^8.5.3",
+        "postcss-loader": "^8.1.1",
+        "tailwindcss": "3.3",
+        "typescript": "^5.3.3"
+    }
+}

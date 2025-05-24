@@ -1,0 +1,6 @@
+
+
+cd ~/Desktop/gr-gabriella-clean
+
+
+npm run dev
