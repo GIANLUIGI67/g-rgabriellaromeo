@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 
 export default function MobileMenu({ lang }) {
   const [isOpen, setIsOpen] = useState(false);
-
   const translations = {
     home: {
       it: 'Home', en: 'Home', fr: 'Accueil', es: 'Inicio', de: 'Startseite',
@@ -67,7 +67,18 @@ export default function MobileMenu({ lang }) {
       {isOpen && (
         <div className="absolute top-14 left-0 z-50 bg-white text-black w-64 px-6 py-4 shadow-md">
           <div className="flex justify-between items-center mb-2">
-            <span className="font-bold text-sm uppercase">Navigazione</span>
+            <span className="font-bold text-sm uppercase">
+              {{
+                it: 'Navigazione',
+                en: 'Navigation',
+                fr: 'Navigation',
+                es: 'Navegación',
+                de: 'Navigation',
+                ar: 'التنقل',
+                zh: '导航',
+                ja: 'ナビゲーション'
+              }[lang] || 'Navigazione'}
+            </span>
             <button onClick={() => setIsOpen(false)}>
               <X size={20} />
             </button>
