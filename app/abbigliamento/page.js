@@ -1,10 +1,8 @@
 'use client';
-
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function AbbigliamentoPageContent() {
+export default function AbbigliamentoPage() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
   const router = useRouter();
@@ -26,14 +24,14 @@ export default function AbbigliamentoPageContent() {
   };
 
   const sottocategorie = {
-    abiti: { it: 'abiti', en: 'dresses', fr: 'robes', de: 'kleider', es: 'vestidos', ar: 'فساتين', zh: '连衣裙', ja: 'ドレス' },
-    'camicie top': { it: 'camicie top', en: 'shirts & tops', fr: 'chemises & tops', de: 'hemden & tops', es: 'camisas y tops', ar: 'قمصان وبلوزات', zh: '衬衫和上衣', ja: 'シャツとトップス' },
-    pantaloni: { it: 'pantaloni', en: 'trousers', fr: 'pantalons', de: 'hosen', es: 'pantalones', ar: 'سراويل', zh: '裤子', ja: 'ズボン' },
-    gonne: { it: 'gonne', en: 'skirts', fr: 'jupes', de: 'röcke', es: 'faldas', ar: 'تنانير', zh: '裙子', ja: 'スカート' },
-    'giacche e cappotti': { it: 'giacche e cappotti', en: 'jackets & coats', fr: 'vestes & manteaux', de: 'jacken & mäntel', es: 'chaquetas y abrigos', ar: 'سترات ومعاطف', zh: '夹克和大衣', ja: 'ジャケットとコート' },
-    abaye: { it: 'abaye', en: 'abayas', fr: 'abayas', de: 'abajas', es: 'abayas', ar: 'عبايات', zh: '阿拜亚', ja: 'アバヤ' },
-    caftani: { it: 'caftani', en: 'kaftans', fr: 'caftans', de: 'kaftane', es: 'caftanes', ar: 'قفاطين', zh: '开襟长袍', ja: 'カフタン' },
-    'abbigliamento da mare': { it: 'abbigliamento da mare', en: 'beachwear', fr: 'tenues de plage', de: 'badebekleidung', es: 'ropa de playa', ar: 'ملابس بحر', zh: '泳装', ja: 'ビーチウェア' }
+    abiti: { it: 'Abiti', en: 'Dresses', fr: 'Robes', de: 'Kleider', es: 'Vestidos', ar: 'فساتين', zh: '连衣裙', ja: 'ドレス' },
+    'camicie top': { it: 'Camicie Top', en: 'Shirts & Tops', fr: 'Chemises & Tops', de: 'Hemden & Tops', es: 'Camisas y Tops', ar: 'قمصان وبلوزات', zh: '衬衫和上衣', ja: 'シャツとトップス' },
+    pantaloni: { it: 'Pantaloni', en: 'Trousers', fr: 'Pantalons', de: 'Hosen', es: 'Pantalones', ar: 'سراويل', zh: '裤子', ja: 'ズボン' },
+    gonne: { it: 'Gonne', en: 'Skirts', fr: 'Jupes', de: 'Röcke', es: 'Faldas', ar: 'تنانير', zh: '裙子', ja: 'スカート' },
+    'giacche e cappotti': { it: 'Giacche e Cappotti', en: 'Jackets & Coats', fr: 'Vestes & Manteaux', de: 'Jacken & Mäntel', es: 'Chaquetas y Abrigos', ar: 'سترات ومعاطف', zh: '夹克和大衣', ja: 'ジャケットとコート' },
+    abaye: { it: 'Abaye', en: 'Abayas', fr: 'Abayas', de: 'Abayas', es: 'Abayas', ar: 'عبايات', zh: '阿拜亚', ja: 'アバヤ' },
+    caftani: { it: 'Caftani', en: 'Kaftans', fr: 'Caftans', de: 'Kaftane', es: 'Caftanes', ar: 'قفاطين', zh: '开襟长袍', ja: 'カフタン' },
+    'abbigliamento da mare': { it: 'Abbigliamento da mare', en: 'Beachwear', fr: 'Tenues de plage', de: 'Badebekleidung', es: 'Ropa de playa', ar: 'ملابس بحر', zh: '泳装', ja: 'ビーチウェア' }
   };
 
   useEffect(() => {
@@ -55,47 +53,155 @@ export default function AbbigliamentoPageContent() {
   };
 
   return (
-    <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem' }}>
-      <h1>{traduzioni[lang]?.titolo}</h1>
+    <main style={{
+      backgroundColor: 'black',
+      color: 'white',
+      minHeight: '100vh',
+      padding: '2rem',
+      textAlign: 'center',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center'
+    }}>
+      <h1 style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>
+        {traduzioni[lang]?.titolo}
+      </h1>
 
-      <select
-        value={sottocategoriaSelezionata}
-        onChange={e => setSottocategoriaSelezionata(e.target.value)}
-        style={{ marginBottom: '1rem', padding: '0.5rem' }}
-      >
-        <option value="">{traduzioni[lang]?.sottotutte}</option>
-        {Object.entries(sottocategorie).map(([key, label]) => (
-          <option key={key} value={key}>{label[lang]}</option>
-        ))}
-      </select>
+      <div style={{ marginBottom: '2rem' }}>
+        <select
+          value={sottocategoriaSelezionata}
+          onChange={e => setSottocategoriaSelezionata(e.target.value)}
+          style={{
+            width: 'auto',
+            minWidth: '250px',
+            padding: '0.5rem',
+            fontSize: '1rem',
+            backgroundColor: '#000',
+            color: '#fff',
+            border: '1px solid #fff',
+            borderRadius: '6px',
+            textAlign: 'center',
+            whiteSpace: 'nowrap',
+            boxShadow: '0 0 8px rgba(255, 255, 255, 0.2)',
+            appearance: 'none'
+          }}
+        >
+          <option value="">{traduzioni[lang]?.sottotutte}</option>
+          {Object.entries(sottocategorie).map(([key, label]) => (
+            <option key={key} value={key}>{label[lang]}</option>
+          ))}
+        </select>
+      </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '1rem' }}>
-        {filtrati.map(prodotto => (
-          <div key={prodotto.id} style={{ background: 'white', color: 'black', padding: '1rem' }}>
-            <Image
-              src={`/uploads/${prodotto.nomeImmagine}`}
-              alt={prodotto.nome}
-              width={200}
-              height={120}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+        gap: '1rem',
+        backgroundColor: '#111',
+        padding: '1rem',
+        borderRadius: '10px',
+        maxWidth: '800px',
+        width: '100%'
+      }}>
+        {filtrati.map(p => (
+          <div key={p.id} style={{
+            backgroundColor: 'white',
+            color: 'black',
+            padding: '0.5rem',
+            borderRadius: '6px',
+            fontSize: '0.75rem',
+            textAlign: 'center'
+          }}>
+            <img
+              src={`/uploads/${p.nomeImmagine}`}
+              alt={p.nome}
+              style={{
+                width: '100%',
+                height: 'auto',
+                maxHeight: '120px',
+                objectFit: 'cover',
+                borderRadius: '5px',
+                marginBottom: '0.3rem',
+                cursor: 'pointer'
+              }}
+              onClick={() => setPopupImg(`/uploads/${p.nomeImmagine}`)}
             />
-            <p>{prodotto.nome}</p>
-            <p>{prodotto.prezzo} €</p>
-            <button onClick={() => aggiungiAlCarrello(prodotto)}>
+            <strong>{p.nome}</strong>
+            <p>{p.taglia}</p>
+            <p>{p.prezzo} €</p>
+            <button
+              onClick={() => aggiungiAlCarrello(p)}
+              style={{
+                marginTop: '0.3rem',
+                padding: '0.3rem 0.5rem',
+                fontSize: '0.7rem',
+                backgroundColor: '#333',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px'
+              }}
+            >
               {traduzioni[lang]?.aggiungi}
             </button>
           </div>
         ))}
       </div>
 
-      {carrello.length > 0 && (
-        <button onClick={() => router.push(`/checkout?lang=${lang}`)} style={{ marginTop: '2rem' }}>
-          {traduzioni[lang]?.checkout}
+      <div style={{ marginTop: '2rem' }}>
+        {carrello.length > 0 && (
+          <button
+            onClick={() => router.push(`/checkout?lang=${lang}`)}
+            style={{
+              padding: '0.5rem 1rem',
+              fontSize: '1rem',
+              backgroundColor: 'green',
+              color: 'white',
+              borderRadius: '5px',
+              margin: '0.5rem'
+            }}
+          >
+            {traduzioni[lang]?.checkout}
+          </button>
+        )}
+        <button
+          onClick={() => router.push(`/?lang=${lang}`)}
+          style={{
+            padding: '0.5rem 1rem',
+            fontSize: '1rem',
+            backgroundColor: '#444',
+            color: 'white',
+            borderRadius: '5px',
+            margin: '0.5rem'
+          }}
+        >
+          {traduzioni[lang]?.indietro}
         </button>
-      )}
+      </div>
 
-      <button onClick={() => router.push(`/?lang=${lang}`)} style={{ marginTop: '1rem' }}>
-        {traduzioni[lang]?.indietro}
-      </button>
+      {popupImg && (
+        <div
+          onClick={() => setPopupImg(null)}
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}
+        >
+          <img
+            src={popupImg}
+            alt="popup"
+            style={{
+              maxHeight: '90%',
+              maxWidth: '90%',
+              borderRadius: '10px'
+            }}
+          />
+        </div>
+      )}
     </main>
   );
 }

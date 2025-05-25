@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function AccessoriPage() {
+export default function GioielliPage() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
   const router = useRouter();
@@ -14,34 +14,30 @@ export default function AccessoriPage() {
   const [popupImg, setPopupImg] = useState(null);
 
   const traduzioni = {
-    it: { titolo: 'GALLERIA ACCESSORI', sottotutte: 'Tutte le sottocategorie', aggiungi: 'Aggiungi al carrello', checkout: 'Check-out', indietro: 'Indietro' },
-    en: { titolo: 'ACCESSORIES', sottotutte: 'All subcategories', aggiungi: 'Add to cart', checkout: 'Checkout', indietro: 'Back' },
-    fr: { titolo: 'ACCESSOIRES', sottotutte: 'Toutes les sous-catégories', aggiungi: 'Ajouter au panier', checkout: 'Paiement', indietro: 'Retour' },
-    de: { titolo: 'ZUBEHÖR', sottotutte: 'Alle Unterkategorien', aggiungi: 'In den Warenkorb', checkout: 'Zur Kasse', indietro: 'Zurück' },
-    es: { titolo: 'ACCESORIOS', sottotutte: 'Todas las subcategorías', aggiungi: 'Agregar al carrito', checkout: 'Pagar', indietro: 'Atrás' },
-    ar: { titolo: 'إكسسوارات', sottotutte: 'جميع الفئات الفرعية', aggiungi: 'أضف إلى السلة', checkout: 'الدفع', indietro: 'عودة' },
-    zh: { titolo: '配件', sottotutte: '所有子类别', aggiungi: '加入购物车', checkout: '结账', indietro: '返回' },
-    ja: { titolo: 'アクセサリー', sottotutte: 'すべてのサブカテゴリ', aggiungi: 'カートに追加', checkout: 'チェックアウト', indietro: '戻る' }
+    it: { titolo: 'GALLERIA GIOIELLI', sottotutte: 'Tutte le sottocategorie', aggiungi: 'Aggiungi al carrello', checkout: 'Check-out', indietro: 'Indietro' },
+    en: { titolo: 'JEWELRY GALLERY', sottotutte: 'All subcategories', aggiungi: 'Add to cart', checkout: 'Checkout', indietro: 'Back' },
+    fr: { titolo: 'GALERIE DE BIJOUX', sottotutte: 'Toutes les sous-catégories', aggiungi: 'Ajouter au panier', checkout: 'Paiement', indietro: 'Retour' },
+    de: { titolo: 'SCHMUCKGALERIE', sottotutte: 'Alle Unterkategorien', aggiungi: 'In den Warenkorb', checkout: 'Zur Kasse', indietro: 'Zurück' },
+    es: { titolo: 'GALERÍA DE JOYAS', sottotutte: 'Todas las subcategorías', aggiungi: 'Agregar al carrito', checkout: 'Pagar', indietro: 'Atrás' },
+    ar: { titolo: 'معرض المجوهرات', sottotutte: 'جميع الفئات الفرعية', aggiungi: 'أضف إلى السلة', checkout: 'الدفع', indietro: 'عودة' },
+    zh: { titolo: '珠宝画廊', sottotutte: '所有子类别', aggiungi: '加入购物车', checkout: '结账', indietro: '返回' },
+    ja: { titolo: 'ジュエリーギャラリー', sottotutte: 'すべてのサブカテゴリ', aggiungi: 'カートに追加', checkout: 'チェックアウト', indietro: '戻る' }
   };
 
   const sottocategorie = {
+    anelli: {
+      it: 'anelli', en: 'rings', fr: 'bagues', de: 'ringe', es: 'anillos', ar: 'خواتم', zh: '戒指', ja: 'リング'
+    },
     collane: {
       it: 'collane', en: 'necklaces', fr: 'colliers', de: 'halsketten', es: 'collares', ar: 'قلائد', zh: '项链', ja: 'ネックレス'
-    },
-    orecchini: {
-      it: 'orecchini', en: 'earrings', fr: "boucles d'oreilles", de: 'ohrringe', es: 'pendientes', ar: 'أقراط', zh: '耳环', ja: 'イヤリング'
     },
     bracciali: {
       it: 'bracciali', en: 'bracelets', fr: 'bracelets', de: 'armbänder', es: 'pulseras', ar: 'أساور', zh: '手镯', ja: 'ブレスレット'
     },
-    borse: {
-      it: 'borse', en: 'bags', fr: 'sacs', de: 'taschen', es: 'bolsos', ar: 'حقائب', zh: '包', ja: 'バッグ'
-    },
-    foulard: {
-      it: 'foulard', en: 'scarves', fr: 'foulards', de: 'schals', es: 'pañuelos', ar: 'أوشحة', zh: '围巾', ja: 'スカーフ'
+    orecchini: {
+      it: 'orecchini', en: 'earrings', fr: "boucles d'oreilles", de: 'ohrringe', es: 'pendientes', ar: 'أقراط', zh: '耳环', ja: 'イヤリング'
     }
   };
-
   useEffect(() => {
     fetch('/data/products.json')
       .then(res => res.json())
@@ -50,7 +46,7 @@ export default function AccessoriPage() {
   }, []);
 
   const filtrati = prodotti.filter(p =>
-    p.categoria === 'accessori' &&
+    p.categoria === 'gioielli' &&
     (!sottocategoriaSelezionata || p.sottocategoria === sottocategoriaSelezionata)
   );
 
@@ -75,13 +71,12 @@ export default function AccessoriPage() {
         {traduzioni[lang]?.titolo}
       </h1>
 
-      <div style={{ marginBottom: '2rem' }}>
+      <div style={{ marginBottom: '2rem', width: '250px' }}>
         <select
           value={sottocategoriaSelezionata}
           onChange={e => setSottocategoriaSelezionata(e.target.value)}
           style={{
-            width: 'auto',
-            minWidth: '250px',
+            width: '100%',
             padding: '0.5rem',
             fontSize: '1rem',
             backgroundColor: '#000',
@@ -89,7 +84,6 @@ export default function AccessoriPage() {
             border: '1px solid #fff',
             borderRadius: '6px',
             textAlign: 'center',
-            whiteSpace: 'nowrap',
             boxShadow: '0 0 8px rgba(255, 255, 255, 0.2)',
             appearance: 'none'
           }}
@@ -102,7 +96,6 @@ export default function AccessoriPage() {
           ))}
         </select>
       </div>
-
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
@@ -157,7 +150,6 @@ export default function AccessoriPage() {
           </div>
         ))}
       </div>
-
       <div style={{ marginTop: '2rem' }}>
         {carrello.length > 0 && (
           <button

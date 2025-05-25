@@ -36,16 +36,10 @@ export default function AdminPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // salva il prodotto
   };
 
-  const handleEdit = (item) => {
-    // modifica prodotto
-  };
-
-  const handleDelete = (id) => {
-    // elimina prodotto
-  };
+  const handleEdit = (item) => {};
+  const handleDelete = (id) => {};
 
   const selectStyle = {
     backgroundColor: 'transparent',
@@ -65,13 +59,7 @@ export default function AdminPage() {
       <h1 style={{ fontSize: '2.3rem', marginBottom: '1rem' }}>GESTIONE PRODOTTI</h1>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', maxWidth: '400px', margin: 'auto' }}>
-        <select
-          name="categoria"
-          value={form.categoria}
-          onChange={handleInputChange}
-          required
-          style={selectStyle}
-        >
+        <select name="categoria" value={form.categoria} onChange={handleInputChange} required style={selectStyle}>
           <option value="">Seleziona Categoria</option>
           <option value="gioielli">Gioielleria</option>
           <option value="abbigliamento">Abbigliamento</option>
@@ -79,13 +67,7 @@ export default function AdminPage() {
         </select>
 
         {categoriaSelezionata && (
-          <select
-            name="sottocategoria"
-            value={form.sottocategoria}
-            onChange={handleInputChange}
-            required
-            style={selectStyle}
-          >
+          <select name="sottocategoria" value={form.sottocategoria} onChange={handleInputChange} required style={selectStyle}>
             <option value="">Seleziona Sottocategoria</option>
             {sottocategorie[categoriaSelezionata]?.map((sotto, i) => (
               <option key={i} value={sotto}>{sotto}</option>
@@ -93,14 +75,12 @@ export default function AdminPage() {
           </select>
         )}
 
-        <input type="text" name="nome" placeholder="Nome prodotto" value={form.nome} onChange={handleInputChange} required />
-        <textarea name="descrizione" placeholder="Descrizione prodotto" value={form.descrizione} onChange={handleInputChange} required />
-        <input type="text" name="taglia" placeholder="Taglia / Misura" value={form.taglia} onChange={handleInputChange} required />
-        <input type="number" name="prezzo" placeholder="Prezzo (€)" value={form.prezzo} onChange={handleInputChange} required />
+        <input type="text" name="nome" placeholder="Nome prodotto" value={form.nome} onChange={handleInputChange} required style={{ color: 'black' }} />
+        <textarea name="descrizione" placeholder="Descrizione prodotto" value={form.descrizione} onChange={handleInputChange} required style={{ color: 'black' }} />
+        <input type="text" name="taglia" placeholder="Taglia / Misura" value={form.taglia} onChange={handleInputChange} required style={{ color: 'black' }} />
+        <input type="number" name="prezzo" placeholder="Prezzo (€)" value={form.prezzo} onChange={handleInputChange} required style={{ color: 'black' }} />
 
-        <label htmlFor="fileUpload" style={{
-          backgroundColor: 'white', color: 'black', padding: '0.4rem 1rem', borderRadius: '5px', cursor: 'pointer'
-        }}>
+        <label htmlFor="fileUpload" style={{ backgroundColor: 'white', color: 'black', padding: '0.4rem 1rem', borderRadius: '5px', cursor: 'pointer' }}>
           Carica immagine
           <input id="fileUpload" type="file" accept=".png, .jpg, .jpeg" onChange={handleImageChange} style={{ display: 'none' }} />
         </label>

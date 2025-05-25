@@ -156,7 +156,7 @@ export default function AdminPage() {
           📦 <span className="uppercase text-sm">Ordini</span>
         </button>
         <button onClick={() => router.push('/admin/inventario')} className="bg-white text-black px-4 py-2 rounded-md flex items-center gap-2 shadow">
-          📊 <span className="uppercase text-sm">Inventario</span>
+          📊 <span className="uppercase text-sm">Inventario / Magazzino</span>
         </button>
         <button onClick={() => router.push('/admin/clienti')} className="bg-white text-black px-4 py-2 rounded-md flex items-center gap-2 shadow">
           👥 <span className="uppercase text-sm">Clienti</span>
@@ -166,9 +166,6 @@ export default function AdminPage() {
         </button>
         <button onClick={() => router.push('/admin/spedizioni')} className="bg-white text-black px-4 py-2 rounded-md flex items-center gap-2 shadow">
           🚚 <span className="uppercase text-sm">Spedizioni</span>
-        </button>
-        <button onClick={() => router.push('/admin/magazzino')} className="bg-white text-black px-4 py-2 rounded-md flex items-center gap-2 shadow">
-          🏬 <span className="uppercase text-sm">Magazzino</span>
         </button>
       </div>
     </main>
