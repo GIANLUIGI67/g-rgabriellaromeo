@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { supabase } from '';
+import { supabase } from '../lib/supabaseClient';
+
 
 export default function GioielliPage() {
   const params = useSearchParams();
