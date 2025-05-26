@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 
-
 export default function AdminPage() {
   const router = useRouter();
   const [form, setForm] = useState({
@@ -63,13 +62,17 @@ export default function AdminPage() {
         body: formData,
       });
 
+      const result = await res.json();
+
       if (res.ok) {
-        setNomeFileSelezionato(file.name);
+        setNomeFileSelezionato(result.fileName);
       } else {
-        console.error('Errore upload immagine:', res.status);
+        console.error('Errore upload:', result.error);
+        alert('Errore upload immagine: ' + result.error);
       }
     } catch (err) {
-      console.error('Errore rete upload immagine:', err);
+      console.error('Errore rete:', err);
+      alert('Errore rete durante upload immagine.');
     }
   };
 
@@ -108,7 +111,6 @@ export default function AdminPage() {
         setCategoriaSelezionata('');
         setModificaId(null);
 
-        // Ricarica da Supabase
         const { data, error } = await supabase
           .from('products')
           .select('*')
@@ -244,9 +246,11 @@ export default function AdminPage() {
                   textAlign: 'center',
                   fontSize: '0.55rem'
                 }}>
-                  <img src={`/uploads/${item.nomeImmagine || item.immagine}`} alt={item.nome} style={{
-                    width: '100%', height: 'auto', maxHeight: '60px', objectFit: 'cover', borderRadius: '4px', marginBottom: '0.2rem'
-                  }} />
+                  <img
+                    src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${item.immagine}`}
+                    alt={item.nome}
+                    style={{ width: '100%', height: 'auto', maxHeight: '60px', objectFit: 'cover', borderRadius: '4px', marginBottom: '0.2rem' }}
+                  />
                   <strong>{item.nome}</strong>
                   <p>{item.taglia}</p>
                   <p>

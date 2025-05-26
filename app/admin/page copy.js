@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '../lib/supabaseClient';
+
 
 export default function AdminPage() {
   const router = useRouter();
@@ -26,10 +28,20 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    fetch('/data/products.json')
-      .then(res => res.json())
-      .then(data => setProdottiFiltrati(data))
-      .catch(err => console.error('Errore caricamento prodotti:', err));
+    const fetchProdotti = async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Errore caricamento da Supabase:', error.message);
+      } else {
+        setProdottiFiltrati(data);
+      }
+    };
+
+    fetchProdotti();
   }, []);
 
   const handleInputChange = (e) => {
@@ -39,6 +51,32 @@ export default function AdminPage() {
   };
 
   const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+  
+    const formData = new FormData();
+    formData.append('file', file);
+  
+    try {
+      const res = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      const result = await res.json();
+  
+      if (res.ok) {
+        setNomeFileSelezionato(result.fileName); // ✅ nome salvato da Supabase
+      } else {
+        console.error('Errore upload:', result.error);
+        alert('Errore upload immagine: ' + result.error);
+      }
+    } catch (err) {
+      console.error('Errore rete:', err);
+      alert('Errore rete durante upload immagine.');
+    }
+  };
+  
     const file = e.target.files[0];
     if (!file) return;
 
@@ -69,36 +107,46 @@ export default function AdminPage() {
       : 0;
 
     const nuovoProdotto = {
-      id: modificaId || Date.now(),
       categoria: form.categoria,
       sottocategoria: form.sottocategoria,
       nome: form.nome,
       descrizione: form.descrizione,
       taglia: form.taglia,
       prezzo: prezzoFormattato,
-      nomeImmagine: nomeFileSelezionato,
-      disponibile: true
+      immagine: nomeFileSelezionato,
+      disponibile: true,
+      created_at: new Date().toISOString()
     };
 
     try {
-      const res = await fetch('/api/products', {
+      const res = await fetch('/api/save-product', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(nuovoProdotto)
       });
 
+      const result = await res.json();
+
       if (res.ok) {
-        const aggiornato = await res.json();
-        setProdottiFiltrati(prev => modificaId ? prev.map(p => p.id === modificaId ? aggiornato : p) : [...prev, aggiornato]);
+        alert(result.message || '✅ Prodotto salvato!');
         setForm({ categoria: '', sottocategoria: '', nome: '', descrizione: '', taglia: '', prezzo: '' });
         setNomeFileSelezionato('');
         setCategoriaSelezionata('');
         setModificaId(null);
+
+        // Ricarica da Supabase
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!error) setProdottiFiltrati(data);
       } else {
-        console.error('Errore salvataggio:', res.status);
+        alert('❌ Errore: ' + (result.error || 'Errore sconosciuto'));
       }
     } catch (err) {
       console.error('Errore rete:', err);
+      alert('❌ Errore di rete durante il salvataggio.');
     }
   };
 
@@ -112,7 +160,7 @@ export default function AdminPage() {
       prezzo: item.prezzo
     });
     setCategoriaSelezionata(item.categoria);
-    setNomeFileSelezionato(item.nomeImmagine);
+    setNomeFileSelezionato(item.immagine);
     setModificaId(item.id);
   };
 
@@ -222,7 +270,7 @@ export default function AdminPage() {
                   textAlign: 'center',
                   fontSize: '0.55rem'
                 }}>
-                  <img src={`/uploads/${item.nomeImmagine}`} alt={item.nome} style={{
+                  <img src={`/uploads/${item.nomeImmagine || item.immagine}`} alt={item.nome} style={{
                     width: '100%', height: 'auto', maxHeight: '60px', objectFit: 'cover', borderRadius: '4px', marginBottom: '0.2rem'
                   }} />
                   <strong>{item.nome}</strong>

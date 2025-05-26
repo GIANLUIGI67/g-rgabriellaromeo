@@ -1,41 +1,28 @@
-import fs from 'fs';
-import path from 'path';
-import { promisify } from 'util';
-
-const writeFile = promisify(fs.writeFile);
+import { supabase } from '../../lib/supabaseClient';
 
 export async function POST(request) {
   const formData = await request.formData();
   const file = formData.get('file');
 
-  if (!file || typeof file.name !== 'string') {
-    return new Response(JSON.stringify({ error: 'Nessun file valido ricevuto' }), {
-      status: 400,
-    });
+  if (!file) {
+    return new Response(JSON.stringify({ error: 'Nessun file ricevuto' }), { status: 400 });
   }
 
-  try {
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+  const fileName = `${Date.now()}_${file.name}`;
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = new Uint8Array(arrayBuffer);
 
-    // Crea la cartella uploads se non esiste
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-
-    const filePath = path.join(uploadsDir, file.name);
-    await writeFile(filePath, buffer);
-
-    return new Response(JSON.stringify({ message: 'Immagine caricata', fileName: file.name }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
+  const { error } = await supabase.storage
+    .from('immagini') // nome bucket
+    .upload(fileName, buffer, {
+      contentType: file.type,
+      upsert: true
     });
 
-  } catch (error) {
-    console.error('Errore salvataggio file:', error);
-    return new Response(JSON.stringify({ error: 'Errore nel salvataggio immagine' }), {
-      status: 500,
-    });
+  if (error) {
+    console.error('Upload error Supabase', error);
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
+
+  return new Response(JSON.stringify({ message: 'Upload riuscito', fileName }), { status: 200 });
 }

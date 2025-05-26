@@ -1,25 +1,32 @@
-import fs from 'fs/promises';
-import path from 'path';
+import { supabase } from '../../../lib/supabaseClient';
 
-const filePath = path.join(process.cwd(), 'public', 'data', 'products.json');
+export async function PUT(request, { params }) {
+  const id = params.id;
+  const body = await request.json();
+
+  const { data, error } = await supabase
+    .from('products')
+    .update(body)
+    .eq('id', id);
+
+  if (error) {
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+  }
+
+  return new Response(JSON.stringify({ message: 'Prodotto aggiornato con successo', data }), { status: 200 });
+}
 
 export async function DELETE(request, { params }) {
-  try {
-    const id = params.id;
-    const data = await fs.readFile(filePath, 'utf-8');
-    const prodotti = JSON.parse(data);
+  const id = params.id;
 
-    const aggiornato = prodotti.filter(p => String(p.id) !== String(id));
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .eq('id', id);
 
-    await fs.writeFile(filePath, JSON.stringify(aggiornato, null, 2), 'utf-8');
-
-    return new Response(JSON.stringify({ message: 'Prodotto eliminato' }), {
-      headers: { 'Content-Type': 'application/json' }
-    });
-  } catch (err) {
-    console.error('Errore eliminazione:', err);
-    return new Response(JSON.stringify({ error: 'Errore eliminazione' }), {
-      status: 500
-    });
+  if (error) {
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
+
+  return new Response(JSON.stringify({ message: 'Prodotto eliminato con successo' }), { status: 200 });
 }
