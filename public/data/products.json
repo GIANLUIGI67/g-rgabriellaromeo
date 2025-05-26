@@ -1,1 +1,68 @@
-[]
+[
+  {
+    "id": 1748183138564,
+    "categoria": "gioielli",
+    "sottocategoria": "anelli",
+    "nome": "NEW YORK W/G",
+    "descrizione": "anello oro bianco",
+    "taglia": "10",
+    "prezzo": 9000,
+    "nomeImmagine": "NEW YORK W.PNG",
+    "disponibile": true
+  },
+  {
+    "id": 1748185559478,
+    "categoria": "gioielli",
+    "sottocategoria": "anelli",
+    "nome": "SIDNEY W/G",
+    "descrizione": "anello oro bianco",
+    "taglia": "12",
+    "prezzo": 8000,
+    "nomeImmagine": "SIDNEY W:G.png",
+    "disponibile": true
+  },
+  {
+    "id": 1748185647347,
+    "categoria": "gioielli",
+    "sottocategoria": "anelli",
+    "nome": "MARRAKECH W/G",
+    "descrizione": "anello oro BIANCO",
+    "taglia": "12",
+    "prezzo": 8000,
+    "nomeImmagine": "Marrakech w:g.png",
+    "disponibile": true
+  },
+  {
+    "id": 1748185692039,
+    "categoria": "gioielli",
+    "sottocategoria": "anelli",
+    "nome": "MARRAKECH Y/G",
+    "descrizione": "anello oro giallo",
+    "taglia": "12",
+    "prezzo": 8000,
+    "nomeImmagine": "MARRAKECH Y:G.png",
+    "disponibile": true
+  },
+  {
+    "id": 1748185729881,
+    "categoria": "gioielli",
+    "sottocategoria": "anelli",
+    "nome": "BERLIN Y/W/G",
+    "descrizione": "anello oro bianco/giallo",
+    "taglia": "12",
+    "prezzo": 8000,
+    "nomeImmagine": "BERLIN.png",
+    "disponibile": true
+  },
+  {
+    "id": 1748185835132,
+    "categoria": "gioielli",
+    "sottocategoria": "anelli",
+    "nome": "NEW DELHI W/G",
+    "descrizione": "anello oro bianco",
+    "taglia": "12",
+    "prezzo": 9000,
+    "nomeImmagine": "NEW DELHI W:G.png",
+    "disponibile": true
+  }
+]

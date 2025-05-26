@@ -1,18 +1,35 @@
-import fs from 'fs';
-import path from 'path';
+import { supabase } from '../../lib/supabaseClient';
+
 
 export async function POST(request) {
   try {
-    const prodotti = await request.json();
-    const filePath = path.join(process.cwd(), 'public', 'data', 'products.json');
+    const prodotto = await request.json();
 
-    fs.writeFileSync(filePath, JSON.stringify(prodotti, null, 2));
-    return new Response(JSON.stringify({ message: 'Prodotti salvati con successo!' }), {
-      status: 200,
-    });
+    const result = await supabase
+  .from('products')
+  .insert([prodotto]);
+
+if (result.error) {
+  console.error('❌ ERRORE SUPABASE:', result.error);
+  return new Response(JSON.stringify({
+    error: result.error.message || 'Errore sconosciuto da Supabase'
+  }), {
+    status: 500,
+  });
+}
+
+return new Response(JSON.stringify({ message: 'Prodotto salvato con successo' }), {
+  status: 200,
+});
+    return new Response(JSON.stringify({ error: error.message || 'Errore generico su Supabase' }), {
+  status: 500,
+    });    
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Errore nel salvataggio dei prodotti' }), {
+    console.error('❌ ERRORE DA SUPABASE:', error); // <--- STAMPA NEL TERMINALE
+    return new Response(JSON.stringify({
+      error: error?.message || JSON.stringify(error) || 'Errore generico su Supabase'
+    }), {
       status: 500,
     });
-  }
+  }  
 }

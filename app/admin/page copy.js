@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function AdminPage() {
@@ -14,14 +14,23 @@ export default function AdminPage() {
     prezzo: '',
   });
 
+  const [prodottiFiltrati, setProdottiFiltrati] = useState([]);
   const [nomeFileSelezionato, setNomeFileSelezionato] = useState('');
   const [categoriaSelezionata, setCategoriaSelezionata] = useState('');
-  const [prodottiFiltrati, setProdottiFiltrati] = useState([]);
+  const [modificaId, setModificaId] = useState(null);
+
   const sottocategorie = {
     gioielli: ['anelli', 'collane', 'bracciali', 'orecchini'],
     abbigliamento: ['abiti', 'camicie top', 'pantaloni', 'gonne', 'giacche e cappotti', 'abaye', 'caftani', 'abbigliamento da mare'],
     accessori: ['collane', 'orecchini', 'bracciali', 'borse', 'foulard']
   };
+
+  useEffect(() => {
+    fetch('/data/products.json')
+      .then(res => res.json())
+      .then(data => setProdottiFiltrati(data))
+      .catch(err => console.error('Errore caricamento prodotti:', err));
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -29,22 +38,95 @@ export default function AdminPage() {
     if (name === 'categoria') setCategoriaSelezionata(value);
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
-    if (file) setNomeFileSelezionato(file.name);
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        setNomeFileSelezionato(file.name);
+      } else {
+        console.error('Errore upload immagine:', res.status);
+      }
+    } catch (err) {
+      console.error('Errore rete upload immagine:', err);
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // salva il prodotto
+
+    const prezzoFormattato = form.prezzo && !isNaN(Number(form.prezzo))
+      ? Number(form.prezzo)
+      : 0;
+
+    const nuovoProdotto = {
+      id: modificaId || Date.now(),
+      categoria: form.categoria,
+      sottocategoria: form.sottocategoria,
+      nome: form.nome,
+      descrizione: form.descrizione,
+      taglia: form.taglia,
+      prezzo: prezzoFormattato,
+      nomeImmagine: nomeFileSelezionato,
+      disponibile: true
+    };
+
+    try {
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nuovoProdotto)
+      });
+
+      if (res.ok) {
+        const aggiornato = await res.json();
+        setProdottiFiltrati(prev => modificaId ? prev.map(p => p.id === modificaId ? aggiornato : p) : [...prev, aggiornato]);
+        setForm({ categoria: '', sottocategoria: '', nome: '', descrizione: '', taglia: '', prezzo: '' });
+        setNomeFileSelezionato('');
+        setCategoriaSelezionata('');
+        setModificaId(null);
+      } else {
+        console.error('Errore salvataggio:', res.status);
+      }
+    } catch (err) {
+      console.error('Errore rete:', err);
+    }
   };
 
   const handleEdit = (item) => {
-    // modifica prodotto
+    setForm({
+      categoria: item.categoria,
+      sottocategoria: item.sottocategoria,
+      nome: item.nome,
+      descrizione: item.descrizione,
+      taglia: item.taglia,
+      prezzo: item.prezzo
+    });
+    setCategoriaSelezionata(item.categoria);
+    setNomeFileSelezionato(item.nomeImmagine);
+    setModificaId(item.id);
   };
 
-  const handleDelete = (id) => {
-    // elimina prodotto
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setProdottiFiltrati((prev) => prev.filter((item) => item.id !== id));
+      } else {
+        console.error('Errore nella cancellazione:', res.status);
+      }
+    } catch (err) {
+      console.error('Errore di rete durante la cancellazione:', err);
+    }
   };
 
   const selectStyle = {
@@ -60,18 +142,21 @@ export default function AdminPage() {
     MozAppearance: 'none',
   };
 
+  const buttonStyle = {
+    backgroundColor: 'white',
+    color: 'black',
+    padding: '0.5rem 1rem',
+    borderRadius: '6px',
+    fontWeight: 'bold',
+    fontSize: '0.85rem'
+  };
+
   return (
-    <main style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'black', color: 'white' }}>
-      <h1 style={{ fontSize: '2.3rem', marginBottom: '1rem' }}>GESTIONE PRODOTTI</h1>
+    <main style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'black', color: 'white', minHeight: '100vh' }}>
+      <h1 style={{ fontSize: '2.3rem', marginBottom: '2rem' }}>GESTIONE PRODOTTI</h1>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', maxWidth: '400px', margin: 'auto' }}>
-        <select
-          name="categoria"
-          value={form.categoria}
-          onChange={handleInputChange}
-          required
-          style={selectStyle}
-        >
+        <select name="categoria" value={form.categoria} onChange={handleInputChange} required style={selectStyle}>
           <option value="">Seleziona Categoria</option>
           <option value="gioielli">Gioielleria</option>
           <option value="abbigliamento">Abbigliamento</option>
@@ -79,13 +164,7 @@ export default function AdminPage() {
         </select>
 
         {categoriaSelezionata && (
-          <select
-            name="sottocategoria"
-            value={form.sottocategoria}
-            onChange={handleInputChange}
-            required
-            style={selectStyle}
-          >
+          <select name="sottocategoria" value={form.sottocategoria} onChange={handleInputChange} required style={selectStyle}>
             <option value="">Seleziona Sottocategoria</option>
             {sottocategorie[categoriaSelezionata]?.map((sotto, i) => (
               <option key={i} value={sotto}>{sotto}</option>
@@ -93,14 +172,12 @@ export default function AdminPage() {
           </select>
         )}
 
-        <input type="text" name="nome" placeholder="Nome prodotto" value={form.nome} onChange={handleInputChange} required />
-        <textarea name="descrizione" placeholder="Descrizione prodotto" value={form.descrizione} onChange={handleInputChange} required />
-        <input type="text" name="taglia" placeholder="Taglia / Misura" value={form.taglia} onChange={handleInputChange} required />
-        <input type="number" name="prezzo" placeholder="Prezzo (€)" value={form.prezzo} onChange={handleInputChange} required />
+        <input type="text" name="nome" placeholder="Nome prodotto" value={form.nome} onChange={handleInputChange} required style={{ color: 'black' }} />
+        <textarea name="descrizione" placeholder="Descrizione prodotto" value={form.descrizione} onChange={handleInputChange} required style={{ color: 'black' }} />
+        <input type="text" name="taglia" placeholder="Taglia / Misura" value={form.taglia} onChange={handleInputChange} required style={{ color: 'black' }} />
+        <input type="number" name="prezzo" placeholder="Prezzo (€)" value={form.prezzo} onChange={handleInputChange} required style={{ color: 'black' }} />
 
-        <label htmlFor="fileUpload" style={{
-          backgroundColor: 'white', color: 'black', padding: '0.4rem 1rem', borderRadius: '5px', cursor: 'pointer'
-        }}>
+        <label htmlFor="fileUpload" style={{ backgroundColor: 'white', color: 'black', padding: '0.4rem 1rem', borderRadius: '5px', cursor: 'pointer' }}>
           Carica immagine
           <input id="fileUpload" type="file" accept=".png, .jpg, .jpeg" onChange={handleImageChange} style={{ display: 'none' }} />
         </label>
@@ -110,6 +187,14 @@ export default function AdminPage() {
           💾 <span className="uppercase text-sm">Salva</span>
         </button>
       </form>
+
+      <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.8rem', marginTop: '1.5rem' }}>
+        <button onClick={() => router.push('/admin/ordini')} style={buttonStyle}>📦 ORDINI</button>
+        <button onClick={() => router.push('/admin/inventario')} style={buttonStyle}>📊 MAGAZZINO</button>
+        <button onClick={() => router.push('/admin/clienti')} style={buttonStyle}>👥 CLIENTI</button>
+        <button onClick={() => router.push('/admin/vendite')} style={buttonStyle}>💰 VENDITE</button>
+        <button onClick={() => router.push('/admin/spedizioni')} style={buttonStyle}>🚚 SPEDIZIONI</button>
+      </div>
 
       {categoriaSelezionata && (
         <>
@@ -125,49 +210,37 @@ export default function AdminPage() {
             backgroundColor: '#1a1a1a',
             borderRadius: '10px'
           }}>
-            {prodottiFiltrati.map((item) => (
-              <div key={item.id} style={{
-                backgroundColor: 'white',
-                color: 'black',
-                padding: '0.3rem',
-                borderRadius: '6px',
-                width: '80px',
-                textAlign: 'center',
-                fontSize: '0.55rem'
-              }}>
-                <img src={`/uploads/${item.nomeImmagine}`} alt={item.nome} style={{
-                  width: '100%', height: 'auto', maxHeight: '60px', objectFit: 'cover', borderRadius: '4px', marginBottom: '0.2rem'
-                }} />
-                <strong>{item.nome}</strong>
-                <p>{item.taglia}</p>
-                <p>{item.prezzo} €</p>
-                <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '0.2rem' }}>
-                  <button onClick={() => handleEdit(item)} style={{ backgroundColor: '#4caf50', color: 'white', padding: '0.1rem 0.2rem', borderRadius: '3px', fontSize: '0.6rem' }}>✏️</button>
-                  <button onClick={() => handleDelete(item.id)} style={{ backgroundColor: '#f44336', color: 'white', padding: '0.1rem 0.2rem', borderRadius: '3px', fontSize: '0.6rem' }}>🗑️</button>
+            {prodottiFiltrati
+              .filter(p => p.categoria === categoriaSelezionata)
+              .map((item) => (
+                <div key={item.id} style={{
+                  backgroundColor: 'white',
+                  color: 'black',
+                  padding: '0.3rem',
+                  borderRadius: '6px',
+                  width: '80px',
+                  textAlign: 'center',
+                  fontSize: '0.55rem'
+                }}>
+                  <img src={`/uploads/${item.nomeImmagine}`} alt={item.nome} style={{
+                    width: '100%', height: 'auto', maxHeight: '60px', objectFit: 'cover', borderRadius: '4px', marginBottom: '0.2rem'
+                  }} />
+                  <strong>{item.nome}</strong>
+                  <p>{item.taglia}</p>
+                  <p>
+                    {item.prezzo !== undefined && !isNaN(Number(item.prezzo))
+                      ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(item.prezzo))
+                      : ''}
+                  </p>
+                  <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '0.2rem' }}>
+                    <button onClick={() => handleEdit(item)} style={{ backgroundColor: '#4caf50', color: 'white', padding: '0.1rem 0.2rem', borderRadius: '3px', fontSize: '0.6rem' }}>✏️</button>
+                    <button onClick={() => handleDelete(item.id)} style={{ backgroundColor: '#f44336', color: 'white', padding: '0.1rem 0.2rem', borderRadius: '3px', fontSize: '0.6rem' }}>🗑️</button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </>
       )}
-
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem', marginTop: '2rem' }}>
-        <button onClick={() => router.push('/admin/ordini')} className="bg-white text-black px-4 py-2 rounded-md flex items-center gap-2 shadow">
-          📦 <span className="uppercase text-sm">Ordini</span>
-        </button>
-        <button onClick={() => router.push('/admin/inventario')} className="bg-white text-black px-4 py-2 rounded-md flex items-center gap-2 shadow">
-          📊 <span className="uppercase text-sm">Inventario / Magazzino</span>
-        </button>
-        <button onClick={() => router.push('/admin/clienti')} className="bg-white text-black px-4 py-2 rounded-md flex items-center gap-2 shadow">
-          👥 <span className="uppercase text-sm">Clienti</span>
-        </button>
-        <button onClick={() => router.push('/admin/vendite')} className="bg-white text-black px-4 py-2 rounded-md flex items-center gap-2 shadow">
-          💰 <span className="uppercase text-sm">Vendite</span>
-        </button>
-        <button onClick={() => router.push('/admin/spedizioni')} className="bg-white text-black px-4 py-2 rounded-md flex items-center gap-2 shadow">
-          🚚 <span className="uppercase text-sm">Spedizioni</span>
-        </button>
-      </div>
     </main>
   );
 }
