@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { supabase } from '../lib/supabaseClient';
 
 export default function AccessoriPage() {
   const params = useSearchParams();
@@ -25,33 +26,33 @@ export default function AccessoriPage() {
   };
 
   const sottocategorie = {
-    collane: {
-      it: 'collane', en: 'necklaces', fr: 'colliers', de: 'halsketten', es: 'collares', ar: 'قلائد', zh: '项链', ja: 'ネックレス'
-    },
-    orecchini: {
-      it: 'orecchini', en: 'earrings', fr: "boucles d'oreilles", de: 'ohrringe', es: 'pendientes', ar: 'أقراط', zh: '耳环', ja: 'イヤリング'
-    },
-    bracciali: {
-      it: 'bracciali', en: 'bracelets', fr: 'bracelets', de: 'armbänder', es: 'pulseras', ar: 'أساور', zh: '手镯', ja: 'ブレスレット'
-    },
-    borse: {
-      it: 'borse', en: 'bags', fr: 'sacs', de: 'taschen', es: 'bolsos', ar: 'حقائب', zh: '包', ja: 'バッグ'
-    },
-    foulard: {
-      it: 'foulard', en: 'scarves', fr: 'foulards', de: 'schals', es: 'pañuelos', ar: 'أوشحة', zh: '围巾', ja: 'スカーフ'
-    }
+    collane: { it: 'collane', en: 'necklaces', fr: 'colliers', de: 'halsketten', es: 'collares', ar: 'قلائد', zh: '项链', ja: 'ネックレス' },
+    orecchini: { it: 'orecchini', en: 'earrings', fr: "boucles d'oreilles", de: 'ohrringe', es: 'pendientes', ar: 'أقراط', zh: '耳环', ja: 'イヤリング' },
+    bracciali: { it: 'bracciali', en: 'bracelets', fr: 'bracelets', de: 'armbänder', es: 'pulseras', ar: 'أساور', zh: '手镯', ja: 'ブレスレット' },
+    borse: { it: 'borse', en: 'bags', fr: 'sacs', de: 'taschen', es: 'bolsos', ar: 'حقائب', zh: '包', ja: 'バッグ' },
+    foulard: { it: 'foulard', en: 'scarves', fr: 'foulards', de: 'schals', es: 'pañuelos', ar: 'أوشحة', zh: '围巾', ja: 'スカーフ' }
   };
 
   useEffect(() => {
-    fetch('/data/products.json')
-      .then(res => res.json())
-      .then(data => setProdotti(data))
-      .catch(err => console.error('Errore nel caricamento prodotti:', err));
+    const fetchProdotti = async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('categoria', 'accessori')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Errore Supabase:', error.message);
+      } else {
+        setProdotti(data);
+      }
+    };
+
+    fetchProdotti();
   }, []);
 
   const filtrati = prodotti.filter(p =>
-    p.categoria === 'accessori' &&
-    (!sottocategoriaSelezionata || p.sottocategoria === sottocategoriaSelezionata)
+    !sottocategoriaSelezionata || p.sottocategoria === sottocategoriaSelezionata
   );
 
   const aggiungiAlCarrello = (prodotto) => {
@@ -123,7 +124,7 @@ export default function AccessoriPage() {
             textAlign: 'center'
           }}>
             <img
-              src={`/uploads/${prodotto.nomeImmagine}`}
+              src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
               alt={prodotto.nome}
               style={{
                 width: '100%',
@@ -134,7 +135,7 @@ export default function AccessoriPage() {
                 marginBottom: '0.3rem',
                 cursor: 'pointer'
               }}
-              onClick={() => setPopupImg(`/uploads/${prodotto.nomeImmagine}`)}
+              onClick={() => setPopupImg(`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`)}
             />
             <strong>{prodotto.nome}</strong>
             <p>{prodotto.taglia}</p>

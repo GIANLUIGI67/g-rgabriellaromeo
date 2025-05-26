@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { supabase } from '';
 
 export default function GioielliPage() {
   const params = useSearchParams();
@@ -32,15 +33,25 @@ export default function GioielliPage() {
   };
 
   useEffect(() => {
-    fetch('/data/products.json')
-      .then(res => res.json())
-      .then(data => setProdotti(data))
-      .catch(err => console.error('Errore nel caricamento prodotti:', err));
+    const fetchProdotti = async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('categoria', 'gioielli')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Errore caricamento da Supabase:', error.message);
+      } else {
+        setProdotti(data);
+      }
+    };
+
+    fetchProdotti();
   }, []);
 
   const filtrati = prodotti.filter(p =>
-    p.categoria === 'gioielli' &&
-    (!sottocategoriaSelezionata || p.sottocategoria === sottocategoriaSelezionata)
+    !sottocategoriaSelezionata || p.sottocategoria === sottocategoriaSelezionata
   );
 
   const aggiungiAlCarrello = (prodotto) => {
@@ -112,7 +123,7 @@ export default function GioielliPage() {
             textAlign: 'center'
           }}>
             <img
-              src={`/uploads/${prodotto.nomeImmagine}`}
+              src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
               alt={prodotto.nome}
               style={{
                 width: '100%',
@@ -123,11 +134,15 @@ export default function GioielliPage() {
                 marginBottom: '0.3rem',
                 cursor: 'pointer'
               }}
-              onClick={() => setPopupImg(`/uploads/${prodotto.nomeImmagine}`)}
+              onClick={() => setPopupImg(`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`)}
             />
             <strong>{prodotto.nome}</strong>
             <p>{prodotto.taglia}</p>
-            <p>{prodotto.prezzo} €</p>
+            <p>
+              {prodotto.prezzo !== undefined && !isNaN(Number(prodotto.prezzo))
+                ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(prodotto.prezzo))
+                : ''}
+            </p>
             <button
               onClick={() => aggiungiAlCarrello(prodotto)}
               style={{

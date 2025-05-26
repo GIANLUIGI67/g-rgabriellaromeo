@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { supabase } from '../lib/supabaseClient';
 
 export default function AbbigliamentoPage() {
   const params = useSearchParams();
@@ -36,25 +35,15 @@ export default function AbbigliamentoPage() {
   };
 
   useEffect(() => {
-    const fetchProdotti = async () => {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('categoria', 'abbigliamento')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Errore Supabase:', error.message);
-      } else {
-        setProdotti(data);
-      }
-    };
-
-    fetchProdotti();
+    fetch('/data/products.json')
+      .then(res => res.json())
+      .then(data => setProdotti(data))
+      .catch(err => console.error('Errore nel caricamento prodotti:', err));
   }, []);
 
   const filtrati = prodotti.filter(p =>
-    !sottocategoriaSelezionata || p.sottocategoria === sottocategoriaSelezionata
+    p.categoria === 'abbigliamento' &&
+    (!sottocategoriaSelezionata || p.sottocategoria === sottocategoriaSelezionata)
   );
 
   const aggiungiAlCarrello = (prodotto) => {
@@ -124,7 +113,7 @@ export default function AbbigliamentoPage() {
             textAlign: 'center'
           }}>
             <img
-              src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${p.immagine}`}
+              src={`/uploads/${p.nomeImmagine}`}
               alt={p.nome}
               style={{
                 width: '100%',
@@ -135,7 +124,7 @@ export default function AbbigliamentoPage() {
                 marginBottom: '0.3rem',
                 cursor: 'pointer'
               }}
-              onClick={() => setPopupImg(`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${p.immagine}`)}
+              onClick={() => setPopupImg(`/uploads/${p.nomeImmagine}`)}
             />
             <strong>{p.nome}</strong>
             <p>{p.taglia}</p>

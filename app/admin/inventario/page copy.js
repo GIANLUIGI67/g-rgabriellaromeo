@@ -1,29 +1,20 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabaseClient';
 
 export default function MagazzinoPage() {
   const [prodotti, setProdotti] = useState([]);
   const [totale, setTotale] = useState(0);
 
   useEffect(() => {
-    const fetchProdotti = async () => {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('categoria', { ascending: true });
-
-      if (error) {
-        console.error('Errore nel caricamento del magazzino:', error.message);
-      } else {
+    fetch('/data/products.json')
+      .then(res => res.json())
+      .then(data => {
         setProdotti(data);
         const somma = data.reduce((acc, item) => acc + Number(item.prezzo || 0), 0);
         setTotale(somma);
-      }
-    };
-
-    fetchProdotti();
+      })
+      .catch(err => console.error('Errore nel caricamento del magazzino:', err));
   }, []);
 
   const raggruppati = prodotti.reduce((acc, prodotto) => {

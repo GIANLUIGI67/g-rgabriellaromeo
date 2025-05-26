@@ -25,19 +25,12 @@ export default function GioielliPage() {
   };
 
   const sottocategorie = {
-    anelli: {
-      it: 'anelli', en: 'rings', fr: 'bagues', de: 'ringe', es: 'anillos', ar: 'خواتم', zh: '戒指', ja: 'リング'
-    },
-    collane: {
-      it: 'collane', en: 'necklaces', fr: 'colliers', de: 'halsketten', es: 'collares', ar: 'قلائد', zh: '项链', ja: 'ネックレス'
-    },
-    bracciali: {
-      it: 'bracciali', en: 'bracelets', fr: 'bracelets', de: 'armbänder', es: 'pulseras', ar: 'أساور', zh: '手镯', ja: 'ブレスレット'
-    },
-    orecchini: {
-      it: 'orecchini', en: 'earrings', fr: "boucles d'oreilles", de: 'ohrringe', es: 'pendientes', ar: 'أقراط', zh: '耳环', ja: 'イヤリング'
-    }
+    anelli: { it: 'anelli', en: 'rings', fr: 'bagues', de: 'ringe', es: 'anillos', ar: 'خواتم', zh: '戒指', ja: 'リング' },
+    collane: { it: 'collane', en: 'necklaces', fr: 'colliers', de: 'halsketten', es: 'collares', ar: 'قلائد', zh: '项链', ja: 'ネックレス' },
+    bracciali: { it: 'bracciali', en: 'bracelets', fr: 'bracelets', de: 'armbänder', es: 'pulseras', ar: 'أساور', zh: '手镯', ja: 'ブレスレット' },
+    orecchini: { it: 'orecchini', en: 'earrings', fr: "boucles d'oreilles", de: 'ohrringe', es: 'pendientes', ar: 'أقراط', zh: '耳环', ja: 'イヤリング' }
   };
+
   useEffect(() => {
     fetch('/data/products.json')
       .then(res => res.json())
@@ -71,12 +64,13 @@ export default function GioielliPage() {
         {traduzioni[lang]?.titolo}
       </h1>
 
-      <div style={{ marginBottom: '2rem', width: '250px' }}>
+      <div style={{ marginBottom: '2rem' }}>
         <select
           value={sottocategoriaSelezionata}
           onChange={e => setSottocategoriaSelezionata(e.target.value)}
           style={{
-            width: '100%',
+            width: 'auto',
+            minWidth: '250px',
             padding: '0.5rem',
             fontSize: '1rem',
             backgroundColor: '#000',
@@ -84,6 +78,7 @@ export default function GioielliPage() {
             border: '1px solid #fff',
             borderRadius: '6px',
             textAlign: 'center',
+            whiteSpace: 'nowrap',
             boxShadow: '0 0 8px rgba(255, 255, 255, 0.2)',
             appearance: 'none'
           }}
@@ -96,6 +91,7 @@ export default function GioielliPage() {
           ))}
         </select>
       </div>
+
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
@@ -150,6 +146,7 @@ export default function GioielliPage() {
           </div>
         ))}
       </div>
+
       <div style={{ marginTop: '2rem' }}>
         {carrello.length > 0 && (
           <button

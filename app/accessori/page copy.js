@@ -41,6 +41,7 @@ export default function AccessoriPage() {
       it: 'foulard', en: 'scarves', fr: 'foulards', de: 'schals', es: 'pañuelos', ar: 'أوشحة', zh: '围巾', ja: 'スカーフ'
     }
   };
+
   useEffect(() => {
     fetch('/data/products.json')
       .then(res => res.json())
@@ -74,12 +75,13 @@ export default function AccessoriPage() {
         {traduzioni[lang]?.titolo}
       </h1>
 
-      <div style={{ marginBottom: '2rem', width: '250px' }}>
+      <div style={{ marginBottom: '2rem' }}>
         <select
           value={sottocategoriaSelezionata}
           onChange={e => setSottocategoriaSelezionata(e.target.value)}
           style={{
-            width: '100%',
+            width: 'auto',
+            minWidth: '250px',
             padding: '0.5rem',
             fontSize: '1rem',
             backgroundColor: '#000',
@@ -87,6 +89,7 @@ export default function AccessoriPage() {
             border: '1px solid #fff',
             borderRadius: '6px',
             textAlign: 'center',
+            whiteSpace: 'nowrap',
             boxShadow: '0 0 8px rgba(255, 255, 255, 0.2)',
             appearance: 'none'
           }}
@@ -99,6 +102,7 @@ export default function AccessoriPage() {
           ))}
         </select>
       </div>
+
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
@@ -153,6 +157,7 @@ export default function AccessoriPage() {
           </div>
         ))}
       </div>
+
       <div style={{ marginTop: '2rem' }}>
         {carrello.length > 0 && (
           <button
