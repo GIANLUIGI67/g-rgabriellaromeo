@@ -121,20 +121,18 @@ export default function UserMenu({ lang }) {
                 {translations.login[lang] || translations.login.en}
               </button>
 
-              <button onClick={loginGoogle} className="w-full border border-black py-2 rounded uppercase text-sm flex items-center justify-center gap-2 bg-white hover:bg-gray-100">
-                <img src="/icons/google.svg" alt="Google" className="w-5 h-5" />
+              <button onClick={loginGoogle} className="w-full border border-black py-2 rounded uppercase text-sm">
                 Login con Google
               </button>
-
-              <button onClick={loginApple} className="w-full border border-black py-2 rounded uppercase text-sm flex items-center justify-center gap-2 bg-white hover:bg-gray-100">
-                <img src="/icons/apple.svg" alt="Apple" className="w-5 h-5" />
+              <button onClick={loginApple} className="w-full border border-black py-2 rounded uppercase text-sm">
                 Login con Apple
               </button>
 
               {errore && <p className="text-sm text-red-600">{errore}</p>}
 
               <div className="border-t pt-4 text-sm">
-                <button className="w-full border border-black py-2 rounded uppercase mb-4 font-semibold">
+                <p className="mb-2 font-semibold uppercase">{translations.create[lang] || translations.create.en}</p>
+                <button className="w-full border border-black py-2 rounded uppercase mb-4">
                   {translations.create[lang] || translations.create.en}
                 </button>
                 <ul className="list-disc list-inside text-xs space-y-1 text-gray-700">
