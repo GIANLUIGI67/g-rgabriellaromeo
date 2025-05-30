@@ -71,7 +71,6 @@ export default function GioielliPage() {
     setCarrello(nuovoCarrello);
     localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
   };
-
   return (
     <main style={{
       backgroundColor: 'black',
@@ -157,22 +156,7 @@ export default function GioielliPage() {
             <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem', margin: '0.3rem 0' }}>
               <button onClick={() => cambiaQuantita(prodotto.id, -1)}
                 style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>–</button>
-
-              <input
-                type="text"
-                value={quantita[prodotto.id] || 1}
-                readOnly
-                style={{
-                  width: '1.8rem',
-                  textAlign: 'center',
-                  border: 'none',
-                  background: 'transparent',
-                  fontSize: '0.9rem',
-                  margin: 0,
-                  padding: 0
-                }}
-              />
-
+              <span>{quantita[prodotto.id] || 1}</span>
               <button onClick={() => cambiaQuantita(prodotto.id, 1)}
                 style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>+</button>
             </div>

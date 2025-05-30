@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { supabase } from '../lib/supabaseClient';
 
 export default function GioielliPage() {
   const params = useSearchParams();
@@ -9,6 +10,7 @@ export default function GioielliPage() {
   const router = useRouter();
 
   const [prodotti, setProdotti] = useState([]);
+  const [quantita, setQuantita] = useState({});
   const [sottocategoriaSelezionata, setSottocategoriaSelezionata] = useState('');
   const [carrello, setCarrello] = useState([]);
   const [popupImg, setPopupImg] = useState(null);
@@ -32,19 +34,40 @@ export default function GioielliPage() {
   };
 
   useEffect(() => {
-    fetch('/data/products.json')
-      .then(res => res.json())
-      .then(data => setProdotti(data))
-      .catch(err => console.error('Errore nel caricamento prodotti:', err));
+    const fetchProdotti = async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('categoria', 'gioielli')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Errore caricamento da Supabase:', error.message);
+      } else {
+        setProdotti(data);
+        const iniziali = {};
+        data.forEach(p => { iniziali[p.id] = 1 });
+        setQuantita(iniziali);
+      }
+    };
+
+    fetchProdotti();
   }, []);
 
   const filtrati = prodotti.filter(p =>
-    p.categoria === 'gioielli' &&
-    (!sottocategoriaSelezionata || p.sottocategoria === sottocategoriaSelezionata)
+    !sottocategoriaSelezionata || p.sottocategoria === sottocategoriaSelezionata
   );
 
+  const cambiaQuantita = (id, delta) => {
+    setQuantita(prev => ({
+      ...prev,
+      [id]: Math.max(1, (prev[id] || 1) + delta)
+    }));
+  };
+
   const aggiungiAlCarrello = (prodotto) => {
-    const nuovoCarrello = [...carrello, prodotto];
+    const qta = quantita[prodotto.id] || 1;
+    const nuovoCarrello = [...carrello, ...Array(qta).fill(prodotto)];
     setCarrello(nuovoCarrello);
     localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
   };
@@ -106,34 +129,60 @@ export default function GioielliPage() {
           <div key={prodotto.id} style={{
             backgroundColor: 'white',
             color: 'black',
-            padding: '0.5rem',
+            padding: '0.3rem',
             borderRadius: '6px',
-            fontSize: '0.75rem',
-            textAlign: 'center'
+            fontSize: '0.65rem',
+            textAlign: 'center',
+            transform: 'scale(0.9)',
+            transformOrigin: 'top center',
+            boxShadow: '0 0 6px rgba(255,255,255,0.1)'
           }}>
             <img
-              src={`/uploads/${prodotto.nomeImmagine}`}
+              src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
               alt={prodotto.nome}
               style={{
                 width: '100%',
                 height: 'auto',
-                maxHeight: '120px',
-                objectFit: 'cover',
-                borderRadius: '5px',
+                maxHeight: '80px',
+                objectFit: 'contain',
+                borderRadius: '4px',
                 marginBottom: '0.3rem',
                 cursor: 'pointer'
               }}
-              onClick={() => setPopupImg(`/uploads/${prodotto.nomeImmagine}`)}
+              onClick={() => setPopupImg(`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`)}
             />
             <strong>{prodotto.nome}</strong>
             <p>{prodotto.taglia}</p>
-            <p>{prodotto.prezzo} €</p>
+            <p>
+              {prodotto.prezzo !== undefined && !isNaN(Number(prodotto.prezzo))
+                ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(prodotto.prezzo))
+                : ''}
+            </p>
+
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.3rem',
+              marginTop: '0.4rem',
+              marginBottom: '0.4rem'
+            }}>
+              <button onClick={() => cambiaQuantita(prodotto.id, -1)}
+                style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>
+                –
+              </button>
+              <span style={{ minWidth: '1.2rem', textAlign: 'center' }}>{quantita[prodotto.id] || 1}</span>
+              <button onClick={() => cambiaQuantita(prodotto.id, 1)}
+                style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>
+                +
+              </button>
+            </div>
+
             <button
               onClick={() => aggiungiAlCarrello(prodotto)}
               style={{
-                marginTop: '0.3rem',
-                padding: '0.3rem 0.5rem',
-                fontSize: '0.7rem',
+                padding: '0.2rem 0.4rem',
+                fontSize: '0.6rem',
                 backgroundColor: '#333',
                 color: 'white',
                 border: 'none',

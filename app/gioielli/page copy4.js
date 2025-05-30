@@ -71,7 +71,6 @@ export default function GioielliPage() {
     setCarrello(nuovoCarrello);
     localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
   };
-
   return (
     <main style={{
       backgroundColor: 'black',
@@ -92,6 +91,7 @@ export default function GioielliPage() {
           value={sottocategoriaSelezionata}
           onChange={e => setSottocategoriaSelezionata(e.target.value)}
           style={{
+            width: 'auto',
             minWidth: '250px',
             padding: '0.5rem',
             fontSize: '1rem',
@@ -100,7 +100,9 @@ export default function GioielliPage() {
             border: '1px solid #fff',
             borderRadius: '6px',
             textAlign: 'center',
-            boxShadow: '0 0 8px rgba(255, 255, 255, 0.2)'
+            whiteSpace: 'nowrap',
+            boxShadow: '0 0 8px rgba(255, 255, 255, 0.2)',
+            appearance: 'none'
           }}
         >
           <option value="">{traduzioni[lang]?.sottotutte}</option>
@@ -113,84 +115,89 @@ export default function GioielliPage() {
       </div>
 
       <div style={{
-        display: 'flex',
-        overflowX: 'auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
         gap: '1rem',
         width: '100%',
-        padding: '0.5rem',
-        scrollSnapType: 'x mandatory'
+        maxWidth: '800px',
+        backgroundColor: '#111',
+        borderRadius: '10px',
+        padding: '1rem'
       }}>
         {filtrati.map(prodotto => (
           <div key={prodotto.id} style={{
             backgroundColor: 'white',
             color: 'black',
-            padding: '0.5rem',
+            padding: '0.3rem',
             borderRadius: '6px',
             fontSize: '0.65rem',
             textAlign: 'center',
-            flex: '0 0 auto',
-            width: '160px',
-            scrollSnapAlign: 'start'
+            transform: 'scale(0.9)',
+            transformOrigin: 'top center',
+            boxShadow: '0 0 6px rgba(255,255,255,0.1)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            minHeight: '230px'
           }}>
-            <img
-              src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
-              alt={prodotto.nome}
-              style={{
-                width: '100%',
-                height: 'auto',
-                maxHeight: '80px',
-                objectFit: 'contain',
-                borderRadius: '4px',
-                marginBottom: '0.3rem',
-                cursor: 'pointer'
-              }}
-              onClick={() => setPopupImg(`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`)}
-            />
-            <strong>{prodotto.nome}</strong>
-            <p>{prodotto.taglia}</p>
-            <p>
-              {prodotto.prezzo !== undefined && !isNaN(Number(prodotto.prezzo))
-                ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(prodotto.prezzo))
-                : ''}
-            </p>
-
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem', margin: '0.3rem 0' }}>
-              <button onClick={() => cambiaQuantita(prodotto.id, -1)}
-                style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>–</button>
-
-              <input
-                type="text"
-                value={quantita[prodotto.id] || 1}
-                readOnly
+            <div>
+              <img
+                src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
+                alt={prodotto.nome}
                 style={{
-                  width: '1.8rem',
-                  textAlign: 'center',
-                  border: 'none',
-                  background: 'transparent',
-                  fontSize: '0.9rem',
-                  margin: 0,
-                  padding: 0
+                  width: '100%',
+                  height: 'auto',
+                  maxHeight: '80px',
+                  objectFit: 'contain',
+                  borderRadius: '4px',
+                  marginBottom: '0.3rem',
+                  cursor: 'pointer'
                 }}
+                onClick={() => setPopupImg(`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`)}
               />
-
-              <button onClick={() => cambiaQuantita(prodotto.id, 1)}
-                style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>+</button>
+              <strong>{prodotto.nome}</strong>
+              <p>{prodotto.taglia}</p>
+              <p>
+                {prodotto.prezzo !== undefined && !isNaN(Number(prodotto.prezzo))
+                  ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(prodotto.prezzo))
+                  : ''}
+              </p>
             </div>
+            <div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.3rem',
+                marginTop: '0.4rem',
+                marginBottom: '0.4rem'
+              }}>
+                <button onClick={() => cambiaQuantita(prodotto.id, -1)}
+                  style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>
+                  –
+                </button>
+                <span style={{ minWidth: '1.2rem', textAlign: 'center' }}>{quantita[prodotto.id] || 1}</span>
+                <button onClick={() => cambiaQuantita(prodotto.id, 1)}
+                  style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>
+                  +
+                </button>
+              </div>
 
-            <button
-              onClick={() => aggiungiAlCarrello(prodotto)}
-              style={{
-                padding: '0.2rem 0.4rem',
-                fontSize: '0.6rem',
-                backgroundColor: '#333',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              {traduzioni[lang]?.aggiungi}
-            </button>
+              <button
+                onClick={() => aggiungiAlCarrello(prodotto)}
+                style={{
+                  padding: '0.2rem 0.4rem',
+                  fontSize: '0.6rem',
+                  backgroundColor: '#333',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                {traduzioni[lang]?.aggiungi}
+              </button>
+            </div>
           </div>
         ))}
       </div>

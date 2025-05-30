@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 
+
 export default function GioielliPage() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
   const router = useRouter();
 
   const [prodotti, setProdotti] = useState([]);
-  const [quantita, setQuantita] = useState({});
   const [sottocategoriaSelezionata, setSottocategoriaSelezionata] = useState('');
   const [carrello, setCarrello] = useState([]);
   const [popupImg, setPopupImg] = useState(null);
@@ -45,9 +45,6 @@ export default function GioielliPage() {
         console.error('Errore caricamento da Supabase:', error.message);
       } else {
         setProdotti(data);
-        const iniziali = {};
-        data.forEach(p => { iniziali[p.id] = 1 });
-        setQuantita(iniziali);
       }
     };
 
@@ -58,16 +55,8 @@ export default function GioielliPage() {
     !sottocategoriaSelezionata || p.sottocategoria === sottocategoriaSelezionata
   );
 
-  const cambiaQuantita = (id, delta) => {
-    setQuantita(prev => ({
-      ...prev,
-      [id]: Math.max(1, (prev[id] || 1) + delta)
-    }));
-  };
-
   const aggiungiAlCarrello = (prodotto) => {
-    const qta = quantita[prodotto.id] || 1;
-    const nuovoCarrello = [...carrello, ...Array(qta).fill(prodotto)];
+    const nuovoCarrello = [...carrello, prodotto];
     setCarrello(nuovoCarrello);
     localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
   };
@@ -92,6 +81,7 @@ export default function GioielliPage() {
           value={sottocategoriaSelezionata}
           onChange={e => setSottocategoriaSelezionata(e.target.value)}
           style={{
+            width: 'auto',
             minWidth: '250px',
             padding: '0.5rem',
             fontSize: '1rem',
@@ -100,7 +90,9 @@ export default function GioielliPage() {
             border: '1px solid #fff',
             borderRadius: '6px',
             textAlign: 'center',
-            boxShadow: '0 0 8px rgba(255, 255, 255, 0.2)'
+            whiteSpace: 'nowrap',
+            boxShadow: '0 0 8px rgba(255, 255, 255, 0.2)',
+            appearance: 'none'
           }}
         >
           <option value="">{traduzioni[lang]?.sottotutte}</option>
@@ -113,12 +105,14 @@ export default function GioielliPage() {
       </div>
 
       <div style={{
-        display: 'flex',
-        overflowX: 'auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
         gap: '1rem',
         width: '100%',
-        padding: '0.5rem',
-        scrollSnapType: 'x mandatory'
+        maxWidth: '800px',
+        backgroundColor: '#111',
+        borderRadius: '10px',
+        padding: '1rem'
       }}>
         {filtrati.map(prodotto => (
           <div key={prodotto.id} style={{
@@ -126,11 +120,8 @@ export default function GioielliPage() {
             color: 'black',
             padding: '0.5rem',
             borderRadius: '6px',
-            fontSize: '0.65rem',
-            textAlign: 'center',
-            flex: '0 0 auto',
-            width: '160px',
-            scrollSnapAlign: 'start'
+            fontSize: '0.75rem',
+            textAlign: 'center'
           }}>
             <img
               src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
@@ -138,9 +129,9 @@ export default function GioielliPage() {
               style={{
                 width: '100%',
                 height: 'auto',
-                maxHeight: '80px',
-                objectFit: 'contain',
-                borderRadius: '4px',
+                maxHeight: '120px',
+                objectFit: 'cover',
+                borderRadius: '5px',
                 marginBottom: '0.3rem',
                 cursor: 'pointer'
               }}
@@ -153,35 +144,12 @@ export default function GioielliPage() {
                 ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(prodotto.prezzo))
                 : ''}
             </p>
-
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem', margin: '0.3rem 0' }}>
-              <button onClick={() => cambiaQuantita(prodotto.id, -1)}
-                style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>–</button>
-
-              <input
-                type="text"
-                value={quantita[prodotto.id] || 1}
-                readOnly
-                style={{
-                  width: '1.8rem',
-                  textAlign: 'center',
-                  border: 'none',
-                  background: 'transparent',
-                  fontSize: '0.9rem',
-                  margin: 0,
-                  padding: 0
-                }}
-              />
-
-              <button onClick={() => cambiaQuantita(prodotto.id, 1)}
-                style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>+</button>
-            </div>
-
             <button
               onClick={() => aggiungiAlCarrello(prodotto)}
               style={{
-                padding: '0.2rem 0.4rem',
-                fontSize: '0.6rem',
+                marginTop: '0.3rem',
+                padding: '0.3rem 0.5rem',
+                fontSize: '0.7rem',
                 backgroundColor: '#333',
                 color: 'white',
                 border: 'none',

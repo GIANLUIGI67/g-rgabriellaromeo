@@ -6,7 +6,7 @@ import FlagLanguageSwitcher from '../components/FlagLanguageSwitcher';
 import MobileMenu from '../components/MobileMenu';
 import SearchIcon from '../components/SearchIcon';
 import UserMenu from '../components/UserMenu';
-import { Phone, Heart, ShoppingCart, Instagram } from 'lucide-react';
+import { Phone, Heart, ShoppingCart } from 'lucide-react';
 
 export default function Home() {
   const searchParams = useSearchParams();
@@ -56,12 +56,6 @@ export default function Home() {
               className="w-20 h-20 mx-auto sm:w-24 sm:h-24"
             />
           </a>
-
-          {/* INSTAGRAM Icon + Testo */}
-          <div className="mt-2 flex items-center justify-center gap-2 text-white text-sm">
-            <Instagram size={18} />
-            <span>Instagram</span>
-          </div>
         </div>
       </div>
     </main>
