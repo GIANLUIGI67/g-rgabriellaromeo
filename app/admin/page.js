@@ -13,6 +13,7 @@ export default function AdminPage() {
     descrizione: '',
     taglia: '',
     prezzo: '',
+    quantita: 0, // quantità iniziale a 0
   });
 
   const [prodottiFiltrati, setProdottiFiltrati] = useState([]);
@@ -83,6 +84,10 @@ export default function AdminPage() {
       ? Number(form.prezzo)
       : 0;
 
+    const quantitaFormattata = form.quantita && !isNaN(Number(form.quantita))
+      ? Number(form.quantita)
+      : 0;
+
     const nuovoProdotto = {
       categoria: form.categoria,
       sottocategoria: form.sottocategoria,
@@ -90,6 +95,7 @@ export default function AdminPage() {
       descrizione: form.descrizione,
       taglia: form.taglia,
       prezzo: prezzoFormattato,
+      quantita: quantitaFormattata,
       immagine: nomeFileSelezionato,
       disponibile: true,
       created_at: new Date().toISOString()
@@ -106,7 +112,7 @@ export default function AdminPage() {
 
       if (res.ok) {
         alert(result.message || '✅ Prodotto salvato!');
-        setForm({ categoria: '', sottocategoria: '', nome: '', descrizione: '', taglia: '', prezzo: '' });
+        setForm({ categoria: '', sottocategoria: '', nome: '', descrizione: '', taglia: '', prezzo: '', quantita: 0 });
         setNomeFileSelezionato('');
         setCategoriaSelezionata('');
         setModificaId(null);
@@ -133,7 +139,8 @@ export default function AdminPage() {
       nome: item.nome,
       descrizione: item.descrizione,
       taglia: item.taglia,
-      prezzo: item.prezzo
+      prezzo: item.prezzo,
+      quantita: item.quantita || 0,
     });
     setCategoriaSelezionata(item.categoria);
     setNomeFileSelezionato(item.immagine);
@@ -200,6 +207,7 @@ export default function AdminPage() {
         <textarea name="descrizione" placeholder="Descrizione prodotto" value={form.descrizione} onChange={handleInputChange} required style={{ color: 'black' }} />
         <input type="text" name="taglia" placeholder="Taglia / Misura" value={form.taglia} onChange={handleInputChange} required style={{ color: 'black' }} />
         <input type="number" name="prezzo" placeholder="Prezzo (€)" value={form.prezzo} onChange={handleInputChange} required style={{ color: 'black' }} />
+        <input type="number" name="quantita" placeholder="Quantità disponibile" value={form.quantita} onChange={handleInputChange} required min="0" style={{ color: 'black' }} />
 
         <label htmlFor="fileUpload" style={{ backgroundColor: 'white', color: 'black', padding: '0.4rem 1rem', borderRadius: '5px', cursor: 'pointer' }}>
           Carica immagine
@@ -212,6 +220,7 @@ export default function AdminPage() {
         </button>
       </form>
 
+      {/* Pulsanti gestione */}
       <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.8rem', marginTop: '1.5rem' }}>
         <button onClick={() => router.push('/admin/ordini')} style={buttonStyle}>📦 ORDINI</button>
         <button onClick={() => router.push('/admin/inventario')} style={buttonStyle}>📊 MAGAZZINO</button>
@@ -220,6 +229,7 @@ export default function AdminPage() {
         <button onClick={() => router.push('/admin/spedizioni')} style={buttonStyle}>🚚 SPEDIZIONI</button>
       </div>
 
+      {/* Galleria prodotti */}
       {categoriaSelezionata && (
         <>
           <h2 style={{ marginTop: '2rem' }}>Galleria: {categoriaSelezionata.toUpperCase()}</h2>
@@ -257,6 +267,9 @@ export default function AdminPage() {
                     {item.prezzo !== undefined && !isNaN(Number(item.prezzo))
                       ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(item.prezzo))
                       : ''}
+                  </p>
+                  <p style={{ fontWeight: 'bold', color: item.quantita === 0 ? 'red' : 'black' }}>
+                    {item.quantita === 0 ? 'da ordinare' : `Q: ${item.quantita}`}
                   </p>
                   <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '0.2rem' }}>
                     <button onClick={() => handleEdit(item)} style={{ backgroundColor: '#4caf50', color: 'white', padding: '0.1rem 0.2rem', borderRadius: '3px', fontSize: '0.6rem' }}>✏️</button>

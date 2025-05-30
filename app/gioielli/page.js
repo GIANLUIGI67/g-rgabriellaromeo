@@ -16,14 +16,70 @@ export default function GioielliPage() {
   const [popupImg, setPopupImg] = useState(null);
 
   const traduzioni = {
-    it: { titolo: 'GALLERIA GIOIELLI', sottotutte: 'Tutte le sottocategorie', aggiungi: 'Aggiungi al carrello', checkout: 'Check-out', indietro: 'Indietro' },
-    en: { titolo: 'JEWELRY GALLERY', sottotutte: 'All subcategories', aggiungi: 'Add to cart', checkout: 'Checkout', indietro: 'Back' },
-    fr: { titolo: 'GALERIE DE BIJOUX', sottotutte: 'Toutes les sous-catégories', aggiungi: 'Ajouter au panier', checkout: 'Paiement', indietro: 'Retour' },
-    de: { titolo: 'SCHMUCKGALERIE', sottotutte: 'Alle Unterkategorien', aggiungi: 'In den Warenkorb', checkout: 'Zur Kasse', indietro: 'Zurück' },
-    es: { titolo: 'GALERÍA DE JOYAS', sottotutte: 'Todas las subcategorías', aggiungi: 'Agregar al carrito', checkout: 'Pagar', indietro: 'Atrás' },
-    ar: { titolo: 'معرض المجوهرات', sottotutte: 'جميع الفئات الفرعية', aggiungi: 'أضف إلى السلة', checkout: 'الدفع', indietro: 'عودة' },
-    zh: { titolo: '珠宝画廊', sottotutte: '所有子类别', aggiungi: '加入购物车', checkout: '结账', indietro: '返回' },
-    ja: { titolo: 'ジュエリーギャラリー', sottotutte: 'すべてのサブカテゴリ', aggiungi: 'カートに追加', checkout: 'チェックアウト', indietro: '戻る' }
+    it: {
+      titolo: 'GALLERIA GIOIELLI',
+      sottotutte: 'Tutte le sottocategorie',
+      aggiungi: 'Aggiungi al carrello',
+      checkout: 'Check-out',
+      indietro: 'Indietro',
+      sold: 'VENDUTO – per ordinare controlla la nostra policy per la produzione',
+    },
+    en: {
+      titolo: 'JEWELRY GALLERY',
+      sottotutte: 'All subcategories',
+      aggiungi: 'Add to cart',
+      checkout: 'Checkout',
+      indietro: 'Back',
+      sold: 'SOLD – please check our production policy to order',
+    },
+    fr: {
+      titolo: 'GALERIE DE BIJOUX',
+      sottotutte: 'Toutes les sous-catégories',
+      aggiungi: 'Ajouter au panier',
+      checkout: 'Paiement',
+      indietro: 'Retour',
+      sold: 'VENDU – consultez notre politique de production pour commander',
+    },
+    de: {
+      titolo: 'SCHMUCKGALERIE',
+      sottotutte: 'Alle Unterkategorien',
+      aggiungi: 'In den Warenkorb',
+      checkout: 'Zur Kasse',
+      indietro: 'Zurück',
+      sold: 'VERKAUFT – bitte beachten Sie unsere Produktionsrichtlinien zur Bestellung',
+    },
+    es: {
+      titolo: 'GALERÍA DE JOYAS',
+      sottotutte: 'Todas las subcategorías',
+      aggiungi: 'Agregar al carrito',
+      checkout: 'Pagar',
+      indietro: 'Atrás',
+      sold: 'VENDIDO – consulta nuestra política de producción para realizar pedidos',
+    },
+    ar: {
+      titolo: 'معرض المجوهرات',
+      sottotutte: 'جميع الفئات الفرعية',
+      aggiungi: 'أضف إلى السلة',
+      checkout: 'الدفع',
+      indietro: 'عودة',
+      sold: 'تم البيع – راجع سياسة الإنتاج الخاصة بنا للطلب',
+    },
+    zh: {
+      titolo: '珠宝画廊',
+      sottotutte: '所有子类别',
+      aggiungi: '加入购物车',
+      checkout: '结账',
+      indietro: '返回',
+      sold: '已售出 – 请查看我们的生产政策以订购',
+    },
+    ja: {
+      titolo: 'ジュエリーギャラリー',
+      sottotutte: 'すべてのサブカテゴリ',
+      aggiungi: 'カートに追加',
+      checkout: 'チェックアウト',
+      indietro: '戻る',
+      sold: '売却済み – ご注文の際は生産ポリシーをご確認ください',
+    }
   };
 
   const sottocategorie = {
@@ -41,9 +97,7 @@ export default function GioielliPage() {
         .eq('categoria', 'gioielli')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Errore caricamento da Supabase:', error.message);
-      } else {
+      if (!error) {
         setProdotti(data);
         const iniziali = {};
         data.forEach(p => { iniziali[p.id] = 1 });
@@ -73,122 +127,56 @@ export default function GioielliPage() {
   };
 
   return (
-    <main style={{
-      backgroundColor: 'black',
-      color: 'white',
-      minHeight: '100vh',
-      padding: '2rem',
-      textAlign: 'center',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center'
-    }}>
-      <h1 style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>
-        {traduzioni[lang]?.titolo}
-      </h1>
+    <main style={{ backgroundColor: 'black', color: 'white', minHeight: '100vh', padding: '2rem', textAlign: 'center' }}>
+      <h1 style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>{traduzioni[lang]?.titolo}</h1>
 
       <div style={{ marginBottom: '2rem' }}>
         <select
           value={sottocategoriaSelezionata}
           onChange={e => setSottocategoriaSelezionata(e.target.value)}
-          style={{
-            minWidth: '250px',
-            padding: '0.5rem',
-            fontSize: '1rem',
-            backgroundColor: '#000',
-            color: '#fff',
-            border: '1px solid #fff',
-            borderRadius: '6px',
-            textAlign: 'center',
-            boxShadow: '0 0 8px rgba(255, 255, 255, 0.2)'
-          }}
+          style={{ minWidth: '250px', padding: '0.5rem', fontSize: '1rem', backgroundColor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '6px', textAlign: 'center' }}
         >
           <option value="">{traduzioni[lang]?.sottotutte}</option>
           {Object.entries(sottocategorie).map(([key, trad]) => (
-            <option key={key} value={key}>
-              {trad[lang]}
-            </option>
+            <option key={key} value={key}>{trad[lang]}</option>
           ))}
         </select>
       </div>
 
-      <div style={{
-        display: 'flex',
-        overflowX: 'auto',
-        gap: '1rem',
-        width: '100%',
-        padding: '0.5rem',
-        scrollSnapType: 'x mandatory'
-      }}>
+      <div style={{ display: 'flex', overflowX: 'auto', gap: '1rem', padding: '0.5rem', width: '100%' }}>
         {filtrati.map(prodotto => (
-          <div key={prodotto.id} style={{
-            backgroundColor: 'white',
-            color: 'black',
-            padding: '0.5rem',
-            borderRadius: '6px',
-            fontSize: '0.65rem',
-            textAlign: 'center',
-            flex: '0 0 auto',
-            width: '160px',
-            scrollSnapAlign: 'start'
-          }}>
+          <div key={prodotto.id} style={{ position: 'relative', backgroundColor: 'white', color: 'black', padding: '0.5rem', borderRadius: '6px', fontSize: '0.65rem', textAlign: 'center', flex: '0 0 auto', width: '160px' }}>
+            {prodotto.quantita === 0 && (
+              <div style={{
+                position: 'absolute',
+                top: '5px',
+                left: '5px',
+                right: '5px',
+                color: 'red',
+                fontWeight: 'bold',
+                fontSize: '0.6rem',
+                textShadow: '1px 1px 2px black',
+                zIndex: 10,
+                pointerEvents: 'none'
+              }}>
+                {traduzioni[lang]?.sold}
+              </div>
+            )}
             <img
               src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
               alt={prodotto.nome}
-              style={{
-                width: '100%',
-                height: 'auto',
-                maxHeight: '80px',
-                objectFit: 'contain',
-                borderRadius: '4px',
-                marginBottom: '0.3rem',
-                cursor: 'pointer'
-              }}
+              style={{ width: '100%', maxHeight: '80px', objectFit: 'contain', borderRadius: '4px', marginBottom: '0.3rem', cursor: 'pointer' }}
               onClick={() => setPopupImg(`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`)}
             />
             <strong>{prodotto.nome}</strong>
             <p>{prodotto.taglia}</p>
-            <p>
-              {prodotto.prezzo !== undefined && !isNaN(Number(prodotto.prezzo))
-                ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(prodotto.prezzo))
-                : ''}
-            </p>
-
+            <p>{!isNaN(Number(prodotto.prezzo)) ? Number(prodotto.prezzo).toFixed(2) + ' €' : ''}</p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem', margin: '0.3rem 0' }}>
-              <button onClick={() => cambiaQuantita(prodotto.id, -1)}
-                style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>–</button>
-
-              <input
-                type="text"
-                value={quantita[prodotto.id] || 1}
-                readOnly
-                style={{
-                  width: '1.8rem',
-                  textAlign: 'center',
-                  border: 'none',
-                  background: 'transparent',
-                  fontSize: '0.9rem',
-                  margin: 0,
-                  padding: 0
-                }}
-              />
-
-              <button onClick={() => cambiaQuantita(prodotto.id, 1)}
-                style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>+</button>
+              <button onClick={() => cambiaQuantita(prodotto.id, -1)} style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>–</button>
+              <input type="text" value={quantita[prodotto.id] || 1} readOnly style={{ width: '2rem', textAlign: 'center', border: '1px solid #999', borderRadius: '4px', fontSize: '0.9rem' }} />
+              <button onClick={() => cambiaQuantita(prodotto.id, 1)} style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>+</button>
             </div>
-
-            <button
-              onClick={() => aggiungiAlCarrello(prodotto)}
-              style={{
-                padding: '0.2rem 0.4rem',
-                fontSize: '0.6rem',
-                backgroundColor: '#333',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
+            <button onClick={() => aggiungiAlCarrello(prodotto)} style={{ padding: '0.2rem 0.4rem', fontSize: '0.6rem', backgroundColor: '#333', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
               {traduzioni[lang]?.aggiungi}
             </button>
           </div>
@@ -197,61 +185,18 @@ export default function GioielliPage() {
 
       <div style={{ marginTop: '2rem' }}>
         {carrello.length > 0 && (
-          <button
-            onClick={() => router.push(`/checkout?lang=${lang}`)}
-            style={{
-              margin: '0.5rem',
-              padding: '0.5rem 1rem',
-              fontSize: '1rem',
-              backgroundColor: 'green',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer'
-            }}
-          >
+          <button onClick={() => router.push(`/checkout?lang=${lang}`)} style={{ margin: '0.5rem', padding: '0.5rem 1rem', fontSize: '1rem', backgroundColor: 'green', color: 'white', border: 'none', borderRadius: '5px' }}>
             {traduzioni[lang]?.checkout}
           </button>
         )}
-        <button
-          onClick={() => router.push(`/?lang=${lang}`)}
-          style={{
-            margin: '0.5rem',
-            padding: '0.5rem 1rem',
-            fontSize: '1rem',
-            backgroundColor: '#444',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer'
-          }}
-        >
+        <button onClick={() => router.push(`/?lang=${lang}`)} style={{ margin: '0.5rem', padding: '0.5rem 1rem', fontSize: '1rem', backgroundColor: '#444', color: 'white', border: 'none', borderRadius: '5px' }}>
           {traduzioni[lang]?.indietro}
         </button>
       </div>
 
       {popupImg && (
-        <div
-          onClick={() => setPopupImg(null)}
-          style={{
-            position: 'fixed',
-            top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000
-          }}
-        >
-          <img
-            src={popupImg}
-            alt="popup"
-            style={{
-              maxHeight: '90%',
-              maxWidth: '90%',
-              borderRadius: '10px'
-            }}
-          />
+        <div onClick={() => setPopupImg(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <img src={popupImg} alt="popup" style={{ maxHeight: '90%', maxWidth: '90%', borderRadius: '10px' }} />
         </div>
       )}
     </main>

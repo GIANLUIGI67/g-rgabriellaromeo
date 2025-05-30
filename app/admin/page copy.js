@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 
-
 export default function AdminPage() {
   const router = useRouter();
   const [form, setForm] = useState({
@@ -53,20 +52,20 @@ export default function AdminPage() {
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-  
+
     const formData = new FormData();
     formData.append('file', file);
-  
+
     try {
       const res = await fetch('/api/upload-image', {
         method: 'POST',
         body: formData,
       });
-  
+
       const result = await res.json();
-  
+
       if (res.ok) {
-        setNomeFileSelezionato(result.fileName); // ✅ nome salvato da Supabase
+        setNomeFileSelezionato(result.fileName);
       } else {
         console.error('Errore upload:', result.error);
         alert('Errore upload immagine: ' + result.error);
@@ -74,28 +73,6 @@ export default function AdminPage() {
     } catch (err) {
       console.error('Errore rete:', err);
       alert('Errore rete durante upload immagine.');
-    }
-  };
-  
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const res = await fetch('/api/upload-image', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (res.ok) {
-        setNomeFileSelezionato(file.name);
-      } else {
-        console.error('Errore upload immagine:', res.status);
-      }
-    } catch (err) {
-      console.error('Errore rete upload immagine:', err);
     }
   };
 
@@ -134,7 +111,6 @@ export default function AdminPage() {
         setCategoriaSelezionata('');
         setModificaId(null);
 
-        // Ricarica da Supabase
         const { data, error } = await supabase
           .from('products')
           .select('*')
@@ -270,9 +246,11 @@ export default function AdminPage() {
                   textAlign: 'center',
                   fontSize: '0.55rem'
                 }}>
-                  <img src={`/uploads/${item.nomeImmagine || item.immagine}`} alt={item.nome} style={{
-                    width: '100%', height: 'auto', maxHeight: '60px', objectFit: 'cover', borderRadius: '4px', marginBottom: '0.2rem'
-                  }} />
+                  <img
+                    src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${item.immagine}`}
+                    alt={item.nome}
+                    style={{ width: '100%', height: 'auto', maxHeight: '60px', objectFit: 'cover', borderRadius: '4px', marginBottom: '0.2rem' }}
+                  />
                   <strong>{item.nome}</strong>
                   <p>{item.taglia}</p>
                   <p>
