@@ -4,33 +4,44 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 
-
 export default function GioielliPage() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
   const router = useRouter();
 
   const [prodotti, setProdotti] = useState([]);
+  const [quantita, setQuantita] = useState({});
   const [sottocategoriaSelezionata, setSottocategoriaSelezionata] = useState('');
   const [carrello, setCarrello] = useState([]);
   const [popupImg, setPopupImg] = useState(null);
+  const [warning, setWarning] = useState('');
 
   const traduzioni = {
-    it: { titolo: 'GALLERIA GIOIELLI', sottotutte: 'Tutte le sottocategorie', aggiungi: 'Aggiungi al carrello', checkout: 'Check-out', indietro: 'Indietro' },
-    en: { titolo: 'JEWELRY GALLERY', sottotutte: 'All subcategories', aggiungi: 'Add to cart', checkout: 'Checkout', indietro: 'Back' },
-    fr: { titolo: 'GALERIE DE BIJOUX', sottotutte: 'Toutes les sous-catégories', aggiungi: 'Ajouter au panier', checkout: 'Paiement', indietro: 'Retour' },
-    de: { titolo: 'SCHMUCKGALERIE', sottotutte: 'Alle Unterkategorien', aggiungi: 'In den Warenkorb', checkout: 'Zur Kasse', indietro: 'Zurück' },
-    es: { titolo: 'GALERÍA DE JOYAS', sottotutte: 'Todas las subcategorías', aggiungi: 'Agregar al carrito', checkout: 'Pagar', indietro: 'Atrás' },
-    ar: { titolo: 'معرض المجوهرات', sottotutte: 'جميع الفئات الفرعية', aggiungi: 'أضف إلى السلة', checkout: 'الدفع', indietro: 'عودة' },
-    zh: { titolo: '珠宝画廊', sottotutte: '所有子类别', aggiungi: '加入购物车', checkout: '结账', indietro: '返回' },
-    ja: { titolo: 'ジュエリーギャラリー', sottotutte: 'すべてのサブカテゴリ', aggiungi: 'カートに追加', checkout: 'チェックアウト', indietro: '戻る' }
+    it: {
+      titolo: 'GALLERIA GIOIELLI',
+      sottotutte: 'Tutte le sottocategorie',
+      aggiungi: 'Aggiungi al carrello',
+      checkout: 'Check-out',
+      indietro: 'Indietro',
+      venduto: 'venduto',
+      erroreQuantita: 'Quantità richiesta superiore alla disponibilità'
+    },
+    en: {
+      titolo: 'JEWELRY GALLERY',
+      sottotutte: 'All subcategories',
+      aggiungi: 'Add to cart',
+      checkout: 'Checkout',
+      indietro: 'Back',
+      venduto: 'sold',
+      erroreQuantita: 'Requested quantity exceeds available stock'
+    }
   };
 
   const sottocategorie = {
-    anelli: { it: 'anelli', en: 'rings', fr: 'bagues', de: 'ringe', es: 'anillos', ar: 'خواتم', zh: '戒指', ja: 'リング' },
-    collane: { it: 'collane', en: 'necklaces', fr: 'colliers', de: 'halsketten', es: 'collares', ar: 'قلائد', zh: '项链', ja: 'ネックレス' },
-    bracciali: { it: 'bracciali', en: 'bracelets', fr: 'bracelets', de: 'armbänder', es: 'pulseras', ar: 'أساور', zh: '手镯', ja: 'ブレスレット' },
-    orecchini: { it: 'orecchini', en: 'earrings', fr: "boucles d'oreilles", de: 'ohrringe', es: 'pendientes', ar: 'أقراط', zh: '耳环', ja: 'イヤリング' }
+    anelli: { it: 'anelli', en: 'rings' },
+    collane: { it: 'collane', en: 'necklaces' },
+    bracciali: { it: 'bracciali', en: 'bracelets' },
+    orecchini: { it: 'orecchini', en: 'earrings' }
   };
 
   useEffect(() => {
@@ -41,10 +52,11 @@ export default function GioielliPage() {
         .eq('categoria', 'gioielli')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Errore caricamento da Supabase:', error.message);
-      } else {
+      if (!error) {
         setProdotti(data);
+        const iniziali = {};
+        data.forEach(p => { iniziali[p.id] = 1 });
+        setQuantita(iniziali);
       }
     };
 
@@ -55,8 +67,23 @@ export default function GioielliPage() {
     !sottocategoriaSelezionata || p.sottocategoria === sottocategoriaSelezionata
   );
 
+  const cambiaQuantita = (id, delta) => {
+    setQuantita(prev => ({
+      ...prev,
+      [id]: Math.max(1, (prev[id] || 1) + delta)
+    }));
+  };
+
   const aggiungiAlCarrello = (prodotto) => {
-    const nuovoCarrello = [...carrello, prodotto];
+    const qta = quantita[prodotto.id] || 1;
+
+    if (prodotto.quantita !== null && prodotto.quantita !== undefined && qta > prodotto.quantita) {
+      setWarning(traduzioni[lang]?.erroreQuantita || 'Errore');
+      setTimeout(() => setWarning(''), 3000);
+      return;
+    }
+
+    const nuovoCarrello = [...carrello, ...Array(qta).fill(prodotto)];
     setCarrello(nuovoCarrello);
     localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
   };
@@ -81,7 +108,6 @@ export default function GioielliPage() {
           value={sottocategoriaSelezionata}
           onChange={e => setSottocategoriaSelezionata(e.target.value)}
           style={{
-            width: 'auto',
             minWidth: '250px',
             padding: '0.5rem',
             fontSize: '1rem',
@@ -90,9 +116,7 @@ export default function GioielliPage() {
             border: '1px solid #fff',
             borderRadius: '6px',
             textAlign: 'center',
-            whiteSpace: 'nowrap',
-            boxShadow: '0 0 8px rgba(255, 255, 255, 0.2)',
-            appearance: 'none'
+            boxShadow: '0 0 8px rgba(255, 255, 255, 0.2)'
           }}
         >
           <option value="">{traduzioni[lang]?.sottotutte}</option>
@@ -105,14 +129,12 @@ export default function GioielliPage() {
       </div>
 
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+        display: 'flex',
+        overflowX: 'auto',
         gap: '1rem',
         width: '100%',
-        maxWidth: '800px',
-        backgroundColor: '#111',
-        borderRadius: '10px',
-        padding: '1rem'
+        padding: '0.5rem',
+        scrollSnapType: 'x mandatory'
       }}>
         {filtrati.map(prodotto => (
           <div key={prodotto.id} style={{
@@ -120,18 +142,39 @@ export default function GioielliPage() {
             color: 'black',
             padding: '0.5rem',
             borderRadius: '6px',
-            fontSize: '0.75rem',
-            textAlign: 'center'
+            fontSize: '0.65rem',
+            textAlign: 'center',
+            flex: '0 0 auto',
+            width: '160px',
+            scrollSnapAlign: 'start',
+            position: 'relative'
           }}>
+            {prodotto.quantita === 0 && (
+              <div style={{
+                position: 'absolute',
+                top: '6px',
+                left: '6px',
+                backgroundColor: 'rgba(255, 0, 0, 0.2)',
+                color: 'red',
+                padding: '2px 4px',
+                fontSize: '0.5rem',
+                borderRadius: '3px',
+                transform: 'rotate(-12deg)',
+                fontWeight: 'bold'
+              }}>
+                {traduzioni[lang]?.venduto}
+              </div>
+            )}
+
             <img
               src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
               alt={prodotto.nome}
               style={{
                 width: '100%',
                 height: 'auto',
-                maxHeight: '120px',
-                objectFit: 'cover',
-                borderRadius: '5px',
+                maxHeight: '80px',
+                objectFit: 'contain',
+                borderRadius: '4px',
                 marginBottom: '0.3rem',
                 cursor: 'pointer'
               }}
@@ -144,12 +187,36 @@ export default function GioielliPage() {
                 ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(prodotto.prezzo))
                 : ''}
             </p>
+
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem', margin: '0.3rem 0' }}>
+              <button onClick={() => cambiaQuantita(prodotto.id, -1)}
+                style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>–</button>
+
+              <input
+                type="text"
+                value={quantita[prodotto.id] || 1}
+                readOnly
+                style={{
+                  width: '1.8rem',
+                  textAlign: 'center',
+                  background: 'white',
+                  color: 'black',
+                  fontSize: '0.9rem',
+                  border: '1px solid black',
+                  borderRadius: '4px',
+                  padding: '1px 3px'
+                }}
+              />
+
+              <button onClick={() => cambiaQuantita(prodotto.id, 1)}
+                style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>+</button>
+            </div>
+
             <button
               onClick={() => aggiungiAlCarrello(prodotto)}
               style={{
-                marginTop: '0.3rem',
-                padding: '0.3rem 0.5rem',
-                fontSize: '0.7rem',
+                padding: '0.2rem 0.4rem',
+                fontSize: '0.6rem',
                 backgroundColor: '#333',
                 color: 'white',
                 border: 'none',
@@ -197,6 +264,19 @@ export default function GioielliPage() {
           {traduzioni[lang]?.indietro}
         </button>
       </div>
+
+      {warning && (
+        <div style={{
+          marginTop: '1rem',
+          backgroundColor: '#ffcccc',
+          color: 'red',
+          padding: '0.5rem 1rem',
+          borderRadius: '6px',
+          fontSize: '0.8rem'
+        }}>
+          {warning}
+        </div>
+      )}
 
       {popupImg && (
         <div
