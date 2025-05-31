@@ -10,7 +10,6 @@ export default function UserMenu({ lang }) {
   const [password, setPassword] = useState('');
   const [utente, setUtente] = useState(null);
   const [errore, setErrore] = useState('');
-  const [modalitaRegistrazione, setModalitaRegistrazione] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -109,7 +108,6 @@ export default function UserMenu({ lang }) {
     await supabase.auth.signOut();
     setUtente(null);
     setErrore('');
-    setModalitaRegistrazione(false);
   };
 
   return (
@@ -166,50 +164,9 @@ export default function UserMenu({ lang }) {
               {errore && <p className="text-sm text-red-600">{errore}</p>}
 
               <div className="border-t pt-4 text-sm">
-                {!modalitaRegistrazione ? (
-                  <button
-                    onClick={() => setModalitaRegistrazione(true)}
-                    className="w-full border border-black py-2 rounded uppercase mb-4 font-semibold"
-                  >
-                    {translations.create[lang] || translations.create.en}
-                  </button>
-                ) : (
-                  <button
-                    onClick={async () => {
-                      if (!email || !password) {
-                        setErrore('Inserisci email e password');
-                        return;
-                      }
-
-                      const { data, error } = await supabase.auth.signUp({ email, password });
-
-                      if (error) {
-                        setErrore(error.message);
-                        return;
-                      }
-
-                      const { data: sessionData } = await supabase.auth.getSession();
-
-                      if (sessionData.session) {
-                        setUtente(sessionData.session.user);
-                        await supabase.from('user_tracking').insert({
-                          email: email,
-                          lang: lang,
-                          access_time: new Date().toISOString(),
-                          browser: navigator.userAgent
-                        });
-                        setErrore('');
-                        setModalitaRegistrazione(false);
-                      } else {
-                        setErrore('Controlla la tua email per confermare la registrazione');
-                      }
-                    }}
-                    className="w-full bg-black text-white py-2 rounded uppercase mb-4"
-                  >
-                    REGISTRATI
-                  </button>
-                )}
-
+                <button className="w-full border border-black py-2 rounded uppercase mb-4 font-semibold">
+                  {translations.create[lang] || translations.create.en}
+                </button>
                 <ul className="list-disc list-inside text-xs space-y-1 text-gray-700">
                   {(translations.benefits[lang] || translations.benefits.en).map((line, idx) => (
                     <li key={idx}>{line}</li>
