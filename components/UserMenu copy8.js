@@ -147,7 +147,7 @@ export default function UserMenu({ lang }) {
       </button>
 
       {isOpen && (
-        <div className="fixed top-0 right-0 w-96 h-full bg-white text-black z-50 p-6 shadow-xl overflow-y-auto">
+        <div className="fixed top-0 right-0 w-80 h-full bg-white text-black z-50 p-6 shadow-xl overflow-y-auto">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold uppercase">{translations.login[lang] || translations.login.en}</h2>
             <button onClick={() => setIsOpen(false)}>
