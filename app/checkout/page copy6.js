@@ -96,113 +96,11 @@ export default function CheckoutPage() {
       telefono2: 'Phone 2',
       totale: 'Total:',
       rimuovi: '❌ Remove'
-    },
-    fr: {
-      titolo: 'Résumé de la commande',
-      vuoto: 'Le panier est vide.',
-      paga: 'Payer maintenant',
-      back: 'Retour',
-      nome: 'Prénom',
-      cognome: 'Nom',
-      indirizzo: 'Adresse',
-      citta: 'Ville',
-      cap: 'Code postal',
-      paese: 'Pays',
-      email: 'Email',
-      telefono1: 'Téléphone 1',
-      telefono2: 'Téléphone 2',
-      totale: 'Total :',
-      rimuovi: '❌ Supprimer'
-    },
-    de: {
-      titolo: 'Bestellübersicht',
-      vuoto: 'Ihr Warenkorb ist leer.',
-      paga: 'Jetzt bezahlen',
-      back: 'Zurück',
-      nome: 'Vorname',
-      cognome: 'Nachname',
-      indirizzo: 'Adresse',
-      citta: 'Stadt',
-      cap: 'Postleitzahl',
-      paese: 'Land',
-      email: 'E-Mail',
-      telefono1: 'Telefon 1',
-      telefono2: 'Telefon 2',
-      totale: 'Gesamt:',
-      rimuovi: '❌ Entfernen'
-    },
-    es: {
-      titolo: 'Resumen del pedido',
-      vuoto: 'El carrito está vacío.',
-      paga: 'Pagar ahora',
-      back: 'Atrás',
-      nome: 'Nombre',
-      cognome: 'Apellido',
-      indirizzo: 'Dirección',
-      citta: 'Ciudad',
-      cap: 'Código postal',
-      paese: 'País',
-      email: 'Correo',
-      telefono1: 'Teléfono 1',
-      telefono2: 'Teléfono 2',
-      totale: 'Total:',
-      rimuovi: '❌ Eliminar'
-    },
-    zh: {
-      titolo: '订单摘要',
-      vuoto: '购物车为空。',
-      paga: '立即付款',
-      back: '返回',
-      nome: '名字',
-      cognome: '姓氏',
-      indirizzo: '地址',
-      citta: '城市',
-      cap: '邮编',
-      paese: '国家',
-      email: '邮箱',
-      telefono1: '电话 1',
-      telefono2: '电话 2',
-      totale: '总计:',
-      rimuovi: '❌ 移除'
-    },
-    ar: {
-      titolo: 'ملخص الطلب',
-      vuoto: 'سلة التسوق فارغة.',
-      paga: 'ادفع الآن',
-      back: 'رجوع',
-      nome: 'الاسم',
-      cognome: 'الكنية',
-      indirizzo: 'العنوان',
-      citta: 'المدينة',
-      cap: 'الرمز البريدي',
-      paese: 'الدولة',
-      email: 'البريد الإلكتروني',
-      telefono1: 'الهاتف 1',
-      telefono2: 'الهاتف 2',
-      totale: 'الإجمالي:',
-      rimuovi: '❌ إزالة'
-    },
-    ja: {
-      titolo: '注文概要',
-      vuoto: 'カートは空です。',
-      paga: '今すぐ支払う',
-      back: '戻る',
-      nome: '名',
-      cognome: '姓',
-      indirizzo: '住所',
-      citta: '市',
-      cap: '郵便番号',
-      paese: '国',
-      email: 'メール',
-      telefono1: '電話 1',
-      telefono2: '電話 2',
-      totale: '合計:',
-      rimuovi: '❌ 削除'
     }
-  }[lang] || testi['it'];
+  }[lang];
 
   const handleSubmit = () => {
-    alert(`${testi.paga} - ${testi.totale} \u20AC${totaleFinale.toFixed(1)}`);
+    alert(`${testi.paga} - ${testi.totale} €${totaleFinale.toFixed(1)}`);
   };
 
   return (
