@@ -277,10 +277,8 @@ export default function AccessoriPage() {
             />
             <strong>{prodotto.nome}</strong>
             <p>{prodotto.taglia}</p>
-            <p>
-              {prodotto.prezzo !== undefined && !isNaN(Number(prodotto.prezzo))
-                ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(prodotto.prezzo))
-                : ''}
+            <p style={{ fontFamily: 'Arial, sans-serif' }}>
+              {'\u20AC'} {(Math.round(Number(prodotto.prezzo || 0) * 10) / 10).toFixed(1)}
             </p>
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem', margin: '0.3rem 0' }}>

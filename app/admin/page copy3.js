@@ -43,6 +43,7 @@ export default function AdminPage() {
 
     fetchProdotti();
   }, []);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -130,6 +131,7 @@ export default function AdminPage() {
       alert('❌ Errore di rete durante il salvataggio.');
     }
   };
+
   const handleEdit = (item) => {
     setForm({
       categoria: item.categoria,
@@ -204,9 +206,7 @@ export default function AdminPage() {
         <input type="text" name="nome" placeholder="Nome prodotto" value={form.nome} onChange={handleInputChange} required style={{ color: 'black' }} />
         <textarea name="descrizione" placeholder="Descrizione prodotto" value={form.descrizione} onChange={handleInputChange} required style={{ color: 'black' }} />
         <input type="text" name="taglia" placeholder="Taglia / Misura" value={form.taglia} onChange={handleInputChange} required style={{ color: 'black' }} />
-        <input type="number" name="prezzo" placeholder="Prezzo" value={form.prezzo === 0 ? '' : form.prezzo} onChange={handleInputChange}required style={{ color: 'black' }}
-/>
-
+        <input type="number" name="prezzo" placeholder="Prezzo (€)" value={form.prezzo} onChange={handleInputChange} required style={{ color: 'black' }} />
         <input type="number" name="quantita" placeholder="Quantità disponibile" value={form.quantita} onChange={handleInputChange} required min="0" style={{ color: 'black' }} />
 
         <label htmlFor="fileUpload" style={{ backgroundColor: 'white', color: 'black', padding: '0.4rem 1rem', borderRadius: '5px', cursor: 'pointer' }}>

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 
-export default function AbbigliamentoPage() {
+export default function AccessoriPage() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
   const router = useRouter();
@@ -19,27 +19,136 @@ export default function AbbigliamentoPage() {
   const [accettaPolicy, setAccettaPolicy] = useState(false);
 
   const traduzioni = {
-    it: { titolo: 'GALLERIA ABBIGLIAMENTO', sottotutte: 'Tutte le sottocategorie', aggiungi: 'Aggiungi al carrello', checkout: 'Check-out', indietro: 'Indietro', venduto: 'venduto', erroreQuantita: 'La quantità richiesta è superiore alla disponibilità! Per confermare comunque, controlla la nostra policy per la produzione.', visualizzaPolicy: 'Visualizza Policy', accetta: 'Sono d\'accordo con la policy per la produzione', continua: 'Continua con l’ordine', rimuovi: 'Rimuovi', policyTitolo: 'Policy per la produzione', carrello: 'Carrello' },
-    en: { titolo: 'FASHION WEAR', sottotutte: 'All subcategories', aggiungi: 'Add to cart', checkout: 'Checkout', indietro: 'Back', venduto: 'sold', erroreQuantita: 'Requested quantity exceeds available stock! To confirm anyway, check our production policy.', visualizzaPolicy: 'View Policy', accetta: 'I agree with the production policy', continua: 'Continue with order', rimuovi: 'Remove', policyTitolo: 'Production Policy', carrello: 'Cart' },
-    fr: { titolo: 'VÊTEMENTS', sottotutte: 'Toutes les sous-catégories', aggiungi: 'Ajouter au panier', checkout: 'Paiement', indietro: 'Retour', venduto: 'vendu', erroreQuantita: 'La quantité demandée dépasse le stock! Consultez notre politique de production.', visualizzaPolicy: 'Voir la politique', accetta: 'J’accepte la politique de production', continua: 'Continuer la commande', rimuovi: 'Supprimer', policyTitolo: 'Politique de production', carrello: 'Panier' },
-    de: { titolo: 'BEKLEIDUNG', sottotutte: 'Alle Unterkategorien', aggiungi: 'In den Warenkorb', checkout: 'Zur Kasse', indietro: 'Zurück', venduto: 'ausverkauft', erroreQuantita: 'Angeforderte Menge übersteigt den Bestand! Prüfen Sie unsere Produktionsrichtlinie.', visualizzaPolicy: 'Richtlinie anzeigen', accetta: 'Ich stimme der Produktionsrichtlinie zu', continua: 'Bestellung fortsetzen', rimuovi: 'Entfernen', policyTitolo: 'Produktionsrichtlinie', carrello: 'Warenkorb' },
-    es: { titolo: 'ROPA', sottotutte: 'Todas las subcategorías', aggiungi: 'Agregar al carrito', checkout: 'Pagar', indietro: 'Atrás', venduto: 'vendido', erroreQuantita: '¡Cantidad solicitada supera el stock! Revisa nuestra política de producción.', visualizzaPolicy: 'Ver política', accetta: 'Acepto la política de producción', continua: 'Continuar pedido', rimuovi: 'Eliminar', policyTitolo: 'Política de producción', carrello: 'Carrito' },
-    ar: { titolo: 'ملابس', sottotutte: 'جميع الفئات الفرعية', aggiungi: 'أضف إلى السلة', checkout: 'الدفع', indietro: 'عودة', venduto: 'تم البيع', erroreQuantita: 'الكمية المطلوبة تتجاوز المتوفر! تحقق من سياسة الإنتاج.', visualizzaPolicy: 'عرض السياسة', accetta: 'أوافق على سياسة الإنتاج', continua: 'متابعة الطلب', rimuovi: 'إزالة', policyTitolo: 'سياسة الإنتاج', carrello: 'سلة التسوق' },
-    zh: { titolo: '服饰', sottotutte: '所有子类别', aggiungi: '加入购物车', checkout: '结账', indietro: '返回', venduto: '售罄', erroreQuantita: '请求数量超出库存！请查看我们的生产政策。', visualizzaPolicy: '查看政策', accetta: '我同意生产政策', continua: '继续下单', rimuovi: '移除', policyTitolo: '生产政策', carrello: '购物车' },
-    ja: { titolo: 'ファッションウェア', sottotutte: 'すべてのサブカテゴリ', aggiungi: 'カートに追加', checkout: 'チェックアウト', indietro: '戻る', venduto: '売切れ', erroreQuantita: 'リクエスト数が在庫を超えています。生産ポリシーをご確認ください。', visualizzaPolicy: 'ポリシーを見る', accetta: '生産ポリシーに同意します', continua: '注文を続ける', rimuovi: '削除', policyTitolo: '生産ポリシー', carrello: 'カート' }
+    it: {
+      titolo: 'GALLERIA ACCESSORI',
+      sottotutte: 'Tutte le sottocategorie',
+      aggiungi: 'Aggiungi al carrello',
+      checkout: 'Check-out',
+      indietro: 'Indietro',
+      venduto: 'venduto',
+      erroreQuantita: 'La quantità richiesta è superiore alla disponibilità! Per confermare comunque, controlla la nostra policy per la produzione.',
+      visualizzaPolicy: 'Visualizza Policy',
+      accetta: 'Sono d\'accordo con la policy per la produzione',
+      continua: 'Continua con l’ordine',
+      rimuovi: 'Rimuovi',
+      carrello: 'Carrello',
+      policyTitolo: 'Policy per la produzione'
+    },
+    en: {
+      titolo: 'ACCESSORY GALLERY',
+      sottotutte: 'All subcategories',
+      aggiungi: 'Add to cart',
+      checkout: 'Checkout',
+      indietro: 'Back',
+      venduto: 'sold',
+      erroreQuantita: 'Requested quantity exceeds available stock! To confirm anyway, check our production policy.',
+      visualizzaPolicy: 'View Policy',
+      accetta: 'I agree with the production policy',
+      continua: 'Continue with order',
+      rimuovi: 'Remove',
+      carrello: 'Cart',
+      policyTitolo: 'Production Policy'
+    },
+    fr: {
+      titolo: 'GALERIE D\'ACCESSOIRES',
+      sottotutte: 'Toutes les sous-catégories',
+      aggiungi: 'Ajouter au panier',
+      checkout: 'Passer à la caisse',
+      indietro: 'Retour',
+      venduto: 'vendu',
+      erroreQuantita: 'La quantité demandée dépasse le stock! Consultez notre politique de production.',
+      visualizzaPolicy: 'Voir la politique',
+      accetta: 'J’accepte la politique de production',
+      continua: 'Continuer la commande',
+      rimuovi: 'Supprimer',
+      carrello: 'Panier',
+      policyTitolo: 'Politique de production'
+    },
+    de: {
+      titolo: 'ZUBEHÖRGALERIE',
+      sottotutte: 'Alle Unterkategorien',
+      aggiungi: 'In den Warenkorb',
+      checkout: 'Zur Kasse',
+      indietro: 'Zurück',
+      venduto: 'ausverkauft',
+      erroreQuantita: 'Angeforderte Menge übersteigt den Bestand! Prüfen Sie unsere Produktionsrichtlinie.',
+      visualizzaPolicy: 'Richtlinie anzeigen',
+      accetta: 'Ich stimme der Produktionsrichtlinie zu',
+      continua: 'Bestellung fortsetzen',
+      rimuovi: 'Entfernen',
+      carrello: 'Warenkorb',
+      policyTitolo: 'Produktionsrichtlinie'
+    },
+    es: {
+      titolo: 'GALERÍA DE ACCESORIOS',
+      sottotutte: 'Todas las subcategorías',
+      aggiungi: 'Agregar al carrito',
+      checkout: 'Finalizar compra',
+      indietro: 'Atrás',
+      venduto: 'vendido',
+      erroreQuantita: '¡Cantidad solicitada supera el stock! Revisa nuestra política de producción.',
+      visualizzaPolicy: 'Ver política',
+      accetta: 'Acepto la política de producción',
+      continua: 'Continuar pedido',
+      rimuovi: 'Eliminar',
+      carrello: 'Carrito',
+      policyTitolo: 'Política de producción'
+    },
+    zh: {
+      titolo: '配件画廊',
+      sottotutte: '所有子类别',
+      aggiungi: '添加到购物车',
+      checkout: '结账',
+      indietro: '返回',
+      venduto: '售罄',
+      erroreQuantita: '请求数量超出库存！请查看我们的生产政策。',
+      visualizzaPolicy: '查看政策',
+      accetta: '我同意生产政策',
+      continua: '继续下单',
+      rimuovi: '移除',
+      carrello: '购物车',
+      policyTitolo: '生产政策'
+    },
+    ar: {
+      titolo: 'معرض الإكسسوارات',
+      sottotutte: 'كل الفئات الفرعية',
+      aggiungi: 'أضف إلى السلة',
+      checkout: 'إتمام الشراء',
+      indietro: 'رجوع',
+      venduto: 'تم البيع',
+      erroreQuantita: 'الكمية المطلوبة تتجاوز المتوفر! تحقق من سياسة الإنتاج.',
+      visualizzaPolicy: 'عرض السياسة',
+      accetta: 'أوافق على سياسة الإنتاج',
+      continua: 'متابعة الطلب',
+      rimuovi: 'إزالة',
+      carrello: 'عربة التسوق',
+      policyTitolo: 'سياسة الإنتاج'
+    },
+    ja: {
+      titolo: 'アクセサリーギャラリー',
+      sottotutte: 'すべてのサブカテゴリ',
+      aggiungi: 'カートに追加',
+      checkout: 'チェックアウト',
+      indietro: '戻る',
+      venduto: '売切れ',
+      erroreQuantita: 'リクエスト数が在庫を超えています。生産ポリシーをご確認ください。',
+      visualizzaPolicy: 'ポリシーを見る',
+      accetta: '生産ポリシーに同意します',
+      continua: '注文を続ける',
+      rimuovi: '削除',
+      carrello: 'カート',
+      policyTitolo: '生産ポリシー'
+    }
   };
 
   const t = (key) => traduzioni[lang]?.[key] || traduzioni['it'][key] || key;
 
   const sottocategorie = {
-    abiti: { it: 'Abiti', en: 'Dresses', fr: 'Robes', de: 'Kleider', es: 'Vestidos', ar: 'فساتين', zh: '连衣裙', ja: 'ドレス' },
-    'camicie top': { it: 'Camicie Top', en: 'Shirts & Tops', fr: 'Chemises & Tops', de: 'Hemden & Tops', es: 'Camisas y Tops', ar: 'قمصان وبلوزات', zh: '衬衫和上衣', ja: 'シャツとトップス' },
-    pantaloni: { it: 'Pantaloni', en: 'Trousers', fr: 'Pantalons', de: 'Hosen', es: 'Pantalones', ar: 'سراويل', zh: '裤子', ja: 'ズボン' },
-    gonne: { it: 'Gonne', en: 'Skirts', fr: 'Jupes', de: 'Röcke', es: 'Faldas', ar: 'تنانير', zh: '裙子', ja: 'スカート' },
-    'giacche e cappotti': { it: 'Giacche e Cappotti', en: 'Jackets & Coats', fr: 'Vestes & Manteaux', de: 'Jacken & Mäntel', es: 'Chaquetas y Abrigos', ar: 'سترات ومعاطف', zh: '夹克和大衣', ja: 'ジャケットとコート' },
-    abaye: { it: 'Abaye', en: 'Abayas', fr: 'Abayas', de: 'Abayas', es: 'Abayas', ar: 'عبايات', zh: '阿拜亚', ja: 'アバヤ' },
-    caftani: { it: 'Caftani', en: 'Kaftans', fr: 'Caftans', de: 'Kaftane', es: 'Caftanes', ar: 'قفاطين', zh: '开襟长袍', ja: 'カフタン' },
-    'abbigliamento da mare': { it: 'Abbigliamento da mare', en: 'Beachwear', fr: 'Tenues de plage', de: 'Badebekleidung', es: 'Ropa de playa', ar: 'ملابس بحر', zh: '泳装', ja: 'ビーチウェア' }
+    collane: { it: 'collane', en: 'necklaces', fr: 'colliers', de: 'halsketten', es: 'collares', ar: 'قلائد', zh: '项链', ja: 'ネックレス' },
+    orecchini: { it: 'orecchini', en: 'earrings', fr: "boucles d'oreilles", de: 'ohrringe', es: 'pendientes', ar: 'أقراط', zh: '耳环', ja: 'イヤリング' },
+    bracciali: { it: 'bracciali', en: 'bracelets', fr: 'bracelets', de: 'armbänder', es: 'pulseras', ar: 'أساور', zh: '手镯', ja: 'ブレスレット' },
+    borse: { it: 'borse', en: 'bags', fr: 'sacs', de: 'taschen', es: 'bolsos', ar: 'حقائب', zh: '包', ja: 'バッグ' },
+    foulard: { it: 'foulard', en: 'scarves', fr: 'foulards', de: 'schals', es: 'pañuelos', ar: 'أوشحة', zh: '围巾', ja: 'スカーフ' }
   };
 
   useEffect(() => {
@@ -47,7 +156,7 @@ export default function AbbigliamentoPage() {
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .eq('categoria', 'abbigliamento')
+        .eq('categoria', 'accessori')
         .order('created_at', { ascending: false });
 
       if (!error) {
@@ -60,7 +169,6 @@ export default function AbbigliamentoPage() {
 
     fetchProdotti();
   }, []);
-
   const filtrati = prodotti.filter(p =>
     !sottocategoriaSelezionata || p.sottocategoria === sottocategoriaSelezionata
   );
@@ -88,6 +196,7 @@ export default function AbbigliamentoPage() {
     setCarrello(nuovoCarrello);
     localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
   };
+
   return (
     <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem' }}>
       <h1 style={{ fontSize: '2rem', marginBottom: '1.5rem', textAlign: 'center' }}>{t('titolo')}</h1>
@@ -168,8 +277,10 @@ export default function AbbigliamentoPage() {
             />
             <strong>{prodotto.nome}</strong>
             <p>{prodotto.taglia}</p>
-            <p style={{ fontFamily: 'Arial, sans-serif' }}>
-              {'\u20AC'} {(Math.round(Number(prodotto.prezzo || 0) * 10) / 10).toFixed(1)}
+            <p>
+              {prodotto.prezzo !== undefined && !isNaN(Number(prodotto.prezzo))
+                ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(prodotto.prezzo))
+                : ''}
             </p>
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem', margin: '0.3rem 0' }}>
@@ -227,7 +338,6 @@ export default function AbbigliamentoPage() {
           marginRight: 'auto'
         }}>
           <h3 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>🛒 {t('carrello')}</h3>
-
           {Array.from(new Set(carrello.map(p => p.id))).map(id => {
             const prodotto = carrello.find(p => p.id === id);
             const qta = carrello.filter(p => p.id === id).length;

@@ -113,8 +113,8 @@ export default function CheckoutPage() {
         <>
           <ul style={{ listStyle: 'none', padding: 0, textAlign: 'center' }}>
             {carrello.map((p, i) => (
-              <li key={i} style={{ marginBottom: '0.5rem', fontFamily: 'Arial, sans-serif' }}>
-                {p.quantita || 1}× {p.nome} — {'\u20AC'}{(Number(p.prezzo || 0) * (p.quantita || 1)).toFixed(1)}
+              <li key={i} style={{ marginBottom: '0.5rem' }}>
+                {p.quantita || 1}× {p.nome} — {'\u20AC'}{(Number(p.prezzo) * (p.quantita || 1)).toFixed(1)}
                 <button onClick={() => rimuoviDalCarrello(i)} style={{ marginLeft: '1rem', color: 'red' }}>
                   {testi.rimuovi}
                 </button>
@@ -134,9 +134,9 @@ export default function CheckoutPage() {
             <input placeholder={testi.telefono2} value={telefono2} onChange={e => setTelefono2(e.target.value)} style={inputStyle} />
 
             <p style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1.2rem', marginTop: '1rem', fontFamily: 'Arial, sans-serif' }}>
-              {testi.totale} {'\u20AC'}{totaleFinale.toFixed(1)}
+             {testi.totale} {'\u20AC'}{totaleFinale.toFixed(1)}
             </p>
-
+            
             <button onClick={handleSubmit} style={pagaStyle}>
               {testi.paga}
             </button>

@@ -29,7 +29,7 @@ export default function ClientiPage() {
       c.citta,
       c.paese,
       new Date(c.created_at).toLocaleDateString(),
-      '\u20AC ' + (Math.round((c.ordini || []).reduce((acc, o) => acc + (parseFloat(o.prezzo) || 0), 0) * 10) / 10).toFixed(1)
+      (c.ordini || []).reduce((acc, o) => acc + (parseFloat(o.prezzo) || 0), 0).toFixed(2) + ' €'
     ]);
     const csvContent = [headers, ...rows].map(r => r.join(',')).join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -53,7 +53,7 @@ export default function ClientiPage() {
         c.telefono1,
         c.citta,
         c.paese,
-        '\u20AC ' + (Math.round((c.ordini || []).reduce((acc, o) => acc + (parseFloat(o.prezzo) || 0), 0) * 10) / 10).toFixed(1)
+        (c.ordini || []).reduce((acc, o) => acc + (parseFloat(o.prezzo) || 0), 0).toFixed(2)
       ])
     });
     doc.save('clienti.pdf');
@@ -84,7 +84,7 @@ export default function ClientiPage() {
             <th className="border px-2">Nome</th>
             <th className="border px-2">Email</th>
             <th className="border px-2">Telefono</th>
-            <th className="border px-2" style={{ fontFamily: 'Arial, sans-serif' }}>Totale {'\u20AC'}</th>
+            <th className="border px-2">Totale €</th>
             <th className="border px-2">Ordini</th>
             <th className="border px-2">Azioni</th>
           </tr>
@@ -95,17 +95,10 @@ export default function ClientiPage() {
               <td className="border px-2 whitespace-nowrap">{c.nome} {c.cognome}</td>
               <td className="border px-2 whitespace-nowrap">{c.email}</td>
               <td className="border px-2 whitespace-nowrap">{c.telefono1}</td>
-              <td className="border px-2 whitespace-nowrap" style={{ fontFamily: 'Arial, sans-serif' }}>
-                {'\u20AC'} {(Math.round((c.ordini || []).reduce((acc, o) => acc + (parseFloat(o.prezzo) || 0), 0) * 10) / 10).toFixed(1)}
-              </td>
+              <td className="border px-2 whitespace-nowrap">{(c.ordini || []).reduce((acc, o) => acc + (parseFloat(o.prezzo) || 0), 0).toFixed(2)}</td>
               <td className="border px-2 whitespace-nowrap">
                 <ul className="list-disc pl-4">
-                  {(c.ordini || []).map((o, j) => (
-                    <li key={j}>
-                      {o.prodotto} ({o.taglia}) - {'\u20AC'} {o.prezzo}<br />
-                      {o.data || '-'}
-                    </li>
-                  ))}
+                  {(c.ordini || []).map((o, j) => <li key={j}>{o.prodotto} ({o.taglia}) - {o.prezzo} €<br/>{o.data || '-'}</li>)}
                 </ul>
               </td>
               <td className="border px-2 text-center">

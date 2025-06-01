@@ -13,7 +13,7 @@ export default function AdminPage() {
     descrizione: '',
     taglia: '',
     prezzo: '',
-    quantita: 0,
+    quantita: 0, // quantità iniziale a 0
   });
 
   const [prodottiFiltrati, setProdottiFiltrati] = useState([]);
@@ -43,6 +43,7 @@ export default function AdminPage() {
 
     fetchProdotti();
   }, []);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -130,6 +131,7 @@ export default function AdminPage() {
       alert('❌ Errore di rete durante il salvataggio.');
     }
   };
+
   const handleEdit = (item) => {
     setForm({
       categoria: item.categoria,
@@ -204,9 +206,7 @@ export default function AdminPage() {
         <input type="text" name="nome" placeholder="Nome prodotto" value={form.nome} onChange={handleInputChange} required style={{ color: 'black' }} />
         <textarea name="descrizione" placeholder="Descrizione prodotto" value={form.descrizione} onChange={handleInputChange} required style={{ color: 'black' }} />
         <input type="text" name="taglia" placeholder="Taglia / Misura" value={form.taglia} onChange={handleInputChange} required style={{ color: 'black' }} />
-        <input type="number" name="prezzo" placeholder="Prezzo" value={form.prezzo === 0 ? '' : form.prezzo} onChange={handleInputChange}required style={{ color: 'black' }}
-/>
-
+        <input type="number" name="prezzo" placeholder="Prezzo (€)" value={form.prezzo} onChange={handleInputChange} required style={{ color: 'black' }} />
         <input type="number" name="quantita" placeholder="Quantità disponibile" value={form.quantita} onChange={handleInputChange} required min="0" style={{ color: 'black' }} />
 
         <label htmlFor="fileUpload" style={{ backgroundColor: 'white', color: 'black', padding: '0.4rem 1rem', borderRadius: '5px', cursor: 'pointer' }}>
@@ -220,6 +220,7 @@ export default function AdminPage() {
         </button>
       </form>
 
+      {/* Pulsanti gestione */}
       <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.8rem', marginTop: '1.5rem' }}>
         <button onClick={() => router.push('/admin/ordini')} style={buttonStyle}>📦 ORDINI</button>
         <button onClick={() => router.push('/admin/inventario')} style={buttonStyle}>📊 MAGAZZINO</button>
@@ -228,6 +229,7 @@ export default function AdminPage() {
         <button onClick={() => router.push('/admin/spedizioni')} style={buttonStyle}>🚚 SPEDIZIONI</button>
       </div>
 
+      {/* Galleria prodotti */}
       {categoriaSelezionata && (
         <>
           <h2 style={{ marginTop: '2rem' }}>Galleria: {categoriaSelezionata.toUpperCase()}</h2>
@@ -261,8 +263,10 @@ export default function AdminPage() {
                   />
                   <strong>{item.nome}</strong>
                   <p>{item.taglia}</p>
-                  <p style={{ fontFamily: 'Arial, sans-serif' }}>
-                    {'\u20AC'} {(Math.round(Number(item.prezzo || 0) * 10) / 10).toFixed(1)}
+                  <p>
+                    {item.prezzo !== undefined && !isNaN(Number(item.prezzo))
+                      ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(item.prezzo))
+                      : ''}
                   </p>
                   <p style={{ fontWeight: 'bold', color: item.quantita === 0 ? 'red' : 'black' }}>
                     {item.quantita === 0 ? 'da ordinare' : `Q: ${item.quantita}`}

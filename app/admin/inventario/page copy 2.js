@@ -36,9 +36,6 @@ export default function MagazzinoPage() {
 
   const stampaPagina = () => window.print();
 
-  const formatEuro = (val) =>
-    '\u20AC ' + (Math.round(Number(val || 0) * 10) / 10).toFixed(1);
-
   return (
     <main style={{ padding: '1rem', backgroundColor: 'black', color: 'white', minHeight: '100vh' }}>
       <h1 style={{ textAlign: 'center', fontSize: '2rem', marginBottom: '1rem' }}>
@@ -60,7 +57,7 @@ export default function MagazzinoPage() {
                     <th style={{ textAlign: 'left', padding: '0.3rem' }}>Nome</th>
                     <th style={{ textAlign: 'left', padding: '0.3rem' }}>Descrizione</th>
                     <th style={{ textAlign: 'left', padding: '0.3rem' }}>Taglia</th>
-                    <th style={{ textAlign: 'right', padding: '0.3rem', fontFamily: 'Arial, sans-serif' }}>Prezzo €</th>
+                    <th style={{ textAlign: 'right', padding: '0.3rem' }}>Prezzo (€)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -69,8 +66,8 @@ export default function MagazzinoPage() {
                       <td style={{ padding: '0.3rem' }}>{p.nome}</td>
                       <td style={{ padding: '0.3rem' }}>{p.descrizione}</td>
                       <td style={{ padding: '0.3rem' }}>{p.taglia}</td>
-                      <td style={{ textAlign: 'right', padding: '0.3rem', fontFamily: 'Arial, sans-serif' }}>
-                        {formatEuro(p.prezzo)}
+                      <td style={{ textAlign: 'right', padding: '0.3rem' }}>
+                        {new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(p.prezzo))}
                       </td>
                     </tr>
                   ))}
@@ -78,8 +75,10 @@ export default function MagazzinoPage() {
                     <td colSpan="3" style={{ textAlign: 'right', fontWeight: 'bold', paddingTop: '0.4rem' }}>
                       Subtotale
                     </td>
-                    <td style={{ textAlign: 'right', fontWeight: 'bold', paddingTop: '0.4rem', fontFamily: 'Arial, sans-serif' }}>
-                      {formatEuro(items.reduce((sum, i) => sum + Number(i.prezzo || 0), 0))}
+                    <td style={{ textAlign: 'right', fontWeight: 'bold', paddingTop: '0.4rem' }}>
+                      {new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(
+                        items.reduce((sum, i) => sum + Number(i.prezzo || 0), 0)
+                      )}
                     </td>
                   </tr>
                 </tbody>
@@ -89,8 +88,8 @@ export default function MagazzinoPage() {
         </section>
       ))}
 
-      <h2 style={{ textAlign: 'right', fontSize: '1.4rem', marginTop: '2rem', color: 'white', fontFamily: 'Arial, sans-serif' }}>
-        Totale Magazzino: {formatEuro(totale)}
+      <h2 style={{ textAlign: 'right', fontSize: '1.4rem', marginTop: '2rem', color: 'white' }}>
+        Totale Magazzino: {new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(totale)}
       </h2>
 
       <div style={{ textAlign: 'center', marginTop: '2rem' }}>
