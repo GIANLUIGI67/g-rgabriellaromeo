@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import { supabase } from '../../../lib/supabaseClient';
+import { supabase } from '../../lib/supabaseClient';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
