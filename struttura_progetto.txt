@@ -1,120 +1,149 @@
-./
-├── app/
-│   ├── 404/
+.
+├── README.md
+├── app
+│   ├── 404
 │   │   └── page.js
-│   ├── abbigliamento/
-│   │   ├── .DS_Store
-│   │   ├── page copy.js
-│   │   └── page.js
-│   ├── accessori/
-│   │   ├── .DS_Store
-│   │   ├── page copy.js
-│   │   └── page.js
-│   ├── admin/
-│   │   ├── clienti/
-│   │   │   └── page.js
-│   │   ├── edit/
-│   │   │   ├── [id]/
-│   │   │   │   ├── page.tsx
-│   │   │   │   └── tsconfig.json
-│   │   │   ├── data/
-│   │   │   │   └── products.json
-│   │   │   ├── id/
-│   │   │   │   └── page.tsx
-│   │   │   └── .DS_Store
-│   │   ├── inventario/
-│   │   │   ├── page copy.js
-│   │   │   └── page.js
-│   │   ├── login/
-│   │   │   └── page.js
-│   │   ├── ordini/
-│   │   │   └── page.js
-│   │   ├── spedizioni/
-│   │   │   └── page.js
-│   │   ├── vendite/
-│   │   │   ├── VenditePageContent.js
-│   │   │   └── page.js
-│   │   ├── .DS_Store
-│   │   ├── Analisi_AdminPage_COMPLETA.docx
-│   │   ├── page copy.js
-│   │   └── page.js
-│   ├── api/
-│   │   ├── admin-log/
-│   │   │   └── route.js
-│   │   ├── auth/
-│   │   │   ├── login.js
-│   │   │   └── register.js
-│   │   ├── products/
-│   │   │   ├── [id]/
-│   │   │   │   ├── .DS_Store
-│   │   │   │   ├── route copy.js
-│   │   │   │   └── route.js
-│   │   │   ├── .DS_Store
-│   │   │   ├── rou.ts
-│   │   │   └── route.js
-│   │   ├── save-ordini/
-│   │   │   └── route.js
-│   │   ├── save-product/
-│   │   │   ├── .DS_Store
-│   │   │   ├── route copy.js
-│   │   │   └── route.js
-│   │   ├── upload-image/
-│   │   │   ├── .DS_Store
-│   │   │   ├── route copy.js
-│   │   │   └── route.js
-│   │   └── .DS_Store
-│   ├── ar/
-│   │   └── page.js
-│   ├── brand/
-│   │   └── page.js
-│   ├── checkout/
-│   │   ├── .DS_Store
-│   │   ├── page copy.js
-│   │   └── page.js
-│   ├── de/
-│   │   └── page.js
-│   ├── en/
-│   │   └── page.js
-│   ├── es/
-│   │   └── page.js
-│   ├── eventi/
-│   │   └── page.js
-│   ├── fr/
-│   │   └── page.js
-│   ├── gioielli/
-│   │   ├── .DS_Store
-│   │   ├── page copy.js
-│   │   └── page.js
-│   ├── it/
-│   │   └── page.js
-│   ├── ja/
-│   │   └── page.js
-│   ├── lib/
-│   │   └── supabaseClient.js
-│   ├── offerte/
-│   │   └── page.js
-│   ├── search/
-│   │   └── page.js
-│   ├── servizi/
-│   │   └── page.js
-│   ├── zh/
-│   │   └── page.js
-│   ├── .DS_Store
 │   ├── :api:save-product: 
 │   ├── ClientProviders.jsx
+│   ├── abbigliamento
+│   │   ├── page copy1.js
+│   │   ├── page copy2.js
+│   │   └── page.js
+│   ├── accessori
+│   │   ├── page copy1.js
+│   │   ├── page copy2.js
+│   │   └── page.js
+│   ├── admin
+│   │   ├── Analisi_AdminPage_COMPLETA.docx
+│   │   ├── clienti
+│   │   │   ├── page copy1.js
+│   │   │   ├── page copy2.js
+│   │   │   └── page.js
+│   │   ├── edit
+│   │   │   ├── [id]
+│   │   │   │   ├── page.tsx
+│   │   │   │   └── tsconfig.json
+│   │   │   ├── data
+│   │   │   │   └── products.json
+│   │   │   └── id
+│   │   │       └── page.tsx
+│   │   ├── inventario
+│   │   │   ├── page copy 2.js
+│   │   │   ├── page copy1.js
+│   │   │   ├── page copy3.js
+│   │   │   └── page.js
+│   │   ├── login
+│   │   │   ├── page copy1.js
+│   │   │   └── page.js
+│   │   ├── ordini
+│   │   │   └── page.js
+│   │   ├── page copy1.js
+│   │   ├── page copy2.js
+│   │   ├── page copy3.js
+│   │   ├── page.js
+│   │   ├── spedizioni
+│   │   │   └── page.js
+│   │   └── vendite
+│   │       ├── VenditePageContent.js
+│   │       └── page.js
+│   ├── api
+│   │   ├── admin-log
+│   │   │   └── route.js
+│   │   ├── auth
+│   │   │   ├── login.js
+│   │   │   └── register.js
+│   │   ├── email
+│   │   │   └── route.js
+│   │   ├── fattura
+│   │   │   └── route.js
+│   │   ├── get-ordine
+│   │   │   └── route.js
+│   │   ├── products
+│   │   │   ├── [id]
+│   │   │   │   ├── route copy.js
+│   │   │   │   └── route.js
+│   │   │   ├── rou.ts
+│   │   │   └── route.js
+│   │   ├── save-ordini
+│   │   │   └── route.js
+│   │   ├── save-product
+│   │   │   ├── route copy.js
+│   │   │   └── route.js
+│   │   └── upload-image
+│   │       ├── route copy.js
+│   │       └── route.js
+│   ├── ar
+│   │   └── page.js
+│   ├── brand
+│   │   └── page.js
+│   ├── checkout
+│   │   ├── page copy 2.js
+│   │   ├── page copy1.js
+│   │   ├── page copy3.js
+│   │   ├── page copy4.js
+│   │   ├── page copy5.js
+│   │   ├── page copy6.js
+│   │   ├── page copy7.js
+│   │   └── page.js
+│   ├── de
+│   │   └── page.js
+│   ├── en
+│   │   └── page.js
+│   ├── es
+│   │   └── page.js
+│   ├── eventi
+│   │   └── page.js
 │   ├── favicon.ico
+│   ├── fr
+│   │   └── page.js
+│   ├── gioielli
+│   │   ├── page copy10.js
+│   │   ├── page copy11.js
+│   │   ├── page copy12.js
+│   │   ├── page copy13.js
+│   │   ├── page copy14.js
+│   │   ├── page copy15.js
+│   │   ├── page copy16.js
+│   │   ├── page copy17.js
+│   │   ├── page copy18.js
+│   │   ├── page copy2.js
+│   │   ├── page copy3.js
+│   │   ├── page copy4.js
+│   │   ├── page copy5.js
+│   │   ├── page copy6.js
+│   │   ├── page copy7.js
+│   │   ├── page copy8.js
+│   │   ├── page copy9.js
+│   │   └── page.js
 │   ├── globals.css
 │   ├── globals_v0.1.css
+│   ├── it
+│   │   └── page.js
+│   ├── ja
+│   │   └── page.js
 │   ├── layout.js
-│   ├── layout_v0.1.js
-│   ├── layout_v0.2.js
 │   ├── layout_v0.3.js
+│   ├── lib
+│   │   ├── supabaseClient copy1.js
+│   │   ├── supabaseClient copy2.js
+│   │   └── supabaseClient.js
+│   ├── offerte
+│   │   └── page.js
+│   ├── ordine-confermato
+│   │   └── page.js
+│   ├── pagamento
+│   │   └── page.js
+│   ├── page copy 2.js
+│   ├── page copy.js
 │   ├── page.js
-│   ├── page_v0.1.js
-│   ├── page_v0.2.js
-│   └── page_v0.3.js
-├── components/
-│   ├── .DS_Store
+│   ├── page_v0.3.js
+│   ├── search
+│   │   └── page.js
+│   ├── servizi
+│   │   └── page.js
+│   └── zh
+│       └── page.js
+├── components
 │   ├── CategoryButtons.js
 │   ├── CategoryButtons_v0.1.js
 │   ├── CategoryButtonsxsitogr.js
@@ -124,27 +153,67 @@
 │   ├── MobileMenu.js
 │   ├── SearchIcon.js
 │   ├── TopRightMenu.js
+│   ├── UserMenu copy1.js
+│   ├── UserMenu copy10.js
+│   ├── UserMenu copy11.js
+│   ├── UserMenu copy12.js
+│   ├── UserMenu copy13.js
+│   ├── UserMenu copy14.js
+│   ├── UserMenu copy15.js
+│   ├── UserMenu copy16.js
+│   ├── UserMenu copy17.js
+│   ├── UserMenu copy2.js
+│   ├── UserMenu copy3.js
+│   ├── UserMenu copy4.js
+│   ├── UserMenu copy5.js
+│   ├── UserMenu copy6.js
+│   ├── UserMenu copy7.js
+│   ├── UserMenu copy8.js
+│   ├── UserMenu copy9.js
 │   └── UserMenu.js
-├── modules diagrams_scripts&explanation/
-│   ├── .DS_Store
+├── eslint.config.mjs
+├── file_tree.txt
+├── inizializzazione di localhost:3000.txt
+├── jsconfig.json
+├── modules diagrams_scripts&explanation
 │   ├── layoutjs_detailed_explanation_final.pdf
 │   ├── manuale_completo_con_flussi_operativi-1.pdf
 │   ├── manuale_struttura_moduli_gabriella_romeo.pdf
 │   ├── package_json_detailed_explanation_with_diagram.pdf
 │   ├── page_js_detailed_explanation_final.pdf
 │   └── progetto_struttura_ascii_tree_finale.pdf
-├── public/
-│   ├── data/
-│   │   ├── images/
-│   │   ├── .DS_Store
+├── next copy1.config.mjs
+├── next-env.d.ts
+├── next.config.mjs
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── postcss.config.mjs
+├── public
+│   ├── DSC00229.JPG
+│   ├── conqr hero.png
+│   ├── data
 │   │   ├── clienti.json
+│   │   ├── images
 │   │   └── vecchio no supa products.json
-│   ├── fonts/
+│   ├── distortohero.png
+│   ├── file.svg
+│   ├── fonts
 │   │   ├── GRGabriellaFinal.ttf
 │   │   ├── GRGabriellaModern.ttf
 │   │   └── GRGabriellaUltraCustom.ttf
-│   ├── uploads/
-│   │   ├── .DS_Store
+│   ├── globe.svg
+│   ├── hero copy.png
+│   ├── hero.png
+│   ├── hero1.png
+│   ├── hero4.png
+│   ├── heroold.png
+│   ├── icons
+│   │   ├── apple.svg
+│   │   └── google.svg
+│   ├── next.svg
+│   ├── qr-instagram.png
+│   ├── uploads
 │   │   ├── BERLIN.png
 │   │   ├── DSC00229.JPG
 │   │   ├── MARRAKECH Y:G.png
@@ -157,37 +226,11 @@
 │   │   ├── Screenshot 2025-05-26 at 3.33.04 PM.png
 │   │   ├── gg.jpg
 │   │   └── gianluigi.jpg
-│   ├── .DS_Store
-│   ├── DSC00229.JPG
-│   ├── conqr hero.png
-│   ├── distortohero.png
-│   ├── file.svg
-│   ├── globe.svg
-│   ├── hero copy.png
-│   ├── hero.png
-│   ├── hero1.png
-│   ├── hero4.png
-│   ├── heroold.png
-│   ├── next.svg
-│   ├── qr-instagram.png
 │   ├── vecchio hero.png
 │   ├── vercel.svg
 │   └── window.svg
-├── .DS_Store
-├── .gitignore
-├── README.md
-├── eslint.config.mjs
-├── file_tree.txt
-├── inizializzazione di localhost:3000.txt*
-├── jsconfig.json
-├── next-env.d.ts
-├── next.config.mjs
-├── package-lock.json
-├── package.json
-├── postcss.config.js
-├── postcss.config.mjs
 ├── struttura_progetto.txt
 ├── tailwind.config.js
 └── tsconfig.json
 
-47 directories, 144 files
+53 directories, 181 files

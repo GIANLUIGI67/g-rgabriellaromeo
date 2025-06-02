@@ -199,28 +199,10 @@ export default function CheckoutPage() {
       totale: '合計:',
       rimuovi: '❌ 削除'
     }
-  }[lang];
+  }[lang] || testi['it'];
 
   const handleSubmit = () => {
-    if (!nome || !cognome || !indirizzo || !citta || !cap || !paese || !email) {
-      alert(`${testi.nome}, ${testi.cognome}, ${testi.indirizzo}, ${testi.citta}, ${testi.cap}, ${testi.paese}, ${testi.email} ${lang === 'it' ? 'sono obbligatori.' : 'are required.'}`);
-      return;
-    }
-
-    const datiCliente = {
-      nome,
-      cognome,
-      indirizzo,
-      citta,
-      codice_postale: cap,
-      paese,
-      email,
-      telefono1,
-      telefono2
-    };
-
-    localStorage.setItem('cliente', JSON.stringify(datiCliente));
-    router.push(`/pagamento?lang=${lang}`);
+    alert(`${testi.paga} - ${testi.totale} \u20AC${totaleFinale.toFixed(1)}`);
   };
 
   return (
