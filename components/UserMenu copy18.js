@@ -53,11 +53,6 @@ export default function UserMenu({ lang }) {
         fetchNomeUtente(data.user.email);
       }
     });
-
-    if (window.location.hash === '#crea-account') {
-      setIsOpen(true);
-      setModalitaRegistrazione(true);
-    }
   }, []);
 
   const logout = async () => {

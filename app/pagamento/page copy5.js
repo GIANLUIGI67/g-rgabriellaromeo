@@ -62,8 +62,8 @@ export default function PagamentoPage() {
       messaggioBonifico: 'Le produit sera expédié à l’adresse indiquée dès confirmation du virement par notre banque.',
       condizioni: 'J\'accepte les conditions de paiement et de livraison',
       indietro: 'Retour'
-    }
-    // Altri ancora se servono...
+    },
+    // ...altre lingue
   }[lang];
   const metodiSpedizione = {
     it: [
@@ -75,8 +75,8 @@ export default function PagamentoPage() {
       { label: '🚚 Standard (3–5 days) – €10.00', value: 'standard', costo: 10 },
       { label: '🚀 Express (24–48h) – €20.00', value: 'espresso', costo: 20 },
       { label: '🛍 Boutique pickup – €0.00', value: 'ritiro', costo: 0 }
-    ]
-    // altre lingue...
+    ],
+    // ...altre lingue
   };
 
   const metodiPagamento = {
@@ -104,29 +104,6 @@ export default function PagamentoPage() {
   }, [carrello, costoSpedizione]);
 
   const confermaPagamento = () => {
-    if (!spedizione || !pagamento) {
-      alert(
-        lang === 'it'
-          ? 'Seleziona un metodo di spedizione e pagamento.'
-          : lang === 'en'
-          ? 'Please select a shipping and payment method.'
-          : 'Sélectionnez une méthode d\'expédition et de paiement.'
-      );
-      return;
-    }
-
-    if (!cliente.nome || !cliente.cognome || !cliente.email || !cliente.indirizzo) {
-      alert(
-        lang === 'it'
-          ? 'Per completare l’ordine devi prima creare un account.'
-          : lang === 'en'
-          ? 'To complete your order, please create an account first.'
-          : 'Veuillez créer un compte pour finaliser votre commande.'
-      );
-      router.push(`/?lang=${lang}#crea-account`);
-      return;
-    }
-
     if (
       pagamento === 'Bonifico bancario' ||
       pagamento === 'Bank Transfer' ||
@@ -143,6 +120,8 @@ export default function PagamentoPage() {
       setMostraConfermaBonifico(true);
       return;
     }
+
+    // altri metodi (da implementare)
   };
 
   const confermaBonificoEffettuato = async () => {

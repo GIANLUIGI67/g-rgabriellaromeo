@@ -16,15 +16,6 @@ export default function PagamentoPage() {
   const [costoSpedizione, setCostoSpedizione] = useState(0);
   const [totaleFinale, setTotaleFinale] = useState(0);
   const [messaggio, setMessaggio] = useState('');
-  const [mostraConfermaBonifico, setMostraConfermaBonifico] = useState(false);
-  const [accettaCondizioni, setAccettaCondizioni] = useState(false);
-  const [codiceOrdine, setCodiceOrdine] = useState('');
-
-  const generaCodiceOrdine = () => {
-    const oggi = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const random = Math.random().toString(36).substring(2, 7).toUpperCase();
-    return `GR-${oggi}-${random}`;
-  };
 
   const testi = {
     it: {
@@ -34,9 +25,6 @@ export default function PagamentoPage() {
       seleziona: 'Seleziona',
       totale: 'Totale: ',
       conferma: 'Conferma pagamento',
-      confermaBonifico: 'Confermo bonifico effettuato',
-      messaggioBonifico: 'Il prodotto sarà spedito all’indirizzo fornito non appena il bonifico verrà confermato dalla nostra banca.',
-      condizioni: 'Accetto le condizioni di pagamento e spedizione',
       indietro: 'Indietro'
     },
     en: {
@@ -46,9 +34,6 @@ export default function PagamentoPage() {
       seleziona: 'Select',
       totale: 'Total: ',
       conferma: 'Confirm Payment',
-      confermaBonifico: 'I confirm bank transfer made',
-      messaggioBonifico: 'The product will be shipped to the provided address once the bank confirms your transfer.',
-      condizioni: 'I accept the payment and shipping conditions',
       indietro: 'Back'
     },
     fr: {
@@ -58,13 +43,55 @@ export default function PagamentoPage() {
       seleziona: 'Sélectionner',
       totale: 'Total : ',
       conferma: 'Confirmer le paiement',
-      confermaBonifico: 'Je confirme avoir effectué le virement',
-      messaggioBonifico: 'Le produit sera expédié à l’adresse indiquée dès confirmation du virement par notre banque.',
-      condizioni: 'J\'accepte les conditions de paiement et de livraison',
       indietro: 'Retour'
+    },
+    de: {
+      titolo: 'Zahlung',
+      metodoSpedizione: 'Versandart',
+      metodoPagamento: 'Zahlungsmethode',
+      seleziona: 'Auswählen',
+      totale: 'Gesamt: ',
+      conferma: 'Zahlung bestätigen',
+      indietro: 'Zurück'
+    },
+    es: {
+      titolo: 'Pago',
+      metodoSpedizione: 'Método de envío',
+      metodoPagamento: 'Método de pago',
+      seleziona: 'Seleccionar',
+      totale: 'Total: ',
+      conferma: 'Confirmar pago',
+      indietro: 'Atrás'
+    },
+    zh: {
+      titolo: '付款',
+      metodoSpedizione: '配送方式',
+      metodoPagamento: '支付方式',
+      seleziona: '选择',
+      totale: '总计: ',
+      conferma: '确认付款',
+      indietro: '返回'
+    },
+    ar: {
+      titolo: 'الدفع',
+      metodoSpedizione: 'طريقة الشحن',
+      metodoPagamento: 'طريقة الدفع',
+      seleziona: 'اختر',
+      totale: 'المجموع: ',
+      conferma: 'تأكيد الدفع',
+      indietro: 'رجوع'
+    },
+    ja: {
+      titolo: 'お支払い',
+      metodoSpedizione: '配送方法',
+      metodoPagamento: '支払方法',
+      seleziona: '選択',
+      totale: '合計: ',
+      conferma: '支払いを確定する',
+      indietro: '戻る'
     }
-    // Altri ancora se servono...
   }[lang];
+
   const metodiSpedizione = {
     it: [
       { label: '🚚 Standard (3-5 giorni) – €10,00', value: 'standard', costo: 10 },
@@ -75,8 +102,37 @@ export default function PagamentoPage() {
       { label: '🚚 Standard (3–5 days) – €10.00', value: 'standard', costo: 10 },
       { label: '🚀 Express (24–48h) – €20.00', value: 'espresso', costo: 20 },
       { label: '🛍 Boutique pickup – €0.00', value: 'ritiro', costo: 0 }
+    ],
+    fr: [
+      { label: '🚚 Standard (3–5 jours) – €10.00', value: 'standard', costo: 10 },
+      { label: '🚀 Express (24–48h) – €20.00', value: 'espresso', costo: 20 },
+      { label: '🛍 Retrait en boutique – €0.00', value: 'ritiro', costo: 0 }
+    ],
+    de: [
+      { label: '🚚 Standard (3–5 Tage) – €10.00', value: 'standard', costo: 10 },
+      { label: '🚀 Express (24–48h) – €20.00', value: 'espresso', costo: 20 },
+      { label: '🛍 Abholung im Geschäft – €0.00', value: 'ritiro', costo: 0 }
+    ],
+    es: [
+      { label: '🚚 Estándar (3–5 días) – €10.00', value: 'standard', costo: 10 },
+      { label: '🚀 Exprés (24–48h) – €20.00', value: 'espresso', costo: 20 },
+      { label: '🛍 Recoger en tienda – €0.00', value: 'ritiro', costo: 0 }
+    ],
+    zh: [
+      { label: '🚚 标准配送 (3–5天) – €10.00', value: 'standard', costo: 10 },
+      { label: '🚀 快速配送 (24–48小时) – €20.00', value: 'espresso', costo: 20 },
+      { label: '🛍 店内取货 – €0.00', value: 'ritiro', costo: 0 }
+    ],
+    ar: [
+      { label: '🚚 الشحن العادي (3-5 أيام) – €10.00', value: 'standard', costo: 10 },
+      { label: '🚀 الشحن السريع (24-48 ساعة) – €20.00', value: 'espresso', costo: 20 },
+      { label: '🛍 الاستلام من المتجر – €0.00', value: 'ritiro', costo: 0 }
+    ],
+    ja: [
+      { label: '🚚 標準配送 (3–5日) – €10.00', value: 'standard', costo: 10 },
+      { label: '🚀 特急配送 (24–48時間) – €20.00', value: 'espresso', costo: 20 },
+      { label: '🛍 店頭受取 – €0.00', value: 'ritiro', costo: 0 }
     ]
-    // altre lingue...
   };
 
   const metodiPagamento = {
@@ -95,7 +151,6 @@ export default function PagamentoPage() {
     const datiCarrello = JSON.parse(localStorage.getItem('carrello')) || [];
     setCliente(datiCliente);
     setCarrello(datiCarrello);
-    setCodiceOrdine(generaCodiceOrdine());
   }, []);
 
   useEffect(() => {
@@ -103,80 +158,59 @@ export default function PagamentoPage() {
     setTotaleFinale(somma + costoSpedizione);
   }, [carrello, costoSpedizione]);
 
-  const confermaPagamento = () => {
-    if (!spedizione || !pagamento) {
-      alert(
-        lang === 'it'
-          ? 'Seleziona un metodo di spedizione e pagamento.'
-          : lang === 'en'
-          ? 'Please select a shipping and payment method.'
-          : 'Sélectionnez une méthode d\'expédition et de paiement.'
-      );
-      return;
-    }
-
-    if (!cliente.nome || !cliente.cognome || !cliente.email || !cliente.indirizzo) {
-      alert(
-        lang === 'it'
-          ? 'Per completare l’ordine devi prima creare un account.'
-          : lang === 'en'
-          ? 'To complete your order, please create an account first.'
-          : 'Veuillez créer un compte pour finaliser votre commande.'
-      );
-      router.push(`/?lang=${lang}#crea-account`);
-      return;
-    }
-
-    if (
-      pagamento === 'Bonifico bancario' ||
-      pagamento === 'Bank Transfer' ||
-      pagamento === 'Virement' ||
-      pagamento === 'Überweisung' ||
-      pagamento === 'Transferencia' ||
-      pagamento === '银行转账' ||
-      pagamento === 'تحويل بنكي' ||
-      pagamento === '銀行振込'
-    ) {
-      setMessaggio(
-        `✅ CODICE ORDINE: ${codiceOrdine}\n\n👉 ${testi.messaggioBonifico}\n\n📌 IBAN: IT10Y0503426201000000204438\n👤 Intestatario: Romeo Gabriella\n🏦 Banca: BANCO BPM S.P.A.\n📧 Invia ricevuta a: info@g-rgabriellaromeo.it\n\n📦 Prodotti: ${carrello.length}\n👤 Cliente: ${cliente.nome} ${cliente.cognome}`
-      );
-      setMostraConfermaBonifico(true);
-      return;
-    }
-  };
-
-  const confermaBonificoEffettuato = async () => {
-    if (!accettaCondizioni) {
-      alert('Devi accettare le condizioni per proseguire.');
-      return;
-    }
-
+  const confermaPagamento = async () => {
+    const ordineId = `GR-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
     const ordine = {
-      id: codiceOrdine,
+      id: ordineId,
       cliente,
       carrello,
       spedizione,
       pagamento,
       totale: totaleFinale,
-      stato: 'in attesa bonifico',
       data: new Date().toISOString()
     };
 
-    await supabase.from('ordini').insert([ordine]);
-    await supabase
-      .from('clienti')
-      .update({
-        ordini: [...(cliente.ordini || []), ordine]
-      })
-      .eq('email', cliente.email);
+    const { error } = await supabase.from('ordini').insert([ordine]);
+    if (!error) {
+      for (const prodotto of carrello) {
+        await supabase
+          .from('prodotti')
+          .update({ quantita: prodotto.quantitaDisponibile - prodotto.quantita })
+          .eq('id', prodotto.id);
+      }
+      await supabase
+        .from('clienti')
+        .update({
+          ordini: [...(cliente.ordini || []), {
+            id: ordineId,
+            data: new Date().toISOString(),
+            totale: totaleFinale,
+            prodotti: carrello
+          }]
+        })
+        .eq('email', cliente.email);
 
-    localStorage.setItem('ordineId', codiceOrdine);
-    localStorage.setItem('nomeCliente', cliente.nome);
-    localStorage.removeItem('carrello');
+      await fetch('/api/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: cliente.email,
+          nome: cliente.nome,
+          ordineId,
+          totale: totaleFinale,
+          lang
+        }),
+      });
 
-    alert('Grazie! Il tuo ordine è stato registrato. Riceverai una conferma dopo la verifica del bonifico.');
-    router.push(`/ordine-confermato?lang=${lang}`);
+      localStorage.setItem('ordineId', ordineId);
+      localStorage.setItem('nomeCliente', cliente.nome);
+      localStorage.removeItem('carrello');
+      router.push(`/ordine-confermato?lang=${lang}`);
+    } else {
+      alert('Errore nel salvataggio ordine. Riprova.');
+    }
   };
+
   return (
     <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4 py-10 font-sans">
       <h1 className="text-xl mb-6">{testi.titolo}</h1>
@@ -222,27 +256,6 @@ export default function PagamentoPage() {
         {testi.conferma}
       </button>
 
-      {mostraConfermaBonifico && (
-        <>
-          <label className="flex items-center mb-4">
-            <input
-              type="checkbox"
-              checked={accettaCondizioni}
-              onChange={(e) => setAccettaCondizioni(e.target.checked)}
-              className="mr-2"
-            />
-            {testi.condizioni}
-          </label>
-          <button
-            onClick={confermaBonificoEffettuato}
-            className={`px-6 py-2 rounded mb-4 ${accettaCondizioni ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-500 text-white cursor-not-allowed'}`}
-            disabled={!accettaCondizioni}
-          >
-            {testi.confermaBonifico}
-          </button>
-        </>
-      )}
-
       <button
         onClick={() => router.back()}
         className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
@@ -251,7 +264,7 @@ export default function PagamentoPage() {
       </button>
 
       {messaggio && (
-        <div className="bg-white text-black p-4 rounded text-left max-w-xl mt-4 whitespace-pre-line">
+        <div className="bg-white text-black p-4 rounded text-center max-w-md mt-4">
           {messaggio}
         </div>
       )}
