@@ -57,17 +57,6 @@ export default function UserMenu({ lang }) {
     if (window.location.hash === '#crea-account') {
       setIsOpen(true);
       setModalitaRegistrazione(true);
-
-      // Se presenti, importa i dati dal localStorage (inviati dalla pagina di pagamento)
-      const clienteTemp = JSON.parse(localStorage.getItem('cliente')) || {};
-      setNome(clienteTemp.nome || '');
-      setCognome(clienteTemp.cognome || '');
-      setTelefono1(clienteTemp.telefono1 || '');
-      setTelefono2(clienteTemp.telefono2 || '');
-      setIndirizzo(clienteTemp.indirizzo || '');
-      setCitta(clienteTemp.citta || '');
-      setPaese(clienteTemp.paese || '');
-      setEmail(clienteTemp.email || '');
     }
   }, []);
 
@@ -149,7 +138,6 @@ export default function UserMenu({ lang }) {
       fetchNomeUtente(email);
       setModalitaRegistrazione(false);
       setErrore('');
-      window.location.href = '/pagamento';
     }
   };
 

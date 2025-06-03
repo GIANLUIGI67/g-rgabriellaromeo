@@ -10,7 +10,7 @@ export default function PagamentoPage() {
   const router = useRouter();
 
   const [carrello, setCarrello] = useState([]);
-  const [cliente, setCliente] = useState(null);
+  const [cliente, setCliente] = useState({});
   const [spedizione, setSpedizione] = useState('');
   const [pagamento, setPagamento] = useState('');
   const [costoSpedizione, setCostoSpedizione] = useState(0);
@@ -25,50 +25,6 @@ export default function PagamentoPage() {
     const random = Math.random().toString(36).substring(2, 7).toUpperCase();
     return `GR-${oggi}-${random}`;
   };
-
-  useEffect(() => {
-    const fetchCliente = async () => {
-      const { data: session } = await supabase.auth.getUser();
-      const email = session?.user?.email;
-
-      if (!email) {
-        router.push(`/?lang=${lang}#crea-account`);
-        return;
-      }
-
-      const { data: cliente } = await supabase
-        .from('clienti')
-        .select('*')
-        .eq('email', email)
-        .single();
-
-      if (!cliente) {
-        router.push(`/?lang=${lang}#crea-account`);
-        return;
-      }
-
-      const campiObbligatori = ['nome', 'cognome', 'email', 'indirizzo'];
-      const incompleti = campiObbligatori.some(campo => !cliente[campo]);
-
-      if (incompleti) {
-        localStorage.setItem('datiTemporaneiCliente', JSON.stringify(cliente));
-        router.push(`/?lang=${lang}#crea-account`);
-        return;
-      }
-
-      setCliente(cliente);
-    };
-
-    fetchCliente();
-
-    const datiCarrello = JSON.parse(localStorage.getItem('carrello')) || [];
-    setCarrello(datiCarrello);
-    setCodiceOrdine(generaCodiceOrdine());
-  }, []);
-  useEffect(() => {
-    const somma = carrello.reduce((acc, p) => acc + p.prezzo * p.quantita, 0);
-    setTotaleFinale(somma + costoSpedizione);
-  }, [carrello, costoSpedizione]);
 
   const testi = {
     it: {
@@ -94,9 +50,21 @@ export default function PagamentoPage() {
       messaggioBonifico: 'The product will be shipped to the provided address once the bank confirms your transfer.',
       condizioni: 'I accept the payment and shipping conditions',
       indietro: 'Back'
+    },
+    fr: {
+      titolo: 'Paiement',
+      metodoSpedizione: 'Méthode d\'expédition',
+      metodoPagamento: 'Mode de paiement',
+      seleziona: 'Sélectionner',
+      totale: 'Total : ',
+      conferma: 'Confirmer le paiement',
+      confermaBonifico: 'Je confirme avoir effectué le virement',
+      messaggioBonifico: 'Le produit sera expédié à l’adresse indiquée dès confirmation du virement par notre banque.',
+      condizioni: 'J\'accepte les conditions de paiement et de livraison',
+      indietro: 'Retour'
     }
+    // Altri ancora se servono...
   }[lang];
-
   const metodiSpedizione = {
     it: [
       { label: '🚚 Standard (3-5 giorni) – €10,00', value: 'standard', costo: 10 },
@@ -108,12 +76,32 @@ export default function PagamentoPage() {
       { label: '🚀 Express (24–48h) – €20.00', value: 'espresso', costo: 20 },
       { label: '🛍 Boutique pickup – €0.00', value: 'ritiro', costo: 0 }
     ]
+    // altre lingue...
   };
 
   const metodiPagamento = {
     it: ['Carta di credito', 'PayPal', 'Apple Pay', 'Google Pay', 'Bonifico bancario'],
-    en: ['Credit Card', 'PayPal', 'Apple Pay', 'Google Pay', 'Bank Transfer']
+    en: ['Credit Card', 'PayPal', 'Apple Pay', 'Google Pay', 'Bank Transfer'],
+    fr: ['Carte bancaire', 'PayPal', 'Apple Pay', 'Google Pay', 'Virement'],
+    de: ['Kreditkarte', 'PayPal', 'Apple Pay', 'Google Pay', 'Überweisung'],
+    es: ['Tarjeta de crédito', 'PayPal', 'Apple Pay', 'Google Pay', 'Transferencia'],
+    zh: ['信用卡', '支付宝', 'Apple Pay', 'Google Pay', '银行转账'],
+    ar: ['بطاقة ائتمان', 'باي بال', 'Apple Pay', 'Google Pay', 'تحويل بنكي'],
+    ja: ['クレジットカード', 'ペイパル', 'Apple Pay', 'Google Pay', '銀行振込']
   };
+
+  useEffect(() => {
+    const datiCliente = JSON.parse(localStorage.getItem('cliente')) || {};
+    const datiCarrello = JSON.parse(localStorage.getItem('carrello')) || [];
+    setCliente(datiCliente);
+    setCarrello(datiCarrello);
+    setCodiceOrdine(generaCodiceOrdine());
+  }, []);
+
+  useEffect(() => {
+    const somma = carrello.reduce((acc, p) => acc + p.prezzo * p.quantita, 0);
+    setTotaleFinale(somma + costoSpedizione);
+  }, [carrello, costoSpedizione]);
 
   const confermaPagamento = () => {
     if (!spedizione || !pagamento) {
@@ -127,14 +115,33 @@ export default function PagamentoPage() {
       return;
     }
 
+    if (!cliente.nome || !cliente.cognome || !cliente.email || !cliente.indirizzo) {
+      alert(
+        lang === 'it'
+          ? 'Per completare l’ordine devi prima creare un account.'
+          : lang === 'en'
+          ? 'To complete your order, please create an account first.'
+          : 'Veuillez créer un compte pour finaliser votre commande.'
+      );
+      router.push(`/?lang=${lang}#crea-account`);
+      return;
+    }
+
     if (
       pagamento === 'Bonifico bancario' ||
-      pagamento === 'Bank Transfer'
+      pagamento === 'Bank Transfer' ||
+      pagamento === 'Virement' ||
+      pagamento === 'Überweisung' ||
+      pagamento === 'Transferencia' ||
+      pagamento === '银行转账' ||
+      pagamento === 'تحويل بنكي' ||
+      pagamento === '銀行振込'
     ) {
       setMessaggio(
         `✅ CODICE ORDINE: ${codiceOrdine}\n\n👉 ${testi.messaggioBonifico}\n\n📌 IBAN: IT10Y0503426201000000204438\n👤 Intestatario: Romeo Gabriella\n🏦 Banca: BANCO BPM S.P.A.\n📧 Invia ricevuta a: info@g-rgabriellaromeo.it\n\n📦 Prodotti: ${carrello.length}\n👤 Cliente: ${cliente.nome} ${cliente.cognome}`
       );
       setMostraConfermaBonifico(true);
+      return;
     }
   };
 
@@ -170,7 +177,6 @@ export default function PagamentoPage() {
     alert('Grazie! Il tuo ordine è stato registrato. Riceverai una conferma dopo la verifica del bonifico.');
     router.push(`/ordine-confermato?lang=${lang}`);
   };
-
   return (
     <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4 py-10 font-sans">
       <h1 className="text-xl mb-6">{testi.titolo}</h1>
