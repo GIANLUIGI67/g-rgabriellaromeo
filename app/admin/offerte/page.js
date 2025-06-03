@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../../lib/supabaseClient';
 
 export default function OffertePage() {
   const params = useSearchParams();
@@ -15,17 +15,17 @@ export default function OffertePage() {
   const [popupImg, setPopupImg] = useState(null);
 
   const traduzioni = {
-    it: { titolo: '🟡 OFFERTE', aggiungi: 'Aggiungi al carrello', checkout: 'Check-out', indietro: 'Indietro', rimuovi: 'Rimuovi', carrello: 'Carrello' },
-    en: { titolo: '🟡 OFFERS', aggiungi: 'Add to cart', checkout: 'Checkout', indietro: 'Back', rimuovi: 'Remove', carrello: 'Cart' },
-    fr: { titolo: '🟡 OFFRES', aggiungi: 'Ajouter au panier', checkout: 'Paiement', indietro: 'Retour', rimuovi: 'Supprimer', carrello: 'Panier' },
-    de: { titolo: '🟡 ANGEBOTE', aggiungi: 'In den Warenkorb', checkout: 'Zur Kasse', indietro: 'Zurück', rimuovi: 'Entfernen', carrello: 'Warenkorb' },
-    es: { titolo: '🟡 OFERTAS', aggiungi: 'Agregar al carrito', checkout: 'Finalizar compra', indietro: 'Atrás', rimuovi: 'Eliminar', carrello: 'Carrito' },
-    zh: { titolo: '🟡 优惠', aggiungi: '添加到购物车', checkout: '结账', indietro: '返回', rimuovi: '移除', carrello: '购物车' },
-    ar: { titolo: '🟡 عروض', aggiungi: 'أضف إلى السلة', checkout: 'الدفع', indietro: 'رجوع', rimuovi: 'إزالة', carrello: 'عربة التسوق' },
-    ja: { titolo: '🟡 オファー', aggiungi: 'カートに追加', checkout: 'チェックアウト', indietro: '戻る', rimuovi: '削除', carrello: 'カート' }
+    it: { titolo: 'PRODOTTI IN OFFERTA', aggiungi: 'Aggiungi al carrello', inofferta: 'IN OFFERTA', rimuovi: 'Rimuovi', checkout: 'Check-out', indietro: 'Indietro', carrello: 'Carrello' },
+    en: { titolo: 'DISCOUNTED PRODUCTS', aggiungi: 'Add to cart', inofferta: 'DISCOUNTED', rimuovi: 'Remove', checkout: 'Checkout', indietro: 'Back', carrello: 'Cart' },
+    fr: { titolo: 'PRODUITS EN PROMOTION', aggiungi: 'Ajouter au panier', inofferta: 'EN PROMO', rimuovi: 'Supprimer', checkout: 'Passer à la caisse', indietro: 'Retour', carrello: 'Panier' },
+    de: { titolo: 'ANGEBOTSARTIKEL', aggiungi: 'In den Warenkorb', inofferta: 'IM ANGEBOT', rimuovi: 'Entfernen', checkout: 'Zur Kasse', indietro: 'Zurück', carrello: 'Warenkorb' },
+    es: { titolo: 'PRODUCTOS EN OFERTA', aggiungi: 'Agregar al carrito', inofferta: 'EN OFERTA', rimuovi: 'Eliminar', checkout: 'Finalizar compra', indietro: 'Atrás', carrello: 'Carrito' },
+    zh: { titolo: '促销商品', aggiungi: '加入购物车', inofferta: '促销中', rimuovi: '移除', checkout: '结账', indietro: '返回', carrello: '购物车' },
+    ar: { titolo: 'المنتجات المخفضة', aggiungi: 'أضف إلى السلة', inofferta: 'عرض خاص', rimuovi: 'إزالة', checkout: 'الدفع', indietro: 'رجوع', carrello: 'عربة التسوق' },
+    ja: { titolo: 'セール商品', aggiungi: 'カートに追加', inofferta: 'セール中', rimuovi: '削除', checkout: 'チェックアウト', indietro: '戻る', carrello: 'カート' }
   };
 
-  const t = (key) => traduzioni[lang]?.[key] || traduzioni['it'][key];
+  const t = (key) => traduzioni[lang]?.[key] || traduzioni['it'][key] || key;
 
   useEffect(() => {
     const fetchProdotti = async () => {
@@ -68,9 +68,16 @@ export default function OffertePage() {
 
   return (
     <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem' }}>
-      <h1 style={{ fontSize: '2rem', marginBottom: '2rem', textAlign: 'center' }}>{t('titolo')}</h1>
+      <h1 style={{ fontSize: '2rem', marginBottom: '1.5rem', textAlign: 'center' }}>{t('titolo')}</h1>
 
-      <div style={{ display: 'flex', overflowX: 'auto', gap: '1rem', padding: '1rem' }}>
+      <div style={{
+        display: 'flex',
+        overflowX: 'auto',
+        gap: '1rem',
+        width: '100%',
+        padding: '0.5rem',
+        scrollSnapType: 'x mandatory'
+      }}>
         {prodotti.map(prodotto => {
           const sconto = prodotto.sconto_offerta || 0;
           const prezzoFinale = (prodotto.prezzo * (1 - sconto / 100)).toFixed(2);
@@ -85,44 +92,44 @@ export default function OffertePage() {
               textAlign: 'center',
               flex: '0 0 auto',
               width: '160px',
+              scrollSnapAlign: 'start',
               position: 'relative'
             }}>
               <div style={{
                 position: 'absolute',
                 top: '6px',
                 left: '6px',
-                backgroundColor: 'gold',
-                color: 'black',
+                backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                color: 'white',
                 padding: '2px 4px',
                 fontSize: '0.5rem',
                 borderRadius: '3px',
-                transform: 'rotate(-8deg)',
+                transform: 'rotate(-12deg)',
                 fontWeight: 'bold'
               }}>
-                {t('titolo')}
+                {t('inofferta')}
               </div>
+
               <img
                 src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
                 alt={prodotto.nome}
                 style={{
                   width: '100%',
+                  height: 'auto',
                   maxHeight: '80px',
-                  objectFit: 'cover',
+                  objectFit: 'contain',
                   borderRadius: '4px',
-                  marginBottom: '0.3rem',
-                  cursor: 'pointer'
+                  marginBottom: '0.3rem'
                 }}
                 onClick={() => setPopupImg(`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`)}
               />
               <strong>{prodotto.nome}</strong>
               <p>{prodotto.taglia}</p>
-              <p>
-                <span style={{ textDecoration: 'line-through', color: 'gray', fontSize: '0.6rem' }}>
-                  {'\u20AC'} {Number(prodotto.prezzo).toFixed(2)}
-                </span><br />
-                <span style={{ color: 'red', fontWeight: 'bold' }}>
-                  {'\u20AC'} {prezzoFinale}
-                </span>
+              <p style={{ textDecoration: 'line-through', fontSize: '0.55rem' }}>
+                € {(Number(prodotto.prezzo) || 0).toFixed(2)}
+              </p>
+              <p style={{ fontWeight: 'bold', color: 'green' }}>
+                € {prezzoFinale}
               </p>
 
               <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem', margin: '0.3rem 0' }}>
@@ -174,8 +181,11 @@ export default function OffertePage() {
           backgroundColor: '#222',
           padding: '1rem',
           borderRadius: '8px',
+          width: '100%',
           maxWidth: '400px',
-          margin: 'auto'
+          textAlign: 'left',
+          marginLeft: 'auto',
+          marginRight: 'auto'
         }}>
           <h3 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>🛒 {t('carrello')}</h3>
           {Array.from(new Set(carrello.map(p => p.id))).map(id => {
@@ -226,6 +236,7 @@ export default function OffertePage() {
         <button
           onClick={() => router.push(`/?lang=${lang}`)}
           style={{
+            marginTop: '1rem',
             backgroundColor: '#444',
             color: 'white',
             padding: '0.6rem 1.2rem',
