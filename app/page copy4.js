@@ -6,7 +6,6 @@ import FlagLanguageSwitcher from '../components/FlagLanguageSwitcher';
 import MobileMenu from '../components/MobileMenu';
 import SearchIcon from '../components/SearchIcon';
 import UserMenu from '../components/UserMenu';
-import TopRightMenu from '../components/TopRightMenu';
 import { Phone, Heart, ShoppingCart, Instagram } from 'lucide-react';
 
 export default function Home() {
@@ -27,8 +26,13 @@ export default function Home() {
           <span className="text-sm uppercase tracking-wider">Menu</span>
         </div>
 
-        {/* RIGHT: TopRightMenu dinamico */}
-        <TopRightMenu />
+        {/* RIGHT: Icone */}
+        <div className="flex items-center gap-4 text-white">
+          <Phone size={20} />
+          <Heart size={20} />
+          <ShoppingCart size={20} />
+          <UserMenu lang={lang} />
+        </div>
       </div>
 
       {/* LOGO CENTRALE */}
