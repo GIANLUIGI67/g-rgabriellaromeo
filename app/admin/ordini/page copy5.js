@@ -64,16 +64,16 @@ export default function OrdiniPage() {
     <div key={o.id} style={{
       backgroundColor: '#fff',
       color: '#000',
-      padding: '0.5rem',
+      padding: '0.6rem',
       borderRadius: '8px',
-      fontSize: '0.72rem',
+      fontSize: '0.75rem',
       lineHeight: '1.2',
       boxShadow: '0 0 4px rgba(255,255,255,0.1)',
-      display: 'inline-block',
-      verticalAlign: 'top',
-      maxWidth: '100%',
-      boxSizing: 'border-box',
-      wordBreak: 'break-word'
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '0.3rem',
+      minHeight: '180px',
+      overflow: 'hidden'
     }}>
       <div><strong>Ordine:</strong> {o.id}</div>
       <div><strong>Data:</strong> {new Date(o.data).toLocaleDateString()}</div>
@@ -82,7 +82,7 @@ export default function OrdiniPage() {
       ))}</div>
       <div><strong>Dest:</strong> {o.cliente?.nome} {o.cliente?.cognome}</div>
       <div>{o.cliente?.email}</div>
-      <div style={{ fontSize: '0.68rem' }}>{o.cliente?.citta}, {o.cliente?.paese}</div>
+      <div style={{ fontSize: '0.7rem' }}>{o.cliente?.citta}, {o.cliente?.paese}</div>
       <div><strong>Sped:</strong> {o.spedizione}</div>
       <div><strong>Pag:</strong> {o.pagamento}</div>
       {o.tracking && <div><strong>Track:</strong> {o.tracking}</div>}
@@ -96,7 +96,7 @@ export default function OrdiniPage() {
             color: 'white',
             borderRadius: '4px',
             fontSize: '0.7rem',
-            cursor: 'pointer'
+            alignSelf: 'flex-start'
           }}
         >
           ✅ Spedisci
@@ -121,26 +121,24 @@ export default function OrdiniPage() {
 
       <h1 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>📦 Ordini da spedire</h1>
       <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '0.7rem',
-        justifyContent: 'flex-start'
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+        gap: '0.8rem'
       }}>
         {daSpedire.length
           ? daSpedire.map(renderOrdine)
-          : <p style={{ width: '100%' }}>Nessun ordine da spedire</p>}
+          : <p style={{ gridColumn: '1 / -1' }}>Nessun ordine da spedire</p>}
       </div>
 
       <h1 style={{ fontSize: '1.8rem', marginTop: '3rem', marginBottom: '1rem' }}>📬 Ordini spediti</h1>
       <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '0.7rem',
-        justifyContent: 'flex-start'
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+        gap: '0.8rem'
       }}>
         {spediti.length
           ? spediti.map(renderOrdine)
-          : <p style={{ width: '100%' }}>Nessun ordine spedito</p>}
+          : <p style={{ gridColumn: '1 / -1' }}>Nessun ordine spedito</p>}
       </div>
     </main>
   );
