@@ -1,30 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 
 export default function MobileMenu({ lang }) {
   const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef();
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen]);
-
   const translations = {
     home: {
       it: 'Home', en: 'Home', fr: 'Accueil', es: 'Inicio', de: 'Startseite',
@@ -72,7 +54,7 @@ export default function MobileMenu({ lang }) {
   ];
 
   return (
-    <div ref={menuRef}>
+    <>
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
@@ -115,6 +97,6 @@ export default function MobileMenu({ lang }) {
           </nav>
         </div>
       )}
-    </div>
+    </>
   );
 }

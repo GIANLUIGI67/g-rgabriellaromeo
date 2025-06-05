@@ -1,7 +1,7 @@
 'use client';
 import { Phone, Heart, ShoppingCart, X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import UserMenu from './UserMenu';
 
 export default function TopRightMenu() {
@@ -9,21 +9,6 @@ export default function TopRightMenu() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
   const [showContatti, setShowContatti] = useState(false);
-  const contattiRef = useRef();
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (contattiRef.current && !contattiRef.current.contains(event.target)) {
-        setShowContatti(false);
-      }
-    };
-    if (showContatti) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showContatti]);
 
   const translations = {
     contatti: {
@@ -45,7 +30,7 @@ export default function TopRightMenu() {
   return (
     <div className="relative z-50 flex items-center gap-4 text-white">
       {/* Contatti */}
-      <div className="relative" ref={contattiRef}>
+      <div className="relative">
         <button
           title={translations.contatti[lang] || 'Contatti'}
           onClick={() => setShowContatti(!showContatti)}

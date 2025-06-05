@@ -49,25 +49,16 @@ export default function PagamentoPage() {
     }
   }[lang];
 
-  const calcolaCostoSpedizione = (tipo, paese) => {
-    const zona1 = ['italia'];
-    const zona2 = ['francia', 'germania', 'spagna'];
-    if (tipo === 'ritiro') return 0;
-    if (zona1.includes(paese)) return tipo === 'standard' ? 10 : 20;
-    if (zona2.includes(paese)) return tipo === 'standard' ? 20 : 40;
-    return tipo === 'standard' ? 30 : 60;
-  };
-
   const metodiSpedizione = {
     it: [
-      { label: '🚚 Standard (3-5 giorni)', value: 'standard' },
-      { label: '🚀 Espresso (24-48h)', value: 'espresso' },
-      { label: '🛍 Ritiro in boutique', value: 'ritiro' }
+      { label: '🚚 Standard (3-5 giorni) – €10,00', value: 'standard', costo: 10 },
+      { label: '🚀 Espresso (24-48h) – €20,00', value: 'espresso', costo: 20 },
+      { label: '🛍 Ritiro in boutique – €0,00', value: 'ritiro', costo: 0 }
     ],
     en: [
-      { label: '🚚 Standard (3–5 days)', value: 'standard' },
-      { label: '🚀 Express (24–48h)', value: 'espresso' },
-      { label: '🛍 Boutique pickup', value: 'ritiro' }
+      { label: '🚚 Standard (3–5 days) – €10.00', value: 'standard', costo: 10 },
+      { label: '🚀 Express (24–48h) – €20.00', value: 'espresso', costo: 20 },
+      { label: '🛍 Boutique pickup – €0.00', value: 'ritiro', costo: 0 }
     ]
   };
 
@@ -86,6 +77,7 @@ export default function PagamentoPage() {
     const fetchCliente = async () => {
       const { data: session } = await supabase.auth.getUser();
       const email = session?.user?.email;
+
       if (!email) {
         router.push(`/?lang=${lang}#crea-account`);
         return;
@@ -104,6 +96,7 @@ export default function PagamentoPage() {
 
       const campiObbligatori = ['nome', 'cognome', 'email', 'indirizzo'];
       const incompleti = campiObbligatori.some(campo => !cliente[campo]);
+
       if (incompleti) {
         localStorage.setItem('datiTemporaneiCliente', JSON.stringify(cliente));
         router.push(`/?lang=${lang}#crea-account`);
@@ -125,12 +118,56 @@ export default function PagamentoPage() {
   }, [carrello, costoSpedizione]);
 
   useEffect(() => {
-    if (spedizione && cliente) {
-      const paese = (cliente.paese || '').toLowerCase().trim();
-      const costo = calcolaCostoSpedizione(spedizione, paese);
-      setCostoSpedizione(costo);
+    if (pagamento === 'PayPal' && carrello.length > 0 && typeof window !== 'undefined') {
+      const script = document.createElement('script');
+      script.src = 'https://www.paypal.com/sdk/js?client-id=ARJLhEOKBovrYIWxStFGSsPaJUNUdnN-vHfTUInduWUR_HWpzqqaTPeIc3QIEFufnfoYOqLM-MYM-zYf&currency=EUR';
+      script.addEventListener('load', renderPayPalButtons);
+      document.body.appendChild(script);
     }
-  }, [spedizione, cliente]);
+  }, [pagamento, totaleFinale, carrello]);
+
+  const renderPayPalButtons = () => {
+    if (!window.paypal || document.getElementById('paypal-button-container')?.children.length) return;
+
+    window.paypal.Buttons({
+      createOrder: (data, actions) => {
+        return actions.order.create({
+          purchase_units: [{
+            amount: { value: totaleFinale.toFixed(2) }
+          }]
+        });
+      },
+      onApprove: async (data, actions) => {
+        const details = await actions.order.capture();
+
+        const ordine = {
+          id: codiceOrdine,
+          cliente,
+          carrello,
+          spedizione,
+          pagamento: 'PayPal',
+          totale: totaleFinale,
+          stato: 'pagato',
+          data: new Date().toISOString()
+        };
+
+        await supabase.from('ordini').insert([ordine]);
+        await supabase
+          .from('clienti')
+          .update({
+            ordini: [...(cliente.ordini || []), ordine]
+          })
+          .eq('email', cliente.email);
+
+        localStorage.setItem('ordineId', codiceOrdine);
+        localStorage.setItem('nomeCliente', cliente.nome);
+        localStorage.removeItem('carrello');
+
+        alert('Pagamento completato con PayPal!');
+        router.push(`/ordine-confermato?lang=${lang}`);
+      }
+    }).render('#paypal-button-container');
+  };
 
   const confermaPagamento = () => {
     if (carrello.length === 0) {
@@ -147,7 +184,48 @@ export default function PagamentoPage() {
       return;
     }
 
-    alert(`${testi.totale} €${totaleFinale.toFixed(2)}`);
+    if (
+      pagamento === 'Bonifico bancario' ||
+      pagamento === 'Bank Transfer'
+    ) {
+      setMessaggio(
+        `✅ CODICE ORDINE: ${codiceOrdine}\n\n👉 ${testi.messaggioBonifico}\n\n📌 IBAN: IT10Y0503426201000000204438\n👤 Intestatario: Romeo Gabriella\n🏦 Banca: BANCO BPM S.P.A.\n📧 Invia ricevuta a: info@g-rgabriellaromeo.it\n\n📦 Prodotti: ${carrello.length}\n👤 Cliente: ${cliente.nome} ${cliente.cognome}`
+      );
+      setMostraConfermaBonifico(true);
+    }
+  };
+
+  const confermaBonificoEffettuato = async () => {
+    if (!accettaCondizioni) {
+      alert('Devi accettare le condizioni per proseguire.');
+      return;
+    }
+
+    const ordine = {
+      id: codiceOrdine,
+      cliente,
+      carrello,
+      spedizione,
+      pagamento,
+      totale: totaleFinale,
+      stato: 'in attesa bonifico',
+      data: new Date().toISOString()
+    };
+
+    await supabase.from('ordini').insert([ordine]);
+    await supabase
+      .from('clienti')
+      .update({
+        ordini: [...(cliente.ordini || []), ordine]
+      })
+      .eq('email', cliente.email);
+
+    localStorage.setItem('ordineId', codiceOrdine);
+    localStorage.setItem('nomeCliente', cliente.nome);
+    localStorage.removeItem('carrello');
+
+    alert('Grazie! Il tuo ordine è stato registrato. Riceverai una conferma dopo la verifica del bonifico.');
+    router.push(`/ordine-confermato?lang=${lang}`);
   };
 
   return (
@@ -157,7 +235,11 @@ export default function PagamentoPage() {
       <label className="mb-2">{testi.metodoSpedizione}</label>
       <select
         value={spedizione}
-        onChange={(e) => setSpedizione(e.target.value)}
+        onChange={(e) => {
+          const metodo = metodiSpedizione[lang].find(m => m.value === e.target.value);
+          setSpedizione(e.target.value);
+          setCostoSpedizione(metodo?.costo || 0);
+        }}
         className="text-black mb-4 p-2 rounded w-96"
       >
         <option value="">{testi.seleziona}</option>
@@ -184,12 +266,39 @@ export default function PagamentoPage() {
         {testi.totale} €{totaleFinale.toFixed(2)}
       </p>
 
-      <button
-        onClick={confermaPagamento}
-        className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 mb-6"
-      >
-        {testi.conferma}
-      </button>
+      {pagamento === 'PayPal' && carrello.length > 0 && (
+        <div id="paypal-button-container" className="mb-6 w-full flex justify-center"></div>
+      )}
+
+      {pagamento !== 'PayPal' && (
+        <button
+          onClick={confermaPagamento}
+          className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 mb-6"
+        >
+          {testi.conferma}
+        </button>
+      )}
+
+      {mostraConfermaBonifico && (
+        <>
+          <label className="flex items-center mb-4">
+            <input
+              type="checkbox"
+              checked={accettaCondizioni}
+              onChange={(e) => setAccettaCondizioni(e.target.checked)}
+              className="mr-2"
+            />
+            {testi.condizioni}
+          </label>
+          <button
+            onClick={confermaBonificoEffettuato}
+            className={`px-6 py-2 rounded mb-4 ${accettaCondizioni ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-500 text-white cursor-not-allowed'}`}
+            disabled={!accettaCondizioni}
+          >
+            {testi.confermaBonifico}
+          </button>
+        </>
+      )}
 
       <button
         onClick={() => router.back()}
@@ -197,6 +306,12 @@ export default function PagamentoPage() {
       >
         {testi.indietro}
       </button>
+
+      {messaggio && (
+        <div className="bg-white text-black p-4 rounded text-left max-w-xl mt-4 whitespace-pre-line">
+          {messaggio}
+        </div>
+      )}
     </main>
   );
 }
