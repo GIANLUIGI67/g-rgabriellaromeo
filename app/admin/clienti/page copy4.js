@@ -106,7 +106,7 @@ export default function ClientiPage() {
   };
 
   return (
-    <div className="p-4 max-w-full overflow-x-auto bg-black text-white">
+    <div className="p-4 max-w-full overflow-x-auto">
       <h1 className="text-xl font-bold mb-4 text-center">Gestione Clienti</h1>
 
       <div className="flex gap-4 justify-center mb-4 flex-wrap">
@@ -117,44 +117,47 @@ export default function ClientiPage() {
         <button onClick={() => alert('Funzione eventi/promozioni in sviluppo')} className="bg-yellow-500 text-white px-3 py-1 rounded flex items-center gap-2"><Star size={16}/> Eventi/Offerte</button>
       </div>
 
-      <table className="min-w-full border text-sm text-white">
-        <thead className="bg-gray-700">
+      <table className="min-w-full border text-sm">
+        <thead className="bg-gray-200 text-black">
           <tr>
-            <th className="border px-2 py-1"><input type="checkbox" checked={selezionaTutti} onChange={toggleSelezionaTutti} /></th>
-            <th className="border px-2 py-1">Nome</th>
-            <th className="border px-2 py-1">Email</th>
-            <th className="border px-2 py-1">Telefono</th>
-            <th className="border px-2 py-1">Totale €</th>
-            <th className="border px-2 py-1">Ordini</th>
+            <th className="border px-2"><input type="checkbox" checked={selezionaTutti} onChange={toggleSelezionaTutti} /></th>
+            <th className="border px-2">Nome</th>
+            <th className="border px-2">Email</th>
+            <th className="border px-2">Telefono</th>
+            <th className="border px-2">Totale €</th>
+            <th className="border px-2">Ordini</th>
+            <th className="border px-2">Azioni</th>
           </tr>
         </thead>
         <tbody>
           {clienti.map((c, i) => (
-            <tr key={i} className="text-xs align-top">
-              <td className="border px-2 py-1 text-center">
+            <tr key={i} className="text-xs">
+              <td className="border px-2 text-center">
                 <input
                   type="checkbox"
                   checked={selezionati.includes(c.email)}
                   onChange={() => toggleSelezione(c.email)}
                 />
               </td>
-              <td className="border px-2 py-1 whitespace-normal break-words">{c.nome} {c.cognome}</td>
-              <td className="border px-2 py-1 whitespace-normal break-words">{c.email}</td>
-              <td className="border px-2 py-1 whitespace-normal break-words">{c.telefono1}</td>
-              <td className="border px-2 py-1 whitespace-nowrap text-right" style={{ fontFamily: 'Arial, sans-serif' }}>
+              <td className="border px-2 whitespace-nowrap">{c.nome} {c.cognome}</td>
+              <td className="border px-2 whitespace-nowrap">{c.email}</td>
+              <td className="border px-2 whitespace-nowrap">{c.telefono1}</td>
+              <td className="border px-2 whitespace-nowrap">
                 {'\u20AC'} {(Math.round((c.ordini || []).reduce((acc, o) => acc + (parseFloat(o.prezzo) || 0), 0) * 10) / 10).toFixed(1)}
               </td>
-              <td className="border px-2 py-1 whitespace-normal break-words">
-                <ul className="pl-3 list-disc">
-                  {(c.ordini || [])
-                    .filter(o => o.prodotto && parseFloat(o.prezzo) > 0)
-                    .map((o, j) => (
-                      <li key={j}>
-                        {o.prodotto} {o.taglia ? `(${o.taglia})` : ''} – {'\u20AC'} {o.prezzo}<br />
-                        {o.data ? new Date(o.data).toLocaleString() : '-'}
-                      </li>
-                    ))}
+              <td className="border px-2 whitespace-nowrap">
+                <ul className="list-disc pl-4">
+                  {(c.ordini || []).map((o, j) => (
+                    <li key={j}>
+                      {o.prodotto} ({o.taglia}) - {'\u20AC'} {o.prezzo}<br />
+                      {o.data || '-'}
+                    </li>
+                  ))}
                 </ul>
+              </td>
+              <td className="border px-2 text-center">
+                <button onClick={() => window.location.href = `mailto:${c.email}`} className="text-blue-600 hover:underline mr-2"><Mail size={16}/></button>
+                <button onClick={() => window.open(`https://wa.me/${(c.telefono1 || '').replace(/\D/g, '')}`, '_blank')} className="text-green-600 hover:underline"><MessageSquareText size={16}/></button>
               </td>
             </tr>
           ))}
