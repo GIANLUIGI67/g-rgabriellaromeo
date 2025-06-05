@@ -20,6 +20,53 @@ export default function PagamentoPage() {
   const [accettaCondizioni, setAccettaCondizioni] = useState(false);
   const [codiceOrdine, setCodiceOrdine] = useState('');
 
+  const testi = {
+    it: {
+      titolo: 'Pagamento',
+      metodoSpedizione: 'Metodo di spedizione',
+      metodoPagamento: 'Metodo di pagamento',
+      seleziona: 'Seleziona',
+      totale: 'Totale: ',
+      conferma: 'Conferma pagamento',
+      confermaBonifico: 'Confermo bonifico effettuato',
+      messaggioBonifico: 'Il prodotto sarà spedito all’indirizzo fornito non appena il bonifico verrà confermato dalla nostra banca.',
+      condizioni: 'Accetto le condizioni di pagamento e spedizione',
+      indietro: 'Indietro',
+      carrelloVuoto: 'Carrello vuoto: aggiungi prodotti prima di procedere.'
+    },
+    en: {
+      titolo: 'Payment',
+      metodoSpedizione: 'Shipping method',
+      metodoPagamento: 'Payment method',
+      seleziona: 'Select',
+      totale: 'Total: ',
+      conferma: 'Confirm Payment',
+      confermaBonifico: 'I confirm bank transfer made',
+      messaggioBonifico: 'The product will be shipped to the provided address once the bank confirms your transfer.',
+      condizioni: 'I accept the payment and shipping conditions',
+      indietro: 'Back',
+      carrelloVuoto: 'Cart is empty: please add products before proceeding.'
+    }
+  }[lang];
+
+  const metodiSpedizione = {
+    it: [
+      { label: '🚚 Standard (3-5 giorni) – €10,00', value: 'standard', costo: 10 },
+      { label: '🚀 Espresso (24-48h) – €20,00', value: 'espresso', costo: 20 },
+      { label: '🛍 Ritiro in boutique – €0,00', value: 'ritiro', costo: 0 }
+    ],
+    en: [
+      { label: '🚚 Standard (3–5 days) – €10.00', value: 'standard', costo: 10 },
+      { label: '🚀 Express (24–48h) – €20.00', value: 'espresso', costo: 20 },
+      { label: '🛍 Boutique pickup – €0.00', value: 'ritiro', costo: 0 }
+    ]
+  };
+
+  const metodiPagamento = {
+    it: ['Carta di credito', 'PayPal', 'Apple Pay', 'Google Pay', 'Bonifico bancario'],
+    en: ['Credit Card', 'PayPal', 'Apple Pay', 'Google Pay', 'Bank Transfer']
+  };
+
   const generaCodiceOrdine = () => {
     const oggi = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const random = Math.random().toString(36).substring(2, 7).toUpperCase();
@@ -60,69 +107,79 @@ export default function PagamentoPage() {
     };
 
     fetchCliente();
-
     const datiCarrello = JSON.parse(localStorage.getItem('carrello')) || [];
     setCarrello(datiCarrello);
     setCodiceOrdine(generaCodiceOrdine());
   }, []);
+
   useEffect(() => {
     const somma = carrello.reduce((acc, p) => acc + p.prezzo * p.quantita, 0);
     setTotaleFinale(somma + costoSpedizione);
   }, [carrello, costoSpedizione]);
 
-  const testi = {
-    it: {
-      titolo: 'Pagamento',
-      metodoSpedizione: 'Metodo di spedizione',
-      metodoPagamento: 'Metodo di pagamento',
-      seleziona: 'Seleziona',
-      totale: 'Totale: ',
-      conferma: 'Conferma pagamento',
-      confermaBonifico: 'Confermo bonifico effettuato',
-      messaggioBonifico: 'Il prodotto sarà spedito all’indirizzo fornito non appena il bonifico verrà confermato dalla nostra banca.',
-      condizioni: 'Accetto le condizioni di pagamento e spedizione',
-      indietro: 'Indietro'
-    },
-    en: {
-      titolo: 'Payment',
-      metodoSpedizione: 'Shipping method',
-      metodoPagamento: 'Payment method',
-      seleziona: 'Select',
-      totale: 'Total: ',
-      conferma: 'Confirm Payment',
-      confermaBonifico: 'I confirm bank transfer made',
-      messaggioBonifico: 'The product will be shipped to the provided address once the bank confirms your transfer.',
-      condizioni: 'I accept the payment and shipping conditions',
-      indietro: 'Back'
+  useEffect(() => {
+    if (pagamento === 'PayPal' && carrello.length > 0 && typeof window !== 'undefined') {
+      const script = document.createElement('script');
+      script.src = 'https://www.paypal.com/sdk/js?client-id=ARJLhEOKBovrYIWxStFGSsPaJUNUdnN-vHfTUInduWUR_HWpzqqaTPeIc3QIEFufnfoYOqLM-MYM-zYf&currency=EUR';
+      script.addEventListener('load', renderPayPalButtons);
+      document.body.appendChild(script);
     }
-  }[lang];
+  }, [pagamento, totaleFinale, carrello]);
 
-  const metodiSpedizione = {
-    it: [
-      { label: '🚚 Standard (3-5 giorni) – €10,00', value: 'standard', costo: 10 },
-      { label: '🚀 Espresso (24-48h) – €20,00', value: 'espresso', costo: 20 },
-      { label: '🛍 Ritiro in boutique – €0,00', value: 'ritiro', costo: 0 }
-    ],
-    en: [
-      { label: '🚚 Standard (3–5 days) – €10.00', value: 'standard', costo: 10 },
-      { label: '🚀 Express (24–48h) – €20.00', value: 'espresso', costo: 20 },
-      { label: '🛍 Boutique pickup – €0.00', value: 'ritiro', costo: 0 }
-    ]
-  };
+  const renderPayPalButtons = () => {
+    if (!window.paypal || document.getElementById('paypal-button-container')?.children.length) return;
 
-  const metodiPagamento = {
-    it: ['Carta di credito', 'PayPal', 'Apple Pay', 'Google Pay', 'Bonifico bancario'],
-    en: ['Credit Card', 'PayPal', 'Apple Pay', 'Google Pay', 'Bank Transfer']
+    window.paypal.Buttons({
+      createOrder: (data, actions) => {
+        return actions.order.create({
+          purchase_units: [{
+            amount: { value: totaleFinale.toFixed(2) }
+          }]
+        });
+      },
+      onApprove: async (data, actions) => {
+        const details = await actions.order.capture();
+
+        const ordine = {
+          id: codiceOrdine,
+          cliente,
+          carrello,
+          spedizione,
+          pagamento: 'PayPal',
+          totale: totaleFinale,
+          stato: 'pagato',
+          data: new Date().toISOString()
+        };
+
+        await supabase.from('ordini').insert([ordine]);
+        await supabase
+          .from('clienti')
+          .update({
+            ordini: [...(cliente.ordini || []), ordine]
+          })
+          .eq('email', cliente.email);
+
+        localStorage.setItem('ordineId', codiceOrdine);
+        localStorage.setItem('nomeCliente', cliente.nome);
+        localStorage.removeItem('carrello');
+
+        alert('Pagamento completato con PayPal!');
+        router.push(`/ordine-confermato?lang=${lang}`);
+      }
+    }).render('#paypal-button-container');
   };
 
   const confermaPagamento = () => {
+    if (carrello.length === 0) {
+      alert(testi.carrelloVuoto);
+      return;
+    }
+
     if (!spedizione || !pagamento) {
       alert(
         lang === 'it'
           ? 'Seleziona un metodo di spedizione e pagamento.'
-          : lang === 'en'
-          ? 'Please select a shipping and payment method.'
-          : 'Sélectionnez une méthode d\'expédition et de paiement.'
+          : 'Please select a shipping and payment method.'
       );
       return;
     }
@@ -209,12 +266,18 @@ export default function PagamentoPage() {
         {testi.totale} €{totaleFinale.toFixed(2)}
       </p>
 
-      <button
-        onClick={confermaPagamento}
-        className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 mb-6"
-      >
-        {testi.conferma}
-      </button>
+      {pagamento === 'PayPal' && carrello.length > 0 && (
+        <div id="paypal-button-container" className="mb-6 w-full flex justify-center"></div>
+      )}
+
+      {pagamento !== 'PayPal' && (
+        <button
+          onClick={confermaPagamento}
+          className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 mb-6"
+        >
+          {testi.conferma}
+        </button>
+      )}
 
       {mostraConfermaBonifico && (
         <>
