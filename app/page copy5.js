@@ -1,46 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import FlagLanguageSwitcher from '../components/FlagLanguageSwitcher';
 import MobileMenu from '../components/MobileMenu';
 import SearchIcon from '../components/SearchIcon';
+import UserMenu from '../components/UserMenu';
 import TopRightMenu from '../components/TopRightMenu';
-import { Instagram } from 'lucide-react';
-import { supabase } from './lib/supabaseClient';
+import { Phone, Heart, ShoppingCart, Instagram } from 'lucide-react';
 
 export default function Home() {
   const searchParams = useSearchParams();
   const lang = searchParams.get('lang') || 'it';
-  const [nomeUtente, setNomeUtente] = useState('');
-
-  useEffect(() => {
-    const fetchUtente = async () => {
-      setNomeUtente(''); // Reset
-      const { data: session } = await supabase.auth.getUser();
-      const email = session?.user?.email;
-      console.log('Utente loggato:', email);
-      if (!email) return;
-
-      const { data: cliente, error } = await supabase
-        .from('clienti')
-        .select('nome')
-        .eq('email', email)
-        .single();
-
-      if (error) {
-        console.error('Errore Supabase:', error);
-        return;
-      }
-
-      if (cliente?.nome) {
-        setNomeUtente(cliente.nome.toUpperCase());
-      }
-    };
-
-    fetchUtente();
-  }, []);
-
   return (
     <main
       className="min-h-screen w-full bg-cover bg-center bg-no-repeat bg-fixed text-center flex flex-col items-center justify-end px-4 pb-10"
@@ -48,6 +19,7 @@ export default function Home() {
     >
       {/* TOP BAR */}
       <div className="absolute top-4 w-full px-4 flex justify-between items-center z-50">
+        
         {/* LEFT: 🔍 + ≡ + MENU */}
         <div className="flex items-center gap-2 text-white">
           <SearchIcon lang={lang} />
@@ -56,7 +28,7 @@ export default function Home() {
         </div>
 
         {/* RIGHT: TopRightMenu dinamico */}
-        <TopRightMenu nomeUtente={nomeUtente} />
+        <TopRightMenu />
       </div>
 
       {/* LOGO CENTRALE */}
@@ -81,6 +53,7 @@ export default function Home() {
             />
           </a>
 
+          {/* INSTAGRAM Icon + Testo */}
           <div className="mt-2 flex items-center justify-center gap-2 text-white text-sm">
             <Instagram size={18} />
             <span>Instagram</span>
