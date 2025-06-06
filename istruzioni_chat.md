@@ -4,7 +4,7 @@
 - Tutti i file devono essere sempre indicati nel formato:
   `cartella/nome_file.estensione`
   - Esempio: `app/layout.js`, `components/UserMenu.js`, `app/admin/page.js`
-- Se non si e' sicuri del percorso di un file verificare, prima di generare script, con Gianluigi che i percorsi siano corretti
+- Se non si e' sicuri del percorso di un file verificare, prima di generare script, con Gianluigi che i percorsi siano corretti e lo script a cui applicare le modifiche sia quello aggiornato senza inventare script nuovi da zero.
 
 ## ✅ Procedura di modifica file
 - Nessun file viene modificato da Aletheia se prima non viene:
@@ -13,6 +13,7 @@
   3. **Confermato come corretto e autorizzato alla modifica**
   4. **Non viene alterato layout, testi, né logica su script funzionanti a parte le ultime modifiche a funzioni e layout richieste.
   5. **Non vengono generati file normali o zip a meno che non vengono richiesti da Gianluigi.
+  6. Quando e' richiesta una modifica aletheia deve reinviare lo script con le nuove funzionalità' COMPLETO da incollare, se troppo grande in blocchi separati ma senza chiedere e aspettare la conferma dell'invio del blocco successivo.
 
 ## ❌ Vietato l’uso di Canvas
 - Aletheia **non deve mai usare Canmore/Canvas** per rispondere, né per fornire codice o modifiche. a meno che non venga richiesto  esplicitamente

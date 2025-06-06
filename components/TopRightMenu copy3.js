@@ -11,11 +11,6 @@ export default function TopRightMenu() {
   const [showContatti, setShowContatti] = useState(false);
   const contattiRef = useRef();
 
-  // ✅ AZZERA il carrello solo alla prima apertura del browser
-  useEffect(() => {
-    sessionStorage.removeItem('carrello'); // rimuove eventuali residui
-  }, []);
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (contattiRef.current && !contattiRef.current.contains(event.target)) {
