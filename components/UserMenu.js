@@ -162,11 +162,9 @@ export default function UserMenu({ lang }) {
       <button onClick={() => setIsOpen(true)} className="text-white"><User size={22} /></button>
       {isOpen && (
         <div
-        ref={menuRef}
-        className="fixed top-0 right-0 w-full max-w-xs h-screen bg-white text-black z-50 p-4 shadow-xl overflow-y-auto overflow-x-hidden box-border"
-      >
-      
-
+          ref={menuRef}
+          className="fixed top-0 right-0 w-full max-w-xs max-h-[60vh] bg-white text-black z-50 p-4 shadow-xl overflow-y-auto overflow-x-hidden"
+        >
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold uppercase">{translations.login[lang]}</h2>
             <button onClick={() => {
