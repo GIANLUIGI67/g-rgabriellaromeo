@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -16,8 +15,6 @@ export default function AccessoriPage() {
   const [carrello, setCarrello] = useState([]);
   const [popupImg, setPopupImg] = useState(null);
   const [erroreQuantita, setErroreQuantita] = useState(false);
-  const [showPolicy, setShowPolicy] = useState(false);
-  const [accettaPolicy, setAccettaPolicy] = useState(false);
 
   const traduzioni = {
     it: {
@@ -27,13 +24,9 @@ export default function AccessoriPage() {
       checkout: 'Check-out',
       indietro: 'Indietro',
       venduto: 'venduto',
-      erroreQuantita: 'La quantità richiesta è superiore alla disponibilità! Per confermare comunque, controlla la nostra policy per la produzione.',
-      visualizzaPolicy: 'Visualizza Policy',
-      accetta: 'Sono d\'accordo con la policy per la produzione',
-      continua: 'Continua con l’ordine',
+      erroreQuantita: 'La quantità richiesta è superiore alla disponibilità!',
       rimuovi: 'Rimuovi',
-      carrello: 'Carrello',
-      policyTitolo: 'Policy per la produzione'
+      totale: 'Totale'
     },
     en: {
       titolo: 'ACCESSORY GALLERY',
@@ -42,13 +35,9 @@ export default function AccessoriPage() {
       checkout: 'Checkout',
       indietro: 'Back',
       venduto: 'sold',
-      erroreQuantita: 'Requested quantity exceeds available stock! To confirm anyway, check our production policy.',
-      visualizzaPolicy: 'View Policy',
-      accetta: 'I agree with the production policy',
-      continua: 'Continue with order',
+      erroreQuantita: 'Requested quantity exceeds available stock!',
       rimuovi: 'Remove',
-      carrello: 'Cart',
-      policyTitolo: 'Production Policy'
+      totale: 'Total'
     }
   };
 
@@ -96,15 +85,22 @@ export default function AccessoriPage() {
 
   const aggiungiAlCarrello = (prodotto) => {
     const qta = quantita[prodotto.id] || 1;
-    if (prodotto.quantita !== null && prodotto.quantita !== undefined && qta > prodotto.quantita) {
+  
+    // Se il prodotto non ha disponibilità definita, assumiamo disponibilità infinita
+    const disponibile = prodotto.quantita === null || prodotto.quantita === undefined
+      ? Infinity
+      : prodotto.quantita;
+  
+    if (qta > disponibile) {
       setErroreQuantita(true);
       return;
     }
+  
     const nuovoCarrello = [...carrello, ...Array(qta).fill(prodotto)];
     setCarrello(nuovoCarrello);
     localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
   };
-
+  
   const rimuoviDalCarrello = (prodottoId) => {
     const nuovo = carrello.filter(p => p.id !== prodottoId);
     setCarrello(nuovo);
@@ -173,22 +169,6 @@ export default function AccessoriPage() {
                   fontWeight: 'bold',
                 }}>✨ OFFERTA</div>
               )}
-              {prodotto.quantita === 0 && (
-                <div style={{
-                  position: 'absolute',
-                  top: '6px',
-                  right: '6px',
-                  backgroundColor: 'rgba(255, 0, 0, 0.2)',
-                  color: 'red',
-                  padding: '2px 4px',
-                  fontSize: '0.5rem',
-                  borderRadius: '3px',
-                  transform: 'rotate(-12deg)',
-                  fontWeight: 'bold'
-                }}>
-                  {t('venduto')}
-                </div>
-              )}
               <img
                 src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
                 alt={prodotto.nome}
@@ -224,183 +204,63 @@ export default function AccessoriPage() {
         })}
       </div>
 
-      {erroreQuantita && (
-        <div style={{
-          marginTop: '1rem',
-          backgroundColor: '#ffcccc',
-          color: 'red',
-          padding: '1rem',
-          borderRadius: '6px',
-          fontSize: '0.85rem',
-          maxWidth: '420px',
-          textAlign: 'center',
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          position: 'relative'
+{carrello.length > 0 && (
+  <div style={{
+    marginTop: '2rem',
+    backgroundColor: '#222',
+    padding: '1rem',
+    borderRadius: '8px',
+    width: '100%',
+    maxWidth: '400px',
+    textAlign: 'left',
+    marginLeft: 'auto',
+    marginRight: 'auto'
+  }}>
+    <h3 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>🛒 {t('carrello')}</h3>
+    {Array.from(new Set(carrello.map(p => p.id))).map(id => {
+     const prodotto = carrello.find(p => p.id === id);
+     const qta = carrello.filter(p => p.id === id).length;
+     return (
+       <div key={id} style={{
+         display: 'flex',
+         justifyContent: 'space-between',
+         alignItems: 'center',
+         padding: '0.3rem 0',
+         borderBottom: '1px solid #444'
         }}>
-          <button
-            onClick={() => setErroreQuantita(false)}
-            style={{
-              position: 'absolute',
-              top: '5px',
-              right: '10px',
-              background: 'none',
-              border: 'none',
-              color: 'red',
-              fontSize: '1rem',
-              cursor: 'pointer'
-            }}
-          >
-            ✕
-          </button>
-          {t('erroreQuantita')}
-          <div style={{ marginTop: '0.5rem' }}>
-            <button
-              onClick={() => setShowPolicy(true)}
+          <span>{prodotto.nome} × {qta}</span>
+          <button onClick={() => rimuoviDalCarrello(id)}
               style={{
-                backgroundColor: '#900',
-                color: 'white',
-                padding: '0.3rem 0.8rem',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '0.75rem'
-              }}
-            >
-              {t('visualizzaPolicy')}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {showPolicy && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.8)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            color: 'black',
-            padding: '2rem',
-            borderRadius: '10px',
-            width: '90%',
-            maxWidth: '400px',
-            textAlign: 'center',
-            position: 'relative'
-          }}>
-            <button onClick={() => setShowPolicy(false)} style={{
-              position: 'absolute',
-              top: '10px',
-              right: '10px',
-              background: 'none',
-              border: 'none',
-              fontSize: '1.2rem',
-              cursor: 'pointer'
-            }}>✕</button>
-            <h2 style={{ marginBottom: '1rem' }}>{t('policyTitolo')}</h2>
-            <label style={{ fontSize: '0.9rem' }}>
-              <input
-                type="checkbox"
-                checked={accettaPolicy}
-                onChange={() => setAccettaPolicy(!accettaPolicy)}
-                style={{ marginRight: '0.5rem' }}
-              />
-              {t('accetta')}
-            </label>
-            <div style={{ marginTop: '1rem' }}>
-              <button
-                disabled={!accettaPolicy}
-                onClick={() => {
-                  setShowPolicy(false);
-                  setErroreQuantita(false);
-                  setAccettaPolicy(false);
-                  const prodottoDaAggiungere = prodotti.find(p => quantita[p.id] > p.quantita);
-                  if (prodottoDaAggiungere) {
-                    const qta = quantita[prodottoDaAggiungere.id];
-                    const nuovoCarrello = [...carrello, ...Array(qta).fill(prodottoDaAggiungere)];
-                    setCarrello(nuovoCarrello);
-                    localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
-                  }
-                }}
-                style={{
-                  backgroundColor: accettaPolicy ? 'green' : 'gray',
-                  color: 'white',
-                  padding: '0.5rem 1rem',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: accettaPolicy ? 'pointer' : 'not-allowed',
-                  marginTop: '1rem',
-                  fontSize: '0.9rem'
-                }}
-              >
-                {t('continua')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {carrello.length > 0 && (
-        <div style={{
-          marginTop: '2rem',
-          backgroundColor: '#222',
-          padding: '1rem',
-          borderRadius: '8px',
-          width: '100%',
-          maxWidth: '400px',
-          textAlign: 'left',
-          marginLeft: 'auto',
-          marginRight: 'auto'
-        }}>
-          <h3 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>🛒 {t('carrello')}</h3>
-          {Array.from(new Set(carrello.map(p => p.id))).map(id => {
-            const prodotto = carrello.find(p => p.id === id);
-            const qta = carrello.filter(p => p.id === id).length;
-            return (
-              <div key={id} style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '0.3rem 0',
-                borderBottom: '1px solid #444'
-              }}>
-                <span>{prodotto.nome} × {qta}</span>
-                <button onClick={() => rimuoviDalCarrello(id)}
-                  style={{
-                    background: 'red',
-                    color: 'white',
-                    border: 'none',
-                    padding: '0.2rem 0.5rem',
-                    fontSize: '0.7rem',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}>{t('rimuovi')}</button>
-              </div>
-            );
-          })}
-          <button
-            onClick={() => router.push(`/checkout?lang=${lang}`)}
-            style={{
-              marginTop: '1rem',
-              width: '100%',
-              backgroundColor: 'green',
+              background: 'red',
               color: 'white',
               border: 'none',
-              padding: '0.5rem',
-              borderRadius: '6px',
-              fontSize: '1rem',
+              padding: '0.2rem 0.5rem',
+              fontSize: '0.7rem',
+              borderRadius: '4px',
               cursor: 'pointer'
-            }}
-          >
-            {t('checkout')}
-          </button>
+            }}>{t('rimuovi')}</button>
         </div>
-      )}
+      );
+    })}
+    <button
+      onClick={() => router.push(`/checkout?lang=${lang}`)}
+      style={{
+        marginTop: '1rem',
+        width: '100%',
+        backgroundColor: 'green',
+        color: 'white',
+        border: 'none',
+        padding: '0.5rem',
+        borderRadius: '6px',
+        fontSize: '1rem',
+        cursor: 'pointer'
+      }}
+    >
+      {t('checkout')}
+    </button>
+  </div>
+)}
+
 
       <div style={{ textAlign: 'center', marginTop: '2rem' }}>
         <button
@@ -418,31 +278,6 @@ export default function AccessoriPage() {
           {t('indietro')}
         </button>
       </div>
-
-      {popupImg && (
-        <div
-          onClick={() => setPopupImg(null)}
-          style={{
-            position: 'fixed',
-            top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000
-          }}
-        >
-          <img
-            src={popupImg}
-            alt="popup"
-            style={{
-              maxHeight: '90%',
-              maxWidth: '90%',
-              borderRadius: '10px'
-            }}
-          />
-        </div>
-      )}
     </main>
   );
 }

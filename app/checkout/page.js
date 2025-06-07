@@ -187,14 +187,22 @@ export default function CheckoutPage() {
           <button onClick={() => setIsRegistrazione(!isRegistrazione)} style={toggleStyle}>
             {isRegistrazione ? testi.login : testi.crea}
           </button>
-          <button onClick={loginGoogle} style={socialStyle}>
-            <img src="/icons/google.svg" alt="Google" style={{ width: '20px', marginRight: '8px', verticalAlign: 'middle' }} />
+          <button
+            onClick={loginGoogle}
+            className="w-full border border-black py-2 rounded flex items-center justify-center gap-2 text-sm bg-white hover:bg-gray-100 uppercase text-black"
+          >  
+            <img src="/icons/google.svg" className="w-5 h-5" alt="Google" />
             {lang === 'it' ? 'Login con Google' : 'Login with Google'}
           </button>
-          <button onClick={loginApple} style={socialStyle}>
-            <img src="/icons/apple.svg" alt="Apple" style={{ width: '20px', marginRight: '8px', verticalAlign: 'middle' }} />
+
+          <button
+            onClick={loginApple}
+            className="w-full border border-black py-2 rounded flex items-center justify-center gap-2 text-sm bg-white hover:bg-gray-100 uppercase text-black"
+          >
+            <img src="/icons/apple.svg" className="w-5 h-5" alt="Apple" />
             {lang === 'it' ? 'Login con Apple' : 'Login with Apple'}
           </button>
+
           {errore && <p style={{ color: 'red' }}>{errore}</p>}
         </div>
       ) : (
