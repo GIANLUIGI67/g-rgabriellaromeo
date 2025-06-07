@@ -49,6 +49,14 @@ export default function UserMenu({ lang }) {
   };
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        supabase.auth.signOut(); // logout automatico al primo accesso
+        setUtente(null);
+        setNomeUtente('');
+      }
+    });
+
     if (window.location.hash === '#crea-account') {
       setIsOpen(true);
       setModalitaRegistrazione(true);
@@ -70,20 +78,6 @@ export default function UserMenu({ lang }) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen]);
-
-  useEffect(() => {
-    const checkLogin = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        const user = data.session.user;
-        setUtente(user);
-        tracciaAccesso(user.email);
-        registraCliente(user.email);
-        fetchNomeUtente(user.email);
-      }
-    };
-    checkLogin();
-  }, []);
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -127,19 +121,28 @@ export default function UserMenu({ lang }) {
       fetchNomeUtente(data.user.email);
     }
   };
-  
+
   const loginGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
-    if (error) setErrore(error.message);
+    if (!error) {
+      const { data } = await supabase.auth.getUser();
+      setUtente(data.user);
+      tracciaAccesso(data.user.email);
+      registraCliente(data.user.email);
+      fetchNomeUtente(data.user.email);
+    }
   };
-  
-  
 
   const loginApple = async () => {
     const { error } = await supabase.auth.signInWithOAuth({ provider: 'apple' });
-    if (error) setErrore(error.message);
+    if (!error) {
+      const { data } = await supabase.auth.getUser();
+      setUtente(data.user);
+      tracciaAccesso(data.user.email);
+      registraCliente(data.user.email);
+      fetchNomeUtente(data.user.email);
+    }
   };
-  
 
   const registraUtente = async () => {
     if (!email || !password) return setErrore('Inserisci email e password');
@@ -161,8 +164,7 @@ export default function UserMenu({ lang }) {
     <>
       <button onClick={() => setIsOpen(true)} className="text-white"><User size={22} /></button>
       {isOpen && (
-        <div ref={menuRef} className="fixed top-0 right-0 w-96 sm:w-64 h-screen/2 bg-white text-black z-50 p-1.5 shadow-xl overflow-y-auto"> 
-
+        <div ref={menuRef} className="fixed top-0 right-0 w-full sm:w-96 h-full bg-white text-black z-50 p-6 shadow-xl overflow-y-auto">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold uppercase">{translations.login[lang]}</h2>
             <button onClick={() => {

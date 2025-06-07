@@ -14,7 +14,9 @@ export default function AccessoriPage() {
   const [sottocategoriaSelezionata, setSottocategoriaSelezionata] = useState('');
   const [carrello, setCarrello] = useState([]);
   const [popupImg, setPopupImg] = useState(null);
+  const [showPolicy, setShowPolicy] = useState(false);
   const [erroreQuantita, setErroreQuantita] = useState(false);
+  const [accettaPolicy, setAccettaPolicy] = useState(false);
 
   const traduzioni = {
     it: {
@@ -25,8 +27,12 @@ export default function AccessoriPage() {
       indietro: 'Indietro',
       venduto: 'venduto',
       erroreQuantita: 'La quantità richiesta è superiore alla disponibilità!',
+      visualizzaPolicy: 'Visualizza Policy',
+      accetta: 'Sono d\'accordo con la policy per la produzione',
+      continua: 'Continua con l’ordine',
       rimuovi: 'Rimuovi',
-      totale: 'Totale'
+      carrello: 'Carrello',
+      policyTitolo: 'Policy per la produzione'
     },
     en: {
       titolo: 'ACCESSORY GALLERY',
@@ -36,9 +42,14 @@ export default function AccessoriPage() {
       indietro: 'Back',
       venduto: 'sold',
       erroreQuantita: 'Requested quantity exceeds available stock!',
+      visualizzaPolicy: 'View Policy',
+      accetta: 'I agree with the production policy',
+      continua: 'Continue with order',
       rimuovi: 'Remove',
-      totale: 'Total'
+      carrello: 'Cart',
+      policyTitolo: 'Production Policy'
     }
+    // Altre lingue omesse per brevità
   };
 
   const t = (key) => traduzioni[lang]?.[key] || traduzioni['it'][key] || key;
@@ -65,9 +76,6 @@ export default function AccessoriPage() {
         data.forEach(p => { iniziali[p.id] = 1 });
         setQuantita(iniziali);
       }
-
-      const carrelloSalvato = localStorage.getItem('carrello');
-      if (carrelloSalvato) setCarrello(JSON.parse(carrelloSalvato));
     };
     fetchProdotti();
   }, []);
@@ -84,23 +92,28 @@ export default function AccessoriPage() {
   };
 
   const aggiungiAlCarrello = (prodotto) => {
-    const qta = quantita[prodotto.id] || 1;
-    if (prodotto.quantita !== null && prodotto.quantita !== undefined && qta > prodotto.quantita) {
-      setErroreQuantita(true);
-      return;
-    }
-    const nuovoCarrello = [...carrello, ...Array(qta).fill(prodotto)];
-    setCarrello(nuovoCarrello);
-    localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
-  };
+    console.log('DEBUG: Prodotto ricevuto:', prodotto);
+    console.log('DEBUG: ID Prodotto:', prodotto?.id);
+    console.log('DEBUG: Quantità selezionata:', quantita[prodotto?.id]);
+    
+  
+    if (!prodotto || !prodotto.id) {
+    console.warn('Prodotto senza ID, impossibile aggiungere al carrello:', prodotto);
+    return;
+  }
 
-  const rimuoviDalCarrello = (prodottoId) => {
-    const nuovo = carrello.filter(p => p.id !== prodottoId);
-    setCarrello(nuovo);
-    localStorage.setItem('carrello', JSON.stringify(nuovo));
-  };
+  const qta = quantita[prodotto.id] || 1;
+  if (prodotto.quantita !== null && prodotto.quantita !== undefined && qta > prodotto.quantita) {
+    setErroreQuantita(true);
+    return;
+  }
 
-  const totale = carrello.reduce((acc, p) => acc + Number(p.offerta ? Math.round((p.prezzo - (p.prezzo * (p.sconto || 0) / 100)) * 10) / 10 : p.prezzo), 0);
+  const prodottoConQuantita = { ...prodotto, quantitaSelezionata: qta };
+  const nuovoCarrello = [...carrello, prodottoConQuantita];
+
+  setCarrello(nuovoCarrello);
+  localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
+};
 
   return (
     <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem' }}>
@@ -141,31 +154,26 @@ export default function AccessoriPage() {
               color: 'black',
               padding: '0.5rem',
               borderRadius: '6px',
-              fontSize: '0.65rem',
-              textAlign: 'center',
-              flex: '0 0 auto',
               width: '160px',
-              scrollSnapAlign: 'start',
+              textAlign: 'center',
               position: 'relative'
             }}>
               {prodotto.offerta && (
                 <div style={{
                   position: 'absolute',
-                  top: '6px',
-                  left: '6px',
-                  backgroundColor: 'rgba(255, 0, 0, 0.6)',
+                  top: '-6px',
+                  left: '-4px',
+                  backgroundColor: 'red',
                   color: 'white',
-                  padding: '2px 4px',
-                  borderRadius: '3px',
-                  fontSize: '0.5rem',
-                  transform: 'rotate(-12deg)',
-                  fontWeight: 'bold',
+                  padding: '0.1rem 0.2rem',
+                  borderRadius: '4px',
+                  fontSize: '0.5rem'
                 }}>✨ OFFERTA</div>
               )}
               <img
                 src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
                 alt={prodotto.nome}
-                style={{ width: '100%', height: 'auto', maxHeight: '80px', objectFit: 'contain', borderRadius: '4px', marginBottom: '0.3rem', cursor: 'pointer' }}
+                style={{ width: '100%', maxHeight: '80px', objectFit: 'contain', borderRadius: '4px' }}
                 onClick={() => setPopupImg(`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`)}
               />
               <strong>{prodotto.nome}</strong>
@@ -196,64 +204,6 @@ export default function AccessoriPage() {
           );
         })}
       </div>
-
-{carrello.length > 0 && (
-  <div style={{
-    marginTop: '2rem',
-    backgroundColor: '#222',
-    padding: '1rem',
-    borderRadius: '8px',
-    width: '100%',
-    maxWidth: '400px',
-    textAlign: 'left',
-    marginLeft: 'auto',
-    marginRight: 'auto'
-  }}>
-    <h3 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>🛒 {t('carrello')}</h3>
-    {Array.from(new Set(carrello.map(p => p.id))).map(id => {
-     const prodotto = carrello.find(p => p.id === id);
-     const qta = carrello.filter(p => p.id === id).length;
-     return (
-       <div key={id} style={{
-         display: 'flex',
-         justifyContent: 'space-between',
-         alignItems: 'center',
-         padding: '0.3rem 0',
-         borderBottom: '1px solid #444'
-        }}>
-          <span>{prodotto.nome} × {qta}</span>
-          <button onClick={() => rimuoviDalCarrello(id)}
-              style={{
-              background: 'red',
-              color: 'white',
-              border: 'none',
-              padding: '0.2rem 0.5rem',
-              fontSize: '0.7rem',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}>{t('rimuovi')}</button>
-        </div>
-      );
-    })}
-    <button
-      onClick={() => router.push(`/checkout?lang=${lang}`)}
-      style={{
-        marginTop: '1rem',
-        width: '100%',
-        backgroundColor: 'green',
-        color: 'white',
-        border: 'none',
-        padding: '0.5rem',
-        borderRadius: '6px',
-        fontSize: '1rem',
-        cursor: 'pointer'
-      }}
-    >
-      {t('checkout')}
-    </button>
-  </div>
-)}
-
 
       <div style={{ textAlign: 'center', marginTop: '2rem' }}>
         <button
