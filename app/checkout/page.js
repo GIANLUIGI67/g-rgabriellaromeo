@@ -68,15 +68,25 @@ export default function CheckoutPage() {
   };
 
   const loginGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/checkout`
+      }
+    });
     if (!error) tracciaAccesso(email);
   };
 
   const loginApple = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({ provider: 'apple' });
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'apple',
+      options: {
+        redirectTo: `${window.location.origin}/checkout`
+      }
+    });
     if (!error) tracciaAccesso(email);
   };
-
+  
   const registraCliente = async (email) => {
     await supabase.from('clienti').insert({
       email,
