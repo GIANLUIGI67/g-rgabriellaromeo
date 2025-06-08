@@ -106,7 +106,7 @@ export default function GioielliPage() {
       accetta: '我同意生产政策',
       continua: '继续下单',
       rimuovi: '移除',
-      carrello: '购物车', 
+      carrello: '购物车',
       policyTitolo: '生产政策'
     },
     ar: {
@@ -163,11 +163,12 @@ export default function GioielliPage() {
         data.forEach(p => { iniziali[p.id] = 1 });
         setQuantita(iniziali);
       }
-    };
 
+      const carrelloSalvato = localStorage.getItem('carrello');
+      if (carrelloSalvato) setCarrello(JSON.parse(carrelloSalvato));
+    };
     fetchProdotti();
   }, []);
-
   const filtrati = prodotti.filter(p =>
     !sottocategoriaSelezionata || p.sottocategoria === sottocategoriaSelezionata
   );
@@ -191,14 +192,14 @@ export default function GioielliPage() {
   };
 
   const rimuoviDalCarrello = (prodottoId) => {
-    const nuovoCarrello = carrello.filter(p => p.id !== prodottoId);
-    setCarrello(nuovoCarrello);
-    localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
+    const nuovo = carrello.filter(p => p.id !== prodottoId);
+    setCarrello(nuovo);
+    localStorage.setItem('carrello', JSON.stringify(nuovo));
   };
 
   return (
     <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem' }}>
-      <h1 style={{ fontSize: '2rem', marginBottom: '1.5rem', textAlign: 'center' }}>{t('titolo')}</h1>
+      <h1 style={{ fontSize: '2rem', textAlign: 'center', marginBottom: '2rem' }}>{t('titolo')}</h1>
 
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <select
@@ -225,177 +226,164 @@ export default function GioielliPage() {
 
       <div style={{
         display: 'flex',
-        overflowX: 'auto',
         gap: '1rem',
-        width: '100%',
-        padding: '0.5rem',
-        scrollSnapType: 'x mandatory'
+        overflowX: 'auto',
+        padding: '1rem'
       }}>
-        {filtrati.map(prodotto => (
-          <div key={prodotto.id} style={{
-            backgroundColor: 'white',
-            color: 'black',
-            padding: '0.5rem',
-            borderRadius: '6px',
-            fontSize: '0.65rem',
-            textAlign: 'center',
-            flex: '0 0 auto',
-            width: '160px',
-            scrollSnapAlign: 'start',
-            position: 'relative'
-          }}>
-            {prodotto.quantita === 0 && (
-              <div style={{
-                position: 'absolute',
-                top: '6px',
-                left: '6px',
-                backgroundColor: 'rgba(255, 0, 0, 0.2)',
-                color: 'red',
-                padding: '2px 4px',
-                fontSize: '0.5rem',
-                borderRadius: '3px',
-                transform: 'rotate(-12deg)',
-                fontWeight: 'bold'
-              }}>
-                {t('venduto')}
-              </div>
-            )}
-            <img
-              src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
-              alt={prodotto.nome}
-              style={{
-                width: '100%',
-                height: 'auto',
-                maxHeight: '80px',
-                objectFit: 'contain',
-                borderRadius: '4px',
-                marginBottom: '0.3rem',
-                cursor: 'pointer'
-              }}
-              onClick={() => setPopupImg(`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`)}
-            />
-            <strong>{prodotto.nome}</strong>
-            <p>{prodotto.taglia}</p>
-            <p style={{ fontFamily: 'Arial, sans-serif' }}>
-              {'\u20AC'} {(Math.round(Number(prodotto.prezzo || 0) * 10) / 10).toFixed(1)}
-            </p>
+        {filtrati.map(prodotto => {
+          const prezzoNum = Number(prodotto.prezzo);
+          const scontoNum = Number(prodotto.sconto || 0);
+          const prezzoScontato = Math.round((prezzoNum - (prezzoNum * scontoNum / 100)) * 10) / 10;
 
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem', margin: '0.3rem 0' }}>
-              <button onClick={() => cambiaQuantita(prodotto.id, -1)}
-                style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>–</button>
-
-              <input
-                type="text"
-                value={quantita[prodotto.id] || 1}
-                readOnly
-                style={{
-                  width: '1.8rem',
-                  textAlign: 'center',
-                  background: 'white',
-                  color: 'black',
-                  fontSize: '0.9rem',
-                  border: '1px solid black',
-                  borderRadius: '4px',
-                  padding: '1px 3px'
-                }}
+          return (
+            <div key={prodotto.id} style={{
+              backgroundColor: 'white',
+              color: 'black',
+              padding: '0.5rem',
+              borderRadius: '6px',
+              fontSize: '0.65rem',
+              textAlign: 'center',
+              flex: '0 0 auto',
+              width: '160px',
+              scrollSnapAlign: 'start',
+              position: 'relative'
+            }}>
+              {prodotto.offerta && (
+                <div style={{
+                  position: 'absolute',
+                  top: '6px',
+                  left: '6px',
+                  backgroundColor: 'rgba(255, 0, 0, 0.6)',
+                  color: 'white',
+                  padding: '2px 4px',
+                  borderRadius: '3px',
+                  fontSize: '0.5rem',
+                  transform: 'rotate(-12deg)',
+                  fontWeight: 'bold',
+                }}>✨ OFFERTA</div>
+              )}
+              {prodotto.quantita === 0 && (
+                <div style={{
+                  position: 'absolute',
+                  top: '6px',
+                  right: '6px',
+                  backgroundColor: 'rgba(255, 0, 0, 0.2)',
+                  color: 'red',
+                  padding: '2px 4px',
+                  fontSize: '0.5rem',
+                  borderRadius: '3px',
+                  transform: 'rotate(-12deg)',
+                  fontWeight: 'bold'
+                }}>{t('venduto')}</div>
+              )}
+              <img
+                src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
+                alt={prodotto.nome}
+                style={{ width: '100%', height: 'auto', maxHeight: '80px', objectFit: 'contain', borderRadius: '4px', marginBottom: '0.3rem', cursor: 'pointer' }}
+                onClick={() => setPopupImg(`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`)}
               />
-
-              <button onClick={() => cambiaQuantita(prodotto.id, 1)}
-                style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>+</button>
+              <strong>{prodotto.nome}</strong>
+              <p>{prodotto.taglia}</p>
+              {prodotto.offerta ? (
+                <p style={{ fontFamily: 'Arial' }}>
+                  <span style={{ textDecoration: 'line-through', color: 'gray', marginRight: '4px' }}>
+                    {'\u20AC'} {prezzoNum.toFixed(1)}
+                  </span>
+                  <span style={{ color: 'red', fontWeight: 'bold' }}>
+                    {'\u20AC'} {prezzoScontato.toFixed(1)} (-{scontoNum}%)
+                  </span>
+                </p>
+              ) : (
+                <p style={{ fontFamily: 'Arial' }}>
+                  {'\u20AC'} {prezzoNum.toFixed(1)}
+                </p>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem' }}>
+                <button onClick={() => cambiaQuantita(prodotto.id, -1)} style={{ border: 'none', background: 'none', fontSize: '1rem' }}>–</button>
+                <input type="text" value={quantita[prodotto.id] || 1} readOnly style={{ width: '2rem', textAlign: 'center' }} />
+                <button onClick={() => cambiaQuantita(prodotto.id, 1)} style={{ border: 'none', background: 'none', fontSize: '1rem' }}>+</button>
+              </div>
+              <button onClick={() => aggiungiAlCarrello(prodotto)} style={{ marginTop: '0.3rem', padding: '0.3rem', fontSize: '0.65rem', backgroundColor: '#333', color: 'white', borderRadius: '4px', border: 'none' }}>
+                {t('aggiungi')}
+              </button>
             </div>
-
-            <button
-              onClick={() => aggiungiAlCarrello(prodotto)}
-              style={{
-                padding: '0.2rem 0.4rem',
-                fontSize: '0.6rem',
-                backgroundColor: '#333',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              {t('aggiungi')}
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
-
-{carrello.length > 0 && (
-  <div style={{
-    marginTop: '2rem',
-    backgroundColor: '#222',
-    padding: '1rem',
-    borderRadius: '8px',
-    width: '100%',
-    maxWidth: '400px',
-    textAlign: 'left',
-    marginLeft: 'auto',
-    marginRight: 'auto'
-  }}>
-    <h3 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>🛒 {t('carrello')}</h3>
-    {Array.from(new Set(carrello.map(p => p.id))).map(id => {
-      const prodotto = carrello.find(p => p.id === id);
-      const qta = carrello.filter(p => p.id === id).length;
-      return (
-        <div key={id} style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '0.3rem 0',
-          borderBottom: '1px solid #444'
+      {carrello.length > 0 && (
+        <div style={{
+          marginTop: '2rem',
+          backgroundColor: '#222',
+          padding: '1rem',
+          borderRadius: '8px',
+          width: '100%',
+          maxWidth: '400px',
+          textAlign: 'left',
+          marginLeft: 'auto',
+          marginRight: 'auto'
         }}>
-          <span>{prodotto.nome} × {qta}</span>
-          <button onClick={() => rimuoviDalCarrello(id)}
+          <h3 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>🛒 {t('carrello')}</h3>
+
+          {Array.from(new Set(carrello.map(p => p.id))).map(id => {
+            const prodotto = carrello.find(p => p.id === id);
+            const qta = carrello.filter(p => p.id === id).length;
+            return (
+              <div key={id} style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0.3rem 0',
+                borderBottom: '1px solid #444'
+              }}>
+                <span>{prodotto.nome} × {qta}</span>
+                <button onClick={() => rimuoviDalCarrello(id)}
+                  style={{
+                    background: 'red',
+                    color: 'white',
+                    border: 'none',
+                    padding: '0.2rem 0.5rem',
+                    fontSize: '0.7rem',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}>{t('rimuovi')}</button>
+              </div>
+            );
+          })}
+          <button
+            onClick={() => router.push(`/checkout?lang=${lang}`)}
             style={{
-              background: 'red',
+              marginTop: '1rem',
+              width: '100%',
+              backgroundColor: 'green',
               color: 'white',
               border: 'none',
-              padding: '0.2rem 0.5rem',
-              fontSize: '0.7rem',
-              borderRadius: '4px',
+              padding: '0.5rem',
+              borderRadius: '6px',
+              fontSize: '1rem',
               cursor: 'pointer'
-            }}>{t('rimuovi')}</button>
+            }}
+          >
+            {t('checkout')}
+          </button>
         </div>
-      );
-    })}
-    <button
-      onClick={() => router.push(`/checkout?lang=${lang}`)}
-      style={{
-        marginTop: '1rem',
-        width: '100%',
-        backgroundColor: 'green',
-        color: 'white',
-        border: 'none',
-        padding: '0.5rem',
-        borderRadius: '6px',
-        fontSize: '1rem',
-        cursor: 'pointer'
-      }}
-    >
-      {t('checkout')}
-    </button>
-  </div>
-)}
+      )}
 
-<div style={{ textAlign: 'center', marginTop: '2rem' }}>
-  <button
-    onClick={() => router.push(`/?lang=${lang}`)}
-    style={{
-      marginTop: '1rem',
-      backgroundColor: '#444',
-      color: 'white',
-      padding: '0.6rem 1.2rem',
-      border: 'none',
-      borderRadius: '8px',
-      fontSize: '0.95rem',
-      cursor: 'pointer'
-    }}
-  >
-    {t('indietro')}
-  </button>
-</div>
+      <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+        <button
+          onClick={() => router.push(`/?lang=${lang}`)}
+          style={{
+            backgroundColor: '#444',
+            color: 'white',
+            padding: '0.6rem 1.2rem',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '0.95rem',
+            cursor: 'pointer'
+          }}
+        >
+          {t('indietro')}
+        </button>
+      </div>
 
       {erroreQuantita && (
         <div style={{
@@ -445,7 +433,6 @@ export default function GioielliPage() {
           </div>
         </div>
       )}
-
       {showPolicy && (
         <div style={{
           position: 'fixed',

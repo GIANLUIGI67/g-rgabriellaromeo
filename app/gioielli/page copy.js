@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 
-export default function AccessoriPage() {
+export default function GioielliPage() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
   const router = useRouter();
@@ -20,7 +20,7 @@ export default function AccessoriPage() {
 
   const traduzioni = {
     it: {
-      titolo: 'GALLERIA ACCESSORI',
+      titolo: 'GALLERIA GIOIELLI',
       sottotutte: 'Tutte le sottocategorie',
       aggiungi: 'Aggiungi al carrello',
       checkout: 'Check-out',
@@ -35,7 +35,7 @@ export default function AccessoriPage() {
       policyTitolo: 'Policy per la produzione'
     },
     en: {
-      titolo: 'ACCESSORY GALLERY',
+      titolo: 'JEWELRY GALLERY',
       sottotutte: 'All subcategories',
       aggiungi: 'Add to cart',
       checkout: 'Checkout',
@@ -50,7 +50,7 @@ export default function AccessoriPage() {
       policyTitolo: 'Production Policy'
     },
     fr: {
-      titolo: 'GALERIE ACCESSOIRES',
+      titolo: 'GALERIE DE BIJOUX',
       sottotutte: 'Toutes les sous-catégories',
       aggiungi: 'Ajouter au panier',
       checkout: 'Passer à la caisse',
@@ -65,7 +65,7 @@ export default function AccessoriPage() {
       policyTitolo: 'Politique de production'
     },
     de: {
-      titolo: 'ACCESSOIRES GALERIE',
+      titolo: 'SCHMUCKGALERIE',
       sottotutte: 'Alle Unterkategorien',
       aggiungi: 'In den Warenkorb',
       checkout: 'Zur Kasse',
@@ -80,7 +80,7 @@ export default function AccessoriPage() {
       policyTitolo: 'Produktionsrichtlinie'
     },
     es: {
-      titolo: 'GALERÍA DE ACCESORIOS',
+      titolo: 'GALERÍA DE JOYAS',
       sottotutte: 'Todas las subcategorías',
       aggiungi: 'Agregar al carrito',
       checkout: 'Finalizar compra',
@@ -95,7 +95,7 @@ export default function AccessoriPage() {
       policyTitolo: 'Política de producción'
     },
     zh: {
-      titolo: '配饰画廊',
+      titolo: '珠宝画廊',
       sottotutte: '所有子类别',
       aggiungi: '添加到购物车',
       checkout: '结账',
@@ -106,11 +106,11 @@ export default function AccessoriPage() {
       accetta: '我同意生产政策',
       continua: '继续下单',
       rimuovi: '移除',
-      carrello: '购物车',
+      carrello: '购物车', 
       policyTitolo: '生产政策'
     },
     ar: {
-      titolo: 'معرض الإكسسوارات',
+      titolo: 'معرض المجوهرات',
       sottotutte: 'كل الفئات الفرعية',
       aggiungi: 'أضف إلى السلة',
       checkout: 'إتمام الشراء',
@@ -125,7 +125,7 @@ export default function AccessoriPage() {
       policyTitolo: 'سياسة الإنتاج'
     },
     ja: {
-      titolo: 'アクセサリーギャラリー',
+      titolo: 'ジュエリーギャラリー',
       sottotutte: 'すべてのサブカテゴリ',
       aggiungi: 'カートに追加',
       checkout: 'チェックアウト',
@@ -142,13 +142,11 @@ export default function AccessoriPage() {
   };
 
   const t = (key) => traduzioni[lang]?.[key] || traduzioni['it'][key] || key;
-
   const sottocategorie = {
+    anelli: { it: 'anelli', en: 'rings', fr: 'bagues', de: 'ringe', es: 'anillos', zh: '戒指', ar: 'خواتم', ja: 'リング' },
     collane: { it: 'collane', en: 'necklaces', fr: 'colliers', de: 'ketten', es: 'collares', zh: '项链', ar: 'قلائد', ja: 'ネックレス' },
-    orecchini: { it: 'orecchini', en: 'earrings', fr: 'boucles d’oreilles', de: 'ohrringe', es: 'pendientes', zh: '耳环', ar: 'أقراط', ja: 'イヤリング' },
     bracciali: { it: 'bracciali', en: 'bracelets', fr: 'bracelets', de: 'armbänder', es: 'pulseras', zh: '手镯', ar: 'أساور', ja: 'ブレスレット' },
-    borse: { it: 'borse', en: 'bags', fr: 'sacs', de: 'taschen', es: 'bolsos', zh: '包', ar: 'حقائب', ja: 'バッグ' },
-    foulard: { it: 'foulard', en: 'scarves', fr: 'foulards', de: 'schals', es: 'pañuelos', zh: '围巾', ar: 'أوشحة', ja: 'スカーフ' }
+    orecchini: { it: 'orecchini', en: 'earrings', fr: 'boucles d’oreilles', de: 'ohrringe', es: 'pendientes', zh: '耳环', ar: 'أقراط', ja: 'イヤリング' }
   };
 
   useEffect(() => {
@@ -156,7 +154,7 @@ export default function AccessoriPage() {
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .eq('categoria', 'accessori')
+        .eq('categoria', 'gioielli')
         .order('created_at', { ascending: false });
 
       if (!error) {
@@ -324,80 +322,80 @@ export default function AccessoriPage() {
         ))}
       </div>
 
-      {carrello.length > 0 && (
-        <div style={{
-          marginTop: '2rem',
-          backgroundColor: '#222',
-          padding: '1rem',
-          borderRadius: '8px',
-          width: '100%',
-          maxWidth: '400px',
-          textAlign: 'left',
-          marginLeft: 'auto',
-          marginRight: 'auto'
+{carrello.length > 0 && (
+  <div style={{
+    marginTop: '2rem',
+    backgroundColor: '#222',
+    padding: '1rem',
+    borderRadius: '8px',
+    width: '100%',
+    maxWidth: '400px',
+    textAlign: 'left',
+    marginLeft: 'auto',
+    marginRight: 'auto'
+  }}>
+    <h3 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>🛒 {t('carrello')}</h3>
+    {Array.from(new Set(carrello.map(p => p.id))).map(id => {
+      const prodotto = carrello.find(p => p.id === id);
+      const qta = carrello.filter(p => p.id === id).length;
+      return (
+        <div key={id} style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '0.3rem 0',
+          borderBottom: '1px solid #444'
         }}>
-          <h3 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>🛒 {t('carrello')}</h3>
-          {Array.from(new Set(carrello.map(p => p.id))).map(id => {
-            const prodotto = carrello.find(p => p.id === id);
-            const qta = carrello.filter(p => p.id === id).length;
-            return (
-              <div key={id} style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '0.3rem 0',
-                borderBottom: '1px solid #444'
-              }}>
-                <span>{prodotto.nome} × {qta}</span>
-                <button onClick={() => rimuoviDalCarrello(id)}
-                  style={{
-                    background: 'red',
-                    color: 'white',
-                    border: 'none',
-                    padding: '0.2rem 0.5rem',
-                    fontSize: '0.7rem',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}>{t('rimuovi')}</button>
-              </div>
-            );
-          })}
-          <button
-            onClick={() => router.push(`/checkout?lang=${lang}`)}
+          <span>{prodotto.nome} × {qta}</span>
+          <button onClick={() => rimuoviDalCarrello(id)}
             style={{
-              marginTop: '1rem',
-              width: '100%',
-              backgroundColor: 'green',
+              background: 'red',
               color: 'white',
               border: 'none',
-              padding: '0.5rem',
-              borderRadius: '6px',
-              fontSize: '1rem',
+              padding: '0.2rem 0.5rem',
+              fontSize: '0.7rem',
+              borderRadius: '4px',
               cursor: 'pointer'
-            }}
-          >
-            {t('checkout')}
-          </button>
+            }}>{t('rimuovi')}</button>
         </div>
-      )}
+      );
+    })}
+    <button
+      onClick={() => router.push(`/checkout?lang=${lang}`)}
+      style={{
+        marginTop: '1rem',
+        width: '100%',
+        backgroundColor: 'green',
+        color: 'white',
+        border: 'none',
+        padding: '0.5rem',
+        borderRadius: '6px',
+        fontSize: '1rem',
+        cursor: 'pointer'
+      }}
+    >
+      {t('checkout')}
+    </button>
+  </div>
+)}
 
-      <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-        <button
-          onClick={() => router.push(`/?lang=${lang}`)}
-          style={{
-            marginTop: '1rem',
-            backgroundColor: '#444',
-            color: 'white',
-            padding: '0.6rem 1.2rem',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '0.95rem',
-            cursor: 'pointer'
-          }}
-        >
-          {t('indietro')}
-        </button>
-      </div>
+<div style={{ textAlign: 'center', marginTop: '2rem' }}>
+  <button
+    onClick={() => router.push(`/?lang=${lang}`)}
+    style={{
+      marginTop: '1rem',
+      backgroundColor: '#444',
+      color: 'white',
+      padding: '0.6rem 1.2rem',
+      border: 'none',
+      borderRadius: '8px',
+      fontSize: '0.95rem',
+      cursor: 'pointer'
+    }}
+  >
+    {t('indietro')}
+  </button>
+</div>
 
       {erroreQuantita && (
         <div style={{
@@ -547,4 +545,3 @@ export default function AccessoriPage() {
     </main>
   );
 }
-

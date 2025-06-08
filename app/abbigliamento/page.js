@@ -41,7 +41,6 @@ export default function AbbigliamentoPage() {
     caftani: { it: 'Caftani', en: 'Kaftans', fr: 'Caftans', de: 'Kaftane', es: 'Caftanes', ar: 'قفاطين', zh: '开襟长袍', ja: 'カフタン' },
     'abbigliamento da mare': { it: 'Abbigliamento da mare', en: 'Beachwear', fr: 'Tenues de plage', de: 'Badebekleidung', es: 'Ropa de playa', ar: 'ملابس بحر', zh: '泳装', ja: 'ビーチウェア' }
   };
-
   useEffect(() => {
     const fetchProdotti = async () => {
       const { data, error } = await supabase
@@ -90,7 +89,7 @@ export default function AbbigliamentoPage() {
   };
   return (
     <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem' }}>
-      <h1 style={{ fontSize: '2rem', marginBottom: '1.5rem', textAlign: 'center' }}>{t('titolo')}</h1>
+      <h1 style={{ fontSize: '2rem', textAlign: 'center', marginBottom: '2rem' }}>{t('titolo')}</h1>
 
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <select
@@ -115,105 +114,89 @@ export default function AbbigliamentoPage() {
         </select>
       </div>
 
-      <div style={{
-        display: 'flex',
-        overflowX: 'auto',
-        gap: '1rem',
-        width: '100%',
-        padding: '0.5rem',
-        scrollSnapType: 'x mandatory'
-      }}>
-        {filtrati.map(prodotto => (
-          <div key={prodotto.id} style={{
-            backgroundColor: 'white',
-            color: 'black',
-            padding: '0.5rem',
-            borderRadius: '6px',
-            fontSize: '0.65rem',
-            textAlign: 'center',
-            flex: '0 0 auto',
-            width: '160px',
-            scrollSnapAlign: 'start',
-            position: 'relative'
-          }}>
-            {prodotto.quantita === 0 && (
-              <div style={{
-                position: 'absolute',
-                top: '6px',
-                left: '6px',
-                backgroundColor: 'rgba(255, 0, 0, 0.2)',
-                color: 'red',
-                padding: '2px 4px',
-                fontSize: '0.5rem',
-                borderRadius: '3px',
-                transform: 'rotate(-12deg)',
-                fontWeight: 'bold'
-              }}>
-                {t('venduto')}
-              </div>
-            )}
-            <img
-              src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
-              alt={prodotto.nome}
-              style={{
-                width: '100%',
-                height: 'auto',
-                maxHeight: '80px',
-                objectFit: 'contain',
-                borderRadius: '4px',
-                marginBottom: '0.3rem',
-                cursor: 'pointer'
-              }}
-              onClick={() => setPopupImg(`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`)}
-            />
-            <strong>{prodotto.nome}</strong>
-            <p>{prodotto.taglia}</p>
-            <p style={{ fontFamily: 'Arial, sans-serif' }}>
-              {'\u20AC'} {(Math.round(Number(prodotto.prezzo || 0) * 10) / 10).toFixed(1)}
-            </p>
+      <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', padding: '1rem' }}>
+        {filtrati.map(prodotto => {
+          const prezzoNum = Number(prodotto.prezzo);
+          const scontoNum = Number(prodotto.sconto || 0);
+          const prezzoScontato = Math.round((prezzoNum - (prezzoNum * scontoNum / 100)) * 10) / 10;
 
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem', margin: '0.3rem 0' }}>
-              <button onClick={() => cambiaQuantita(prodotto.id, -1)}
-                style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>–</button>
-
-              <input
-                type="text"
-                value={quantita[prodotto.id] || 1}
-                readOnly
-                style={{
-                  width: '1.8rem',
-                  textAlign: 'center',
-                  background: 'white',
-                  color: 'black',
-                  fontSize: '0.9rem',
-                  border: '1px solid black',
-                  borderRadius: '4px',
-                  padding: '1px 3px'
-                }}
+          return (
+            <div key={prodotto.id} style={{
+              backgroundColor: 'white',
+              color: 'black',
+              padding: '0.5rem',
+              borderRadius: '6px',
+              fontSize: '0.65rem',
+              textAlign: 'center',
+              flex: '0 0 auto',
+              width: '160px',
+              scrollSnapAlign: 'start',
+              position: 'relative'
+            }}>
+              {prodotto.offerta && (
+                <div style={{
+                  position: 'absolute',
+                  top: '6px',
+                  left: '6px',
+                  backgroundColor: 'rgba(255, 0, 0, 0.6)',
+                  color: 'white',
+                  padding: '2px 4px',
+                  borderRadius: '3px',
+                  fontSize: '0.5rem',
+                  transform: 'rotate(-12deg)',
+                  fontWeight: 'bold',
+                }}>✨ OFFERTA</div>
+              )}
+              {prodotto.quantita === 0 && (
+                <div style={{
+                  position: 'absolute',
+                  top: '6px',
+                  right: '6px',
+                  backgroundColor: 'rgba(255, 0, 0, 0.2)',
+                  color: 'red',
+                  padding: '2px 4px',
+                  fontSize: '0.5rem',
+                  borderRadius: '3px',
+                  transform: 'rotate(-12deg)',
+                  fontWeight: 'bold'
+                }}>
+                  {t('venduto')}
+                </div>
+              )}
+              <img
+                src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
+                alt={prodotto.nome}
+                style={{ width: '100%', height: 'auto', maxHeight: '80px', objectFit: 'contain', borderRadius: '4px', marginBottom: '0.3rem', cursor: 'pointer' }}
+                onClick={() => setPopupImg(`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`)}
               />
-
-              <button onClick={() => cambiaQuantita(prodotto.id, 1)}
-                style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>+</button>
+              <strong>{prodotto.nome}</strong>
+              <p>{prodotto.taglia}</p>
+              {prodotto.offerta ? (
+                <p style={{ fontFamily: 'Arial' }}>
+                  <span style={{ textDecoration: 'line-through', color: 'gray', marginRight: '4px' }}>
+                    {'\u20AC'} {prezzoNum.toFixed(1)}
+                  </span>
+                  <span style={{ color: 'red', fontWeight: 'bold' }}>
+                    {'\u20AC'} {prezzoScontato.toFixed(1)} (-{scontoNum}%)
+                  </span>
+                </p>
+              ) : (
+                <p style={{ fontFamily: 'Arial' }}>
+                  {'\u20AC'} {prezzoNum.toFixed(1)}
+                </p>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem' }}>
+                <button onClick={() => cambiaQuantita(prodotto.id, -1)} style={{ border: 'none', background: 'none', fontSize: '1rem' }}>–</button>
+                <input type="text" value={quantita[prodotto.id] || 1} readOnly style={{ width: '2rem', textAlign: 'center' }} />
+                <button onClick={() => cambiaQuantita(prodotto.id, 1)} style={{ border: 'none', background: 'none', fontSize: '1rem' }}>+</button>
+              </div>
+              <button onClick={() => aggiungiAlCarrello(prodotto)} style={{ marginTop: '0.3rem', padding: '0.3rem', fontSize: '0.65rem', backgroundColor: '#333', color: 'white', borderRadius: '4px', border: 'none' }}>
+                {t('aggiungi')}
+              </button>
             </div>
-
-            <button
-              onClick={() => aggiungiAlCarrello(prodotto)}
-              style={{
-                padding: '0.2rem 0.4rem',
-                fontSize: '0.6rem',
-                backgroundColor: '#333',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              {t('aggiungi')}
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
-
       {carrello.length > 0 && (
         <div style={{
           marginTop: '2rem',
