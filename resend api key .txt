@@ -1,0 +1,13 @@
+re_PTVortid_3hwTPYBPbt7i8BfgCp4UDjVK
+
+
+Paypal 
+
+OLD
+Client id: ARJLhEOKBovrYIWxStFGSsPaJUNUdnN-vHfTUInduWUR_HWpzqqaTPeIc3QIEFufnfoYOqLM-MYM-zYf
+
+Secret key 1: EJSxQsBbkzpxptJyuBb8bCeUCy4jBYkAKWKDbyLAY5fHvMF_QOR4hIaqYLKr5PHOa93PCDKoW5V3cugy
+
+NEW 
+CLIENT: AVHqSZU8bVMmQdhJ3Cfij1q9wQGv6XkfZOeGccftRqd08RYgppGute1NYrEZzzHJuomw4l5Cjb4bIv-H
+Secret key 1: EISpRWtU5jbQECpWNcrV3etEE6rW-UniBqUko-vizF4cFSPb9WVUcXUUjIyhcFdgtnvv7tw_9ejxxrOw
