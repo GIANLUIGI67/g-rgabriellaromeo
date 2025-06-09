@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { User, X } from 'lucide-react';
 import { supabase } from '../app/lib/supabaseClient';
+import paesi from '../app/lib/paesi';
 
 export default function UserMenu({ lang }) {
   const langPulito = ['it','en','fr','de','es','ar','zh','ja'].includes(lang) ? lang : 'it';
@@ -32,6 +33,18 @@ export default function UserMenu({ lang }) {
     register: { it: 'Registrati', en: 'Register', fr: 'S’inscrire', es: 'Registrarse', de: 'Registrieren', zh: '注册', ja: '登録', ar: 'تسجيل' },
     googleLogin: { it: 'Login con Google', en: 'Login with Google', fr: 'Connexion avec Google', es: 'Iniciar sesión con Google', de: 'Mit Google anmelden', zh: '使用 Google 登录', ja: 'Googleでログイン', ar: 'تسجيل الدخول باستخدام Google' },
     appleLogin: { it: 'Login con Apple', en: 'Login with Apple', fr: 'Connexion avec Apple', es: 'Iniciar sesión con Apple', de: 'Mit Apple anmelden', zh: '使用 Apple 登录', ja: 'Appleでログイン', ar: 'تسجيل الدخول باستخدام Apple' },
+    
+    selectCountry: {
+      it: 'Seleziona un paese',
+      en: 'Select a country',
+      fr: 'Sélectionner un pays',
+      de: 'Land auswählen',
+      es: 'Selecciona un país',
+      ar: 'اختر بلداً',
+      zh: '选择国家',
+      ja: '国を選択'
+    },
+    
     welcome: {
       it: (nome) => nome?.trim().toLowerCase().endsWith('a') ? 'Benvenuta' : 'Benvenuto',
       en: () => 'Welcome',
@@ -192,7 +205,19 @@ export default function UserMenu({ lang }) {
                   <input placeholder="Telefono 2" value={telefono2} onChange={(e) => setTelefono2(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
                   <input placeholder="Indirizzo" value={indirizzo} onChange={(e) => setIndirizzo(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
                   <input placeholder="Città" value={citta} onChange={(e) => setCitta(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
-                  <input placeholder="Paese" value={paese} onChange={(e) => setPaese(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
+                  <select
+                      value={paese}
+                      onChange={(e) => setPaese(e.target.value)}
+                      className="w-full border border-black px-2 py-1 rounded bg-white"
+                    >
+                      <option value="">{translations.selectCountry[langPulito]}</option>
+
+                      {(paesi[langPulito] || paesi['en']).map((nomePaese) => (
+                        <option key={nomePaese} value={nomePaese}>
+                          {nomePaese}
+                        </option>
+                      ))}
+                  </select>
                 </>
               )}
               <button onClick={modalitaRegistrazione ? registraUtente : loginEmail} className="w-full bg-black text-white py-2 rounded uppercase">
