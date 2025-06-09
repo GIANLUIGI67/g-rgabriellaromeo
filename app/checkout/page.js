@@ -68,39 +68,44 @@ export default function CheckoutPage() {
   };
 
   const loginGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/checkout`
-      }
-    });
-    if (!error) tracciaAccesso(email);
-  };
+  sessionStorage.setItem('redirectCheckout', 'true');
+  sessionStorage.setItem('selectedLang', lang);
+  await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/oauth-callback`
+    }
+  });
+};
 
-  const loginApple = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'apple',
-      options: {
-        redirectTo: `${window.location.origin}/checkout`
-      }
-    });
-    if (!error) tracciaAccesso(email);
-  };
-  
+const loginApple = async () => {
+  sessionStorage.setItem('redirectCheckout', 'true');
+  sessionStorage.setItem('selectedLang', lang);
+  await supabase.auth.signInWithOAuth({
+    provider: 'apple',
+    options: {
+      redirectTo: `${window.location.origin}/oauth-callback`
+    }
+  });
+};
+
+
+
   const registraCliente = async (email) => {
-    await supabase.from('clienti').insert({
-      email,
-      nome,
-      cognome,
-      telefono1,
-      telefono2,
-      indirizzo,
-      citta,
-      paese,
-      created_at: new Date().toISOString(),
-      ordini: []
-    });
-  };
+  await supabase.from('clienti').upsert({
+    email,
+    nome,
+    cognome,
+    telefono1,
+    telefono2,
+    indirizzo,
+    citta,
+    paese,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    ordini: []
+  }, { onConflict: ['email'] });
+};
 
   const tracciaAccesso = async (email) => {
     await supabase.from('user_tracking').insert({
@@ -254,9 +259,45 @@ export default function CheckoutPage() {
                   {testi.totale} {'\u20AC'}{totaleFinale.toFixed(1)}
                 </p>
 
-                <button onClick={() => router.push(`/pagamento?lang=${lang}`)} style={pagaStyle}>
+                <button
+                  onClick={async () => {
+                    // aggiorna o crea cliente
+                    await supabase.from('clienti').upsert({
+                      email,
+                      nome,
+                      cognome,
+                      telefono1,
+                      telefono2,
+                      indirizzo,
+                      citta,
+                      codice_postale: cap,
+                      paese,
+                      created_at: new Date().toISOString(),
+                      updated_at: new Date().toISOString(),
+                      ordini: []
+                    }, { onConflict: ['email'] });
+
+                    // salva ordine su supabase
+                    await supabase.from('ordini').insert({
+                      email,
+                      prodotti: carrello,
+                      totale: totaleFinale,
+                      data: new Date().toISOString(),
+                      stato: 'in attesa'
+                    });
+
+                    // vai al pagamento PRIMA, poi svuota carrello dopo un breve delay
+                    router.push(`/pagamento?lang=${lang}`);
+                    setTimeout(() => {
+                      localStorage.removeItem('carrello');
+                    }, 1000);
+
+                  }}
+                  style={pagaStyle}
+                >
                   {testi.paga}
                 </button>
+
 
                 <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
                   <button onClick={() => router.back()} style={backButtonStyle}>

@@ -42,7 +42,6 @@ export default function UserMenu({ lang }) {
       ar: () => 'مرحباً'
     },
   };
-
   const fetchNomeUtente = async (email) => {
     const { data: cliente } = await supabase.from('clienti').select('nome').eq('email', email).single();
     if (cliente?.nome) setNomeUtente(cliente.nome);
@@ -50,12 +49,16 @@ export default function UserMenu({ lang }) {
 
   useEffect(() => {
     if (window.location.hash === '#crea-account') {
-      setIsOpen(true);
-      setModalitaRegistrazione(true);
+      supabase.auth.getSession().then(({ data }) => {
+        if (!data.session) {
+          setIsOpen(true);
+          setModalitaRegistrazione(true);
+        }
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      });
     }
   }, []);
 
-  // 🔁 CHIUSURA AUTOMATICA SE CLICCO FUORI
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -101,9 +104,8 @@ export default function UserMenu({ lang }) {
       browser: navigator.userAgent
     });
   };
-
   const registraCliente = async (email) => {
-    await supabase.from('clienti').insert({
+    const { error } = await supabase.from('clienti').upsert({
       email,
       nome,
       cognome,
@@ -113,8 +115,13 @@ export default function UserMenu({ lang }) {
       citta,
       paese,
       created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
       ordini: []
-    });
+    }, { onConflict: ['email'] });
+
+    if (error) {
+      console.warn('Errore upsert clienti ignorato:', error.message);
+    }
   };
 
   const loginEmail = async () => {
@@ -127,27 +134,33 @@ export default function UserMenu({ lang }) {
       fetchNomeUtente(data.user.email);
     }
   };
-  
+
   const loginGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    if (window.location.pathname.includes('/checkout')) {
+      sessionStorage.setItem('redirectCheckout', 'true');
+      sessionStorage.setItem('selectedLang', lang);
+    }
+    await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/checkout`
+        redirectTo: `${window.location.origin}/oauth-callback`
       }
     });
-    if (error) setErrore(error.message);
-  };  
+  };
 
   const loginApple = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    if (window.location.pathname.includes('/checkout')) {
+      sessionStorage.setItem('redirectCheckout', 'true');
+      sessionStorage.setItem('selectedLang', lang);
+    }
+    await supabase.auth.signInWithOAuth({
       provider: 'apple',
       options: {
-        redirectTo: `${window.location.origin}/checkout`
+        redirectTo: `${window.location.origin}/oauth-callback`
       }
     });
-    if (error) setErrore(error.message);
-  };  
-  
+  };
+
   const registraUtente = async () => {
     if (!email || !password) return setErrore('Inserisci email e password');
     const { error } = await supabase.auth.signUp({ email, password });
@@ -163,7 +176,6 @@ export default function UserMenu({ lang }) {
       setErrore('');
     }
   };
-
   return (
     <>
       <button onClick={() => setIsOpen(true)} className="text-white"><User size={22} /></button>

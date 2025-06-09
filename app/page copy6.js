@@ -17,11 +17,14 @@ export default function Home() {
   const router = useRouter();
 
 useEffect(() => {
-  const redirect = sessionStorage.getItem('redirectCheckout');
+  
+  const ref = document.referrer;
+  const vieneDaLogin = ref.includes('/login') || ref.includes('/');
+
   const carrello = JSON.parse(localStorage.getItem('carrello') || '[]');
-  if (redirect === 'true' && carrello.length > 0) {
-    sessionStorage.removeItem('redirectCheckout');
-    router.push('/checkout?lang=' + lang);
+
+  if (carrello.length > 0 && vieneDaLogin) {
+    router.push('/checkout');
   }
 }, []);
 
