@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { User, X } from 'lucide-react';
 import { supabase } from '../app/lib/supabaseClient';
 import paesi from '../app/lib/paesi';
+import { citta as cittaData } from '../app/lib/citta';
+
 
 export default function UserMenu({ lang }) {
   const langPulito = ['it','en','fr','de','es','ar','zh','ja'].includes(lang) ? lang : 'it';
@@ -22,7 +24,7 @@ export default function UserMenu({ lang }) {
   const [indirizzo, setIndirizzo] = useState('');
   const [citta, setCitta] = useState('');
   const [paese, setPaese] = useState('');
-
+  const [cittaSelezionata, setCittaSelezionata] = useState('');
   const menuRef = useRef();
 
   const translations = {
@@ -45,6 +47,37 @@ export default function UserMenu({ lang }) {
       ja: '国を選択'
     },
     
+    selectCity: {
+      it: 'Seleziona una città',
+      en: 'Select a city',
+      fr: 'Sélectionner une ville',
+      de: 'Stadt auswählen',
+      es: 'Selecciona una ciudad',
+      ar: 'اختر مدينة',
+      zh: '选择城市',
+      ja: '都市を選択'
+    },
+    enterCity: {
+      it: 'Inserisci la tua città',
+      en: 'Enter your city',
+      fr: 'Entrez votre ville',
+      de: 'Geben Sie Ihre Stadt ein',
+      es: 'Ingrese su ciudad',
+      ar: 'أدخل مدينتك',
+      zh: '输入你的城市',
+      ja: 'あなたの都市を入力してください'
+    },
+    other: {
+      it: 'Altro',
+      en: 'Other',
+      fr: 'Autre',
+      de: 'Andere',
+      es: 'Otro',
+      ar: 'أخرى',
+      zh: '其他',
+      ja: 'その他'
+    },
+
     welcome: {
       it: (nome) => nome?.trim().toLowerCase().endsWith('a') ? 'Benvenuta' : 'Benvenuto',
       en: () => 'Welcome',
@@ -204,21 +237,56 @@ export default function UserMenu({ lang }) {
                   <input placeholder="Telefono 1" value={telefono1} onChange={(e) => setTelefono1(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
                   <input placeholder="Telefono 2" value={telefono2} onChange={(e) => setTelefono2(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
                   <input placeholder="Indirizzo" value={indirizzo} onChange={(e) => setIndirizzo(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
-                  <input placeholder="Città" value={citta} onChange={(e) => setCitta(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
                   <select
-                      value={paese}
-                      onChange={(e) => setPaese(e.target.value)}
-                      className="w-full border border-black px-2 py-1 rounded bg-white"
-                    >
-                      <option value="">{translations.selectCountry[langPulito]}</option>
+                  value={paese}
+                  onChange={(e) => setPaese(e.target.value)}
+                  className="w-full border border-black px-2 py-1 rounded bg-white"
+                >
+                  <option value="">{translations.selectCountry[langPulito]}</option>
+                  {(paesi[langPulito] || paesi['en']).map((nomePaese) => (
+                    <option key={nomePaese} value={nomePaese}>
+                      {nomePaese}
+                    </option>
+                  ))}
+                </select>
 
-                      {(paesi[langPulito] || paesi['en']).map((nomePaese) => (
-                        <option key={nomePaese} value={nomePaese}>
-                          {nomePaese}
-                        </option>
+                {paese && (cittaData[langPulito]?.[paese] || cittaData['en']?.[paese]) ? (
+                  <>
+                    <select
+                      value={cittaSelezionata}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setCittaSelezionata(value);
+                        if (value !== translations.other[langPulito]) setCitta(value);
+                        else setCitta('');
+                      }}
+                      className="w-full border border-black px-2 py-1 rounded bg-white mt-2"
+                    >
+                      <option value="">{translations.selectCity[langPulito]}</option>
+                      {(cittaData[langPulito]?.[paese] || cittaData['en']?.[paese] || []).map((city) => (
+                        <option key={city} value={city}>{city}</option>
                       ))}
-                  </select>
-                </>
+                      <option value={translations.other[langPulito]}>{translations.other[langPulito]}</option>
+                    </select>
+                    {cittaSelezionata === translations.other[langPulito] && (
+                      <input
+                        placeholder={translations.enterCity[langPulito]}
+                        value={citta}
+                        onChange={(e) => setCitta(e.target.value)}
+                        className="w-full border border-black px-2 py-1 rounded mt-2"
+                      />
+                    )}
+                  </>
+                ) : (
+                  <input
+                    placeholder={translations.enterCity[langPulito]}
+                    value={citta}
+                    onChange={(e) => setCitta(e.target.value)}
+                    className="w-full border border-black px-2 py-1 rounded mt-2"
+                  />
+                )}
+
+           </>
               )}
               <button onClick={modalitaRegistrazione ? registraUtente : loginEmail} className="w-full bg-black text-white py-2 rounded uppercase">
                 {modalitaRegistrazione ? translations.register[langPulito] : translations.login[langPulito]}
