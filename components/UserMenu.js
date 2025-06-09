@@ -5,6 +5,7 @@ import { User, X } from 'lucide-react';
 import { supabase } from '../app/lib/supabaseClient';
 
 export default function UserMenu({ lang }) {
+  const langPulito = ['it','en','fr','de','es','ar','zh','ja'].includes(lang) ? lang : 'it';
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -170,10 +171,10 @@ export default function UserMenu({ lang }) {
       {isOpen && (
         <div
           ref={menuRef}
-          className="fixed top-0 right-0 w-full max-w-xs max-h-[60vh] bg-white text-black z-50 p-4 shadow-xl overflow-y-auto overflow-x-hidden"
+          className="fixed top-0 right-0 w-full max-w-xs max-h-[85vh] bg-white text-black z-50 p-4 shadow-xl overflow-y-auto overflow-x-hidden"
         >
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold uppercase">{translations.login[lang]}</h2>
+            <h2 className="text-lg font-bold uppercase">{translations.login[langPulito]}</h2>
             <button onClick={() => {
               setIsOpen(false);
               setModalitaRegistrazione(false);
@@ -181,8 +182,8 @@ export default function UserMenu({ lang }) {
           </div>
           {!utente ? (
             <div className="space-y-3">
-              <input type="email" placeholder={translations.email[lang]} value={email} onChange={(e) => setEmail(e.target.value)} className="w-full border border-black px-4 py-2 rounded" />
-              <input type="password" placeholder={translations.password[lang]} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border border-black px-4 py-2 rounded" />
+              <input type="email" placeholder={translations.email[langPulito]} value={email} onChange={(e) => setEmail(e.target.value)} className="w-full border border-black px-4 py-2 rounded" />
+              <input type="password" placeholder={translations.password[langPulito]} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border border-black px-4 py-2 rounded" />
               {modalitaRegistrazione && (
                 <>
                   <input placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
@@ -195,28 +196,28 @@ export default function UserMenu({ lang }) {
                 </>
               )}
               <button onClick={modalitaRegistrazione ? registraUtente : loginEmail} className="w-full bg-black text-white py-2 rounded uppercase">
-                {modalitaRegistrazione ? translations.register[lang] : translations.login[lang]}
+                {modalitaRegistrazione ? translations.register[langPulito] : translations.login[langPulito]}
               </button>
               <button onClick={loginGoogle} className="w-full border border-black py-2 rounded flex items-center justify-center gap-2 text-sm bg-white hover:bg-gray-100 uppercase">
                 <img src="/icons/google.svg" className="w-5 h-5" alt="Google" />
-                {translations.googleLogin[lang]}
+                {translations.googleLogin[langPulito]}
               </button>
               <button onClick={loginApple} className="w-full border border-black py-2 rounded flex items-center justify-center gap-2 text-sm bg-white hover:bg-gray-100 uppercase">
                 <img src="/icons/apple.svg" className="w-5 h-5" alt="Apple" />
-                {translations.appleLogin[lang]}
+                {translations.appleLogin[langPulito]}
               </button>
               {errore && <p className="text-sm text-red-600">{errore}</p>}
               <div className="border-t pt-4 text-sm">
                 {!modalitaRegistrazione && (
                   <button onClick={() => setModalitaRegistrazione(true)} className="w-full border border-black py-2 rounded uppercase mb-4 font-semibold">
-                    {translations.create[lang]}
+                    {translations.create[langPulito]}
                   </button>
                 )}
               </div>
             </div>
           ) : (
             <div className="space-y-4 text-sm">
-              <p>{translations.welcome[lang](nomeUtente)}, {nomeUtente}</p>
+              <p>{translations.welcome[langPulito](nomeUtente)}, {nomeUtente}</p>
               <button onClick={logout} className="w-full bg-gray-700 text-white py-2 rounded uppercase">Logout</button>
             </div>
           )}
