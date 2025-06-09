@@ -36,6 +36,56 @@ export default function UserMenu({ lang }) {
     googleLogin: { it: 'Login con Google', en: 'Login with Google', fr: 'Connexion avec Google', es: 'Iniciar sesión con Google', de: 'Mit Google anmelden', zh: '使用 Google 登录', ja: 'Googleでログイン', ar: 'تسجيل الدخول باستخدام Google' },
     appleLogin: { it: 'Login con Apple', en: 'Login with Apple', fr: 'Connexion avec Apple', es: 'Iniciar sesión con Apple', de: 'Mit Apple anmelden', zh: '使用 Apple 登录', ja: 'Appleでログイン', ar: 'تسجيل الدخول باستخدام Apple' },
     
+        nome: {
+      it: 'Nome',
+      en: 'First Name',
+      fr: 'Prénom',
+      de: 'Vorname',
+      es: 'Nombre',
+      ar: 'الاسم الأول',
+      zh: '名字',
+      ja: '名'
+    },
+    cognome: {
+      it: 'Cognome',
+      en: 'Last Name',
+      fr: 'Nom',
+      de: 'Nachname',
+      es: 'Apellido',
+      ar: 'الكنية',
+      zh: '姓',
+      ja: '姓'
+    },
+    telefono1: {
+      it: 'Telefono principale',
+      en: 'Primary phone',
+      fr: 'Téléphone principal',
+      de: 'Primäre Telefonnummer',
+      es: 'Teléfono principal',
+      ar: 'رقم الهاتف الرئيسي',
+      zh: '主电话',
+      ja: '主な電話番号'
+    },
+    telefono2: {
+      it: 'Telefono secondario',
+      en: 'Secondary phone',
+      fr: 'Téléphone secondaire',
+      de: 'Sekundäre Telefonnummer',
+      es: 'Teléfono secundario',
+      ar: 'رقم الهاتف الثانوي',
+      zh: '备用电话',
+      ja: '予備の電話番号'
+    },
+    indirizzo: {
+      it: 'Indirizzo',
+      en: 'Address',
+      fr: 'Adresse',
+      de: 'Adresse',
+      es: 'Dirección',
+      ar: 'العنوان',
+      zh: '地址',
+      ja: '住所'
+    },
     selectCountry: {
       it: 'Seleziona un paese',
       en: 'Select a country',
@@ -232,11 +282,12 @@ export default function UserMenu({ lang }) {
               <input type="password" placeholder={translations.password[langPulito]} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border border-black px-4 py-2 rounded" />
               {modalitaRegistrazione && (
                 <>
-                  <input placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
-                  <input placeholder="Cognome" value={cognome} onChange={(e) => setCognome(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
-                  <input placeholder="Telefono 1" value={telefono1} onChange={(e) => setTelefono1(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
-                  <input placeholder="Telefono 2" value={telefono2} onChange={(e) => setTelefono2(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
-                  <input placeholder="Indirizzo" value={indirizzo} onChange={(e) => setIndirizzo(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
+                  <input placeholder={translations.nome[langPulito]} value={nome} onChange={(e) => setNome(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
+                  <input placeholder={translations.cognome[langPulito]} value={cognome} onChange={(e) => setCognome(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
+                  <input placeholder={translations.telefono1[langPulito]} value={telefono1} onChange={(e) => setTelefono1(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
+                  <input placeholder={translations.telefono2[langPulito]} value={telefono2} onChange={(e) => setTelefono2(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
+                  <input placeholder={translations.indirizzo[langPulito]} value={indirizzo} onChange={(e) => setIndirizzo(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
+
                   <select
                   value={paese}
                   onChange={(e) => setPaese(e.target.value)}
