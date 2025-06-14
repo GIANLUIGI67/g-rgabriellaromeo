@@ -36,7 +36,7 @@ export default function UserMenu({ lang }) {
     register: { it: 'Registrati', en: 'Register', fr: 'S’inscrire', es: 'Registrarse', de: 'Registrieren', zh: '注册', ja: '登録', ar: 'تسجيل' },
     googleLogin: { it: 'Login con Google', en: 'Login with Google', fr: 'Connexion Google', es: 'Iniciar sesión Google', de: 'Mit Google anmelden', zh: '使用 Google 登录', ja: 'Googleでログイン', ar: 'تسجيل الدخول باستخدام Google' },
     appleLogin: { it: 'Login con Apple', en: 'Login with Apple', fr: 'Connexion Apple', es: 'Iniciar sesión Apple', de: 'Mit Apple anmelden', zh: '使用 Apple 登录', ja: 'Appleでログイン', ar: 'تسجيل الدخول باستخدام Apple' },
-    
+  
     nome: {
       it: 'Nome', en: 'First Name', fr: 'Prénom', de: 'Vorname', es: 'Nombre',
       ar: 'الاسم', zh: '名字', ja: '名'
@@ -53,13 +53,13 @@ export default function UserMenu({ lang }) {
       it: 'Telefono 2', en: 'Phone 2', fr: 'Téléphone 2', de: 'Telefon 2', es: 'Teléfono 2',
       ar: 'الهاتف 2', zh: '电话 2', ja: '電話 2'
     },
-    cap: {
-      it: 'CAP', en: 'Postal Code', fr: 'Code postal', de: 'Postleitzahl', es: 'Código Postal',
-      ar: 'الرمز البريدي', zh: '邮政编码', ja: '郵便番号'
-    },
     indirizzo: {
       it: 'Indirizzo', en: 'Address', fr: 'Adresse', de: 'Adresse', es: 'Dirección',
       ar: 'العنوان', zh: '地址', ja: '住所'
+    },
+    cap: {
+      it: 'CAP', en: 'Postal Code', fr: 'Code postal', de: 'Postleitzahl', es: 'Código Postal',
+      ar: 'الرمز البريدي', zh: '邮政编码', ja: '郵便番号'
     },
     paese: {
       it: 'Paese', en: 'Country', fr: 'Pays', de: 'Land', es: 'País',
@@ -68,57 +68,6 @@ export default function UserMenu({ lang }) {
     citta: {
       it: 'Città', en: 'City', fr: 'Ville', de: 'Stadt', es: 'Ciudad',
       ar: 'المدينة', zh: '城市', ja: '都市'
-    },
-    
-        nome: {
-      it: 'Nome',
-      en: 'First Name',
-      fr: 'Prénom',
-      de: 'Vorname',
-      es: 'Nombre',
-      ar: 'الاسم الأول',
-      zh: '名字',
-      ja: '名'
-    },
-    cognome: {
-      it: 'Cognome',
-      en: 'Last Name',
-      fr: 'Nom',
-      de: 'Nachname',
-      es: 'Apellido',
-      ar: 'الكنية',
-      zh: '姓',
-      ja: '姓'
-    },
-    telefono1: {
-      it: 'Telefono principale',
-      en: 'Primary phone',
-      fr: 'Téléphone principal',
-      de: 'Primäre Telefonnummer',
-      es: 'Teléfono principal',
-      ar: 'رقم الهاتف الرئيسي',
-      zh: '主电话',
-      ja: '主な電話番号'
-    },
-    telefono2: {
-      it: 'Telefono secondario',
-      en: 'Secondary phone',
-      fr: 'Téléphone secondaire',
-      de: 'Sekundäre Telefonnummer',
-      es: 'Teléfono secundario',
-      ar: 'رقم الهاتف الثانوي',
-      zh: '备用电话',
-      ja: '予備の電話番号'
-    },
-    indirizzo: {
-      it: 'Indirizzo',
-      en: 'Address',
-      fr: 'Adresse',
-      de: 'Adresse',
-      es: 'Dirección',
-      ar: 'العنوان',
-      zh: '地址',
-      ja: '住所'
     },
     selectCountry: {
       it: 'Seleziona un paese',
@@ -130,7 +79,6 @@ export default function UserMenu({ lang }) {
       zh: '选择国家',
       ja: '国を選択'
     },
-    
     selectCity: {
       it: 'Seleziona una città',
       en: 'Select a city',
@@ -161,7 +109,6 @@ export default function UserMenu({ lang }) {
       zh: '其他',
       ja: 'その他'
     },
-
     welcome: {
       it: (nome) => nome?.trim().toLowerCase().endsWith('a') ? 'Benvenuta' : 'Benvenuto',
       en: () => 'Welcome',
@@ -172,8 +119,18 @@ export default function UserMenu({ lang }) {
       ja: () => 'ようこそ',
       ar: () => 'مرحباً'
     },
+    invalidLogin: {
+      it: 'Credenziali non valide',
+      en: 'Invalid login credentials',
+      fr: 'Identifiants invalides',
+      de: 'Ungültige Anmeldedaten',
+      es: 'Credenciales inválidas',
+      ar: 'بيانات تسجيل الدخول غير صالحة',
+      zh: '无效的登录凭据',
+      ja: '無効なログイン情報'
+    }
   };
-
+  
   const fetchNomeUtente = async (email) => {
     const { data: cliente } = await supabase.from('clienti').select('nome').eq('email', email).single();
     if (cliente?.nome) setNomeUtente(cliente.nome);
@@ -384,7 +341,7 @@ export default function UserMenu({ lang }) {
                 <img src="/icons/apple.svg" className="w-5 h-5" alt="Apple" />
                 {translations.appleLogin[langPulito]}
               </button>
-              {errore && <p className="text-sm text-red-600">{errore}</p>}
+              {errore && <p className="text-sm text-red-600">{translations.invalidLogin[langPulito]}</p>}
               <div className="border-t pt-4 text-sm">
                 {!modalitaRegistrazione && (
                   <button onClick={() => setModalitaRegistrazione(true)} className="w-full border border-black py-2 rounded uppercase mb-4 font-semibold">
