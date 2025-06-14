@@ -117,7 +117,7 @@ export default function CheckoutPage() {
     setCarrello(nuovo);
     localStorage.setItem('carrello', JSON.stringify(nuovo));
   };
-  const testiTutti = {
+  const testi = {
     it: {
       titolo: 'Riepilogo Ordine',
       vuoto: 'Il carrello è vuoto.',
@@ -161,148 +161,15 @@ export default function CheckoutPage() {
       telefono2: 'Phone 2',
       totale: 'Total:',
       rimuovi: '❌ Remove'
-    },
-    fr: {
-      titolo: 'Récapitulatif de la commande',
-      vuoto: 'Votre panier est vide.',
-      loginNecessario: 'Pour finaliser votre achat, veuillez vous inscrire ou vous connecter.',
-      login: 'Connexion',
-      crea: 'Créer un compte',
-      registrati: 'S\'inscrire',
-      paga: 'Payer maintenant',
-      back: 'Retour',
-      nome: 'Prénom',
-      cognome: 'Nom',
-      indirizzo: 'Adresse',
-      citta: 'Ville',
-      cap: 'Code postal',
-      paese: 'Pays',
-      email: 'Email',
-      password: 'Mot de passe',
-      telefono1: 'Téléphone 1',
-      telefono2: 'Téléphone 2',
-      totale: 'Total :',
-      rimuovi: '❌ Supprimer'
-    },
-    de: {
-      titolo: 'Bestellübersicht',
-      vuoto: 'Ihr Warenkorb ist leer.',
-      loginNecessario: 'Bitte registrieren Sie sich oder melden Sie sich an, um den Kauf abzuschließen.',
-      login: 'Anmelden',
-      crea: 'Konto erstellen',
-      registrati: 'Registrieren',
-      paga: 'Jetzt bezahlen',
-      back: 'Zurück',
-      nome: 'Vorname',
-      cognome: 'Nachname',
-      indirizzo: 'Adresse',
-      citta: 'Stadt',
-      cap: 'Postleitzahl',
-      paese: 'Land',
-      email: 'Email',
-      password: 'Passwort',
-      telefono1: 'Telefon 1',
-      telefono2: 'Telefon 2',
-      totale: 'Gesamt:',
-      rimuovi: '❌ Entfernen'
-    },
-    es: {
-      titolo: 'Resumen del pedido',
-      vuoto: 'Tu carrito está vacío.',
-      loginNecessario: 'Para completar la compra, regístrate o inicia sesión.',
-      login: 'Iniciar sesión',
-      crea: 'Crear cuenta',
-      registrati: 'Registrarse',
-      paga: 'Pagar ahora',
-      back: 'Volver',
-      nome: 'Nombre',
-      cognome: 'Apellido',
-      indirizzo: 'Dirección',
-      citta: 'Ciudad',
-      cap: 'Código postal',
-      paese: 'País',
-      email: 'Correo electrónico',
-      password: 'Contraseña',
-      telefono1: 'Teléfono 1',
-      telefono2: 'Teléfono 2',
-      totale: 'Total:',
-      rimuovi: '❌ Eliminar'
-    },
-    zh: {
-      titolo: '订单摘要',
-      vuoto: '您的购物车为空。',
-      loginNecessario: '请注册或登录以完成购买。',
-      login: '登录',
-      crea: '创建账户',
-      registrati: '注册',
-      paga: '立即付款',
-      back: '返回',
-      nome: '名字',
-      cognome: '姓氏',
-      indirizzo: '地址',
-      citta: '城市',
-      cap: '邮政编码',
-      paese: '国家',
-      email: '电子邮件',
-      password: '密码',
-      telefono1: '电话 1',
-      telefono2: '电话 2',
-      totale: '总计：',
-      rimuovi: '❌ 移除'
-    },
-    ar: {
-      titolo: 'ملخص الطلب',
-      vuoto: 'سلة التسوق فارغة.',
-      loginNecessario: 'يرجى التسجيل أو تسجيل الدخول لإتمام الشراء.',
-      login: 'تسجيل الدخول',
-      crea: 'إنشاء حساب',
-      registrati: 'سجل',
-      paga: 'ادفع الآن',
-      back: 'رجوع',
-      nome: 'الاسم الأول',
-      cognome: 'اسم العائلة',
-      indirizzo: 'العنوان',
-      citta: 'المدينة',
-      cap: 'الرمز البريدي',
-      paese: 'البلد',
-      email: 'البريد الإلكتروني',
-      password: 'كلمة المرور',
-      telefono1: 'الهاتف 1',
-      telefono2: 'الهاتف 2',
-      totale: 'الإجمالي:',
-      rimuovi: '❌ حذف'
-    },
-    ja: {
-      titolo: '注文の概要',
-      vuoto: 'カートは空です。',
-      loginNecessario: '購入を完了するには、登録またはログインしてください。',
-      login: 'ログイン',
-      crea: 'アカウント作成',
-      registrati: '登録する',
-      paga: '今すぐ支払う',
-      back: '戻る',
-      nome: '名',
-      cognome: '姓',
-      indirizzo: '住所',
-      citta: '市区町村',
-      cap: '郵便番号',
-      paese: '国',
-      email: 'メールアドレス',
-      password: 'パスワード',
-      telefono1: '電話 1',
-      telefono2: '電話 2',
-      totale: '合計：',
-      rimuovi: '❌ 削除'
     }
-  };
+  }[lang];
 
-  const testi = testiTutti[lang] || testiTutti.it;
   const totaleProdotti = carrello.reduce((tot, p) => tot + parseFloat(p.prezzo || 0) * (p.quantita || 1), 0);
   const totaleFinale = Math.round(totaleProdotti * 10) / 10;
 
   return (
     <main style={{ padding: '2rem', backgroundColor: 'black', color: 'white', minHeight: '100vh' }}>
-    <h1 style={{ textAlign: 'center' }}>{testi.titolo}</h1>
+      <h1 style={{ textAlign: 'center' }}>{(testi?.titolo ?? testi?.it?.titolo ?? 'Riepilogo Ordine')}</h1>
 
       {!utente ? (
         <div style={{ maxWidth: '500px', margin: '0 auto', textAlign: 'center' }}>
