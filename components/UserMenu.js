@@ -16,12 +16,13 @@ export default function UserMenu({ lang }) {
   const [nomeUtente, setNomeUtente] = useState('');
   const [errore, setErrore] = useState('');
   const [modalitaRegistrazione, setModalitaRegistrazione] = useState(false);
-
+  const [cap, setCap] = useState('');
   const [nome, setNome] = useState('');
   const [cognome, setCognome] = useState('');
   const [telefono1, setTelefono1] = useState('');
   const [telefono2, setTelefono2] = useState('');
   const [indirizzo, setIndirizzo] = useState('');
+  
   const [citta, setCitta] = useState('');
   const [paese, setPaese] = useState('');
   const [cittaSelezionata, setCittaSelezionata] = useState('');
@@ -33,8 +34,41 @@ export default function UserMenu({ lang }) {
     password: { it: 'Password', en: 'Password', fr: 'Mot de passe', es: 'Contraseña', de: 'Passwort', zh: '密码', ja: 'パスワード', ar: 'كلمة المرور' },
     create: { it: 'Crea Account', en: 'Create Account', fr: 'Créer un compte', es: 'Crear cuenta', de: 'Konto erstellen', zh: '创建账户', ja: 'アカウント作成', ar: 'إنشاء حساب' },
     register: { it: 'Registrati', en: 'Register', fr: 'S’inscrire', es: 'Registrarse', de: 'Registrieren', zh: '注册', ja: '登録', ar: 'تسجيل' },
-    googleLogin: { it: 'Login con Google', en: 'Login with Google', fr: 'Connexion avec Google', es: 'Iniciar sesión con Google', de: 'Mit Google anmelden', zh: '使用 Google 登录', ja: 'Googleでログイン', ar: 'تسجيل الدخول باستخدام Google' },
-    appleLogin: { it: 'Login con Apple', en: 'Login with Apple', fr: 'Connexion avec Apple', es: 'Iniciar sesión con Apple', de: 'Mit Apple anmelden', zh: '使用 Apple 登录', ja: 'Appleでログイン', ar: 'تسجيل الدخول باستخدام Apple' },
+    googleLogin: { it: 'Login con Google', en: 'Login with Google', fr: 'Connexion Google', es: 'Iniciar sesión Google', de: 'Mit Google anmelden', zh: '使用 Google 登录', ja: 'Googleでログイン', ar: 'تسجيل الدخول باستخدام Google' },
+    appleLogin: { it: 'Login con Apple', en: 'Login with Apple', fr: 'Connexion Apple', es: 'Iniciar sesión Apple', de: 'Mit Apple anmelden', zh: '使用 Apple 登录', ja: 'Appleでログイン', ar: 'تسجيل الدخول باستخدام Apple' },
+    
+    nome: {
+      it: 'Nome', en: 'First Name', fr: 'Prénom', de: 'Vorname', es: 'Nombre',
+      ar: 'الاسم', zh: '名字', ja: '名'
+    },
+    cognome: {
+      it: 'Cognome', en: 'Last Name', fr: 'Nom', de: 'Nachname', es: 'Apellido',
+      ar: 'الكنية', zh: '姓', ja: '姓'
+    },
+    telefono1: {
+      it: 'Telefono 1', en: 'Phone 1', fr: 'Téléphone 1', de: 'Telefon 1', es: 'Teléfono 1',
+      ar: 'الهاتف 1', zh: '电话 1', ja: '電話 1'
+    },
+    telefono2: {
+      it: 'Telefono 2', en: 'Phone 2', fr: 'Téléphone 2', de: 'Telefon 2', es: 'Teléfono 2',
+      ar: 'الهاتف 2', zh: '电话 2', ja: '電話 2'
+    },
+    cap: {
+      it: 'CAP', en: 'Postal Code', fr: 'Code postal', de: 'Postleitzahl', es: 'Código Postal',
+      ar: 'الرمز البريدي', zh: '邮政编码', ja: '郵便番号'
+    },
+    indirizzo: {
+      it: 'Indirizzo', en: 'Address', fr: 'Adresse', de: 'Adresse', es: 'Dirección',
+      ar: 'العنوان', zh: '地址', ja: '住所'
+    },
+    paese: {
+      it: 'Paese', en: 'Country', fr: 'Pays', de: 'Land', es: 'País',
+      ar: 'البلد', zh: '国家', ja: '国'
+    },
+    citta: {
+      it: 'Città', en: 'City', fr: 'Ville', de: 'Stadt', es: 'Ciudad',
+      ar: 'المدينة', zh: '城市', ja: '都市'
+    },
     
         nome: {
       it: 'Nome',
@@ -287,7 +321,11 @@ export default function UserMenu({ lang }) {
                   <input placeholder={translations.telefono1[langPulito]} value={telefono1} onChange={(e) => setTelefono1(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
                   <input placeholder={translations.telefono2[langPulito]} value={telefono2} onChange={(e) => setTelefono2(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
                   <input placeholder={translations.indirizzo[langPulito]} value={indirizzo} onChange={(e) => setIndirizzo(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
+<<<<<<< HEAD
 
+=======
+                  <input placeholder={translations.cap[langPulito]} value={cap} onChange={(e) => setCap(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
+>>>>>>> sviluppo-login-e-checkout
                   <select
                   value={paese}
                   onChange={(e) => setPaese(e.target.value)}
