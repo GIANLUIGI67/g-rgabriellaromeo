@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { User, X } from 'lucide-react';
 import { supabase } from '../app/lib/supabaseClient';
 
@@ -21,6 +21,8 @@ export default function UserMenu({ lang }) {
   const [citta, setCitta] = useState('');
   const [paese, setPaese] = useState('');
 
+  const menuRef = useRef();
+
   const translations = {
     login: { it: 'Login', en: 'Login', fr: 'Connexion', es: 'Iniciar sesión', de: 'Anmelden', zh: '登录', ja: 'ログイン', ar: 'تسجيل الدخول' },
     email: { it: 'Email', en: 'Email', fr: 'E-mail', es: 'Correo electrónico', de: 'E-Mail', zh: '电子邮件', ja: 'メール', ar: 'البريد الإلكتروني' },
@@ -29,35 +31,58 @@ export default function UserMenu({ lang }) {
     register: { it: 'Registrati', en: 'Register', fr: 'S’inscrire', es: 'Registrarse', de: 'Registrieren', zh: '注册', ja: '登録', ar: 'تسجيل' },
     googleLogin: { it: 'Login con Google', en: 'Login with Google', fr: 'Connexion avec Google', es: 'Iniciar sesión con Google', de: 'Mit Google anmelden', zh: '使用 Google 登录', ja: 'Googleでログイン', ar: 'تسجيل الدخول باستخدام Google' },
     appleLogin: { it: 'Login con Apple', en: 'Login with Apple', fr: 'Connexion avec Apple', es: 'Iniciar sesión con Apple', de: 'Mit Apple anmelden', zh: '使用 Apple 登录', ja: 'Appleでログイン', ar: 'تسجيل الدخول باستخدام Apple' },
-    benefits: {
-      it: ['Iscriviti a GR per un checkout più veloce', 'Per gestire il tuo profilo ed ordini', 'Per ricevere offerte e eventi programmati', 'Per ricevere un 10% di sconto sul tuo primo acquisto'],
-      en: ['Sign up to GR for faster checkout', 'Manage your profile and orders', 'Receive offers and scheduled events', 'Receive 10% off your first purchase'],
-      fr: ['Inscrivez-vous à GR pour un paiement plus rapide', 'Gérez votre profil et vos commandes', 'Recevez des offres et des événements', 'Recevez 10% de réduction sur votre premier achat'],
-      es: ['Regístrate en GR para un pago más rápido', 'Gestiona tu perfil y tus pedidos', 'Recibe ofertas y eventos programados', 'Recibe un 10% de descuento en tu primera compra'],
-      de: ['Melde dich bei GR für einen schnelleren Checkout an', 'Verwalte dein Profil und deine Bestellungen', 'Erhalte Angebote und geplante Events', 'Erhalte 10% Rabatt auf deinen ersten Einkauf'],
-      ar: ['سجل في GR لتسريع الدفع', 'إدارة ملفك الشخصي وطلباتك', 'تلقي العروض والفعاليات المجدولة', 'احصل على خصم 10٪ على أول عملية شراء لك'],
-      zh: ['注册 GR 以加快结账速度', '管理您的个人资料和订单', '接收优惠和活动信息', '首次购买可享受 10% 折扣'],
-      ja: ['GR に登録してチェックアウトを高速化', 'プロフィールと注文を管理', '特典とイベントを受け取る', '初回購入で 10% 割引']
+    welcome: {
+      it: (nome) => nome?.trim().toLowerCase().endsWith('a') ? 'Benvenuta' : 'Benvenuto',
+      en: () => 'Welcome',
+      fr: () => 'Bienvenue',
+      es: () => 'Bienvenido',
+      de: () => 'Willkommen',
+      zh: () => '欢迎',
+      ja: () => 'ようこそ',
+      ar: () => 'مرحباً'
     },
-    placeholders: {
-      nome: { it: 'Nome', en: 'First Name', fr: 'Prénom', es: 'Nombre', de: 'Vorname', zh: '名字', ja: '名', ar: 'الاسم الأول' },
-      cognome: { it: 'Cognome', en: 'Last Name', fr: 'Nom de famille', es: 'Apellido', de: 'Nachname', zh: '姓', ja: '姓', ar: 'اسم العائلة' },
-      telefono1: { it: 'Telefono 1', en: 'Phone 1', fr: 'Téléphone 1', es: 'Teléfono 1', de: 'Telefon 1', zh: '电话 1', ja: '電話 1', ar: 'الهاتف 1' },
-      telefono2: { it: 'Telefono 2', en: 'Phone 2', fr: 'Téléphone 2', es: 'Teléfono 2', de: 'Telefon 2', zh: '电话 2', ja: '電話 2', ar: 'الهاتف 2' },
-      indirizzo: { it: 'Indirizzo', en: 'Address', fr: 'Adresse', es: 'Dirección', de: 'Adresse', zh: '地址', ja: '住所', ar: 'العنوان' },
-      citta: { it: 'Città', en: 'City', fr: 'Ville', es: 'Ciudad', de: 'Stadt', zh: '城市', ja: '市', ar: 'المدينة' },
-      paese: { it: 'Paese', en: 'Country', fr: 'Pays', es: 'País', de: 'Land', zh: '国家', ja: '国', ar: 'البلد' }
-    }
+  };
+
+  const fetchNomeUtente = async (email) => {
+    const { data: cliente } = await supabase.from('clienti').select('nome').eq('email', email).single();
+    if (cliente?.nome) setNomeUtente(cliente.nome);
   };
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (data?.user) {
-        setUtente(data.user);
-        const { data: cliente } = await supabase.from('clienti').select('nome').eq('email', data.user.email).single();
-        if (cliente?.nome) setNomeUtente(cliente.nome);
+    if (window.location.hash === '#crea-account') {
+      setIsOpen(true);
+      setModalitaRegistrazione(true);
+    }
+  }, []);
+
+  // 🔁 CHIUSURA AUTOMATICA SE CLICCO FUORI
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setIsOpen(false);
+        setModalitaRegistrazione(false);
       }
-    });
+    };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        const user = data.session.user;
+        setUtente(user);
+        tracciaAccesso(user.email);
+        registraCliente(user.email);
+        fetchNomeUtente(user.email);
+      }
+    };
+    checkLogin();
   }, []);
 
   const logout = async () => {
@@ -65,6 +90,7 @@ export default function UserMenu({ lang }) {
     setUtente(null);
     setErrore('');
     setModalitaRegistrazione(false);
+    setNomeUtente('');
   };
 
   const tracciaAccesso = async (email) => {
@@ -97,30 +123,31 @@ export default function UserMenu({ lang }) {
     else {
       const { data } = await supabase.auth.getUser();
       setUtente(data.user);
-      tracciaAccesso(email);
-    }
-  };
-
-  const loginGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
-    if (!error) {
-      const { data } = await supabase.auth.getUser();
-      setUtente(data.user);
       tracciaAccesso(data.user.email);
-      registraCliente(data.user.email);
+      fetchNomeUtente(data.user.email);
     }
   };
+  
+  const loginGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/checkout`
+      }
+    });
+    if (error) setErrore(error.message);
+  };  
 
   const loginApple = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({ provider: 'apple' });
-    if (!error) {
-      const { data } = await supabase.auth.getUser();
-      setUtente(data.user);
-      tracciaAccesso(data.user.email);
-      registraCliente(data.user.email);
-    }
-  };
-
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'apple',
+      options: {
+        redirectTo: `${window.location.origin}/checkout`
+      }
+    });
+    if (error) setErrore(error.message);
+  };  
+  
   const registraUtente = async () => {
     if (!email || !password) return setErrore('Inserisci email e password');
     const { error } = await supabase.auth.signUp({ email, password });
@@ -131,6 +158,7 @@ export default function UserMenu({ lang }) {
       setUtente(sessionData.session.user);
       tracciaAccesso(email);
       registraCliente(email);
+      fetchNomeUtente(email);
       setModalitaRegistrazione(false);
       setErrore('');
     }
@@ -140,12 +168,15 @@ export default function UserMenu({ lang }) {
     <>
       <button onClick={() => setIsOpen(true)} className="text-white"><User size={22} /></button>
       {isOpen && (
-        <div className="fixed top-0 right-0 w-96 h-full bg-white text-black z-50 p-6 shadow-xl overflow-y-auto">
+        <div
+          ref={menuRef}
+          className="fixed top-0 right-0 w-full max-w-xs max-h-[85vh] bg-white text-black z-50 p-4 shadow-xl overflow-y-auto overflow-x-hidden"
+        >
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold uppercase">{translations.login[lang]}</h2>
             <button onClick={() => {
               setIsOpen(false);
-              setModalitaRegistrazione(false); // ← torna alla schermata iniziale
+              setModalitaRegistrazione(false);
             }}><X size={22} /></button>
           </div>
           {!utente ? (
@@ -154,45 +185,38 @@ export default function UserMenu({ lang }) {
               <input type="password" placeholder={translations.password[lang]} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border border-black px-4 py-2 rounded" />
               {modalitaRegistrazione && (
                 <>
-                  <input placeholder={translations.placeholders.nome[lang]} value={nome} onChange={(e) => setNome(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
-                  <input placeholder={translations.placeholders.cognome[lang]} value={cognome} onChange={(e) => setCognome(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
-                  <input placeholder={translations.placeholders.telefono1[lang]} value={telefono1} onChange={(e) => setTelefono1(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
-                  <input placeholder={translations.placeholders.telefono2[lang]} value={telefono2} onChange={(e) => setTelefono2(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
-                  <input placeholder={translations.placeholders.indirizzo[lang]} value={indirizzo} onChange={(e) => setIndirizzo(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
-                  <input placeholder={translations.placeholders.citta[lang]} value={citta} onChange={(e) => setCitta(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
-                  <input placeholder={translations.placeholders.paese[lang]} value={paese} onChange={(e) => setPaese(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
+                  <input placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
+                  <input placeholder="Cognome" value={cognome} onChange={(e) => setCognome(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
+                  <input placeholder="Telefono 1" value={telefono1} onChange={(e) => setTelefono1(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
+                  <input placeholder="Telefono 2" value={telefono2} onChange={(e) => setTelefono2(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
+                  <input placeholder="Indirizzo" value={indirizzo} onChange={(e) => setIndirizzo(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
+                  <input placeholder="Città" value={citta} onChange={(e) => setCitta(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
+                  <input placeholder="Paese" value={paese} onChange={(e) => setPaese(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
                 </>
               )}
               <button onClick={modalitaRegistrazione ? registraUtente : loginEmail} className="w-full bg-black text-white py-2 rounded uppercase">
                 {modalitaRegistrazione ? translations.register[lang] : translations.login[lang]}
               </button>
-
               <button onClick={loginGoogle} className="w-full border border-black py-2 rounded flex items-center justify-center gap-2 text-sm bg-white hover:bg-gray-100 uppercase">
                 <img src="/icons/google.svg" className="w-5 h-5" alt="Google" />
                 {translations.googleLogin[lang]}
               </button>
-
               <button onClick={loginApple} className="w-full border border-black py-2 rounded flex items-center justify-center gap-2 text-sm bg-white hover:bg-gray-100 uppercase">
                 <img src="/icons/apple.svg" className="w-5 h-5" alt="Apple" />
                 {translations.appleLogin[lang]}
               </button>
-
               {errore && <p className="text-sm text-red-600">{errore}</p>}
-
               <div className="border-t pt-4 text-sm">
                 {!modalitaRegistrazione && (
                   <button onClick={() => setModalitaRegistrazione(true)} className="w-full border border-black py-2 rounded uppercase mb-4 font-semibold">
                     {translations.create[lang]}
                   </button>
                 )}
-                <ul className="list-disc list-inside text-xs space-y-1 text-gray-700">
-                  {(translations.benefits[lang] || translations.benefits.en).map((line, idx) => <li key={idx}>{line}</li>)}
-                </ul>
               </div>
             </div>
           ) : (
             <div className="space-y-4 text-sm">
-              <p>Benvenuto, {nomeUtente}</p>
+              <p>{translations.welcome[lang](nomeUtente)}, {nomeUtente}</p>
               <button onClick={logout} className="w-full bg-gray-700 text-white py-2 rounded uppercase">Logout</button>
             </div>
           )}
