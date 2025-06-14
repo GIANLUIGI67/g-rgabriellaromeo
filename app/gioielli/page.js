@@ -6,9 +6,9 @@ import { supabase } from '../lib/supabaseClient';
 
 export default function GioielliPage() {
   const params = useSearchParams();
-  const lang = params.get('lang') || 'it';
+  const langParam = (params.get('lang') || '').trim();
+  const lang = ['it','en','fr','de','es','zh','ar','ja'].includes(langParam) ? langParam : 'it';
   const router = useRouter();
-
   const [prodotti, setProdotti] = useState([]);
   const [quantita, setQuantita] = useState({});
   const [sottocategoriaSelezionata, setSottocategoriaSelezionata] = useState('');
@@ -141,7 +141,18 @@ export default function GioielliPage() {
     }
   };
 
-  const t = (key) => traduzioni[lang]?.[key] || traduzioni['it'][key] || key;
+  const t = (key) => {
+
+    console.log('🌐 Lingua attiva:', lang);
+    console.log('🗝️  Chiavi disponibili:', Object.keys(traduzioni));
+    console.log('📘 Traduzione corrente:', traduzioni[lang]);
+  
+
+  if (!traduzioni[lang]) {
+    console.warn(`⚠️ Traduzioni mancanti per la lingua: ${lang}`);
+  }
+  return traduzioni[lang]?.[key] ?? traduzioni['it'][key] ?? key;
+};
   const sottocategorie = {
     anelli: { it: 'anelli', en: 'rings', fr: 'bagues', de: 'ringe', es: 'anillos', zh: '戒指', ar: 'خواتم', ja: 'リング' },
     collane: { it: 'collane', en: 'necklaces', fr: 'colliers', de: 'ketten', es: 'collares', zh: '项链', ar: 'قلائد', ja: 'ネックレス' },
@@ -218,7 +229,8 @@ export default function GioielliPage() {
           <option value="">{t('sottotutte')}</option>
           {Object.entries(sottocategorie).map(([key, trad]) => (
             <option key={key} value={key}>
-              {trad[lang] || trad.it}
+              {trad?.[lang] ?? trad.it
+}
             </option>
           ))}
         </select>
