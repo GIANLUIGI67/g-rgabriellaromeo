@@ -321,11 +321,7 @@ export default function UserMenu({ lang }) {
                   <input placeholder={translations.telefono1[langPulito]} value={telefono1} onChange={(e) => setTelefono1(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
                   <input placeholder={translations.telefono2[langPulito]} value={telefono2} onChange={(e) => setTelefono2(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
                   <input placeholder={translations.indirizzo[langPulito]} value={indirizzo} onChange={(e) => setIndirizzo(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
-<<<<<<< HEAD
-
-=======
                   <input placeholder={translations.cap[langPulito]} value={cap} onChange={(e) => setCap(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
->>>>>>> sviluppo-login-e-checkout
                   <select
                   value={paese}
                   onChange={(e) => setPaese(e.target.value)}
