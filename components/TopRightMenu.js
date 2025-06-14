@@ -59,7 +59,7 @@ export default function TopRightMenu() {
           <Phone size={22} />
         </button>
         {showContatti && (
-          <div className="absolute top-10 right-0 bg-black text-white text-sm p-4 rounded-xl shadow-xl w-64 space-y-2 z-[9999] border border-white">
+          <div className="absolute top-10 right-2 bg-black text-white text-sm p-4 rounded-xl shadow-xl w-50 space-y-2 z-[9999] border border-white">
             <div className="flex justify-between items-center mb-2">
               <span className="font-bold uppercase tracking-wide">
                 {translations.contatti[lang] || 'Contatti'}
