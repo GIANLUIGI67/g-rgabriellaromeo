@@ -24,6 +24,9 @@
 - Aletheia deve mantenere queste regole **attive per tutta la sessione**.
 - Se la sessione viene riavviata, l’utente può ripristinarle semplicemente incollando questo file o riferendosi ad esso.
 
+## risposte a input
+- se a seguito di una risposta o non capisci esattamente la richiesta o non trovi una soluzione certa non inventare nulla ma chiedi chiarimenti aggiuntivi prima di generare nuovi script
+
 ## 🛠 Esempio corretto
 ❌ SBAGLIATO: “Modifica il layout”  
 ✅ CORRETTO: “Modifica il file `app/layout.js` dopo che te lo invio”

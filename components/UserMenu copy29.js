@@ -6,39 +6,6 @@ import { supabase } from '../app/lib/supabaseClient';
 import paesi from '../app/lib/paesi';
 import { citta as cittaData } from '../app/lib/citta';
 
-// Funzione per ottenere l'IP con fallback
-const getClientIp = async () => {
-  const services = [
-    'https://api.ipify.org?format=json',
-    'https://ipapi.co/json/',
-    'https://ipwho.is/'
-  ];
-
-  const timeoutPromise = new Promise((_, reject) => 
-    setTimeout(() => reject(new Error('Timeout')), 2000)
-  );
-
-  for (const service of services) {
-    try {
-      const response = await Promise.race([
-        fetch(service),
-        timeoutPromise
-      ]);
-      
-      if (!response.ok) continue;
-      
-      const data = await response.json();
-      return data.ip || data.ip_address;
-    } catch (error) {
-      console.debug(`Service ${service} failed:`, error);
-      continue;
-    }
-  }
-  
-  console.warn('All IP services failed');
-  return null;
-};
-
 export default function UserMenu({ lang }) {
   const langPulito = ['it','en','fr','de','es','ar','zh','ja'].includes(lang) ? lang : 'it';
   const [isOpen, setIsOpen] = useState(false);
@@ -183,43 +150,6 @@ export default function UserMenu({ lang }) {
     }
   };
 
-  // Funzione di tracking aggiornata con IP
-  const tracciaAccesso = async (email) => {
-    const accessoTracciato = sessionStorage.getItem('accessoTracciato');
-    if (accessoTracciato === email) return;
-
-    // Avvia il tracking in background
-    (async () => {
-      try {
-        const ipAddress = await getClientIp();
-        
-        await supabase.from('user_tracking').insert({
-          email,
-          language: lang,
-          access_time: new Date().toISOString(),
-          browser: navigator.userAgent,
-          ip_address: ipAddress,
-          user_agent: navigator.userAgent,
-          screen_resolution: `${window.screen.width}x${window.screen.height}`,
-          referrer: document.referrer || 'direct'
-        });
-
-        sessionStorage.setItem('accessoTracciato', email);
-      } catch (error) {
-        console.error('Tracking error:', error);
-        // Fallback senza IP
-        await supabase.from('user_tracking').insert({
-          email,
-          language: lang,
-          access_time: new Date().toISOString(),
-          browser: navigator.userAgent,
-          ip_address: null,
-          error: 'IP lookup failed'
-        });
-      }
-    })();
-  };
-
   const fetchNomeUtente = async (email) => {
     const { data: cliente, error } = await supabase
       .from('clienti')
@@ -297,6 +227,20 @@ export default function UserMenu({ lang }) {
     setModalitaRegistrazione(false);
     setNomeUtente('');
     setRegistrazioneOk(false);
+  };
+
+  const tracciaAccesso = async (email) => {
+    const accessoTracciato = sessionStorage.getItem('accessoTracciato');
+    if (accessoTracciato === email) return;
+
+    await supabase.from('user_tracking').insert({
+      email,
+      language: lang,
+      access_time: new Date().toISOString(),
+      browser: navigator.userAgent
+    });
+
+    sessionStorage.setItem('accessoTracciato', email);
   };
 
   const loginEmail = async () => {
@@ -423,7 +367,7 @@ export default function UserMenu({ lang }) {
 
       if (dbError) throw dbError;
 
-      // Aggiorna lo stato
+      // Aggiorna lo stato con i dati dell'utente
       setUtente(authData.user);
       setNomeUtente(nome);
       setRegistrazioneOk(true);
@@ -443,77 +387,59 @@ export default function UserMenu({ lang }) {
       {isOpen && (
         <div
           ref={menuRef}
-          className="fixed top-0 right-0 w-full max-w-xs bg-white text-black z-50 p-4 shadow-xl"
-          style={{ 
-            maxHeight: 'calc(100vh - 20px)',
-            minHeight: 'auto'
-          }}
+          className="fixed top-0 right-0 w-full max-w-xs max-h-[90vh] bg-white text-black z-50 p-4 shadow-xl overflow-y-auto overflow-x-hidden"
+          style={{ minHeight: '500px' }}
         >
-          <div className="flex flex-col h-full">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold uppercase">{translations.login[langPulito]}</h2>
-              <button onClick={() => {
-                setIsOpen(false);
-                setModalitaRegistrazione(false);
-              }}><X size={22} /></button>
-            </div>
-            
-            {/* Contenuto scorrevole */}
-            <div className="flex-1 overflow-y-auto pb-6">
-              {!utente ? (
-                <div className="space-y-3">
-                  <input type="email" placeholder={translations.email[langPulito]} value={email} onChange={(e) => setEmail(e.target.value)} className="w-full border border-black px-4 py-2 rounded" />
-                  <input type="password" placeholder={translations.password[langPulito]} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border border-black px-4 py-2 rounded" />
-                  {modalitaRegistrazione && (
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-bold uppercase">{translations.login[langPulito]}</h2>
+            <button onClick={() => {
+              setIsOpen(false);
+              setModalitaRegistrazione(false);
+            }}><X size={22} /></button>
+          </div>
+          {!utente ? (
+            <div className="space-y-3">
+              <input type="email" placeholder={translations.email[langPulito]} value={email} onChange={(e) => setEmail(e.target.value)} className="w-full border border-black px-4 py-2 rounded" />
+              <input type="password" placeholder={translations.password[langPulito]} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border border-black px-4 py-2 rounded" />
+              {modalitaRegistrazione && (
+                <>
+                  <input placeholder={translations.nome[langPulito]} value={nome} onChange={(e) => setNome(e.target.value)} className="w-full border border-black px-2 py-1 rounded" required />
+                  <input placeholder={translations.cognome[langPulito]} value={cognome} onChange={(e) => setCognome(e.target.value)} className="w-full border border-black px-2 py-1 rounded" required />
+                  
+                  <select
+                    value={paese}
+                    onChange={(e) => setPaese(e.target.value)}
+                    className="w-full border border-black px-2 py-1 rounded bg-white"
+                    required
+                  >
+                    <option value="">{translations.selectCountry[langPulito]}</option>
+                    {(paesi[langPulito] || paesi['en']).map((nomePaese) => (
+                      <option key={nomePaese} value={nomePaese}>
+                        {nomePaese}
+                      </option>
+                    ))}
+                  </select>
+
+                  {paese && (cittaData[langPulito]?.[paese] || cittaData['en']?.[paese]) ? (
                     <>
-                      <input placeholder={translations.nome[langPulito]} value={nome} onChange={(e) => setNome(e.target.value)} className="w-full border border-black px-2 py-1 rounded" required />
-                      <input placeholder={translations.cognome[langPulito]} value={cognome} onChange={(e) => setCognome(e.target.value)} className="w-full border border-black px-2 py-1 rounded" required />
-                      
                       <select
-                        value={paese}
-                        onChange={(e) => setPaese(e.target.value)}
-                        className="w-full border border-black px-2 py-1 rounded bg-white"
+                        value={cittaSelezionata}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setCittaSelezionata(value);
+                          if (value !== translations.other[langPulito]) setCitta(value);
+                          else setCitta('');
+                        }}
+                        className="w-full border border-black px-2 py-1 rounded bg-white mt-2"
                         required
                       >
-                        <option value="">{translations.selectCountry[langPulito]}</option>
-                        {(paesi[langPulito] || paesi['en']).map((nomePaese) => (
-                          <option key={nomePaese} value={nomePaese}>
-                            {nomePaese}
-                          </option>
+                        <option value="">{translations.selectCity[langPulito]}</option>
+                        {(cittaData[langPulito]?.[paese] || cittaData['en']?.[paese] || []).map((city) => (
+                          <option key={city} value={city}>{city}</option>
                         ))}
+                        <option value={translations.other[langPulito]}>{translations.other[langPulito]}</option>
                       </select>
-  
-                      {paese && (cittaData[langPulito]?.[paese] || cittaData['en']?.[paese]) ? (
-                        <>
-                          <select
-                            value={cittaSelezionata}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              setCittaSelezionata(value);
-                              if (value !== translations.other[langPulito]) setCitta(value);
-                              else setCitta('');
-                            }}
-                            className="w-full border border-black px-2 py-1 rounded bg-white mt-2"
-                            required
-                          >
-                            <option value="">{translations.selectCity[langPulito]}</option>
-                            {(cittaData[langPulito]?.[paese] || cittaData['en']?.[paese] || []).map((city) => (
-                              <option key={city} value={city}>{city}</option>
-                            ))}
-                            <option value={translations.other[langPulito]}>{translations.other[langPulito]}</option>
-                          </select>
-                          {cittaSelezionata === translations.other[langPulito] && (
-                            <input
-                              placeholder={translations.enterCity[langPulito]}
-                              value={citta}
-                              onChange={(e) => setCitta(e.target.value)}
-                              className="w-full border border-black px-2 py-1 rounded mt-2"
-                              required
-                            />
-                          )}
-                        </>
-                      ) : (
+                      {cittaSelezionata === translations.other[langPulito] && (
                         <input
                           placeholder={translations.enterCity[langPulito]}
                           value={citta}
@@ -522,50 +448,54 @@ export default function UserMenu({ lang }) {
                           required
                         />
                       )}
-  
-                      <input placeholder={translations.indirizzo[langPulito]} value={indirizzo} onChange={(e) => setIndirizzo(e.target.value)} className="w-full border border-black px-2 py-1 rounded" required />
-                      <input placeholder={translations.cap[langPulito]} value={cap} onChange={(e) => setCap(e.target.value)} className="w-full border border-black px-2 py-1 rounded" required />
-                      <input placeholder={translations.telefono1[langPulito]} value={telefono1} onChange={(e) => setTelefono1(e.target.value)} className="w-full border border-black px-2 py-1 rounded" required />
-                      <input placeholder={translations.telefono2[langPulito]} value={telefono2} onChange={(e) => setTelefono2(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
                     </>
+                  ) : (
+                    <input
+                      placeholder={translations.enterCity[langPulito]}
+                      value={citta}
+                      onChange={(e) => setCitta(e.target.value)}
+                      className="w-full border border-black px-2 py-1 rounded mt-2"
+                      required
+                    />
                   )}
-                  <button onClick={modalitaRegistrazione ? registraUtente : loginEmail} className="w-full bg-black text-white py-2 rounded uppercase">
-                    {modalitaRegistrazione ? translations.register[langPulito] : translations.login[langPulito]}
-                  </button>
-                  <button onClick={loginGoogle} className="w-full border border-black py-2 rounded flex items-center justify-center gap-2 text-sm bg-white hover:bg-gray-100 uppercase">
-                    <img src="/icons/google.svg" className="w-5 h-5" alt="Google" />
-                    {translations.googleLogin[langPulito]}
-                  </button>
-                  <button onClick={loginApple} className="w-full border border-black py-2 rounded flex items-center justify-center gap-2 text-sm bg-white hover:bg-gray-100 uppercase">
-                    <img src="/icons/apple.svg" className="w-5 h-5" alt="Apple" />
-                    {translations.appleLogin[langPulito]}
-                  </button>
-                  {errore && (
-                    <p className="text-sm text-red-600 mb-4 py-2 px-3 bg-red-50 rounded">
-                      {errore}
-                    </p>
-                  )}
-                  <div className="border-t pt-4 text-sm">
-                    {!modalitaRegistrazione && (
-                      <button onClick={() => setModalitaRegistrazione(true)} className="w-full border border-black py-2 rounded uppercase mb-4 font-semibold">
-                        {translations.create[langPulito]}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4 text-sm">
-                  <p>{translations.welcome[langPulito](nomeUtente)}</p>
-                  {registrazioneOk && (
-                    <p className="text-sm text-green-600 font-semibold mb-4 py-2 px-3 bg-green-50 rounded">
-                      🎉 {translations.registrationSuccess[langPulito]}
-                    </p>
-                  )}
-                  <button onClick={logout} className="w-full bg-gray-700 text-white py-2 rounded uppercase">Logout</button>
-                </div>
+
+                  <input placeholder={translations.indirizzo[langPulito]} value={indirizzo} onChange={(e) => setIndirizzo(e.target.value)} className="w-full border border-black px-2 py-1 rounded" required />
+                  <input placeholder={translations.cap[langPulito]} value={cap} onChange={(e) => setCap(e.target.value)} className="w-full border border-black px-2 py-1 rounded" required />
+                  <input placeholder={translations.telefono1[langPulito]} value={telefono1} onChange={(e) => setTelefono1(e.target.value)} className="w-full border border-black px-2 py-1 rounded" required />
+                  <input placeholder={translations.telefono2[langPulito]} value={telefono2} onChange={(e) => setTelefono2(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
+                </>
               )}
+              <button onClick={modalitaRegistrazione ? registraUtente : loginEmail} className="w-full bg-black text-white py-2 rounded uppercase">
+                {modalitaRegistrazione ? translations.register[langPulito] : translations.login[langPulito]}
+              </button>
+              <button onClick={loginGoogle} className="w-full border border-black py-2 rounded flex items-center justify-center gap-2 text-sm bg-white hover:bg-gray-100 uppercase">
+                <img src="/icons/google.svg" className="w-5 h-5" alt="Google" />
+                {translations.googleLogin[langPulito]}
+              </button>
+              <button onClick={loginApple} className="w-full border border-black py-2 rounded flex items-center justify-center gap-2 text-sm bg-white hover:bg-gray-100 uppercase">
+                <img src="/icons/apple.svg" className="w-5 h-5" alt="Apple" />
+                {translations.appleLogin[langPulito]}
+              </button>
+              {errore && <p className="text-sm text-red-600">{errore}</p>}
+              <div className="border-t pt-4 text-sm">
+                {!modalitaRegistrazione && (
+                  <button onClick={() => setModalitaRegistrazione(true)} className="w-full border border-black py-2 rounded uppercase mb-4 font-semibold">
+                    {translations.create[langPulito]}
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-4 text-sm">
+              <p>{translations.welcome[langPulito](nomeUtente)}</p>
+              {registrazioneOk && (
+                <p className="text-sm text-green-600 font-semibold">
+                  🎉 {translations.registrationSuccess[langPulito]}
+                </p>
+              )}
+              <button onClick={logout} className="w-full bg-gray-700 text-white py-2 rounded uppercase">Logout</button>
+            </div>
+          )}
         </div>
       )}
     </>

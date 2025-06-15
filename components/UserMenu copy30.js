@@ -6,39 +6,6 @@ import { supabase } from '../app/lib/supabaseClient';
 import paesi from '../app/lib/paesi';
 import { citta as cittaData } from '../app/lib/citta';
 
-// Funzione per ottenere l'IP con fallback
-const getClientIp = async () => {
-  const services = [
-    'https://api.ipify.org?format=json',
-    'https://ipapi.co/json/',
-    'https://ipwho.is/'
-  ];
-
-  const timeoutPromise = new Promise((_, reject) => 
-    setTimeout(() => reject(new Error('Timeout')), 2000)
-  );
-
-  for (const service of services) {
-    try {
-      const response = await Promise.race([
-        fetch(service),
-        timeoutPromise
-      ]);
-      
-      if (!response.ok) continue;
-      
-      const data = await response.json();
-      return data.ip || data.ip_address;
-    } catch (error) {
-      console.debug(`Service ${service} failed:`, error);
-      continue;
-    }
-  }
-  
-  console.warn('All IP services failed');
-  return null;
-};
-
 export default function UserMenu({ lang }) {
   const langPulito = ['it','en','fr','de','es','ar','zh','ja'].includes(lang) ? lang : 'it';
   const [isOpen, setIsOpen] = useState(false);
@@ -183,43 +150,6 @@ export default function UserMenu({ lang }) {
     }
   };
 
-  // Funzione di tracking aggiornata con IP
-  const tracciaAccesso = async (email) => {
-    const accessoTracciato = sessionStorage.getItem('accessoTracciato');
-    if (accessoTracciato === email) return;
-
-    // Avvia il tracking in background
-    (async () => {
-      try {
-        const ipAddress = await getClientIp();
-        
-        await supabase.from('user_tracking').insert({
-          email,
-          language: lang,
-          access_time: new Date().toISOString(),
-          browser: navigator.userAgent,
-          ip_address: ipAddress,
-          user_agent: navigator.userAgent,
-          screen_resolution: `${window.screen.width}x${window.screen.height}`,
-          referrer: document.referrer || 'direct'
-        });
-
-        sessionStorage.setItem('accessoTracciato', email);
-      } catch (error) {
-        console.error('Tracking error:', error);
-        // Fallback senza IP
-        await supabase.from('user_tracking').insert({
-          email,
-          language: lang,
-          access_time: new Date().toISOString(),
-          browser: navigator.userAgent,
-          ip_address: null,
-          error: 'IP lookup failed'
-        });
-      }
-    })();
-  };
-
   const fetchNomeUtente = async (email) => {
     const { data: cliente, error } = await supabase
       .from('clienti')
@@ -297,6 +227,20 @@ export default function UserMenu({ lang }) {
     setModalitaRegistrazione(false);
     setNomeUtente('');
     setRegistrazioneOk(false);
+  };
+
+  const tracciaAccesso = async (email) => {
+    const accessoTracciato = sessionStorage.getItem('accessoTracciato');
+    if (accessoTracciato === email) return;
+
+    await supabase.from('user_tracking').insert({
+      email,
+      language: lang,
+      access_time: new Date().toISOString(),
+      browser: navigator.userAgent
+    });
+
+    sessionStorage.setItem('accessoTracciato', email);
   };
 
   const loginEmail = async () => {
@@ -423,7 +367,7 @@ export default function UserMenu({ lang }) {
 
       if (dbError) throw dbError;
 
-      // Aggiorna lo stato
+      // Aggiorna lo stato con i dati dell'utente
       setUtente(authData.user);
       setNomeUtente(nome);
       setRegistrazioneOk(true);
