@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -25,7 +24,6 @@ export default function AdminPage() {
   const [categoriaSelezionata, setCategoriaSelezionata] = useState('');
   const [modificaId, setModificaId] = useState(null);
 
-// [BLOCCO 2 - SOTTOCATEGORIE + useEffect]
   const sottocategorie = {
     gioielli: ['anelli', 'collane', 'bracciali', 'orecchini'],
     abbigliamento: ['abiti', 'camicie top', 'pantaloni', 'gonne', 'giacche e cappotti', 'abaye', 'caftani', 'abbigliamento da mare'],
@@ -49,8 +47,6 @@ export default function AdminPage() {
     fetchProdotti();
   }, []);
 
-// [BLOCCO 3 - GESTIONE CAMPI]
-
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     const val = type === 'checkbox' ? checked : value;
@@ -58,8 +54,6 @@ export default function AdminPage() {
     setForm((prev) => ({ ...prev, [name]: val }));
     if (name === 'categoria') setCategoriaSelezionata(val);
   };
-
-// [BLOCCO 4 - UPLOAD IMMAGINE]
 
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
@@ -88,8 +82,6 @@ export default function AdminPage() {
     }
   };
 
-// [BLOCCO 5 - SUBMIT CON SCONTO]
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -99,7 +91,7 @@ export default function AdminPage() {
       ? Math.round(prezzoNum - (prezzoNum * scontoNum / 100))
       : prezzoNum;
 
-    const nuovoProdotto = {
+    const prodottoData = {
       categoria: form.categoria,
       sottocategoria: form.sottocategoria,
       nome: form.nome,
@@ -107,30 +99,45 @@ export default function AdminPage() {
       taglia: form.taglia,
       prezzo: prezzoFinale,
       quantita: Number(form.quantita) || 0,
-      immagine: nomeFileSelezionato,
+      immagine: nomeFileSelezionato || form.immagine,
       disponibile: true,
       offerta: form.offerta,
       sconto: scontoNum,
       emailOfferta: form.emailOfferta,
-      created_at: new Date().toISOString()
+      updated_at: new Date().toISOString()
     };
 
     try {
-      const res = await fetch('/api/save-product', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(nuovoProdotto)
-      });
+      let res;
+      if (modificaId) {
+        // MODIFICA PRODOTTO ESISTENTE
+        res = await fetch(`/api/products/${modificaId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(prodottoData)
+        });
+      } else {
+        // CREA NUOVO PRODOTTO
+        res = await fetch('/api/save-product', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...prodottoData,
+            created_at: new Date().toISOString()
+          })
+        });
+      }
 
       const result = await res.json();
 
       if (res.ok) {
-        alert(result.message || '✅ Prodotto salvato!');
+        alert(result.message || (modificaId ? '✅ Prodotto aggiornato!' : '✅ Prodotto salvato!'));
         setForm({ categoria: '', sottocategoria: '', nome: '', descrizione: '', taglia: '', prezzo: '', quantita: 0, offerta: false, emailOfferta: false, sconto: 0 });
         setNomeFileSelezionato('');
         setCategoriaSelezionata('');
         setModificaId(null);
 
+        // Ricarica i prodotti
         const { data, error } = await supabase
           .from('products')
           .select('*')
@@ -145,8 +152,6 @@ export default function AdminPage() {
       alert('❌ Errore di rete durante il salvataggio.');
     }
   };
-
-// [BLOCCO 6 - EDIT & DELETE RESTANO UGUALI]
 
   const handleEdit = (item) => {
     setForm({
@@ -179,160 +184,158 @@ export default function AdminPage() {
     }
   };
 
-// [BLOCCO 7 - STILE E RENDERING — segue nel prossimo blocco 👇]
-const selectStyle = {
-  backgroundColor: 'transparent',
-  color: 'white',
-  border: '2px solid white',
-  borderRadius: '10px',
-  padding: '0.5rem 1rem',
-  fontSize: '0.9rem',
-  textAlign: 'center',
-  appearance: 'none',
-  WebkitAppearance: 'none',
-  MozAppearance: 'none',
-};
+  const selectStyle = {
+    backgroundColor: 'transparent',
+    color: 'white',
+    border: '2px solid white',
+    borderRadius: '10px',
+    padding: '0.5rem 1rem',
+    fontSize: '0.9rem',
+    textAlign: 'center',
+    appearance: 'none',
+    WebkitAppearance: 'none',
+    MozAppearance: 'none',
+  };
 
-const buttonStyle = {
-  backgroundColor: 'white',
-  color: 'black',
-  padding: '0.5rem 1rem',
-  borderRadius: '6px',
-  fontWeight: 'bold',
-  fontSize: '0.85rem'
-};
+  const buttonStyle = {
+    backgroundColor: 'white',
+    color: 'black',
+    padding: '0.5rem 1rem',
+    borderRadius: '6px',
+    fontWeight: 'bold',
+    fontSize: '0.85rem'
+  };
 
-return (
-  <main style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'black', color: 'white', minHeight: '100vh' }}>
-    <h1 style={{ fontSize: '2.3rem', marginBottom: '2rem' }}>GESTIONE PRODOTTI</h1>
+  return (
+    <main style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'black', color: 'white', minHeight: '100vh' }}>
+      <h1 style={{ fontSize: '2.3rem', marginBottom: '2rem' }}>GESTIONE PRODOTTI</h1>
 
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', maxWidth: '400px', margin: 'auto' }}>
-      <select name="categoria" value={form.categoria} onChange={handleInputChange} required style={selectStyle}>
-        <option value="">Seleziona Categoria</option>
-        <option value="gioielli">Gioielleria</option>
-        <option value="abbigliamento">Abbigliamento</option>
-        <option value="accessori">Accessori</option>
-      </select>
-
-      {categoriaSelezionata && (
-        <select name="sottocategoria" value={form.sottocategoria} onChange={handleInputChange} required style={selectStyle}>
-          <option value="">Seleziona Sottocategoria</option>
-          {sottocategorie[categoriaSelezionata]?.map((sotto, i) => (
-            <option key={i} value={sotto}>{sotto}</option>
-          ))}
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', maxWidth: '400px', margin: 'auto' }}>
+        <select name="categoria" value={form.categoria} onChange={handleInputChange} required style={selectStyle}>
+          <option value="">Seleziona Categoria</option>
+          <option value="gioielli">Gioielleria</option>
+          <option value="abbigliamento">Abbigliamento</option>
+          <option value="accessori">Accessori</option>
         </select>
-      )}
 
-      <input type="text" name="nome" placeholder="Nome prodotto" value={form.nome} onChange={handleInputChange} required style={{ color: 'black' }} />
-      <textarea name="descrizione" placeholder="Descrizione prodotto" value={form.descrizione} onChange={handleInputChange} required style={{ color: 'black' }} />
-      <input type="text" name="taglia" placeholder="Taglia / Misura" value={form.taglia} onChange={handleInputChange} required style={{ color: 'black' }} />
-      <input type="number" name="prezzo" placeholder="Prezzo" value={form.prezzo === 0 ? '' : form.prezzo} onChange={handleInputChange} required style={{ color: 'black' }} />
-      <input type="number" name="quantita" placeholder="Quantità disponibile" value={form.quantita} onChange={handleInputChange} required min="0" style={{ color: 'black' }} />
-
-      {/* NOVITÀ: Offerta + Email + Sconto */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.5rem' }}>
-        <label>
-          <input type="checkbox" name="offerta" checked={form.offerta} onChange={handleInputChange} />
-          {' '}Prodotto in Offerta
-        </label>
-        <label>
-          <input type="checkbox" name="emailOfferta" checked={form.emailOfferta} onChange={handleInputChange} />
-          {' '}Manda email a tutti i clienti
-        </label>
-        {form.offerta && (
-          <input
-            type="number"
-            name="sconto"
-            min="0"
-            max="100"
-            placeholder="Sconto %"
-            value={form.sconto}
-            onChange={handleInputChange}
-            style={{ color: 'black', width: '100%' }}
-          />
+        {categoriaSelezionata && (
+          <select name="sottocategoria" value={form.sottocategoria} onChange={handleInputChange} required style={selectStyle}>
+            <option value="">Seleziona Sottocategoria</option>
+            {sottocategorie[categoriaSelezionata]?.map((sotto, i) => (
+              <option key={i} value={sotto}>{sotto}</option>
+            ))}
+          </select>
         )}
+
+        <input type="text" name="nome" placeholder="Nome prodotto" value={form.nome} onChange={handleInputChange} required style={{ color: 'black' }} />
+        <textarea name="descrizione" placeholder="Descrizione prodotto" value={form.descrizione} onChange={handleInputChange} required style={{ color: 'black' }} />
+        <input type="text" name="taglia" placeholder="Taglia / Misura" value={form.taglia} onChange={handleInputChange} required style={{ color: 'black' }} />
+        <input type="number" name="prezzo" placeholder="Prezzo" value={form.prezzo === 0 ? '' : form.prezzo} onChange={handleInputChange} required style={{ color: 'black' }} />
+        <input type="number" name="quantita" placeholder="Quantità disponibile" value={form.quantita} onChange={handleInputChange} required min="0" style={{ color: 'black' }} />
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.5rem' }}>
+          <label>
+            <input type="checkbox" name="offerta" checked={form.offerta} onChange={handleInputChange} />
+            {' '}Prodotto in Offerta
+          </label>
+          <label>
+            <input type="checkbox" name="emailOfferta" checked={form.emailOfferta} onChange={handleInputChange} />
+            {' '}Manda email a tutti i clienti
+          </label>
+          {form.offerta && (
+            <input
+              type="number"
+              name="sconto"
+              min="0"
+              max="100"
+              placeholder="Sconto %"
+              value={form.sconto}
+              onChange={handleInputChange}
+              style={{ color: 'black', width: '100%' }}
+            />
+          )}
+        </div>
+
+        <label htmlFor="fileUpload" style={{ backgroundColor: 'white', color: 'black', padding: '0.4rem 1rem', borderRadius: '5px', cursor: 'pointer' }}>
+          Carica immagine
+          <input id="fileUpload" type="file" accept=".png, .jpg, .jpeg" onChange={handleImageChange} style={{ display: 'none' }} />
+        </label>
+        <span style={{ fontSize: '0.8rem', marginTop: '-0.5rem' }}>{nomeFileSelezionato}</span>
+
+        <button type="submit" className="bg-white text-black px-4 py-2 rounded-md flex items-center gap-2 shadow">
+          {modificaId ? '🔄 Aggiorna' : '💾 Salva'}
+        </button>
+      </form>
+
+      <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.8rem', marginTop: '1.5rem' }}>
+        <button onClick={() => router.push('/admin/ordini')} style={buttonStyle}>📦 ORDINI</button>
+        <button onClick={() => router.push('/admin/inventario')} style={buttonStyle}>📊 MAGAZZINO</button>
+        <button onClick={() => router.push('/admin/clienti')} style={buttonStyle}>👥 CLIENTI</button>
+        <button onClick={() => router.push('/admin/vendite')} style={buttonStyle}>💰 VENDITE</button>
+        <button onClick={() => router.push('/admin/spedizioni')} style={buttonStyle}>🚚 SPEDIZIONI</button>
       </div>
 
-      <label htmlFor="fileUpload" style={{ backgroundColor: 'white', color: 'black', padding: '0.4rem 1rem', borderRadius: '5px', cursor: 'pointer' }}>
-        Carica immagine
-        <input id="fileUpload" type="file" accept=".png, .jpg, .jpeg" onChange={handleImageChange} style={{ display: 'none' }} />
-      </label>
-      <span style={{ fontSize: '0.8rem', marginTop: '-0.5rem' }}>{nomeFileSelezionato}</span>
-
-      <button type="submit" className="bg-white text-black px-4 py-2 rounded-md flex items-center gap-2 shadow">
-        💾 <span className="uppercase text-sm">Salva</span>
-      </button>
-    </form>
-
-    <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.8rem', marginTop: '1.5rem' }}>
-      <button onClick={() => router.push('/admin/ordini')} style={buttonStyle}>📦 ORDINI</button>
-      <button onClick={() => router.push('/admin/inventario')} style={buttonStyle}>📊 MAGAZZINO</button>
-      <button onClick={() => router.push('/admin/clienti')} style={buttonStyle}>👥 CLIENTI</button>
-      <button onClick={() => router.push('/admin/vendite')} style={buttonStyle}>💰 VENDITE</button>
-      <button onClick={() => router.push('/admin/spedizioni')} style={buttonStyle}>🚚 SPEDIZIONI</button>
-    </div>
-
-    {categoriaSelezionata && (
-      <>
-        <h2 style={{ marginTop: '2rem' }}>Galleria: {categoriaSelezionata.toUpperCase()}</h2>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
-          gap: '0.5rem',
-          marginTop: '1rem',
-          maxHeight: '400px',
-          overflowY: 'auto',
-          padding: '1rem',
-          backgroundColor: '#1a1a1a',
-          borderRadius: '10px'
-        }}>
-          {prodottiFiltrati
-            .filter(p => p.categoria === categoriaSelezionata)
-            .map((item) => (
-              <div key={item.id} style={{
-                backgroundColor: 'white',
-                color: 'black',
-                padding: '0.3rem',
-                borderRadius: '6px',
-                width: '80px',
-                textAlign: 'center',
-                fontSize: '0.55rem',
-                position: 'relative'
-              }}>
-                {item.offerta && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '-6px',
-                    left: '-4px',
-                    backgroundColor: 'red',
-                    color: 'white',
-                    padding: '0.1rem 0.2rem',
-                    borderRadius: '4px',
-                    fontSize: '0.5rem'
-                  }}>✨ OFFERTA</div>
-                )}
-                <img
-                  src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${item.immagine}`}
-                  alt={item.nome}
-                  style={{ width: '100%', height: 'auto', maxHeight: '60px', objectFit: 'cover', borderRadius: '4px', marginBottom: '0.2rem' }}
-                />
-                <strong>{item.nome}</strong>
-                <p>{item.taglia}</p>
-                <p style={{ fontFamily: 'Arial, sans-serif' }}>
-                  {'\u20AC'} {(Math.round(Number(item.prezzo || 0) * 10) / 10).toFixed(1)}
-                </p>
-                <p style={{ fontWeight: 'bold', color: item.quantita === 0 ? 'red' : 'black' }}>
-                  {item.quantita === 0 ? 'da ordinare' : `Q: ${item.quantita}`}
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '0.2rem' }}>
-                  <button onClick={() => handleEdit(item)} style={{ backgroundColor: '#4caf50', color: 'white', padding: '0.1rem 0.2rem', borderRadius: '3px', fontSize: '0.6rem' }}>✏️</button>
-                  <button onClick={() => handleDelete(item.id)} style={{ backgroundColor: '#f44336', color: 'white', padding: '0.1rem 0.2rem', borderRadius: '3px', fontSize: '0.6rem' }}>🗑️</button>
+      {categoriaSelezionata && (
+        <>
+          <h2 style={{ marginTop: '2rem' }}>Galleria: {categoriaSelezionata.toUpperCase()}</h2>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
+            gap: '0.5rem',
+            marginTop: '1rem',
+            maxHeight: '400px',
+            overflowY: 'auto',
+            padding: '1rem',
+            backgroundColor: '#1a1a1a',
+            borderRadius: '10px'
+          }}>
+            {prodottiFiltrati
+              .filter(p => p.categoria === categoriaSelezionata)
+              .map((item) => (
+                <div key={item.id} style={{
+                  backgroundColor: 'white',
+                  color: 'black',
+                  padding: '0.3rem',
+                  borderRadius: '6px',
+                  width: '80px',
+                  textAlign: 'center',
+                  fontSize: '0.55rem',
+                  position: 'relative'
+                }}>
+                  {item.offerta && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '-6px',
+                      left: '-4px',
+                      backgroundColor: 'red',
+                      color: 'white',
+                      padding: '0.1rem 0.2rem',
+                      borderRadius: '4px',
+                      fontSize: '0.5rem'
+                    }}>✨ OFFERTA</div>
+                  )}
+                  <img
+                    src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${item.immagine}`}
+                    alt={item.nome}
+                    style={{ width: '100%', height: 'auto', maxHeight: '60px', objectFit: 'cover', borderRadius: '4px', marginBottom: '0.2rem' }}
+                  />
+                  <strong>{item.nome}</strong>
+                  <p>{item.taglia}</p>
+                  <p style={{ fontFamily: 'Arial, sans-serif' }}>
+                    {'\u20AC'} {(Math.round(Number(item.prezzo || 0) * 10) / 10).toFixed(1)}
+                  </p>
+                  <p style={{ fontWeight: 'bold', color: item.quantita === 0 ? 'red' : 'black' }}>
+                    {item.quantita === 0 ? 'da ordinare' : `Q: ${item.quantita}`}
+                  </p>
+                  <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '0.2rem' }}>
+                    <button onClick={() => handleEdit(item)} style={{ backgroundColor: '#4caf50', color: 'white', padding: '0.1rem 0.2rem', borderRadius: '3px', fontSize: '0.6rem' }}>✏️</button>
+                    <button onClick={() => handleDelete(item.id)} style={{ backgroundColor: '#f44336', color: 'white', padding: '0.1rem 0.2rem', borderRadius: '3px', fontSize: '0.6rem' }}>🗑️</button>
+                  </div>
                 </div>
-              </div>
-            ))}
-        </div>
-      </>
-    )}
-  </main>
-);
+              ))}
+          </div>
+        </>
+      )}
+    </main>
+  );
 }
