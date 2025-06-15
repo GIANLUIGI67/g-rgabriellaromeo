@@ -25,7 +25,7 @@ export default function CheckoutPage() {
   const [errore, setErrore] = useState('');
   const [isRegistrazione, setIsRegistrazione] = useState(false);
   const [cittaSelezionata, setCittaSelezionata] = useState('');
-  const langPulito = lang.split('-')[0];
+  const langPulito = lang.split('-')[0]; // Per gestire varianti linguistiche
 
   const fetchUtente = async () => {
     const { data: session } = await supabase.auth.getSession();
@@ -444,36 +444,21 @@ export default function CheckoutPage() {
           <button onClick={() => setIsRegistrazione(!isRegistrazione)} style={toggleStyle}>
             {isRegistrazione ? testi.login : testi.crea}
           </button>
+<button
+  onClick={loginGoogle}
+  style={socialStyle}
+>  
+  <img src="/icons/google.svg" style={{ width: '20px', height: '20px' }} alt="Google" />
+  {testi?.google ?? 'Login'}
+</button>
 
-          <div style={{ margin: '1rem 0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <button 
-              onClick={loginGoogle} 
-              style={{ 
-                ...socialStyle,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem'
-              }}
-            >
-              <img src="/icons/google.svg" style={{ width: '20px', height: '20px' }} alt="Google" />
-              <span>{testi.google}</span>
-            </button>
-
-            <button 
-              onClick={loginApple} 
-              style={{ 
-                ...socialStyle,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem'
-              }}
-            >
-              <img src="/icons/apple.svg" style={{ width: '20px', height: '20px' }} alt="Apple" />
-              <span>{testi.apple}</span>
-            </button>
-          </div>
+<button
+  onClick={loginApple}
+  style={socialStyle}
+>
+  <img src="/icons/apple.svg" style={{ width: '20px', height: '20px' }} alt="Apple" />
+  {testi?.apple ?? 'Login'}
+</button>
 
           {errore && <p style={{ color: 'red' }}>{errore}</p>}
         </div>
@@ -584,7 +569,7 @@ export default function CheckoutPage() {
   );
 }
 
-// STILI
+// STILI FINALI
 const inputStyle = {
   width: '100%',
   marginBottom: '1rem',
@@ -615,14 +600,17 @@ const toggleStyle = {
 
 const socialStyle = {
   width: '100%',
-  padding: '0.75rem',
+  padding: '0.5rem',
   backgroundColor: 'white',
-  color: 'black',
-  border: '1px solid #ddd',
+  border: '1px solid black',
   borderRadius: '5px',
+  marginBottom: '0.5rem',
   cursor: 'pointer',
-  fontWeight: 'bold',
-  fontSize: '0.9rem'
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '0.5rem',
+  fontWeight: 'bold'
 };
 
 const pagaStyle = {

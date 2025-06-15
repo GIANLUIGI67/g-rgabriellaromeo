@@ -25,7 +25,7 @@ export default function CheckoutPage() {
   const [errore, setErrore] = useState('');
   const [isRegistrazione, setIsRegistrazione] = useState(false);
   const [cittaSelezionata, setCittaSelezionata] = useState('');
-  const langPulito = lang.split('-')[0];
+  const langPulito = lang.split('-')[0]; // Per gestire varianti linguistiche
 
   const fetchUtente = async () => {
     const { data: session } = await supabase.auth.getSession();
@@ -186,9 +186,7 @@ export default function CheckoutPage() {
       telefono1: 'Telefono 1',
       telefono2: 'Telefono 2',
       totale: 'Totale:',
-      rimuovi: '❌ Rimuovi',
-      google: 'Login con Google',
-      apple: 'Login con Apple',
+      rimuovi: '❌ Rimuovi'
     },
     en: {
       titolo: 'Order Summary',
@@ -210,9 +208,7 @@ export default function CheckoutPage() {
       telefono1: 'Phone 1',
       telefono2: 'Phone 2',
       totale: 'Total:',
-      rimuovi: '❌ Remove',
-      google: 'Login with Google',
-      apple: 'Login with Apple',
+      rimuovi: '❌ Remove'
     },
     fr: {
       titolo: 'Récapitulatif de la commande',
@@ -234,9 +230,7 @@ export default function CheckoutPage() {
       telefono1: 'Téléphone 1',
       telefono2: 'Téléphone 2',
       totale: 'Total :',
-      rimuovi: '❌ Supprimer',
-      google: 'Connexion avec Google',
-      apple: 'Connexion avec Apple',
+      rimuovi: '❌ Supprimer'
     },
     de: {
       titolo: 'Bestellübersicht',
@@ -258,9 +252,7 @@ export default function CheckoutPage() {
       telefono1: 'Telefon 1',
       telefono2: 'Telefon 2',
       totale: 'Gesamt:',
-      rimuovi: '❌ Entfernen',
-      google: 'Anmelden mit Google',
-      apple: 'Anmelden mit Apple',
+      rimuovi: '❌ Entfernen'
     },
     es: {
       titolo: 'Resumen del pedido',
@@ -282,9 +274,7 @@ export default function CheckoutPage() {
       telefono1: 'Teléfono 1',
       telefono2: 'Teléfono 2',
       totale: 'Total:',
-      rimuovi: '❌ Eliminar',
-      google: 'Iniciar sesión Google',
-      apple: 'Iniciar sesión Apple',
+      rimuovi: '❌ Eliminar'
     },
     zh: {
       titolo: '订单摘要',
@@ -306,9 +296,7 @@ export default function CheckoutPage() {
       telefono1: '电话 1',
       telefono2: '电话 2',
       totale: '总计：',
-      rimuovi: '❌ 移除',
-      google: '使用 Google 登录',
-      apple: '使用 Apple 登录',
+      rimuovi: '❌ 移除'
     },
     ar: {
       titolo: 'ملخص الطلب',
@@ -330,9 +318,7 @@ export default function CheckoutPage() {
       telefono1: 'الهاتف 1',
       telefono2: 'الهاتف 2',
       totale: 'الإجمالي:',
-      rimuovi: '❌ حذف',
-      google: 'تسجيل الدخول باستخدام Google',
-      apple: 'تسجيل الدخول باستخدام Apple',
+      rimuovi: '❌ حذف'
     },
     ja: {
       titolo: '注文の概要',
@@ -354,13 +340,11 @@ export default function CheckoutPage() {
       telefono1: '電話 1',
       telefono2: '電話 2',
       totale: '合計：',
-      rimuovi: '❌ 削除',
-      google: 'Googleでログイン',
-      apple: 'Appleでログイン',
-    },
+      rimuovi: '❌ 削除'
+    }
   };
 
-  const testi = testiTutti[langPulito] || testiTutti.it;
+  const testi = testiTutti[lang] || testiTutti.it;
   const totaleProdotti = carrello.reduce((tot, p) => tot + parseFloat(p.prezzo || 0) * (p.quantita || 1), 0);
   const totaleFinale = Math.round(totaleProdotti * 10) / 10;
 
@@ -444,36 +428,21 @@ export default function CheckoutPage() {
           <button onClick={() => setIsRegistrazione(!isRegistrazione)} style={toggleStyle}>
             {isRegistrazione ? testi.login : testi.crea}
           </button>
+          <button
+            onClick={loginGoogle}
+            style={socialStyle}
+          >  
+            <img src="/icons/google.svg" style={{ width: '20px', height: '20px' }} alt="Google" />
+            {lang === 'it' ? 'Login con Google' : 'Login with Google'}
+          </button>
 
-          <div style={{ margin: '1rem 0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <button 
-              onClick={loginGoogle} 
-              style={{ 
-                ...socialStyle,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem'
-              }}
-            >
-              <img src="/icons/google.svg" style={{ width: '20px', height: '20px' }} alt="Google" />
-              <span>{testi.google}</span>
-            </button>
-
-            <button 
-              onClick={loginApple} 
-              style={{ 
-                ...socialStyle,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem'
-              }}
-            >
-              <img src="/icons/apple.svg" style={{ width: '20px', height: '20px' }} alt="Apple" />
-              <span>{testi.apple}</span>
-            </button>
-          </div>
+          <button
+            onClick={loginApple}
+            style={socialStyle}
+          >
+            <img src="/icons/apple.svg" style={{ width: '20px', height: '20px' }} alt="Apple" />
+            {lang === 'it' ? 'Login con Apple' : 'Login with Apple'}
+          </button>
 
           {errore && <p style={{ color: 'red' }}>{errore}</p>}
         </div>
@@ -584,7 +553,7 @@ export default function CheckoutPage() {
   );
 }
 
-// STILI
+// STILI FINALI
 const inputStyle = {
   width: '100%',
   marginBottom: '1rem',
@@ -615,14 +584,17 @@ const toggleStyle = {
 
 const socialStyle = {
   width: '100%',
-  padding: '0.75rem',
+  padding: '0.5rem',
   backgroundColor: 'white',
-  color: 'black',
-  border: '1px solid #ddd',
+  border: '1px solid black',
   borderRadius: '5px',
+  marginBottom: '0.5rem',
   cursor: 'pointer',
-  fontWeight: 'bold',
-  fontSize: '0.9rem'
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '0.5rem',
+  fontWeight: 'bold'
 };
 
 const pagaStyle = {
