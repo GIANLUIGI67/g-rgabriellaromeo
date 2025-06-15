@@ -5,7 +5,7 @@ import { supabase } from '../../lib/supabaseClient';
 
 export default function MagazzinoPage() {
   const [prodotti, setProdotti] = useState([]);
-  const [totaleMagazzino, setTotaleMagazzino] = useState(0);
+  const [totale, setTotale] = useState(0);
 
   useEffect(() => {
     const fetchProdotti = async () => {
@@ -17,16 +17,9 @@ export default function MagazzinoPage() {
       if (error) {
         console.error('Errore nel caricamento del magazzino:', error.message);
       } else {
-        // Filtra solo i prodotti con quantità > 0
-        const prodottiFiltrati = data.filter(item => item.quantita > 0);
-        setProdotti(prodottiFiltrati);
-        
-        // Calcola il totale del magazzino come somma di (prezzo × quantità)
-        const somma = prodottiFiltrati.reduce(
-          (acc, item) => acc + (Number(item.prezzo || 0) * Number(item.quantita || 0)), 
-          0
-        );
-        setTotaleMagazzino(somma);
+        setProdotti(data);
+        const somma = data.reduce((acc, item) => acc + Number(item.prezzo || 0), 0);
+        setTotale(somma);
       }
     };
 
@@ -43,11 +36,8 @@ export default function MagazzinoPage() {
 
   const stampaPagina = () => window.print();
 
-  const formatEuro = (val) => {
-    const value = Number(val || 0);
-    // Formattazione come nel vecchio script (senza separatori migliaia)
-    return `€ ${value.toFixed(2)}`;
-  };
+  const formatEuro = (val) =>
+    '\u20AC ' + (Math.round(Number(val || 0) * 10) / 10).toFixed(1);
 
   return (
     <main style={{ padding: '1rem', backgroundColor: 'black', color: 'white', minHeight: '100vh' }}>
@@ -70,38 +60,26 @@ export default function MagazzinoPage() {
                     <th style={{ textAlign: 'left', padding: '0.3rem' }}>Nome</th>
                     <th style={{ textAlign: 'left', padding: '0.3rem' }}>Descrizione</th>
                     <th style={{ textAlign: 'left', padding: '0.3rem' }}>Taglia</th>
-                    <th style={{ textAlign: 'center', padding: '0.3rem' }}>Q.tà</th>
-                    <th style={{ textAlign: 'right', padding: '0.3rem', fontFamily: 'Arial, sans-serif' }}>Prezzo Unit. €</th>
-                    <th style={{ textAlign: 'right', padding: '0.3rem', fontFamily: 'Arial, sans-serif' }}>Totale €</th>
+                    <th style={{ textAlign: 'right', padding: '0.3rem', fontFamily: 'Arial, sans-serif' }}>Prezzo €</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {items.map((p) => {
-                    const totaleProdotto = Number(p.prezzo) * Number(p.quantita);
-                    return (
-                      <tr key={p.id} style={{ borderBottom: '1px dotted #666' }}>
-                        <td style={{ padding: '0.3rem' }}>{p.nome}</td>
-                        <td style={{ padding: '0.3rem' }}>{p.descrizione}</td>
-                        <td style={{ padding: '0.3rem' }}>{p.taglia}</td>
-                        <td style={{ textAlign: 'center', padding: '0.3rem' }}>{p.quantita}</td>
-                        <td style={{ textAlign: 'right', padding: '0.3rem', fontFamily: 'Arial, sans-serif' }}>
-                          {formatEuro(p.prezzo)}
-                        </td>
-                        <td style={{ textAlign: 'right', padding: '0.3rem', fontWeight: 'bold', fontFamily: 'Arial, sans-serif' }}>
-                          {formatEuro(totaleProdotto)}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {items.map((p) => (
+                    <tr key={p.id} style={{ borderBottom: '1px dotted #666' }}>
+                      <td style={{ padding: '0.3rem' }}>{p.nome}</td>
+                      <td style={{ padding: '0.3rem' }}>{p.descrizione}</td>
+                      <td style={{ padding: '0.3rem' }}>{p.taglia}</td>
+                      <td style={{ textAlign: 'right', padding: '0.3rem', fontFamily: 'Arial, sans-serif' }}>
+                        {formatEuro(p.prezzo)}
+                      </td>
+                    </tr>
+                  ))}
                   <tr>
-                    <td colSpan="5" style={{ textAlign: 'right', fontWeight: 'bold', paddingTop: '0.4rem' }}>
-                      Subtotale {sottocategoria}
+                    <td colSpan="3" style={{ textAlign: 'right', fontWeight: 'bold', paddingTop: '0.4rem' }}>
+                      Subtotale
                     </td>
                     <td style={{ textAlign: 'right', fontWeight: 'bold', paddingTop: '0.4rem', fontFamily: 'Arial, sans-serif' }}>
-                      {formatEuro(items.reduce(
-                        (sum, i) => sum + (Number(i.prezzo || 0) * Number(i.quantita || 0)), 
-                        0
-                      ))}
+                      {formatEuro(items.reduce((sum, i) => sum + Number(i.prezzo || 0), 0))}
                     </td>
                   </tr>
                 </tbody>
@@ -111,16 +89,8 @@ export default function MagazzinoPage() {
         </section>
       ))}
 
-      <h2 style={{ 
-        textAlign: 'right', 
-        fontSize: '1.4rem', 
-        marginTop: '2rem', 
-        color: 'white',
-        borderTop: '2px solid #666',
-        paddingTop: '1rem',
-        fontFamily: 'Arial, sans-serif'
-      }}>
-        Valore Totale Magazzino: {formatEuro(totaleMagazzino)}
+      <h2 style={{ textAlign: 'right', fontSize: '1.4rem', marginTop: '2rem', color: 'white', fontFamily: 'Arial, sans-serif' }}>
+        Totale Magazzino: {formatEuro(totale)}
       </h2>
 
       <div style={{ textAlign: 'center', marginTop: '2rem' }}>
