@@ -6,6 +6,7 @@ import { supabase } from '../app/lib/supabaseClient';
 import paesi from '../app/lib/paesi';
 import { citta as cittaData } from '../app/lib/citta';
 
+// Funzione per ottenere l'IP con fallback
 const getClientIp = async () => {
   const services = [
     'https://api.ipify.org?format=json',
@@ -38,26 +39,6 @@ const getClientIp = async () => {
   return null;
 };
 
-const fetchNomeUtente = async (email) => {
-  if (!email) return null;
-
-  try {
-    const { data, error } = await supabase
-      .from('clienti')
-      .select('nome')
-      .eq('email', email)
-      .maybeSingle();
-
-    if (error?.code === 'PGRST116') return null;
-    if (error) throw error;
-    
-    return data?.nome || null;
-  } catch (err) {
-    console.error('Errore non critico in fetchNomeUtente:', err);
-    return null;
-  }
-};
-
 export default function UserMenu({ lang }) {
   const langPulito = ['it','en','fr','de','es','ar','zh','ja'].includes(lang) ? lang : 'it';
   const [isOpen, setIsOpen] = useState(false);
@@ -80,71 +61,14 @@ export default function UserMenu({ lang }) {
   const menuRef = useRef();
 
   const translations = {
-    login: { it: 'LOGIN', en: 'LOGIN', fr: 'CONNEXION', es: 'INICIAR SESIÓN', de: 'ANMELDEN', zh: '登录', ja: 'ログイン', ar: 'تسجيل الدخول' },
+    login: { it: 'Login', en: 'Login', fr: 'Connexion', es: 'Iniciar sesión', de: 'Anmelden', zh: '登录', ja: 'ログイン', ar: 'تسجيل الدخول' },
     email: { it: 'Email', en: 'Email', fr: 'E-mail', es: 'Correo electrónico', de: 'E-Mail', zh: '电子邮件', ja: 'メール', ar: 'البريد الإلكتروني' },
     password: { it: 'Password', en: 'Password', fr: 'Mot de passe', es: 'Contraseña', de: 'Passwort', zh: '密码', ja: 'パスワード', ar: 'كلمة المرور' },
-    create: { it: 'CREA ACCOUNT', en: 'CREATE ACCOUNT', fr: 'CRÉER UN COMPTE', es: 'CREAR CUENTA', de: 'KONTO ERSTELLEN', zh: '创建账户', ja: 'アカウント作成', ar: 'إنشاء حساب' },
+    create: { it: 'Crea Account', en: 'Create Account', fr: 'Créer un compte', es: 'Crear cuenta', de: 'Konto erstellen', zh: '创建账户', ja: 'アカウント作成', ar: 'إنشاء حساب' },
     register: { it: 'Registrati', en: 'Register', fr: 'S’inscrire', es: 'Registrarse', de: 'Registrieren', zh: '注册', ja: '登録', ar: 'تسجيل' },
-    forgotPassword: {
-      it: 'Password dimenticata?',
-      en: 'Forgot password?',
-      fr: 'Mot de passe oublié?',
-      es: '¿Olvidaste tu contraseña?',
-      de: 'Passwort vergessen?',
-      zh: '忘记密码？',
-      ja: 'パスワードをお忘れですか？',
-      ar: 'نسيت كلمة المرور؟'
-    },
-    registerBenefits: {
-      it: [
-        'Per aggiungere i tuoi prodotti alla lista dei desideri',
-        'Per un checkout più veloce',
-        'Ottieni uno sconto del 50% sul tuo prossimo acquisto',
-        'Unisciti al nostro referral program per sconti e buoni acquisto'
-      ],
-      en: [
-        'To add products to your wishlist',
-        'For faster checkout',
-        'Get 50% discount on your next purchase',
-        'Join our referral program for discounts and vouchers'
-      ],
-      fr: [
-        'Pour ajouter des produits à votre liste de souhaits',
-        'Pour un paiement plus rapide',
-        'Bénéficiez de 50% de réduction sur votre prochain achat',
-        'Rejoignez notre programme de parrainage pour des réductions et des bons d\'achat'
-      ],
-      es: [
-        'Para añadir productos a tu lista de deseos',
-        'Para un pago más rápido',
-        'Obtén un 50% de descuento en tu próxima compra',
-        'Únete a nuestro programa de referidos para descuentos y vales de compra'
-      ],
-      de: [
-        'Um Produkte zu Ihrer Wunschliste hinzuzufügen',
-        'Für einen schnelleren Checkout',
-        'Erhalten Sie 50% Rabatt auf Ihren nächsten Einkauf',
-        'Nehmen Sie an unserem Empfehlungsprogramm für Rabatte und Gutscheine teil'
-      ],
-      ar: [
-        'إضافة منتجاتك إلى قائمة الرغبات',
-        'إتمام عملية الدفع بسرعة أكبر',
-        'احصل على خصم 50% على مشترياتك القادمة',
-        'انضم إلى برنامج الإحالة للحصول على خصومات وكوبونات شراء'
-      ],
-      zh: [
-        '将商品添加到您的愿望清单',
-        '更快捷的结账体验',
-        '下次购物享受50%折扣',
-        '加入我们的推荐计划获取折扣和购物券'
-      ],
-      ja: [
-        '商品をウィッシュリストに追加',
-        'より速いチェックアウト',
-        '次回のお買い物で50％オフ',
-        '紹介プログラムに参加して割引やクーポンをゲット'
-      ]
-    },
+    googleLogin: { it: 'Login con Google', en: 'Login with Google', fr: 'Connexion Google', es: 'Iniciar sesión Google', de: 'Mit Google anmelden', zh: '使用 Google 登录', ja: 'Googleでログイン', ar: 'تسجيل الدخول باستخدام Google' },
+    appleLogin: { it: 'Login con Apple', en: 'Login with Apple', fr: 'Connexion Apple', es: 'Iniciar sesión Apple', de: 'Mit Apple anmelden', zh: '使用 Apple 登录', ja: 'Appleでログイン', ar: 'تسجيل الدخول باستخدام Apple' },
+  
     nome: {
       it: 'Nome', en: 'First Name', fr: 'Prénom', de: 'Vorname', es: 'Nombre',
       ar: 'الاسم', zh: '名字', ja: '名'
@@ -259,36 +183,57 @@ export default function UserMenu({ lang }) {
     }
   };
 
+  // Funzione di tracking aggiornata con IP
   const tracciaAccesso = async (email) => {
     const accessoTracciato = sessionStorage.getItem('accessoTracciato');
     if (accessoTracciato === email) return;
 
-    try {
-      const ipAddress = await getClientIp();
-      
-      await supabase.from('user_tracking').insert({
-        email,
-        language: lang,
-        access_time: new Date().toISOString(),
-        browser: navigator.userAgent,
-        ip_address: ipAddress,
-        user_agent: navigator.userAgent,
-        screen_resolution: `${window.screen.width}x${window.screen.height}`,
-        referrer: document.referrer || 'direct'
-      });
+    // Avvia il tracking in background
+    (async () => {
+      try {
+        const ipAddress = await getClientIp();
+        
+        await supabase.from('user_tracking').insert({
+          email,
+          language: lang,
+          access_time: new Date().toISOString(),
+          browser: navigator.userAgent,
+          ip_address: ipAddress,
+          user_agent: navigator.userAgent,
+          screen_resolution: `${window.screen.width}x${window.screen.height}`,
+          referrer: document.referrer || 'direct'
+        });
 
-      sessionStorage.setItem('accessoTracciato', email);
-    } catch (error) {
-      console.error('Tracking error:', error);
-      await supabase.from('user_tracking').insert({
-        email,
-        language: lang,
-        access_time: new Date().toISOString(),
-        browser: navigator.userAgent,
-        ip_address: null,
-        error: 'IP lookup failed'
-      });
+        sessionStorage.setItem('accessoTracciato', email);
+      } catch (error) {
+        console.error('Tracking error:', error);
+        // Fallback senza IP
+        await supabase.from('user_tracking').insert({
+          email,
+          language: lang,
+          access_time: new Date().toISOString(),
+          browser: navigator.userAgent,
+          ip_address: null,
+          error: 'IP lookup failed'
+        });
+      }
+    })();
+  };
+
+  const fetchNomeUtente = async (email) => {
+    const { data: cliente, error } = await supabase
+      .from('clienti')
+      .select('nome')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (error || !cliente) {
+      console.warn('❌ Nome utente non trovato per', email);
+      setNomeUtente('');
+      return;
     }
+
+    setNomeUtente(cliente.nome);
   };
 
   useEffect(() => {
@@ -307,11 +252,9 @@ export default function UserMenu({ lang }) {
         setRegistrazioneOk(false);
       }
     };
-    
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
-    
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -319,25 +262,29 @@ export default function UserMenu({ lang }) {
 
   useEffect(() => {
     const checkLogin = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        const user = session?.user;
+      const { data, error } = await supabase.auth.getSession();
+      const user = data?.session?.user;
 
-        if (!user || error) return;
+      if (!user || error) return;
 
-        const nomeCliente = await fetchNomeUtente(user.email);
-        
-        setUtente(user);
-        setNomeUtente(
-          nomeCliente || 
-          user.user_metadata?.name || 
-          user.email.split('@')[0] || 
-          'Utente'
-        );
-        tracciaAccesso(user.email);
-      } catch (err) {
-        console.error('Errore checkLogin:', err);
+      const { data: cliente, error: errCliente } = await supabase
+        .from('clienti')
+        .select('nome')
+        .eq('email', user.email)
+        .maybeSingle();
+
+      if (errCliente || !cliente) {
+        console.warn('⚠️ Cliente non trovato. Logout forzato e ricarico.');
+        await supabase.auth.signOut();
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.reload();
+        return;
       }
+
+      setUtente(user);
+      setNomeUtente(cliente.nome);
+      tracciaAccesso(user.email);
     };
 
     checkLogin();
@@ -353,25 +300,39 @@ export default function UserMenu({ lang }) {
   };
 
   const loginEmail = async () => {
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-      if (error || !data?.user) {
-        setErrore(translations.invalidLogin[langPulito]);
-        setUtente(null);
-        return;
-      }
-
-      const nomeCliente = await fetchNomeUtente(data.user.email);
-      setUtente(data.user);
-      setNomeUtente(nomeCliente || data.user.email.split('@')[0] || 'Utente');
-      tracciaAccesso(data.user.email);
-      setErrore('');
-    } catch (err) {
-      console.error('Errore login email:', err);
-      setErrore('Si è verificato un errore durante il login');
+    if (error || !data?.user) {
+      setErrore(translations.invalidLogin[langPulito]);
+      setUtente(null);
+      return;
     }
+
+    setUtente(data.user);
+    tracciaAccesso(data.user.email);
+    fetchNomeUtente(data.user.email);
+    setErrore('');
   };
+  
+  const loginGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/checkout`
+      }
+    });
+    if (error) setErrore(error.message);
+  };  
+
+  const loginApple = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'apple',
+      options: {
+        redirectTo: `${window.location.origin}/checkout`
+      }
+    });
+    if (error) setErrore(error.message);
+  };  
 
   const passwordDimenticata = async () => {
     if (!email) {
@@ -379,22 +340,14 @@ export default function UserMenu({ lang }) {
       return;
     }
   
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`
-      });
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`
+    });
   
-      if (error) {
-        setErrore(error.message);
-      } else {
-        alert('📩 Ti abbiamo inviato una email per reimpostare la password.');
-      }
-    } catch (err) {
-      console.error('Errore recupero password:', err);
-      setErrore('Si è verificato un errore durante il recupero password');
-    }
-  };
-
+    if (error) setErrore(error.message);
+    else alert('📩 Ti abbiamo inviato una email per reimpostare la password.');
+  };  
+  
   const validateFields = () => {
     if (!nome) {
       setErrore(`${translations.nome[langPulito]}: ${translations.requiredField[langPulito]}`);
@@ -438,6 +391,7 @@ export default function UserMenu({ lang }) {
     if (!validateFields()) return;
 
     try {
+      // Step 1: Registra l'utente in Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({ 
         email, 
         password,
@@ -451,6 +405,7 @@ export default function UserMenu({ lang }) {
 
       if (authError) throw authError;
 
+      // Step 2: Crea il record cliente nel database
       const { error: dbError } = await supabase.from('clienti').upsert({
         email,
         nome,
@@ -468,14 +423,16 @@ export default function UserMenu({ lang }) {
 
       if (dbError) throw dbError;
 
+      // Aggiorna lo stato
       setUtente(authData.user);
       setNomeUtente(nome);
       setRegistrazioneOk(true);
       setErrore('');
       setModalitaRegistrazione(false);
       tracciaAccesso(email);
+
     } catch (error) {
-      console.error('Errore registrazione:', error);
+      console.error('Errore durante la registrazione:', error);
       setErrore(error.message || 'Errore durante la registrazione');
     }
   };
@@ -493,6 +450,7 @@ export default function UserMenu({ lang }) {
           }}
         >
           <div className="flex flex-col h-full">
+            {/* Header */}
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold uppercase">{translations.login[langPulito]}</h2>
               <button onClick={() => {
@@ -501,62 +459,16 @@ export default function UserMenu({ lang }) {
               }}><X size={22} /></button>
             </div>
             
+            {/* Contenuto scorrevole */}
             <div className="flex-1 overflow-y-auto pb-6">
               {!utente ? (
                 <div className="space-y-3">
-                  <input 
-                    type="email" 
-                    placeholder={translations.email[langPulito]} 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
-                    className="w-full border border-black px-4 py-2 rounded" 
-                  />
-                  <input 
-                    type="password" 
-                    placeholder={translations.password[langPulito]} 
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
-                    className="w-full border border-black px-4 py-2 rounded" 
-                  />
-                  
-                  <button 
-                    onClick={modalitaRegistrazione ? registraUtente : loginEmail} 
-                    className="w-full bg-black text-white py-2 rounded uppercase"
-                  >
-                    {modalitaRegistrazione ? translations.register[langPulito] : translations.login[langPulito]}
-                  </button>
-                  
-                  {!modalitaRegistrazione && (
-                    <button 
-                      onClick={passwordDimenticata} 
-                      className="text-blue-600 text-xs w-full text-left"
-                    >
-                      {translations.forgotPassword[langPulito]}
-                    </button>
-                  )}
-                  
-                  {errore && (
-                    <p className="text-sm text-red-600 mb-4 py-2 px-3 bg-red-50 rounded">
-                      {errore}
-                    </p>
-                  )}
-                  
+                  <input type="email" placeholder={translations.email[langPulito]} value={email} onChange={(e) => setEmail(e.target.value)} className="w-full border border-black px-4 py-2 rounded" />
+                  <input type="password" placeholder={translations.password[langPulito]} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border border-black px-4 py-2 rounded" />
                   {modalitaRegistrazione && (
                     <>
-                      <input 
-                        placeholder={translations.nome[langPulito]} 
-                        value={nome} 
-                        onChange={(e) => setNome(e.target.value)} 
-                        className="w-full border border-black px-2 py-1 rounded" 
-                        required 
-                      />
-                      <input 
-                        placeholder={translations.cognome[langPulito]} 
-                        value={cognome} 
-                        onChange={(e) => setCognome(e.target.value)} 
-                        className="w-full border border-black px-2 py-1 rounded" 
-                        required 
-                      />
+                      <input placeholder={translations.nome[langPulito]} value={nome} onChange={(e) => setNome(e.target.value)} className="w-full border border-black px-2 py-1 rounded" required />
+                      <input placeholder={translations.cognome[langPulito]} value={cognome} onChange={(e) => setCognome(e.target.value)} className="w-full border border-black px-2 py-1 rounded" required />
                       
                       <select
                         value={paese}
@@ -611,65 +523,34 @@ export default function UserMenu({ lang }) {
                         />
                       )}
   
-                      <input 
-                        placeholder={translations.indirizzo[langPulito]} 
-                        value={indirizzo} 
-                        onChange={(e) => setIndirizzo(e.target.value)} 
-                        className="w-full border border-black px-2 py-1 rounded" 
-                        required 
-                      />
-                      <input 
-                        placeholder={translations.cap[langPulito]} 
-                        value={cap} 
-                        onChange={(e) => setCap(e.target.value)} 
-                        className="w-full border border-black px-2 py-1 rounded" 
-                        required 
-                      />
-                      <input 
-                        placeholder={translations.telefono1[langPulito]} 
-                        value={telefono1} 
-                        onChange={(e) => setTelefono1(e.target.value)} 
-                        className="w-full border border-black px-2 py-1 rounded" 
-                        required 
-                      />
-                      <input 
-                        placeholder={translations.telefono2[langPulito]} 
-                        value={telefono2} 
-                        onChange={(e) => setTelefono2(e.target.value)} 
-                        className="w-full border border-black px-2 py-1 rounded" 
-                      />
+                      <input placeholder={translations.indirizzo[langPulito]} value={indirizzo} onChange={(e) => setIndirizzo(e.target.value)} className="w-full border border-black px-2 py-1 rounded" required />
+                      <input placeholder={translations.cap[langPulito]} value={cap} onChange={(e) => setCap(e.target.value)} className="w-full border border-black px-2 py-1 rounded" required />
+                      <input placeholder={translations.telefono1[langPulito]} value={telefono1} onChange={(e) => setTelefono1(e.target.value)} className="w-full border border-black px-2 py-1 rounded" required />
+                      <input placeholder={translations.telefono2[langPulito]} value={telefono2} onChange={(e) => setTelefono2(e.target.value)} className="w-full border border-black px-2 py-1 rounded" />
                     </>
                   )}
-                  
+                  <button onClick={modalitaRegistrazione ? registraUtente : loginEmail} className="w-full bg-black text-white py-2 rounded uppercase">
+                    {modalitaRegistrazione ? translations.register[langPulito] : translations.login[langPulito]}
+                  </button>
+                  <button onClick={loginGoogle} className="w-full border border-black py-2 rounded flex items-center justify-center gap-2 text-sm bg-white hover:bg-gray-100 uppercase">
+                    <img src="/icons/google.svg" className="w-5 h-5" alt="Google" />
+                    {translations.googleLogin[langPulito]}
+                  </button>
+                  <button onClick={loginApple} className="w-full border border-black py-2 rounded flex items-center justify-center gap-2 text-sm bg-white hover:bg-gray-100 uppercase">
+                    <img src="/icons/apple.svg" className="w-5 h-5" alt="Apple" />
+                    {translations.appleLogin[langPulito]}
+                  </button>
+                  {errore && (
+                    <p className="text-sm text-red-600 mb-4 py-2 px-3 bg-red-50 rounded">
+                      {errore}
+                    </p>
+                  )}
                   <div className="border-t pt-4 text-sm">
-                    {!modalitaRegistrazione ? (
-                      <>
-                        <button 
-                          onClick={() => setModalitaRegistrazione(true)} 
-                          className="w-full border border-black py-2 rounded uppercase mb-2 font-semibold"
-                        >
-                          {translations.create[langPulito]}
-                        </button>
-                        <div className="text-xs text-gray-600 space-y-1 mt-2">
-                          {translations.registerBenefits[langPulito].map((benefit, index) => (
-                            <div key={index} className="flex items-start">
-                              {['it', 'en', 'fr', 'es', 'de'].includes(langPulito) && (
-                                <span className="mr-2">-</span>
-                              )}
-                              <span 
-                                className={`
-                                  ${langPulito === 'ar' ? 'text-right' : 'text-left'}
-                                  ${['zh', 'ja'].includes(langPulito) ? 'ml-4' : ''}
-                                  whitespace-pre-wrap
-                                `}
-                              >
-                                {benefit}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    ) : null}
+                    {!modalitaRegistrazione && (
+                      <button onClick={() => setModalitaRegistrazione(true)} className="w-full border border-black py-2 rounded uppercase mb-4 font-semibold">
+                        {translations.create[langPulito]}
+                      </button>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -680,12 +561,7 @@ export default function UserMenu({ lang }) {
                       🎉 {translations.registrationSuccess[langPulito]}
                     </p>
                   )}
-                  <button 
-                    onClick={logout} 
-                    className="w-full bg-gray-700 text-white py-2 rounded uppercase"
-                  >
-                    Logout
-                  </button>
+                  <button onClick={logout} className="w-full bg-gray-700 text-white py-2 rounded uppercase">Logout</button>
                 </div>
               )}
             </div>
