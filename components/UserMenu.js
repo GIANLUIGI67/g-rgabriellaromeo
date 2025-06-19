@@ -99,49 +99,49 @@ export default function UserMenu({ lang }) {
       it: [
         'Per aggiungere i tuoi prodotti alla lista dei desideri',
         'Per un checkout più veloce',
-        'Ottieni uno sconto del 50% sul tuo prossimo acquisto',
+        'Ottieni uno sconto del 5% sul tuo prossimo acquisto',
         'Unisciti al nostro referral program per sconti e buoni acquisto'
       ],
       en: [
         'To add products to your wishlist',
         'For faster checkout',
-        'Get 50% discount on your next purchase',
+        'Get 5% discount on your next purchase',
         'Join our referral program for discounts and vouchers'
       ],
       fr: [
         'Pour ajouter des produits à votre liste de souhaits',
         'Pour un paiement plus rapide',
-        'Bénéficiez de 50% de réduction sur votre prochain achat',
+        'Bénéficiez de 5% de réduction sur votre prochain achat',
         'Rejoignez notre programme de parrainage pour des réductions et des bons d\'achat'
       ],
       es: [
         'Para añadir productos a tu lista de deseos',
         'Para un pago más rápido',
-        'Obtén un 50% de descuento en tu próxima compra',
+        'Obtén un 5% de descuento en tu próxima compra',
         'Únete a nuestro programa de referidos para descuentos y vales de compra'
       ],
       de: [
         'Um Produkte zu Ihrer Wunschliste hinzuzufügen',
         'Für einen schnelleren Checkout',
-        'Erhalten Sie 50% Rabatt auf Ihren nächsten Einkauf',
+        'Erhalten Sie 5% Rabatt auf Ihren nächsten Einkauf',
         'Nehmen Sie an unserem Empfehlungsprogramm für Rabatte und Gutscheine teil'
       ],
       ar: [
         'إضافة منتجاتك إلى قائمة الرغبات',
         'إتمام عملية الدفع بسرعة أكبر',
-        'احصل على خصم 50% على مشترياتك القادمة',
+        'احصل على خصم 5% على مشترياتك القادمة',
         'انضم إلى برنامج الإحالة للحصول على خصومات وكوبونات شراء'
       ],
       zh: [
         '将商品添加到您的愿望清单',
         '更快捷的结账体验',
-        '下次购物享受50%折扣',
+        '下次购物享受5%折扣',
         '加入我们的推荐计划获取折扣和购物券'
       ],
       ja: [
         '商品をウィッシュリストに追加',
         'より速いチェックアウト',
-        '次回のお買い物で50％オフ',
+        '次回のお買い物で5％オフ',
         '紹介プログラムに参加して割引やクーポンをゲット'
       ]
     },
