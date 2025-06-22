@@ -104,23 +104,26 @@ export default function AbbigliamentoPage() {
     position: 'fixed',
     top: '0.5rem',
     left: '0.5rem',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    color: '#fff',
-    padding: '0.4rem 0.8rem',
-    borderRadius: '999px',
+    background: 'none',
+    color: 'white',
+    padding: '0.4rem 0.6rem',
     fontSize: '0.75rem',
     fontFamily: 'Michroma, sans-serif',
     zIndex: 10000,
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
-    boxShadow: '0 0 6px rgba(255,255,255,0.4)',
-    backdropFilter: 'blur(4px)',
-    gap: '0.4rem'
+    gap: '0.4rem',
+    border: 'none',
+    outline: 'none',
+    boxShadow: 'none',
+    WebkitBoxShadow: 'none',
+    MozBoxShadow: 'none',
+    borderRadius: 0
   }}
 >
-  <ShoppingCart size={16} strokeWidth={2} color="white" />
-  <span>{t('checkout')}</span>
+  <ShoppingCart size={16} strokeWidth={1.5} color="white" />
+  <span style={{ lineHeight: 1 }}>Check-out</span>
 </div>
       )}
 
