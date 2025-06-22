@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ShoppingCart } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
 export default function AbbigliamentoPage() {
@@ -14,8 +13,7 @@ export default function AbbigliamentoPage() {
   const [quantita, setQuantita] = useState({});
   const [sottocategoriaSelezionata, setSottocategoriaSelezionata] = useState('');
   const [carrello, setCarrello] = useState([]);
-  const [popupProdotto, setPopupProdotto] = useState(null);
-  const [immagineAttiva, setImmagineAttiva] = useState('');
+  const [popupImg, setPopupImg] = useState(null);
   const [showPolicy, setShowPolicy] = useState(false);
   const [erroreQuantita, setErroreQuantita] = useState(false);
   const [accettaPolicy, setAccettaPolicy] = useState(false);
@@ -32,6 +30,7 @@ export default function AbbigliamentoPage() {
   };
 
   const t = (key) => traduzioni[lang]?.[key] || traduzioni['it'][key] || key;
+
   const sottocategorie = {
     abiti: { it: 'Abiti', en: 'Dresses', fr: 'Robes', de: 'Kleider', es: 'Vestidos', ar: 'فساتين', zh: '连衣裙', ja: 'ドレス' },
     'camicie top': { it: 'Camicie Top', en: 'Shirts & Tops', fr: 'Chemises & Tops', de: 'Hemden & Tops', es: 'Camisas y Tops', ar: 'قمصان وبلوزات', zh: '衬衫和上衣', ja: 'シャツとトップス' },
@@ -42,11 +41,7 @@ export default function AbbigliamentoPage() {
     caftani: { it: 'Caftani', en: 'Kaftans', fr: 'Caftans', de: 'Kaftane', es: 'Caftanes', ar: 'قفاطين', zh: '开襟长袍', ja: 'カフタン' },
     'abbigliamento da mare': { it: 'Abbigliamento da mare', en: 'Beachwear', fr: 'Tenues de plage', de: 'Badebekleidung', es: 'Ropa de playa', ar: 'ملابس بحر', zh: '泳装', ja: 'ビーチウェア' }
   };
-
   useEffect(() => {
-    const carrelloSalvato = JSON.parse(localStorage.getItem('carrello') || '[]');
-    setCarrello(carrelloSalvato);
-
     const fetchProdotti = async () => {
       const { data, error } = await supabase
         .from('products')
@@ -61,6 +56,7 @@ export default function AbbigliamentoPage() {
         setQuantita(iniziali);
       }
     };
+
     fetchProdotti();
   }, []);
 
@@ -91,48 +87,9 @@ export default function AbbigliamentoPage() {
     setCarrello(nuovoCarrello);
     localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
   };
-
-  const baseUrl = 'https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/';
-
   return (
-    <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem 1rem', maxWidth: '100vw', overflowX: 'hidden', margin: '0 auto', position: 'relative' }}>
-      {/* Icona carrello fissa */}
-      {carrello.length > 0 && (
-<div
-  onClick={() => router.push(`/checkout?lang=${lang}`)}
-  style={{
-    position: 'fixed',
-    top: '0.5rem',
-    left: '0.5rem',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    color: '#fff',
-    padding: '0.4rem 0.8rem',
-    borderRadius: '999px',
-    fontSize: '0.75rem',
-    fontFamily: 'Michroma, sans-serif',
-    zIndex: 10000,
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    boxShadow: '0 0 6px rgba(255,255,255,0.4)',
-    backdropFilter: 'blur(4px)',
-    gap: '0.4rem'
-  }}
->
-  <ShoppingCart size={16} strokeWidth={2} color="white" />
-  <span>{t('checkout')}</span>
-</div>
-      )}
-
-      <h1 style={{
-        fontSize: 'clamp(1.5rem, 5vw, 2rem)',
-        textAlign: 'center',
-        marginBottom: '2rem',
-        wordBreak: 'break-word',
-        overflowWrap: 'break-word'
-      }}>
-        {t('titolo')}
-      </h1>
+    <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem' }}>
+      <h1 style={{ fontSize: '2rem', textAlign: 'center', marginBottom: '2rem' }}>{t('titolo')}</h1>
 
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <select
@@ -157,180 +114,144 @@ export default function AbbigliamentoPage() {
         </select>
       </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-        gap: '1rem'
-      }}>
+      <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', padding: '1rem' }}>
         {filtrati.map(prodotto => {
-          const immagini = prodotto.immagine.split(',').map(img => img.trim());
           const prezzoNum = Number(prodotto.prezzo);
           const scontoNum = Number(prodotto.sconto || 0);
           const prezzoScontato = Math.round((prezzoNum - (prezzoNum * scontoNum / 100)) * 10) / 10;
+
           return (
             <div key={prodotto.id} style={{
               backgroundColor: 'white',
               color: 'black',
               padding: '0.5rem',
               borderRadius: '6px',
-              fontSize: '0.75rem',
-              textAlign: 'center'
+              fontSize: '0.65rem',
+              textAlign: 'center',
+              flex: '0 0 auto',
+              width: '160px',
+              scrollSnapAlign: 'start',
+              position: 'relative'
             }}>
+              {prodotto.offerta && (
+                <div style={{
+                  position: 'absolute',
+                  top: '6px',
+                  left: '6px',
+                  backgroundColor: 'rgba(255, 0, 0, 0.6)',
+                  color: 'white',
+                  padding: '2px 4px',
+                  borderRadius: '3px',
+                  fontSize: '0.5rem',
+                  transform: 'rotate(-12deg)',
+                  fontWeight: 'bold',
+                }}>✨ OFFERTA</div>
+              )}
+              {prodotto.quantita === 0 && (
+                <div style={{
+                  position: 'absolute',
+                  top: '6px',
+                  right: '6px',
+                  backgroundColor: 'rgba(255, 0, 0, 0.2)',
+                  color: 'red',
+                  padding: '2px 4px',
+                  fontSize: '0.5rem',
+                  borderRadius: '3px',
+                  transform: 'rotate(-12deg)',
+                  fontWeight: 'bold'
+                }}>
+                  {t('venduto')}
+                </div>
+              )}
               <img
-                src={baseUrl + immagini[0]}
+                src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
                 alt={prodotto.nome}
-                style={{
-                  width: '100%',
-                  height: 'auto',
-                  objectFit: 'cover',
-                  cursor: 'pointer',
-                  borderRadius: '4px'
-                }}
-                onClick={() => {
-                  setPopupProdotto(prodotto);
-                  setImmagineAttiva(immagini[0]);
-                }}
+                style={{ width: '100%', height: 'auto', maxHeight: '80px', objectFit: 'contain', borderRadius: '4px', marginBottom: '0.3rem', cursor: 'pointer' }}
+                onClick={() => setPopupImg(`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`)}
               />
               <strong>{prodotto.nome}</strong>
               <p>{prodotto.taglia}</p>
-              <p style={{ fontFamily: 'Arial' }}>
-                {prodotto.offerta ? (
-                  <>
-                    <span style={{ textDecoration: 'line-through', color: 'gray', marginRight: '4px' }}>
-                      {'\u20AC'} {prezzoNum.toFixed(1)}
-                    </span>
-                    <span style={{ color: 'red', fontWeight: 'bold' }}>
-                      {'\u20AC'} {prezzoScontato.toFixed(1)} (-{scontoNum}%)
-                    </span>
-                  </>
-                ) : (
-                  <>{'\u20AC'} {prezzoNum.toFixed(1)}</>
-                )}
-              </p>
+              {prodotto.offerta ? (
+                <p style={{ fontFamily: 'Arial' }}>
+                  <span style={{ textDecoration: 'line-through', color: 'gray', marginRight: '4px' }}>
+                    {'\u20AC'} {prezzoNum.toFixed(1)}
+                  </span>
+                  <span style={{ color: 'red', fontWeight: 'bold' }}>
+                    {'\u20AC'} {prezzoScontato.toFixed(1)} (-{scontoNum}%)
+                  </span>
+                </p>
+              ) : (
+                <p style={{ fontFamily: 'Arial' }}>
+                  {'\u20AC'} {prezzoNum.toFixed(1)}
+                </p>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem' }}>
+                <button onClick={() => cambiaQuantita(prodotto.id, -1)} style={{ border: 'none', background: 'none', fontSize: '1rem' }}>–</button>
+                <input type="text" value={quantita[prodotto.id] || 1} readOnly style={{ width: '2rem', textAlign: 'center' }} />
+                <button onClick={() => cambiaQuantita(prodotto.id, 1)} style={{ border: 'none', background: 'none', fontSize: '1rem' }}>+</button>
+              </div>
+              <button onClick={() => aggiungiAlCarrello(prodotto)} style={{ marginTop: '0.3rem', padding: '0.3rem', fontSize: '0.65rem', backgroundColor: '#333', color: 'white', borderRadius: '4px', border: 'none' }}>
+                {t('aggiungi')}
+              </button>
             </div>
           );
         })}
       </div>
+      {carrello.length > 0 && (
+        <div style={{
+          marginTop: '2rem',
+          backgroundColor: '#222',
+          padding: '1rem',
+          borderRadius: '8px',
+          width: '100%',
+          maxWidth: '400px',
+          textAlign: 'left',
+          marginLeft: 'auto',
+          marginRight: 'auto'
+        }}>
+          <h3 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>🛒 {t('carrello')}</h3>
 
-      {popupProdotto && (
-        <div
-          onClick={() => {
-            setPopupProdotto(null);
-            setImmagineAttiva('');
-          }}
-          style={{
-            position: 'fixed',
-            top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.9)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '1rem',
-            overflowY: 'auto'
-          }}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
+          {Array.from(new Set(carrello.map(p => p.id))).map(id => {
+            const prodotto = carrello.find(p => p.id === id);
+            const qta = carrello.filter(p => p.id === id).length;
+            return (
+              <div key={id} style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0.3rem 0',
+                borderBottom: '1px solid #444'
+              }}>
+                <span>{prodotto.nome} × {qta}</span>
+                <button onClick={() => rimuoviDalCarrello(id)}
+                  style={{
+                    background: 'red',
+                    color: 'white',
+                    border: 'none',
+                    padding: '0.2rem 0.5rem',
+                    fontSize: '0.7rem',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}>{t('rimuovi')}</button>
+              </div>
+            );
+          })}
+          <button
+            onClick={() => router.push(`/checkout?lang=${lang}`)}
             style={{
-              maxWidth: '600px',
+              marginTop: '1rem',
               width: '100%',
-              backgroundColor: 'white',
-              color: 'black',
-              borderRadius: '10px',
-              padding: '1rem',
-              textAlign: 'center',
-              position: 'relative'
+              backgroundColor: 'green',
+              color: 'white',
+              border: 'none',
+              padding: '0.5rem',
+              borderRadius: '6px',
+              fontSize: '1rem',
+              cursor: 'pointer'
             }}
           >
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setPopupProdotto(null);
-                setImmagineAttiva('');
-              }}
-              style={{
-                position: 'absolute',
-                top: '10px',
-                right: '10px',
-                background: 'none',
-                border: 'none',
-                fontSize: '1.2rem',
-                cursor: 'pointer'
-              }}
-            >
-              ✕
-            </button>
-
-            <img
-              src={baseUrl + immagineAttiva}
-              alt="zoom"
-              style={{ width: '100%', height: 'auto', borderRadius: '6px', marginBottom: '1rem' }}
-            />
-
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-              {popupProdotto.immagine.split(',').map((img, idx) => (
-                <img
-                  key={idx}
-                  src={baseUrl + img.trim()}
-                  alt={`miniatura-${idx}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setImmagineAttiva(img.trim());
-                  }}
-                  style={{
-                    width: '60px',
-                    height: '60px',
-                    objectFit: 'cover',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    border: img.trim() === immagineAttiva ? '2px solid black' : '1px solid #ccc'
-                  }}
-                />
-              ))}
-            </div>
-
-            <h2 style={{ marginBottom: '0.5rem' }}>{popupProdotto.nome}</h2>
-            <p style={{ fontSize: '0.9rem' }}>{popupProdotto.descrizione}</p>
-            <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>{popupProdotto.taglia}</p>
-            <p style={{ fontWeight: 'bold', fontSize: '1rem' }}>
-              {'\u20AC'} {popupProdotto.offerta
-                ? (
-                  <span style={{ color: 'red' }}>
-                    {(Number(popupProdotto.prezzo) * (1 - (Number(popupProdotto.sconto || 0) / 100))).toFixed(1)}
-                  </span>
-                )
-                : Number(popupProdotto.prezzo).toFixed(1)}
-            </p>
-
-            <div
-              style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '0.5rem' }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button onClick={() => cambiaQuantita(popupProdotto.id, -1)} style={{ fontSize: '1.2rem' }}>–</button>
-              <input type="text" value={quantita[popupProdotto.id] || 1} readOnly style={{ width: '2rem', textAlign: 'center' }} />
-              <button onClick={() => cambiaQuantita(popupProdotto.id, 1)} style={{ fontSize: '1.2rem' }}>+</button>
-            </div>
-
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                aggiungiAlCarrello(popupProdotto);
-                setPopupProdotto(null);
-              }}
-              style={{
-                marginTop: '1rem',
-                padding: '0.5rem 1rem',
-                backgroundColor: '#333',
-                color: 'white',
-                borderRadius: '6px',
-                border: 'none',
-                fontSize: '1rem'
-              }}
-            >
-              {t('aggiungi')}
-            </button>
-          </div>
+            {t('checkout')}
+          </button>
         </div>
       )}
 
@@ -351,6 +272,7 @@ export default function AbbigliamentoPage() {
           {t('indietro')}
         </button>
       </div>
+
       {erroreQuantita && (
         <div style={{
           marginTop: '1rem',
@@ -469,6 +391,31 @@ export default function AbbigliamentoPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {popupImg && (
+        <div
+          onClick={() => setPopupImg(null)}
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}
+        >
+          <img
+            src={popupImg}
+            alt="popup"
+            style={{
+              maxHeight: '90%',
+              maxWidth: '90%',
+              borderRadius: '10px'
+            }}
+          />
         </div>
       )}
     </main>
