@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ShoppingCart } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
 export default function AbbigliamentoPage() {
@@ -32,6 +31,7 @@ export default function AbbigliamentoPage() {
   };
 
   const t = (key) => traduzioni[lang]?.[key] || traduzioni['it'][key] || key;
+
   const sottocategorie = {
     abiti: { it: 'Abiti', en: 'Dresses', fr: 'Robes', de: 'Kleider', es: 'Vestidos', ar: 'فساتين', zh: '连衣裙', ja: 'ドレス' },
     'camicie top': { it: 'Camicie Top', en: 'Shirts & Tops', fr: 'Chemises & Tops', de: 'Hemden & Tops', es: 'Camisas y Tops', ar: 'قمصان وبلوزات', zh: '衬衫和上衣', ja: 'シャツとトップス' },
@@ -44,9 +44,6 @@ export default function AbbigliamentoPage() {
   };
 
   useEffect(() => {
-    const carrelloSalvato = JSON.parse(localStorage.getItem('carrello') || '[]');
-    setCarrello(carrelloSalvato);
-
     const fetchProdotti = async () => {
       const { data, error } = await supabase
         .from('products')
@@ -63,7 +60,6 @@ export default function AbbigliamentoPage() {
     };
     fetchProdotti();
   }, []);
-
   const filtrati = prodotti.filter(p =>
     !sottocategoriaSelezionata || p.sottocategoria === sottocategoriaSelezionata
   );
@@ -95,44 +91,8 @@ export default function AbbigliamentoPage() {
   const baseUrl = 'https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/';
 
   return (
-    <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem 1rem', maxWidth: '100vw', overflowX: 'hidden', margin: '0 auto', position: 'relative' }}>
-      {/* Icona carrello fissa */}
-      {carrello.length > 0 && (
-<div
-  onClick={() => router.push(`/checkout?lang=${lang}`)}
-  style={{
-    position: 'fixed',
-    top: '0.5rem',
-    left: '0.5rem',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    color: '#fff',
-    padding: '0.4rem 0.8rem',
-    borderRadius: '999px',
-    fontSize: '0.75rem',
-    fontFamily: 'Michroma, sans-serif',
-    zIndex: 10000,
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    boxShadow: '0 0 6px rgba(255,255,255,0.4)',
-    backdropFilter: 'blur(4px)',
-    gap: '0.4rem'
-  }}
->
-  <ShoppingCart size={16} strokeWidth={2} color="white" />
-  <span>{t('checkout')}</span>
-</div>
-      )}
-
-      <h1 style={{
-        fontSize: 'clamp(1.5rem, 5vw, 2rem)',
-        textAlign: 'center',
-        marginBottom: '2rem',
-        wordBreak: 'break-word',
-        overflowWrap: 'break-word'
-      }}>
-        {t('titolo')}
-      </h1>
+    <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem' }}>
+      <h1 style={{ fontSize: '2rem', textAlign: 'center', marginBottom: '2rem' }}>{t('titolo')}</h1>
 
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <select
@@ -167,6 +127,7 @@ export default function AbbigliamentoPage() {
           const prezzoNum = Number(prodotto.prezzo);
           const scontoNum = Number(prodotto.sconto || 0);
           const prezzoScontato = Math.round((prezzoNum - (prezzoNum * scontoNum / 100)) * 10) / 10;
+
           return (
             <div key={prodotto.id} style={{
               backgroundColor: 'white',
@@ -211,7 +172,6 @@ export default function AbbigliamentoPage() {
           );
         })}
       </div>
-
       {popupProdotto && (
         <div
           onClick={() => {
@@ -244,8 +204,7 @@ export default function AbbigliamentoPage() {
             }}
           >
             <button
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={() => {
                 setPopupProdotto(null);
                 setImmagineAttiva('');
               }}
@@ -274,10 +233,7 @@ export default function AbbigliamentoPage() {
                   key={idx}
                   src={baseUrl + img.trim()}
                   alt={`miniatura-${idx}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setImmagineAttiva(img.trim());
-                  }}
+                  onClick={() => setImmagineAttiva(img.trim())}
                   style={{
                     width: '60px',
                     height: '60px',
@@ -303,18 +259,14 @@ export default function AbbigliamentoPage() {
                 : Number(popupProdotto.prezzo).toFixed(1)}
             </p>
 
-            <div
-              style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '0.5rem' }}
-              onClick={(e) => e.stopPropagation()}
-            >
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
               <button onClick={() => cambiaQuantita(popupProdotto.id, -1)} style={{ fontSize: '1.2rem' }}>–</button>
               <input type="text" value={quantita[popupProdotto.id] || 1} readOnly style={{ width: '2rem', textAlign: 'center' }} />
               <button onClick={() => cambiaQuantita(popupProdotto.id, 1)} style={{ fontSize: '1.2rem' }}>+</button>
             </div>
 
             <button
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={() => {
                 aggiungiAlCarrello(popupProdotto);
                 setPopupProdotto(null);
               }}
@@ -331,6 +283,64 @@ export default function AbbigliamentoPage() {
               {t('aggiungi')}
             </button>
           </div>
+        </div>
+      )}
+      {carrello.length > 0 && (
+        <div style={{
+          marginTop: '2rem',
+          backgroundColor: '#222',
+          padding: '1rem',
+          borderRadius: '8px',
+          width: '100%',
+          maxWidth: '400px',
+          textAlign: 'left',
+          marginLeft: 'auto',
+          marginRight: 'auto'
+        }}>
+          <h3 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>🛒 {t('carrello')}</h3>
+
+          {Array.from(new Set(carrello.map(p => p.id))).map(id => {
+            const prodotto = carrello.find(p => p.id === id);
+            const qta = carrello.filter(p => p.id === id).length;
+            return (
+              <div key={id} style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0.3rem 0',
+                borderBottom: '1px solid #444'
+              }}>
+                <span>{prodotto.nome} × {qta}</span>
+                <button onClick={() => rimuoviDalCarrello(id)}
+                  style={{
+                    background: 'red',
+                    color: 'white',
+                    border: 'none',
+                    padding: '0.2rem 0.5rem',
+                    fontSize: '0.7rem',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}>{t('rimuovi')}</button>
+              </div>
+            );
+          })}
+
+          <button
+            onClick={() => router.push(`/checkout?lang=${lang}`)}
+            style={{
+              marginTop: '1rem',
+              width: '100%',
+              backgroundColor: 'green',
+              color: 'white',
+              border: 'none',
+              padding: '0.5rem',
+              borderRadius: '6px',
+              fontSize: '1rem',
+              cursor: 'pointer'
+            }}
+          >
+            {t('checkout')}
+          </button>
         </div>
       )}
 
@@ -351,6 +361,7 @@ export default function AbbigliamentoPage() {
           {t('indietro')}
         </button>
       </div>
+
       {erroreQuantita && (
         <div style={{
           marginTop: '1rem',
