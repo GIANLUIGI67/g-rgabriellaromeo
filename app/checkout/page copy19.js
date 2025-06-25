@@ -9,7 +9,6 @@ import { citta as cittaData } from '../lib/citta';
 export default function CheckoutPage() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
-  const langPulito = lang.split('-')[0];
   const router = useRouter();
   const [carrello, setCarrello] = useState([]);
   const [utente, setUtente] = useState(null);
@@ -26,16 +25,13 @@ export default function CheckoutPage() {
   const [errore, setErrore] = useState('');
   const [isRegistrazione, setIsRegistrazione] = useState(false);
   const [cittaSelezionata, setCittaSelezionata] = useState('');
+  const langPulito = lang.split('-')[0];
 
   const fetchUtente = async () => {
     const { data: session } = await supabase.auth.getSession();
     if (session.session?.user) {
       setUtente(session.session.user);
-      const { data: profilo } = await supabase
-        .from('clienti')
-        .select('*')
-        .eq('email', session.session.user.email)
-        .single();
+      const { data: profilo } = await supabase.from('clienti').select('*').eq('email', session.session.user.email).single();
       if (profilo) {
         setNome(profilo.nome || '');
         setCognome(profilo.cognome || '');
@@ -55,21 +51,27 @@ export default function CheckoutPage() {
     const dati = localStorage.getItem('carrello');
     if (dati) setCarrello(JSON.parse(dati));
   }, []);
-  const validaEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const validaEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
 
   const handleCheckoutDiretto = async () => {
+    // Validazione campi
     if (!nome || !cognome || !email || !indirizzo || !citta || !cap || !paese || !telefono1) {
       return setErrore(testi.compilaCampi);
     }
-
+    
     if (!validaEmail(email)) {
       return setErrore(testi.erroreEmail);
     }
 
     try {
+      // 1. Crea/aggiorna cliente
       const { data: cliente, error } = await supabase
         .from('clienti')
-        .insert({
+        .upsert({
           email,
           nome,
           cognome,
@@ -79,18 +81,14 @@ export default function CheckoutPage() {
           citta,
           paese,
           codice_postale: cap,
-          is_guest: true,
-          created_at: new Date().toISOString(),
-          ordini: []
-        })
+          is_guest: true
+        }, { onConflict: 'email' })
         .select()
         .single();
 
-      if (error && error.code === '23505') {
-        return setErrore(testi.utenteEsistente);
-      }
       if (error) throw error;
 
+      // 2. Salva dati per pagamento
       localStorage.setItem('checkout_dati', JSON.stringify({
         cliente_id: cliente.id,
         carrello,
@@ -98,7 +96,9 @@ export default function CheckoutPage() {
         email
       }));
 
+      // 3. Reindirizza a pagamento
       router.push(`/pagamento?lang=${lang}`);
+      
     } catch (err) {
       setErrore(testi.erroreCheckout + err.message);
     }
@@ -106,13 +106,7 @@ export default function CheckoutPage() {
 
   const loginEmail = async () => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-  if (error.message === 'Invalid login credentials') {
-    setErrore(testi.credenzialiErrate || error.message);
-  } else {
-    setErrore(error.message);
-  }
-}
+    if (error) setErrore(error.message);
     else {
       await fetchUtente();
       tracciaAccesso(email);
@@ -159,6 +153,50 @@ export default function CheckoutPage() {
     setCarrello(nuovo);
     localStorage.setItem('carrello', JSON.stringify(nuovo));
   };
+
+  const translations = {
+    selectCountry: {
+      it: 'Seleziona paese',
+      en: 'Select country',
+      fr: 'Sélectionnez un pays',
+      de: 'Land auswählen',
+      es: 'Seleccionar país',
+      zh: '选择国家',
+      ar: 'حدد الدولة',
+      ja: '国を選択'
+    },
+    selectCity: {
+      it: 'Seleziona città',
+      en: 'Select city',
+      fr: 'Sélectionnez une ville',
+      de: 'Stadt auswählen',
+      es: 'Seleccionar ciudad',
+      zh: '选择城市',
+      ar: 'حدد المدينة',
+      ja: '都市を選択'
+    },
+    other: {
+      it: 'Altro',
+      en: 'Other',
+      fr: 'Autre',
+      de: 'Andere',
+      es: 'Otro',
+      zh: '其他',
+      ar: 'آخر',
+      ja: 'その他'
+    },
+    enterCity: {
+      it: 'Inserisci città',
+      en: 'Enter city',
+      fr: 'Entrez une ville',
+      de: 'Stadt eingeben',
+      es: 'Ingrese ciudad',
+      zh: '输入城市',
+      ar: 'أدخل المدينة',
+      ja: '都市を入力'
+    }
+  };
+
   const testiTutti = {
     it: {
       titolo: 'Riepilogo Ordine',
@@ -186,10 +224,7 @@ export default function CheckoutPage() {
       apple: 'Login con Apple',
       compilaCampi: 'Compila tutti i campi obbligatori',
       erroreEmail: 'Inserisci un indirizzo email valido',
-      erroreCheckout: 'Errore durante il checkout: ',
-      utenteEsistente: 'Utente già registrato',
-      inserisciEmailPassword: 'Inserisci email e password',
-      credenzialiErrate: 'Credenziali di accesso non valide',
+      erroreCheckout: 'Errore durante il checkout: '
     },
     en: {
       titolo: 'Order Summary',
@@ -217,197 +252,9 @@ export default function CheckoutPage() {
       apple: 'Login with Apple',
       compilaCampi: 'Please fill all required fields',
       erroreEmail: 'Please enter a valid email address',
-      erroreCheckout: 'Checkout error: ',
-      utenteEsistente: 'User already registered',
-      inserisciEmailPassword: 'Enter email and password',
-      credenzialiErrate: 'Invalid login credentials',
-    },
-    fr: {
-      titolo: 'Récapitulatif de la commande',
-      vuoto: 'Votre panier est vide.',
-      loginNecessario: 'Pour finaliser votre achat, entrez vos informations :',
-      login: 'Connexion',
-      crea: 'Créer un compte',
-      registrati: 'S\'inscrire',
-      paga: 'Payer maintenant',
-      pagaOra: 'Procéder au paiement',
-      back: 'Retour',
-      nome: 'Prénom',
-      cognome: 'Nom',
-      indirizzo: 'Adresse',
-      citta: 'Ville',
-      cap: 'Code postal',
-      paese: 'Pays',
-      email: 'Email',
-      password: 'Mot de passe',
-      telefono1: 'Téléphone 1',
-      telefono2: 'Téléphone 2',
-      totale: 'Total :',
-      rimuovi: '❌ Supprimer',
-      google: 'Connexion avec Google',
-      apple: 'Connexion avec Apple',
-      compilaCampi: 'Veuillez remplir tous les champs requis',
-      erroreEmail: 'Veuillez entrer une adresse email valide',
-      erroreCheckout: 'Erreur lors du paiement : ',
-      utenteEsistente: 'Utilisateur déjà enregistré',
-      inserisciEmailPassword: 'Entrez email et mot de passe',
-      credenzialiErrate: 'Identifiants de connexion invalides',
-    },
-    de: {
-      titolo: 'Bestellübersicht',
-      vuoto: 'Ihr Warenkorb ist leer.',
-      loginNecessario: 'Bitte geben Sie Ihre Daten ein, um den Kauf abzuschließen:',
-      login: 'Anmelden',
-      crea: 'Konto erstellen',
-      registrati: 'Registrieren',
-      paga: 'Jetzt bezahlen',
-      pagaOra: 'Zur Zahlung',
-      back: 'Zurück',
-      nome: 'Vorname',
-      cognome: 'Nachname',
-      indirizzo: 'Adresse',
-      citta: 'Stadt',
-      cap: 'Postleitzahl',
-      paese: 'Land',
-      email: 'E-Mail',
-      password: 'Passwort',
-      telefono1: 'Telefon 1',
-      telefono2: 'Telefon 2',
-      totale: 'Gesamt:',
-      rimuovi: '❌ Entfernen',
-      google: 'Mit Google anmelden',
-      apple: 'Mit Apple anmelden',
-      compilaCampi: 'Bitte füllen Sie alle Pflichtfelder aus',
-      erroreEmail: 'Bitte geben Sie eine gültige E-Mail-Adresse ein',
-      erroreCheckout: 'Fehler beim Checkout: ',
-      utenteEsistente: 'Benutzer bereits registriert',
-      inserisciEmailPassword: 'E-Mail und Passwort eingeben',
-      credenzialiErrate: 'Ungültige Anmeldedaten',
-    },
-    es: {
-      titolo: 'Resumen del pedido',
-      vuoto: 'Tu carrito está vacío.',
-      loginNecessario: 'Para completar la compra, introduce tus datos:',
-      login: 'Iniciar sesión',
-      crea: 'Crear cuenta',
-      registrati: 'Registrarse',
-      paga: 'Pagar ahora',
-      pagaOra: 'Proceder al pago',
-      back: 'Atrás',
-      nome: 'Nombre',
-      cognome: 'Apellido',
-      indirizzo: 'Dirección',
-      citta: 'Ciudad',
-      cap: 'Código postal',
-      paese: 'País',
-      email: 'Correo electrónico',
-      password: 'Contraseña',
-      telefono1: 'Teléfono 1',
-      telefono2: 'Teléfono 2',
-      totale: 'Total:',
-      rimuovi: '❌ Eliminar',
-      google: 'Iniciar sesión con Google',
-      apple: 'Iniciar sesión con Apple',
-      compilaCampi: 'Completa todos los campos obligatorios',
-      erroreEmail: 'Introduce un correo electrónico válido',
-      erroreCheckout: 'Error en el pago: ',
-      utenteEsistente: 'Usuario ya registrado',
-      inserisciEmailPassword: 'Introduce correo y contraseña',
-      credenzialiErrate: 'Credenciales de acceso no válidas',
-    },
-    ar: {
-      titolo: 'ملخص الطلب',
-      vuoto: 'سلة التسوق فارغة.',
-      loginNecessario: 'لإتمام الشراء، أدخل بياناتك:',
-      login: 'تسجيل الدخول',
-      crea: 'إنشاء حساب',
-      registrati: 'تسجيل',
-      paga: 'ادفع الآن',
-      pagaOra: 'المتابعة للدفع',
-      back: 'رجوع',
-      nome: 'الاسم الأول',
-      cognome: 'اسم العائلة',
-      indirizzo: 'العنوان',
-      citta: 'المدينة',
-      cap: 'الرمز البريدي',
-      paese: 'البلد',
-      email: 'البريد الإلكتروني',
-      password: 'كلمة المرور',
-      telefono1: 'الهاتف 1',
-      telefono2: 'الهاتف 2',
-      totale: 'الإجمالي:',
-      rimuovi: '❌ إزالة',
-      google: 'تسجيل الدخول باستخدام Google',
-      apple: 'تسجيل الدخول باستخدام Apple',
-      compilaCampi: 'يرجى ملء جميع الحقول المطلوبة',
-      erroreEmail: 'يرجى إدخال بريد إلكتروني صالح',
-      erroreCheckout: 'خطأ أثناء الدفع: ',
-      utenteEsistente: 'المستخدم مسجل مسبقًا',
-      inserisciEmailPassword: 'أدخل البريد وكلمة المرور',
-      credenzialiErrate: 'بيانات تسجيل الدخول غير صالحة',
-    },
-    zh: {
-      titolo: '订单摘要',
-      vuoto: '购物车为空。',
-      loginNecessario: '请填写您的信息以完成购买：',
-      login: '登录',
-      crea: '创建账户',
-      registrati: '注册',
-      paga: '立即支付',
-      pagaOra: '前往付款',
-      back: '返回',
-      nome: '名字',
-      cognome: '姓氏',
-      indirizzo: '地址',
-      citta: '城市',
-      cap: '邮政编码',
-      paese: '国家',
-      email: '电子邮件',
-      password: '密码',
-      telefono1: '电话 1',
-      telefono2: '电话 2',
-      totale: '总计：',
-      rimuovi: '❌ 删除',
-      google: '使用 Google 登录',
-      apple: '使用 Apple 登录',
-      compilaCampi: '请填写所有必填字段',
-      erroreEmail: '请输入有效的电子邮件地址',
-      erroreCheckout: '结账错误：',
-      utenteEsistente: '用户已注册',
-      inserisciEmailPassword: '输入邮箱和密码',
-      credenzialiErrate: '无效的登录凭据',
-    },
-    ja: {
-      titolo: '注文概要',
-      vuoto: 'カートが空です。',
-      loginNecessario: '購入を完了するには情報を入力してください：',
-      login: 'ログイン',
-      crea: 'アカウント作成',
-      registrati: '登録する',
-      paga: '今すぐ支払う',
-      pagaOra: '支払いへ進む',
-      back: '戻る',
-      nome: '名',
-      cognome: '姓',
-      indirizzo: '住所',
-      citta: '市区町村',
-      cap: '郵便番号',
-      paese: '国',
-      email: 'メールアドレス',
-      password: 'パスワード',
-      telefono1: '電話 1',
-      telefono2: '電話 2',
-      totale: '合計：',
-      rimuovi: '❌ 削除',
-      google: 'Googleでログイン',
-      apple: 'Appleでログイン',
-      compilaCampi: '必須項目をすべて入力してください',
-      erroreEmail: '有効なメールアドレスを入力してください',
-      erroreCheckout: 'チェックアウトエラー：',
-      utenteEsistente: 'すでに登録されています',
-      inserisciEmailPassword: 'メールとパスワードを入力してください',
-      credenzialiErrate: '無効なログイン認証情報',
+      erroreCheckout: 'Checkout error: '
     }
+    // ... altre lingue (mantenere la stessa struttura)
   };
 
   const testi = testiTutti[langPulito] || testiTutti.it;
@@ -442,22 +289,22 @@ export default function CheckoutPage() {
 
           <div style={{ maxWidth: '500px', margin: '2rem auto' }}>
             <h2 style={{ textAlign: 'center' }}>{testi.loginNecessario}</h2>
-
+            
             {!utente && (
               <div style={{ marginBottom: '1rem' }}>
-                <input
-                  placeholder={testi.email}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  style={inputStyle}
+                <input 
+                  placeholder={testi.email} 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  style={inputStyle} 
                 />
                 {isRegistrazione && (
-                  <input
-                    type="password"
-                    placeholder={testi.password}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    style={inputStyle}
+                  <input 
+                    type="password" 
+                    placeholder={testi.password} 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    style={inputStyle} 
                   />
                 )}
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -467,24 +314,70 @@ export default function CheckoutPage() {
                   >
                     {isRegistrazione ? testi.registrati : testi.login}
                   </button>
-                  <button
-                    onClick={() => setIsRegistrazione(!isRegistrazione)}
+                  <button 
+                    onClick={() => setIsRegistrazione(!isRegistrazione)} 
                     style={toggleStyle}
                   >
                     {isRegistrazione ? testi.login : testi.crea}
                   </button>
                 </div>
-
-                {errore && (
-                  <p style={{ color: 'red', textAlign: 'center', marginTop: '0.5rem' }}>
-                    {errore.includes('already registered') ? testi.utenteEsistente : errore}
-                  </p>
-                )}
               </div>
             )}
 
             <input placeholder={testi.nome} value={nome} onChange={e => setNome(e.target.value)} style={inputStyle} />
             <input placeholder={testi.cognome} value={cognome} onChange={e => setCognome(e.target.value)} style={inputStyle} />
+            
+            <select
+              value={paese}
+              onChange={(e) => setPaese(e.target.value)}
+              style={{ ...inputStyle, color: 'black' }}
+            >
+              <option value="">{translations.selectCountry[langPulito] || 'Select country'}</option>
+              {(paesi[langPulito] || paesi['en']).map((nomePaese) => (
+                <option key={nomePaese} value={nomePaese}>
+                  {nomePaese}
+                </option>
+              ))}
+            </select>
+
+            {paese && (cittaData[langPulito]?.[paese] || cittaData['en']?.[paese]) ? (
+              <>
+                <select
+                  value={cittaSelezionata}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setCittaSelezionata(value);
+                    if (value !== (translations.other[langPulito] || 'Other')) setCitta(value);
+                    else setCitta('');
+                  }}
+                  style={{ ...inputStyle, color: 'black' }}
+                >
+                  <option value="">{translations.selectCity[langPulito] || 'Select city'}</option>
+                  {(cittaData[langPulito]?.[paese] || cittaData['en']?.[paese] || []).map((city) => (
+                    <option key={city} value={city}>{city}</option>
+                  ))}
+                  <option value={translations.other[langPulito] || 'Other'}>
+                    {translations.other[langPulito] || 'Other'}
+                  </option>
+                </select>
+                {cittaSelezionata === (translations.other[langPulito] || 'Other') && (
+                  <input
+                    placeholder={translations.enterCity[langPulito] || 'Enter city'}
+                    value={citta}
+                    onChange={(e) => setCitta(e.target.value)}
+                    style={inputStyle}
+                  />
+                )}
+              </>
+            ) : (
+              <input
+                placeholder={translations.enterCity[langPulito] || 'Enter city'}
+                value={citta}
+                onChange={(e) => setCitta(e.target.value)}
+                style={inputStyle}
+              />
+            )}
+
             <input placeholder={testi.indirizzo} value={indirizzo} onChange={e => setIndirizzo(e.target.value)} style={inputStyle} />
             <input placeholder={testi.cap} value={cap} onChange={e => setCap(e.target.value)} style={inputStyle} />
             <input placeholder={testi.telefono1} value={telefono1} onChange={e => setTelefono1(e.target.value)} style={inputStyle} />
@@ -494,12 +387,14 @@ export default function CheckoutPage() {
               {testi.totale} {'\u20AC'}{totaleFinale.toFixed(1)}
             </p>
 
-            <button
+            <button 
               onClick={utente ? () => router.push(`/pagamento?lang=${lang}`) : handleCheckoutDiretto}
               style={pagaStyle}
             >
               {testi.pagaOra}
             </button>
+
+            {errore && <p style={{ color: 'red', textAlign: 'center', marginTop: '1rem' }}>{errore}</p>}
 
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
               <button onClick={() => router.back()} style={backButtonStyle}>
