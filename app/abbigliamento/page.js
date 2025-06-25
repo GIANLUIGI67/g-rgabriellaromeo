@@ -166,7 +166,7 @@ export default function AbbigliamentoPage() {
         gap: '1rem'
       }}>
         {filtrati.map(prodotto => {
-          const immagini = prodotto.immagine.split(',').map(img => img.trim());
+          const immagini = (prodotto.immagine || '').split(',').map(img => img.trim());
           const prezzoNum = Number(prodotto.prezzo);
           const scontoNum = Number(prodotto.sconto || 0);
           const prezzoScontato = Math.round((prezzoNum - (prezzoNum * scontoNum / 100)) * 10) / 10;
