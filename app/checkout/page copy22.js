@@ -119,28 +119,14 @@ export default function CheckoutPage() {
     }
   };
 
-const registraUtente = async () => {
-  if (!email || !password) return setErrore(testi.inserisciEmailPassword);
-
-  const { data: existing } = await supabase
-    .from('clienti')
-    .select('id')
-    .eq('email', email)
-    .single();
-
-  if (existing) {
-    setErrore(testi.utenteEsistente);
-    setIsRegistrazione(false); // Torna alla modalità login
-    return;
-  }
-
-  const { error } = await supabase.auth.signUp({ email, password });
-  if (error) return setErrore(error.message);
-
-  await registraCliente(email);
-  await fetchUtente();
-  tracciaAccesso(email);
-};
+  const registraUtente = async () => {
+    if (!email || !password) return setErrore(testi.inserisciEmailPassword);
+    const { error } = await supabase.auth.signUp({ email, password });
+    if (error) return setErrore(error.message);
+    await registraCliente(email);
+    await fetchUtente();
+    tracciaAccesso(email);
+  };
 
   const registraCliente = async (email) => {
     await supabase.from('clienti').insert({
@@ -465,13 +451,15 @@ const registraUtente = async () => {
                   onChange={(e) => setEmail(e.target.value)}
                   style={inputStyle}
                 />
-              <input
-                type="password"
-                placeholder={testi.password}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={inputStyle}
-              />  
+                {isRegistrazione && (
+                  <input
+                    type="password"
+                    placeholder={testi.password}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    style={inputStyle}
+                  />
+                )}
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button
                     onClick={isRegistrazione ? registraUtente : loginEmail}
