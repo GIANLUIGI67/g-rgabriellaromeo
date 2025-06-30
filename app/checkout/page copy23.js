@@ -26,7 +26,6 @@ export default function CheckoutPage() {
   const [errore, setErrore] = useState('');
   const [isRegistrazione, setIsRegistrazione] = useState(false);
   const [cittaSelezionata, setCittaSelezionata] = useState('');
-  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const fetchUtente = async () => {
     const { data: session } = await supabase.auth.getSession();
@@ -56,7 +55,6 @@ export default function CheckoutPage() {
     const dati = localStorage.getItem('carrello');
     if (dati) setCarrello(JSON.parse(dati));
   }, []);
-
   const validaEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleCheckoutDiretto = async () => {
@@ -100,74 +98,62 @@ export default function CheckoutPage() {
         email
       }));
 
-      router.push(`/pagamento?lang=${lang}&from_checkout=true`);
+      router.push(`/pagamento?lang=${lang}`);
     } catch (err) {
       setErrore(testi.erroreCheckout + err.message);
     }
   };
 
-  const salvaDatiCheckout = () => {
-    const datiCarrello = localStorage.getItem('carrello');
-    if (datiCarrello) {
-      localStorage.setItem('checkout_dati', JSON.stringify({
-        cliente_id: email,
-        carrello: JSON.parse(datiCarrello),
-        totale: totaleFinale,
-        email
-      }));
-    }
-  };
-
   const loginEmail = async () => {
-    setIsRedirecting(true);
+    sessionStorage.setItem('loginFromCheckout', 'true');
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    
     if (error) {
-      setIsRedirecting(false);
-      if (error.message === 'Invalid login credentials') {
-        setErrore(testi.credenzialiErrate || error.message);
-      } else {
-        setErrore(error.message);
-      }
-      return;
-    }
-    
-    salvaDatiCheckout();
-    sessionStorage.setItem('checkout_redirect', 'true');
-    router.push(`/pagamento?lang=${lang}&from_checkout=true`);
+  if (error.message === 'Invalid login credentials') {
+    setErrore(testi.credenzialiErrate || error.message);
+  } else {
+    setErrore(error.message);
+  }
+}
+else {
+  await fetchUtente();
+  tracciaAccesso(email);
+
+  const dati = localStorage.getItem('carrello');
+  const carrelloSalvato = dati ? JSON.parse(dati) : [];
+
+  localStorage.setItem('checkout_dati', JSON.stringify({
+    cliente_id: email,
+    carrello: carrelloSalvato,
+    totale: totaleFinale,
+    email
+  }));
+
+  router.push(`/pagamento?lang=${lang}`);
+}
   };
 
-  const registraUtente = async () => {
-    setIsRedirecting(true);
-    if (!email || !password) {
-      setIsRedirecting(false);
-      return setErrore(testi.inserisciEmailPassword);
-    }
+const registraUtente = async () => {
+  if (!email || !password) return setErrore(testi.inserisciEmailPassword);
 
-    const { data: existing } = await supabase
-      .from('clienti')
-      .select('id')
-      .eq('email', email)
-      .single();
+  const { data: existing } = await supabase
+    .from('clienti')
+    .select('id')
+    .eq('email', email)
+    .single();
 
-    if (existing) {
-      setIsRedirecting(false);
-      setErrore(testi.utenteEsistente);
-      setIsRegistrazione(false);
-      return;
-    }
+  if (existing) {
+    setErrore(testi.utenteEsistente);
+    setIsRegistrazione(false); // Torna alla modalità login
+    return;
+  }
 
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) {
-      setIsRedirecting(false);
-      return setErrore(error.message);
-    }
+  const { error } = await supabase.auth.signUp({ email, password });
+  if (error) return setErrore(error.message);
 
-    await registraCliente(email);
-    salvaDatiCheckout();
-    sessionStorage.setItem('checkout_redirect', 'true');
-    router.push(`/pagamento?lang=${lang}&from_checkout=true`);
-  };
+  await registraCliente(email);
+  await fetchUtente();
+  tracciaAccesso(email);
+};
 
   const registraCliente = async (email) => {
     await supabase.from('clienti').insert({
@@ -200,7 +186,6 @@ export default function CheckoutPage() {
     setCarrello(nuovo);
     localStorage.setItem('carrello', JSON.stringify(nuovo));
   };
-
   const testiTutti = {
     it: {
       titolo: 'Riepilogo Ordine',
@@ -493,25 +478,23 @@ export default function CheckoutPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   style={inputStyle}
                 />
-                <input
-                  type="password"
-                  placeholder={testi.password}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  style={inputStyle}
-                />  
+              <input
+                type="password"
+                placeholder={testi.password}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={inputStyle}
+              />  
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button
                     onClick={isRegistrazione ? registraUtente : loginEmail}
                     style={buttonStyle}
-                    disabled={isRedirecting}
                   >
-                    {isRedirecting ? testi.pagaOra : (isRegistrazione ? testi.registrati : testi.login)}
+                    {isRegistrazione ? testi.registrati : testi.login}
                   </button>
                   <button
                     onClick={() => setIsRegistrazione(!isRegistrazione)}
                     style={toggleStyle}
-                    disabled={isRedirecting}
                   >
                     {isRegistrazione ? testi.login : testi.crea}
                   </button>
@@ -537,21 +520,14 @@ export default function CheckoutPage() {
             </p>
 
             <button
-              onClick={() => {
-                if (utente) {
-                  router.push(`/pagamento?lang=${lang}`);
-                } else {
-                  handleCheckoutDiretto();
-                }
-              }}
+              onClick={handleCheckoutDiretto}
               style={pagaStyle}
-              disabled={isRedirecting}
             >
-              {isRedirecting ? testi.pagaOra + '...' : testi.pagaOra}
+              {testi.pagaOra}
             </button>
 
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
-              <button onClick={() => router.back()} style={backButtonStyle} disabled={isRedirecting}>
+              <button onClick={() => router.back()} style={backButtonStyle}>
                 {testi.back}
               </button>
             </div>

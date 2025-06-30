@@ -100,21 +100,9 @@ export default function CheckoutPage() {
         email
       }));
 
-      router.push(`/pagamento?lang=${lang}&from_checkout=true`);
+      router.push(`/pagamento?lang=${lang}`);
     } catch (err) {
       setErrore(testi.erroreCheckout + err.message);
-    }
-  };
-
-  const salvaDatiCheckout = () => {
-    const datiCarrello = localStorage.getItem('carrello');
-    if (datiCarrello) {
-      localStorage.setItem('checkout_dati', JSON.stringify({
-        cliente_id: email,
-        carrello: JSON.parse(datiCarrello),
-        totale: totaleFinale,
-        email
-      }));
     }
   };
 
@@ -132,9 +120,22 @@ export default function CheckoutPage() {
       return;
     }
     
-    salvaDatiCheckout();
-    sessionStorage.setItem('checkout_redirect', 'true');
-    router.push(`/pagamento?lang=${lang}&from_checkout=true`);
+    // Aggiorna lo stato utente senza reindirizzamento
+    await fetchUtente();
+    
+    // Salva i dati per il pagamento
+    const datiCarrello = localStorage.getItem('carrello');
+    if (datiCarrello) {
+      localStorage.setItem('checkout_dati', JSON.stringify({
+        cliente_id: email,
+        carrello: JSON.parse(datiCarrello),
+        totale: totaleFinale,
+        email
+      }));
+    }
+    
+    // Reindirizza direttamente alla pagina di pagamento
+    router.push(`/pagamento?lang=${lang}`);
   };
 
   const registraUtente = async () => {
@@ -164,9 +165,21 @@ export default function CheckoutPage() {
     }
 
     await registraCliente(email);
-    salvaDatiCheckout();
-    sessionStorage.setItem('checkout_redirect', 'true');
-    router.push(`/pagamento?lang=${lang}&from_checkout=true`);
+    await fetchUtente();
+    
+    // Salva i dati per il pagamento
+    const datiCarrello = localStorage.getItem('carrello');
+    if (datiCarrello) {
+      localStorage.setItem('checkout_dati', JSON.stringify({
+        cliente_id: email,
+        carrello: JSON.parse(datiCarrello),
+        totale: totaleFinale,
+        email
+      }));
+    }
+    
+    // Reindirizza direttamente alla pagina di pagamento
+    router.push(`/pagamento?lang=${lang}`);
   };
 
   const registraCliente = async (email) => {

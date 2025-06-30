@@ -367,7 +367,6 @@ export default function UserMenu({ lang }) {
       setNomeUtente(nomeCliente || data.user.email.split('@')[0] || 'Utente');
       tracciaAccesso(data.user.email);
       setErrore('');
-      sessionStorage.setItem('checkout_redirect', 'true');
     } catch (err) {
       console.error('Errore login email:', err);
       setErrore('Si è verificato un errore durante il login');
@@ -475,7 +474,6 @@ export default function UserMenu({ lang }) {
       setErrore('');
       setModalitaRegistrazione(false);
       tracciaAccesso(email);
-      sessionStorage.setItem('checkout_redirect', 'true');
     } catch (error) {
       console.error('Errore registrazione:', error);
       setErrore(error.message || 'Errore durante la registrazione');
