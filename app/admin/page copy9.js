@@ -6,13 +6,6 @@ import { supabase } from '../lib/supabaseClient';
 
 export default function AdminPage() {
   const router = useRouter();
-  const [authenticated, setAuthenticated] = useState(false);
-  const [loginForm, setLoginForm] = useState({
-    username: '',
-    password: ''
-  });
-  const [loginError, setLoginError] = useState('');
-
   const [form, setForm] = useState({
     categoria: '',
     sottocategoria: '',
@@ -37,24 +30,7 @@ export default function AdminPage() {
     accessori: ['collane', 'orecchini', 'bracciali', 'borse', 'foulard']
   };
 
-  const handleLoginChange = (e) => {
-    const { name, value } = e.target;
-    setLoginForm(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (loginForm.username === 'admin' && loginForm.password === 'Gg5255105@') {
-      setAuthenticated(true);
-      setLoginError('');
-    } else {
-      setLoginError('Credenziali non valide');
-    }
-  };
-
   useEffect(() => {
-    if (!authenticated) return;
-
     const fetchProdotti = async () => {
       const { data, error } = await supabase
         .from('products')
@@ -69,7 +45,7 @@ export default function AdminPage() {
     };
 
     fetchProdotti();
-  }, [authenticated]);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -134,21 +110,17 @@ export default function AdminPage() {
     try {
       let res;
       if (modificaId) {
+        // MODIFICA PRODOTTO ESISTENTE
         res = await fetch(`/api/products/${modificaId}`, {
           method: 'PUT',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer Gg5255105@'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(prodottoData)
         });
       } else {
+        // CREA NUOVO PRODOTTO
         res = await fetch('/api/save-product', {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer Gg5255105@'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ...prodottoData,
             created_at: new Date().toISOString()
@@ -165,6 +137,7 @@ export default function AdminPage() {
         setCategoriaSelezionata('');
         setModificaId(null);
 
+        // Ricarica i prodotti
         const { data, error } = await supabase
           .from('products')
           .select('*')
@@ -200,12 +173,7 @@ export default function AdminPage() {
 
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`/api/products/${id}`, { 
-        method: 'DELETE',
-        headers: {
-          'Authorization': 'Bearer Gg5255105@'
-        }
-      });
+      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
       if (res.ok) {
         setProdottiFiltrati((prev) => prev.filter((item) => item.id !== id));
       } else {
@@ -235,59 +203,12 @@ export default function AdminPage() {
     padding: '0.5rem 1rem',
     borderRadius: '6px',
     fontWeight: 'bold',
-    fontSize: '0.85rem',
-    border: 'none',
-    cursor: 'pointer'
+    fontSize: '0.85rem'
   };
-
-  const logoutButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: 'red',
-    color: 'white',
-    marginLeft: '0.5rem'
-  };
-
-  if (!authenticated) {
-    return (
-      <main style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'black', color: 'white', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <div style={{ maxWidth: '400px', width: '100%' }}>
-          <h1 style={{ fontSize: '2.3rem', marginBottom: '2rem' }}>ACCESSO ADMIN</h1>
-          
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={loginForm.username}
-              onChange={handleLoginChange}
-              required
-              style={{ padding: '0.5rem 1rem', borderRadius: '6px', color: 'black' }}
-            />
-            
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={loginForm.password}
-              onChange={handleLoginChange}
-              required
-              style={{ padding: '0.5rem 1rem', borderRadius: '6px', color: 'black' }}
-            />
-            
-            {loginError && <p style={{ color: 'red' }}>{loginError}</p>}
-            
-            <button type="submit" style={{ backgroundColor: 'white', color: 'black', padding: '0.5rem 1rem', borderRadius: '6px', fontWeight: 'bold' }}>
-              Accedi
-            </button>
-          </form>
-        </div>
-      </main>
-    );
-  }
 
   return (
     <main style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'black', color: 'white', minHeight: '100vh' }}>
-      <h1 style={{ fontSize: '2.3rem', marginBottom: '1rem' }}>GESTIONE PRODOTTI</h1>
+      <h1 style={{ fontSize: '2.3rem', marginBottom: '2rem' }}>GESTIONE PRODOTTI</h1>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', maxWidth: '400px', margin: 'auto' }}>
         <select name="categoria" value={form.categoria} onChange={handleInputChange} required style={selectStyle}>
@@ -306,20 +227,20 @@ export default function AdminPage() {
           </select>
         )}
 
-        <input type="text" name="nome" placeholder="Nome prodotto" value={form.nome} onChange={handleInputChange} required style={{ color: 'black', width: '100%', padding: '0.5rem' }} />
-        <textarea name="descrizione" placeholder="Descrizione prodotto" value={form.descrizione} onChange={handleInputChange} required style={{ color: 'black', width: '100%', padding: '0.5rem', minHeight: '80px' }} />
-        <input type="text" name="taglia" placeholder="Taglia / Misura" value={form.taglia} onChange={handleInputChange} required style={{ color: 'black', width: '100%', padding: '0.5rem' }} />
-        <input type="number" name="prezzo" placeholder="Prezzo" value={form.prezzo === 0 ? '' : form.prezzo} onChange={handleInputChange} required style={{ color: 'black', width: '100%', padding: '0.5rem' }} />
-        <input type="number" name="quantita" placeholder="Quantità disponibile" value={form.quantita} onChange={handleInputChange} required min="0" style={{ color: 'black', width: '100%', padding: '0.5rem' }} />
+        <input type="text" name="nome" placeholder="Nome prodotto" value={form.nome} onChange={handleInputChange} required style={{ color: 'black' }} />
+        <textarea name="descrizione" placeholder="Descrizione prodotto" value={form.descrizione} onChange={handleInputChange} required style={{ color: 'black' }} />
+        <input type="text" name="taglia" placeholder="Taglia / Misura" value={form.taglia} onChange={handleInputChange} required style={{ color: 'black' }} />
+        <input type="number" name="prezzo" placeholder="Prezzo" value={form.prezzo === 0 ? '' : form.prezzo} onChange={handleInputChange} required style={{ color: 'black' }} />
+        <input type="number" name="quantita" placeholder="Quantità disponibile" value={form.quantita} onChange={handleInputChange} required min="0" style={{ color: 'black' }} />
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.5rem', width: '100%' }}>
-          <label style={{ display: 'flex', alignItems: 'center' }}>
-            <input type="checkbox" name="offerta" checked={form.offerta} onChange={handleInputChange} style={{ marginRight: '0.5rem' }} />
-            Prodotto in Offerta
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.5rem' }}>
+          <label>
+            <input type="checkbox" name="offerta" checked={form.offerta} onChange={handleInputChange} />
+            {' '}Prodotto in Offerta
           </label>
-          <label style={{ display: 'flex', alignItems: 'center' }}>
-            <input type="checkbox" name="emailOfferta" checked={form.emailOfferta} onChange={handleInputChange} style={{ marginRight: '0.5rem' }} />
-            Manda email a tutti i clienti
+          <label>
+            <input type="checkbox" name="emailOfferta" checked={form.emailOfferta} onChange={handleInputChange} />
+            {' '}Manda email a tutti i clienti
           </label>
           {form.offerta && (
             <input
@@ -330,29 +251,28 @@ export default function AdminPage() {
               placeholder="Sconto %"
               value={form.sconto}
               onChange={handleInputChange}
-              style={{ color: 'black', width: '100%', padding: '0.5rem' }}
+              style={{ color: 'black', width: '100%' }}
             />
           )}
         </div>
 
-        <label htmlFor="fileUpload" style={{ backgroundColor: 'white', color: 'black', padding: '0.4rem 1rem', borderRadius: '5px', cursor: 'pointer', width: '100%', textAlign: 'center' }}>
+        <label htmlFor="fileUpload" style={{ backgroundColor: 'white', color: 'black', padding: '0.4rem 1rem', borderRadius: '5px', cursor: 'pointer' }}>
           Carica immagine
           <input id="fileUpload" type="file" accept=".png, .jpg, .jpeg" onChange={handleImageChange} style={{ display: 'none' }} />
         </label>
         <span style={{ fontSize: '0.8rem', marginTop: '-0.5rem' }}>{nomeFileSelezionato}</span>
 
-        <button type="submit" style={{ ...buttonStyle, width: '100%' }}>
+        <button type="submit" className="bg-white text-black px-4 py-2 rounded-md flex items-center gap-2 shadow">
           {modificaId ? '🔄 Aggiorna' : '💾 Salva'}
         </button>
       </form>
 
-      <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.8rem', marginTop: '1.5rem', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.8rem', marginTop: '1.5rem' }}>
         <button onClick={() => router.push('/admin/ordini')} style={buttonStyle}>📦 ORDINI</button>
         <button onClick={() => router.push('/admin/inventario')} style={buttonStyle}>📊 MAGAZZINO</button>
         <button onClick={() => router.push('/admin/clienti')} style={buttonStyle}>👥 CLIENTI</button>
         <button onClick={() => router.push('/admin/vendite')} style={buttonStyle}>💰 VENDITE</button>
         <button onClick={() => router.push('/admin/spedizioni')} style={buttonStyle}>🚚 SPEDIZIONI</button>
-        <button onClick={() => setAuthenticated(false)} style={logoutButtonStyle}>ESCI</button>
       </div>
 
       {categoriaSelezionata && (
