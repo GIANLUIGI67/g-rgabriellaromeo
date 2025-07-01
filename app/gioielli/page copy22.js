@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ShoppingCart } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
-export default function AccessoriPage() {
+export default function GioielliPage() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
   const router = useRouter();
@@ -20,13 +20,9 @@ export default function AccessoriPage() {
   const [erroreQuantita, setErroreQuantita] = useState(false);
   const [accettaPolicy, setAccettaPolicy] = useState(false);
 
-  const formatEuro = (val) => {
-    const value = Number(val || 0);
-    return `€ ${value.toFixed(2)}`;
-  };
   const traduzioni = {
     it: {
-      titolo: 'GALLERIA ACCESSORI',
+      titolo: 'GALLERIA GIOIELLI',
       sottotutte: 'Tutte le sottocategorie',
       aggiungi: 'Aggiungi al carrello',
       checkout: 'Check-out',
@@ -37,11 +33,11 @@ export default function AccessoriPage() {
       accetta: 'Sono d\'accordo con la policy per la produzione',
       continua: 'Continua con l\'ordine',
       rimuovi: 'Rimuovi',
-      carrello: 'Carrello',
-      policyTitolo: 'Policy per la produzione'
+      policyTitolo: 'Policy per la produzione',
+      carrello: 'Carrello'
     },
     en: {
-      titolo: 'ACCESSORY GALLERY',
+      titolo: 'JEWELRY GALLERY',
       sottotutte: 'All subcategories',
       aggiungi: 'Add to cart',
       checkout: 'Checkout',
@@ -52,26 +48,26 @@ export default function AccessoriPage() {
       accetta: 'I agree with the production policy',
       continua: 'Continue with order',
       rimuovi: 'Remove',
-      carrello: 'Cart',
-      policyTitolo: 'Production Policy'
+      policyTitolo: 'Production Policy',
+      carrello: 'Cart'
     },
     fr: {
-      titolo: 'GALERIE ACCESSOIRES',
+      titolo: 'GALERIE DE BIJOUX',
       sottotutte: 'Toutes les sous-catégories',
       aggiungi: 'Ajouter au panier',
-      checkout: 'Passer à la caisse',
+      checkout: 'Paiement',
       indietro: 'Retour',
       venduto: 'vendu',
       erroreQuantita: 'La quantité demandée dépasse le stock! Consultez notre politique de production.',
       visualizzaPolicy: 'Voir la politique',
-      accetta: 'J’accepte la politique de production',
+      accetta: 'J\'accepte la politique de production',
       continua: 'Continuer la commande',
       rimuovi: 'Supprimer',
-      carrello: 'Panier',
-      policyTitolo: 'Politique de production'
+      policyTitolo: 'Politique de production',
+      carrello: 'Panier'
     },
     de: {
-      titolo: 'ACCESSOIRES GALERIE',
+      titolo: 'SCHMUCKGALERIE',
       sottotutte: 'Alle Unterkategorien',
       aggiungi: 'In den Warenkorb',
       checkout: 'Zur Kasse',
@@ -82,14 +78,14 @@ export default function AccessoriPage() {
       accetta: 'Ich stimme der Produktionsrichtlinie zu',
       continua: 'Bestellung fortsetzen',
       rimuovi: 'Entfernen',
-      carrello: 'Warenkorb',
-      policyTitolo: 'Produktionsrichtlinie'
+      policyTitolo: 'Produktionsrichtlinie',
+      carrello: 'Warenkorb'
     },
     es: {
-      titolo: 'GALERÍA DE ACCESORIOS',
+      titolo: 'GALERÍA DE JOYAS',
       sottotutte: 'Todas las subcategorías',
       aggiungi: 'Agregar al carrito',
-      checkout: 'Finalizar compra',
+      checkout: 'Pagar',
       indietro: 'Atrás',
       venduto: 'vendido',
       erroreQuantita: '¡Cantidad solicitada supera el stock! Revisa nuestra política de producción.',
@@ -97,13 +93,28 @@ export default function AccessoriPage() {
       accetta: 'Acepto la política de producción',
       continua: 'Continuar pedido',
       rimuovi: 'Eliminar',
-      carrello: 'Carrito',
-      policyTitolo: 'Política de producción'
+      policyTitolo: 'Política de producción',
+      carrello: 'Carrito'
+    },
+    ar: {
+      titolo: 'معرض المجوهرات',
+      sottotutte: 'جميع الفئات الفرعية',
+      aggiungi: 'أضف إلى السلة',
+      checkout: 'الدفع',
+      indietro: 'عودة',
+      venduto: 'تم البيع',
+      erroreQuantita: 'الكمية المطلوبة تتجاوز المتوفر! تحقق من سياسة الإنتاج.',
+      visualizzaPolicy: 'عرض السياسة',
+      accetta: 'أوافق على سياسة الإنتاج',
+      continua: 'متابعة الطلب',
+      rimuovi: 'إزالة',
+      policyTitolo: 'سياسة الإنتاج',
+      carrello: 'سلة التسوق'
     },
     zh: {
-      titolo: '配饰画廊',
+      titolo: '珠宝画廊',
       sottotutte: '所有子类别',
-      aggiungi: '添加到购物车',
+      aggiungi: '加入购物车',
       checkout: '结账',
       indietro: '返回',
       venduto: '售罄',
@@ -112,26 +123,11 @@ export default function AccessoriPage() {
       accetta: '我同意生产政策',
       continua: '继续下单',
       rimuovi: '移除',
-      carrello: '购物车',
-      policyTitolo: '生产政策'
-    },
-    ar: {
-      titolo: 'معرض الإكسسوارات',
-      sottotutte: 'كل الفئات الفرعية',
-      aggiungi: 'أضف إلى السلة',
-      checkout: 'إتمام الشراء',
-      indietro: 'رجوع',
-      venduto: 'تم البيع',
-      erroreQuantita: 'الكمية المطلوبة تتجاوز المتوفر! تحقق من سياسة الإنتاج.',
-      visualizzaPolicy: 'عرض السياسة',
-      accetta: 'أوافق على سياسة الإنتاج',
-      continua: 'متابعة الطلب',
-      rimuovi: 'إزالة',
-      carrello: 'عربة التسوق',
-      policyTitolo: 'سياسة الإنتاج'
+      policyTitolo: '生产政策',
+      carrello: '购物车'
     },
     ja: {
-      titolo: 'アクセサリーギャラリー',
+      titolo: 'ジュエリーギャラリー',
       sottotutte: 'すべてのサブカテゴリ',
       aggiungi: 'カートに追加',
       checkout: 'チェックアウト',
@@ -142,20 +138,19 @@ export default function AccessoriPage() {
       accetta: '生産ポリシーに同意します',
       continua: '注文を続ける',
       rimuovi: '削除',
-      carrello: 'カート',
-      policyTitolo: '生産ポリシー'
+      policyTitolo: '生産ポリシー',
+      carrello: 'カート'
     }
   };
 
   const t = (key) => traduzioni[lang]?.[key] || traduzioni['it'][key] || key;
-
   const sottocategorie = {
+    anelli: { it: 'Anelli', en: 'Rings', fr: 'Bagues', de: 'Ringe', es: 'Anillos', zh: '戒指', ar: 'خواتم', ja: 'リング' },
     collane: { it: 'Collane', en: 'Necklaces', fr: 'Colliers', de: 'Ketten', es: 'Collares', zh: '项链', ar: 'قلائد', ja: 'ネックレス' },
-    orecchini: { it: 'Orecchini', en: 'Earrings', fr: 'Boucles d’oreilles', de: 'Ohrringe', es: 'Pendientes', zh: '耳环', ar: 'أقراط', ja: 'イヤリング' },
     bracciali: { it: 'Bracciali', en: 'Bracelets', fr: 'Bracelets', de: 'Armbänder', es: 'Pulseras', zh: '手镯', ar: 'أساور', ja: 'ブレスレット' },
-    borse: { it: 'Borse', en: 'Bags', fr: 'Sacs', de: 'Taschen', es: 'Bolsos', zh: '包', ar: 'حقائب', ja: 'バッグ' },
-    foulard: { it: 'Foulard', en: 'Scarves', fr: 'Foulards', de: 'Schals', es: 'Pañuelos', zh: '围巾', ar: 'أوشحة', ja: 'スカーフ' }
+    orecchini: { it: 'Orecchini', en: 'Earrings', fr: 'Boucles d\'oreilles', de: 'Ohrringe', es: 'Pendientes', zh: '耳环', ar: 'أقراط', ja: 'イヤリング' }
   };
+
   useEffect(() => {
     const carrelloSalvato = JSON.parse(localStorage.getItem('carrello') || '[]');
     setCarrello(carrelloSalvato);
@@ -164,7 +159,7 @@ export default function AccessoriPage() {
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .eq('categoria', 'accessori')
+        .eq('categoria', 'gioielli')
         .order('created_at', { ascending: false });
 
       if (!error) {
@@ -206,6 +201,7 @@ export default function AccessoriPage() {
   };
 
   const baseUrl = 'https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/';
+
   return (
     <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem 1rem', maxWidth: '100vw', overflowX: 'hidden', margin: '0 auto', position: 'relative' }}>
       {carrello.length > 0 && (
@@ -234,7 +230,7 @@ export default function AccessoriPage() {
           }}
         >
           <ShoppingCart size={16} strokeWidth={1.5} color="white" />
-          <span style={{ lineHeight: 1 }}>{t('checkout')}</span>
+          <span style={{ lineHeight: 1 }}>Check-out</span>
         </div>
       )}
 
@@ -270,6 +266,7 @@ export default function AccessoriPage() {
           ))}
         </select>
       </div>
+
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
@@ -286,11 +283,7 @@ export default function AccessoriPage() {
               padding: '0.5rem',
               borderRadius: '6px',
               fontSize: '0.75rem',
-              textAlign: 'center',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              height: '340px'
+              textAlign: 'center'
             }}>
               <img
                 src={baseUrl + prodotto.immagine}
@@ -307,22 +300,17 @@ export default function AccessoriPage() {
                   setImmagineAttiva(prodotto.immagine);
                 }}
               />
-              <div style={{
+              <div style={{ 
                 padding: '0.5rem 0',
                 minHeight: '60px'
               }}>
-                <strong style={{
+                <strong style={{ 
                   display: 'block',
                   fontWeight: 'bold',
                   fontSize: '0.9rem',
-                  marginBottom: '0.3rem',
-                  minHeight: '2.2em',
-                  lineHeight: '1.1em',
-                  overflow: 'hidden'
-                }}>
-                  {prodotto.nome}
-                </strong>
-                <p style={{
+                  marginBottom: '0.3rem'
+                }}>{prodotto.nome}</strong>
+                <p style={{ 
                   fontSize: '0.8rem',
                   color: '#555',
                   marginBottom: '0.3rem'
@@ -331,14 +319,14 @@ export default function AccessoriPage() {
                   {prodotto.offerta ? (
                     <>
                       <span style={{ textDecoration: 'line-through', color: 'gray', marginRight: '4px' }}>
-                        € {prezzoNum.toFixed(2)}
+                        {'\u20AC'} {prezzoNum.toFixed(2)}
                       </span>
                       <span style={{ color: 'red', fontWeight: 'bold' }}>
-                        € {prezzoScontato.toFixed(2)} (-{scontoNum}%)
+                        {'\u20AC'} {prezzoScontato.toFixed(2)} (-{scontoNum}%)
                       </span>
                     </>
                   ) : (
-                    <>€ {prezzoNum.toFixed(2)}</>
+                    <>{'\u20AC'} {prezzoNum.toFixed(2)}</>
                   )}
                 </p>
               </div>
@@ -346,6 +334,7 @@ export default function AccessoriPage() {
           );
         })}
       </div>
+
       {popupProdotto && (
         <div
           onClick={() => {
@@ -399,31 +388,21 @@ export default function AccessoriPage() {
             <img
               src={baseUrl + immagineAttiva}
               alt="zoom"
-              style={{
-                width: '100%',
-                height: 'auto',
-                borderRadius: '6px',
-                marginBottom: '1rem'
-              }}
+              style={{ width: '100%', height: 'auto', borderRadius: '6px', marginBottom: '1rem' }}
             />
 
             <h2 style={{ marginBottom: '0.5rem' }}>{popupProdotto.nome}</h2>
             <p style={{ fontSize: '0.9rem' }}>{popupProdotto.descrizione}</p>
             <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>{popupProdotto.taglia}</p>
-
-            <p style={{
-              fontWeight: 'bold',
-              fontSize: '1rem',
-              margin: '1rem 0',
-              fontFamily: 'Arial, sans-serif'
-            }}>
+            
+            <p style={{ fontWeight: 'bold', fontSize: '1rem', margin: '1rem 0' }}>
               {popupProdotto.offerta ? (
                 <>
                   <span style={{ textDecoration: 'line-through', color: 'gray', marginRight: '8px' }}>
-                    € {Number(popupProdotto.prezzo).toFixed(2)}
+                    {'\u20AC'} {Number(popupProdotto.prezzo).toFixed(2)}
                   </span>
                   <span style={{ color: 'red' }}>
-                    € {(Number(popupProdotto.prezzo) * (1 - (popupProdotto.sconto || 0) / 100)).toFixed(2)}
+                    {'\u20AC'} {(Number(popupProdotto.prezzo) * (1 - (Number(popupProdotto.sconto || 0) / 100))).toFixed(2)}
                     {popupProdotto.sconto > 0 && (
                       <span style={{ fontSize: '0.9rem', marginLeft: '4px' }}>
                         (-{popupProdotto.sconto}%)
@@ -432,17 +411,16 @@ export default function AccessoriPage() {
                   </span>
                 </>
               ) : (
-                <>€ {Number(popupProdotto.prezzo).toFixed(2)}</>
+                <>{'\u20AC'} {Number(popupProdotto.prezzo).toFixed(2)}</>
               )}
             </p>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+
+            <div
+              style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '0.5rem' }}
+              onClick={(e) => e.stopPropagation()}
+            >
               <button onClick={() => cambiaQuantita(popupProdotto.id, -1)} style={{ fontSize: '1.2rem' }}>–</button>
-              <input
-                type="text"
-                value={quantita[popupProdotto.id] || 1}
-                readOnly
-                style={{ width: '2rem', textAlign: 'center' }}
-              />
+              <input type="text" value={quantita[popupProdotto.id] || 1} readOnly style={{ width: '2rem', textAlign: 'center' }} />
               <button onClick={() => cambiaQuantita(popupProdotto.id, 1)} style={{ fontSize: '1.2rem' }}>+</button>
             </div>
 
@@ -534,6 +512,7 @@ export default function AccessoriPage() {
           </div>
         </div>
       )}
+
       {showPolicy && (
         <div style={{
           position: 'fixed',

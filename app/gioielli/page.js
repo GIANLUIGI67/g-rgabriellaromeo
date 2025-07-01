@@ -2,22 +2,31 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { ShoppingCart } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
 export default function GioielliPage() {
   const params = useSearchParams();
-  const langParam = (params.get('lang') || '').trim();
-  const lang = ['it','en','fr','de','es','zh','ar','ja'].includes(langParam) ? langParam : 'it';
+  const lang = params.get('lang') || 'it';
   const router = useRouter();
+
   const [prodotti, setProdotti] = useState([]);
   const [quantita, setQuantita] = useState({});
   const [sottocategoriaSelezionata, setSottocategoriaSelezionata] = useState('');
   const [carrello, setCarrello] = useState([]);
-  const [popupImg, setPopupImg] = useState(null);
+  const [popupProdotto, setPopupProdotto] = useState(null);
+  const [immagineAttiva, setImmagineAttiva] = useState('');
   const [showPolicy, setShowPolicy] = useState(false);
   const [erroreQuantita, setErroreQuantita] = useState(false);
   const [accettaPolicy, setAccettaPolicy] = useState(false);
 
+  // ✅ funzione per mostrare € correttamente (come in inventario)
+  const formatEuro = (val) => {
+    const value = Number(val || 0);
+    return `€ ${value.toFixed(2)}`;
+  };
+
+  // ... (il resto del codice rimane invariato)
   const traduzioni = {
     it: {
       titolo: 'GALLERIA GIOIELLI',
@@ -29,10 +38,10 @@ export default function GioielliPage() {
       erroreQuantita: 'La quantità richiesta è superiore alla disponibilità! Per confermare comunque, controlla la nostra policy per la produzione.',
       visualizzaPolicy: 'Visualizza Policy',
       accetta: 'Sono d\'accordo con la policy per la produzione',
-      continua: 'Continua con l’ordine',
+      continua: 'Continua con l\'ordine',
       rimuovi: 'Rimuovi',
-      carrello: 'Carrello',
-      policyTitolo: 'Policy per la produzione'
+      policyTitolo: 'Policy per la produzione',
+      carrello: 'Carrello'
     },
     en: {
       titolo: 'JEWELRY GALLERY',
@@ -46,23 +55,23 @@ export default function GioielliPage() {
       accetta: 'I agree with the production policy',
       continua: 'Continue with order',
       rimuovi: 'Remove',
-      carrello: 'Cart',
-      policyTitolo: 'Production Policy'
+      policyTitolo: 'Production Policy',
+      carrello: 'Cart'
     },
     fr: {
       titolo: 'GALERIE DE BIJOUX',
       sottotutte: 'Toutes les sous-catégories',
       aggiungi: 'Ajouter au panier',
-      checkout: 'Passer à la caisse',
+      checkout: 'Paiement',
       indietro: 'Retour',
       venduto: 'vendu',
       erroreQuantita: 'La quantité demandée dépasse le stock! Consultez notre politique de production.',
       visualizzaPolicy: 'Voir la politique',
-      accetta: 'J’accepte la politique de production',
+      accetta: 'J\'accepte la politique de production',
       continua: 'Continuer la commande',
       rimuovi: 'Supprimer',
-      carrello: 'Panier',
-      policyTitolo: 'Politique de production'
+      policyTitolo: 'Politique de production',
+      carrello: 'Panier'
     },
     de: {
       titolo: 'SCHMUCKGALERIE',
@@ -76,14 +85,14 @@ export default function GioielliPage() {
       accetta: 'Ich stimme der Produktionsrichtlinie zu',
       continua: 'Bestellung fortsetzen',
       rimuovi: 'Entfernen',
-      carrello: 'Warenkorb',
-      policyTitolo: 'Produktionsrichtlinie'
+      policyTitolo: 'Produktionsrichtlinie',
+      carrello: 'Warenkorb'
     },
     es: {
       titolo: 'GALERÍA DE JOYAS',
       sottotutte: 'Todas las subcategorías',
       aggiungi: 'Agregar al carrito',
-      checkout: 'Finalizar compra',
+      checkout: 'Pagar',
       indietro: 'Atrás',
       venduto: 'vendido',
       erroreQuantita: '¡Cantidad solicitada supera el stock! Revisa nuestra política de producción.',
@@ -91,13 +100,28 @@ export default function GioielliPage() {
       accetta: 'Acepto la política de producción',
       continua: 'Continuar pedido',
       rimuovi: 'Eliminar',
-      carrello: 'Carrito',
-      policyTitolo: 'Política de producción'
+      policyTitolo: 'Política de producción',
+      carrello: 'Carrito'
+    },
+    ar: {
+      titolo: 'معرض المجوهرات',
+      sottotutte: 'جميع الفئات الفرعية',
+      aggiungi: 'أضف إلى السلة',
+      checkout: 'الدفع',
+      indietro: 'عودة',
+      venduto: 'تم البيع',
+      erroreQuantita: 'الكمية المطلوبة تتجاوز المتوفر! تحقق من سياسة الإنتاج.',
+      visualizzaPolicy: 'عرض السياسة',
+      accetta: 'أوافق على سياسة الإنتاج',
+      continua: 'متابعة الطلب',
+      rimuovi: 'إزالة',
+      policyTitolo: 'سياسة الإنتاج',
+      carrello: 'سلة التسوق'
     },
     zh: {
       titolo: '珠宝画廊',
       sottotutte: '所有子类别',
-      aggiungi: '添加到购物车',
+      aggiungi: '加入购物车',
       checkout: '结账',
       indietro: '返回',
       venduto: '售罄',
@@ -106,23 +130,8 @@ export default function GioielliPage() {
       accetta: '我同意生产政策',
       continua: '继续下单',
       rimuovi: '移除',
-      carrello: '购物车',
-      policyTitolo: '生产政策'
-    },
-    ar: {
-      titolo: 'معرض المجوهرات',
-      sottotutte: 'كل الفئات الفرعية',
-      aggiungi: 'أضف إلى السلة',
-      checkout: 'إتمام الشراء',
-      indietro: 'رجوع',
-      venduto: 'تم البيع',
-      erroreQuantita: 'الكمية المطلوبة تتجاوز المتوفر! تحقق من سياسة الإنتاج.',
-      visualizzaPolicy: 'عرض السياسة',
-      accetta: 'أوافق على سياسة الإنتاج',
-      continua: 'متابعة الطلب',
-      rimuovi: 'إزالة',
-      carrello: 'عربة التسوق',
-      policyTitolo: 'سياسة الإنتاج'
+      policyTitolo: '生产政策',
+      carrello: '购物车'
     },
     ja: {
       titolo: 'ジュエリーギャラリー',
@@ -136,31 +145,22 @@ export default function GioielliPage() {
       accetta: '生産ポリシーに同意します',
       continua: '注文を続ける',
       rimuovi: '削除',
-      carrello: 'カート',
-      policyTitolo: '生産ポリシー'
+      policyTitolo: '生産ポリシー',
+      carrello: 'カート'
     }
   };
 
-  const t = (key) => {
-
-    console.log('🌐 Lingua attiva:', lang);
-    console.log('🗝️  Chiavi disponibili:', Object.keys(traduzioni));
-    console.log('📘 Traduzione corrente:', traduzioni[lang]);
-  
-
-  if (!traduzioni[lang]) {
-    console.warn(`⚠️ Traduzioni mancanti per la lingua: ${lang}`);
-  }
-  return traduzioni[lang]?.[key] ?? traduzioni['it'][key] ?? key;
-};
+  const t = (key) => traduzioni[lang]?.[key] || traduzioni['it'][key] || key;
   const sottocategorie = {
-    anelli: { it: 'anelli', en: 'rings', fr: 'bagues', de: 'ringe', es: 'anillos', zh: '戒指', ar: 'خواتم', ja: 'リング' },
-    collane: { it: 'collane', en: 'necklaces', fr: 'colliers', de: 'ketten', es: 'collares', zh: '项链', ar: 'قلائد', ja: 'ネックレス' },
-    bracciali: { it: 'bracciali', en: 'bracelets', fr: 'bracelets', de: 'armbänder', es: 'pulseras', zh: '手镯', ar: 'أساور', ja: 'ブレスレット' },
-    orecchini: { it: 'orecchini', en: 'earrings', fr: 'boucles d’oreilles', de: 'ohrringe', es: 'pendientes', zh: '耳环', ar: 'أقراط', ja: 'イヤリング' }
+    anelli: { it: 'Anelli', en: 'Rings', fr: 'Bagues', de: 'Ringe', es: 'Anillos', zh: '戒指', ar: 'خواتم', ja: 'リング' },
+    collane: { it: 'Collane', en: 'Necklaces', fr: 'Colliers', de: 'Ketten', es: 'Collares', zh: '项链', ar: 'قلائد', ja: 'ネックレス' },
+    bracciali: { it: 'Bracciali', en: 'Bracelets', fr: 'Bracelets', de: 'Armbänder', es: 'Pulseras', zh: '手镯', ar: 'أساور', ja: 'ブレスレット' },
+    orecchini: { it: 'Orecchini', en: 'Earrings', fr: 'Boucles d\'oreilles', de: 'Ohrringe', es: 'Pendientes', zh: '耳环', ar: 'أقراط', ja: 'イヤリング' }
   };
-
   useEffect(() => {
+    const carrelloSalvato = JSON.parse(localStorage.getItem('carrello') || '[]');
+    setCarrello(carrelloSalvato);
+
     const fetchProdotti = async () => {
       const { data, error } = await supabase
         .from('products')
@@ -171,15 +171,13 @@ export default function GioielliPage() {
       if (!error) {
         setProdotti(data);
         const iniziali = {};
-        data.forEach(p => { iniziali[p.id] = 1 });
+        data.forEach(p => { iniziali[p.id] = 1; });
         setQuantita(iniziali);
       }
-
-      const carrelloSalvato = localStorage.getItem('carrello');
-      if (carrelloSalvato) setCarrello(JSON.parse(carrelloSalvato));
     };
     fetchProdotti();
   }, []);
+
   const filtrati = prodotti.filter(p =>
     !sottocategoriaSelezionata || p.sottocategoria === sottocategoriaSelezionata
   );
@@ -203,14 +201,53 @@ export default function GioielliPage() {
   };
 
   const rimuoviDalCarrello = (prodottoId) => {
-    const nuovo = carrello.filter(p => p.id !== prodottoId);
-    setCarrello(nuovo);
-    localStorage.setItem('carrello', JSON.stringify(nuovo));
+    const nuovoCarrello = carrello.filter(p => p.id !== prodottoId);
+    setCarrello(nuovoCarrello);
+    localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
   };
 
+  const baseUrl = 'https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/';
   return (
-    <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem' }}>
-      <h1 style={{ fontSize: '2rem', textAlign: 'center', marginBottom: '2rem' }}>{t('titolo')}</h1>
+    <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem 1rem', maxWidth: '100vw', overflowX: 'hidden', margin: '0 auto', position: 'relative' }}>
+      {carrello.length > 0 && (
+        <div
+          onClick={() => router.push(`/checkout?lang=${lang}`)}
+          style={{
+            position: 'fixed',
+            top: '0.5rem',
+            left: '0.5rem',
+            background: 'none',
+            color: 'white',
+            padding: '0.4rem 0.6rem',
+            fontSize: '0.75rem',
+            fontFamily: 'Michroma, sans-serif',
+            zIndex: 10000,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            border: 'none',
+            outline: 'none',
+            boxShadow: 'none',
+            WebkitBoxShadow: 'none',
+            MozBoxShadow: 'none',
+            borderRadius: 0
+          }}
+        >
+          <ShoppingCart size={16} strokeWidth={1.5} color="white" />
+          <span style={{ lineHeight: 1 }}>{t('checkout')}</span>
+        </div>
+      )}
+
+      <h1 style={{
+        fontSize: 'clamp(1.5rem, 5vw, 2rem)',
+        textAlign: 'center',
+        marginBottom: '2rem',
+        wordBreak: 'break-word',
+        overflowWrap: 'break-word'
+      }}>
+        {t('titolo')}
+      </h1>
 
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <select
@@ -229,154 +266,195 @@ export default function GioielliPage() {
           <option value="">{t('sottotutte')}</option>
           {Object.entries(sottocategorie).map(([key, trad]) => (
             <option key={key} value={key}>
-              {trad?.[lang] ?? trad.it
-}
+              {trad[lang] || trad.it}
             </option>
           ))}
         </select>
       </div>
-
       <div style={{
-        display: 'flex',
-        gap: '1rem',
-        overflowX: 'auto',
-        padding: '1rem'
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+        gap: '1.5rem'
       }}>
         {filtrati.map(prodotto => {
           const prezzoNum = Number(prodotto.prezzo);
           const scontoNum = Number(prodotto.sconto || 0);
-          const prezzoScontato = Math.round((prezzoNum - (prezzoNum * scontoNum / 100)) * 10) / 10;
-
+          const prezzoScontato = Math.round((prezzoNum - (prezzoNum * scontoNum / 100)) * 100) / 100;
           return (
-            <div key={prodotto.id} style={{
-              backgroundColor: 'white',
-              color: 'black',
-              padding: '0.5rem',
-              borderRadius: '6px',
-              fontSize: '0.65rem',
-              textAlign: 'center',
-              flex: '0 0 auto',
-              width: '160px',
-              scrollSnapAlign: 'start',
-              position: 'relative'
-            }}>
-              {prodotto.offerta && (
-                <div style={{
-                  position: 'absolute',
-                  top: '6px',
-                  left: '6px',
-                  backgroundColor: 'rgba(255, 0, 0, 0.6)',
-                  color: 'white',
-                  padding: '2px 4px',
-                  borderRadius: '3px',
-                  fontSize: '0.5rem',
-                  transform: 'rotate(-12deg)',
-                  fontWeight: 'bold',
-                }}>✨ OFFERTA</div>
-              )}
-              {prodotto.quantita === 0 && (
-                <div style={{
-                  position: 'absolute',
-                  top: '6px',
-                  right: '6px',
-                  backgroundColor: 'rgba(255, 0, 0, 0.2)',
-                  color: 'red',
-                  padding: '2px 4px',
-                  fontSize: '0.5rem',
-                  borderRadius: '3px',
-                  transform: 'rotate(-12deg)',
-                  fontWeight: 'bold'
-                }}>{t('venduto')}</div>
-              )}
+                <div key={prodotto.id} style={{
+                  backgroundColor: 'white',
+                  color: 'black',
+                  padding: '0.5rem',
+                  borderRadius: '6px',
+                  fontSize: '0.75rem',
+                  textAlign: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  height: '340px'  // puoi aumentare o ridurre se serve
+                }}>
               <img
-                src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
+                src={baseUrl + prodotto.immagine}
                 alt={prodotto.nome}
-                style={{ width: '100%', height: 'auto', maxHeight: '80px', objectFit: 'contain', borderRadius: '4px', marginBottom: '0.3rem', cursor: 'pointer' }}
-                onClick={() => setPopupImg(`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`)}
+                style={{
+                  width: '100%',
+                  height: '200px',
+                  objectFit: 'cover',
+                  cursor: 'pointer',
+                  borderRadius: '4px'
+                }}
+                onClick={() => {
+                  setPopupProdotto(prodotto);
+                  setImmagineAttiva(prodotto.immagine);
+                }}
               />
-              <strong>{prodotto.nome}</strong>
-              <p>{prodotto.taglia}</p>
-              {prodotto.offerta ? (
+              <div style={{ 
+                padding: '0.5rem 0',
+                minHeight: '60px'
+              }}>
+                <strong style={{ 
+                  display: 'block',
+                  fontWeight: 'bold',
+                  fontSize: '0.9rem',
+                  marginBottom: '0.3rem',
+                  minHeight: '2.2em',
+                  lineHeight: '1.1em',
+                  overflow: 'hidden'
+                }}>
+                  {prodotto.nome}
+                </strong>
+
+                <p style={{ 
+                  fontSize: '0.8rem',
+                  color: '#555',
+                  marginBottom: '0.3rem'
+                }}>{prodotto.taglia}</p>
                 <p style={{ fontFamily: 'Arial' }}>
-                  <span style={{ textDecoration: 'line-through', color: 'gray', marginRight: '4px' }}>
-                    {'\u20AC'} {prezzoNum.toFixed(1)}
-                  </span>
-                  <span style={{ color: 'red', fontWeight: 'bold' }}>
-                    {'\u20AC'} {prezzoScontato.toFixed(1)} (-{scontoNum}%)
-                  </span>
+                  {prodotto.offerta ? (
+                    <>
+                      <span style={{ textDecoration: 'line-through', color: 'gray', marginRight: '4px' }}>
+                        {formatEuro(prezzoNum)}
+                      </span>
+                      <span style={{ color: 'red', fontWeight: 'bold' }}>
+                        {formatEuro(prezzoScontato)} (-{scontoNum}%)
+                      </span>
+                    </>
+                  ) : (
+                    <>{formatEuro(prezzoNum)}</>
+                  )}
                 </p>
-              ) : (
-                <p style={{ fontFamily: 'Arial' }}>
-                  {'\u20AC'} {prezzoNum.toFixed(1)}
-                </p>
-              )}
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem' }}>
-                <button onClick={() => cambiaQuantita(prodotto.id, -1)} style={{ border: 'none', background: 'none', fontSize: '1rem' }}>–</button>
-                <input type="text" value={quantita[prodotto.id] || 1} readOnly style={{ width: '2rem', textAlign: 'center' }} />
-                <button onClick={() => cambiaQuantita(prodotto.id, 1)} style={{ border: 'none', background: 'none', fontSize: '1rem' }}>+</button>
               </div>
-              <button onClick={() => aggiungiAlCarrello(prodotto)} style={{ marginTop: '0.3rem', padding: '0.3rem', fontSize: '0.65rem', backgroundColor: '#333', color: 'white', borderRadius: '4px', border: 'none' }}>
-                {t('aggiungi')}
-              </button>
             </div>
           );
         })}
       </div>
-      {carrello.length > 0 && (
-        <div style={{
-          marginTop: '2rem',
-          backgroundColor: '#222',
-          padding: '1rem',
-          borderRadius: '8px',
-          width: '100%',
-          maxWidth: '400px',
-          textAlign: 'left',
-          marginLeft: 'auto',
-          marginRight: 'auto'
-        }}>
-          <h3 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>🛒 {t('carrello')}</h3>
-
-          {Array.from(new Set(carrello.map(p => p.id))).map(id => {
-            const prodotto = carrello.find(p => p.id === id);
-            const qta = carrello.filter(p => p.id === id).length;
-            return (
-              <div key={id} style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '0.3rem 0',
-                borderBottom: '1px solid #444'
-              }}>
-                <span>{prodotto.nome} × {qta}</span>
-                <button onClick={() => rimuoviDalCarrello(id)}
-                  style={{
-                    background: 'red',
-                    color: 'white',
-                    border: 'none',
-                    padding: '0.2rem 0.5rem',
-                    fontSize: '0.7rem',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}>{t('rimuovi')}</button>
-              </div>
-            );
-          })}
-          <button
-            onClick={() => router.push(`/checkout?lang=${lang}`)}
+      {popupProdotto && (
+        <div
+          onClick={() => {
+            setPopupProdotto(null);
+            setImmagineAttiva('');
+          }}
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.9)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem',
+            overflowY: 'auto'
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
             style={{
-              marginTop: '1rem',
+              maxWidth: '600px',
               width: '100%',
-              backgroundColor: 'green',
-              color: 'white',
-              border: 'none',
-              padding: '0.5rem',
-              borderRadius: '6px',
-              fontSize: '1rem',
-              cursor: 'pointer'
+              backgroundColor: 'white',
+              color: 'black',
+              borderRadius: '10px',
+              padding: '1rem',
+              textAlign: 'center',
+              position: 'relative'
             }}
           >
-            {t('checkout')}
-          </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setPopupProdotto(null);
+                setImmagineAttiva('');
+              }}
+              style={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                background: 'none',
+                border: 'none',
+                fontSize: '1.2rem',
+                cursor: 'pointer'
+              }}
+            >
+              ✕
+            </button>
+
+            <img
+              src={baseUrl + immagineAttiva}
+              alt="zoom"
+              style={{ width: '100%', height: 'auto', borderRadius: '6px', marginBottom: '1rem' }}
+            />
+
+            <h2 style={{ marginBottom: '0.5rem' }}>{popupProdotto.nome}</h2>
+            <p style={{ fontSize: '0.9rem' }}>{popupProdotto.descrizione}</p>
+            <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>{popupProdotto.taglia}</p>
+
+<p style={{ fontWeight: 'bold', fontSize: '1rem', margin: '1rem 0', fontFamily: 'Arial, sans-serif' }}>
+  {popupProdotto.offerta ? (
+    <>
+      <span style={{ textDecoration: 'line-through', color: 'gray', marginRight: '8px' }}>
+        € {Number(popupProdotto.prezzo).toFixed(2)}
+      </span>
+      <span style={{ color: 'red' }}>
+        € {(Number(popupProdotto.prezzo) * (1 - (popupProdotto.sconto || 0) / 100)).toFixed(2)}
+        {popupProdotto.sconto > 0 && (
+          <span style={{ fontSize: '0.9rem', marginLeft: '4px' }}>
+            (-{popupProdotto.sconto}%)
+          </span>
+        )}
+      </span>
+    </>
+  ) : (
+    <>€ {Number(popupProdotto.prezzo).toFixed(2)}</>
+  )}
+</p>
+            <div
+              style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '0.5rem' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button onClick={() => cambiaQuantita(popupProdotto.id, -1)} style={{ fontSize: '1.2rem' }}>–</button>
+              <input type="text" value={quantita[popupProdotto.id] || 1} readOnly style={{ width: '2rem', textAlign: 'center' }} />
+              <button onClick={() => cambiaQuantita(popupProdotto.id, 1)} style={{ fontSize: '1.2rem' }}>+</button>
+            </div>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                aggiungiAlCarrello(popupProdotto);
+                setPopupProdotto(null);
+              }}
+              style={{
+                marginTop: '1rem',
+                padding: '0.5rem 1rem',
+                backgroundColor: '#333',
+                color: 'white',
+                borderRadius: '6px',
+                border: 'none',
+                fontSize: '1rem'
+              }}
+            >
+              {t('aggiungi')}
+            </button>
+          </div>
         </div>
       )}
 
@@ -384,6 +462,7 @@ export default function GioielliPage() {
         <button
           onClick={() => router.push(`/?lang=${lang}`)}
           style={{
+            marginTop: '1rem',
             backgroundColor: '#444',
             color: 'white',
             padding: '0.6rem 1.2rem',
@@ -445,6 +524,7 @@ export default function GioielliPage() {
           </div>
         </div>
       )}
+
       {showPolicy && (
         <div style={{
           position: 'fixed',
@@ -514,31 +594,6 @@ export default function GioielliPage() {
               </button>
             </div>
           </div>
-        </div>
-      )}
-
-      {popupImg && (
-        <div
-          onClick={() => setPopupImg(null)}
-          style={{
-            position: 'fixed',
-            top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000
-          }}
-        >
-          <img
-            src={popupImg}
-            alt="popup"
-            style={{
-              maxHeight: '90%',
-              maxWidth: '90%',
-              borderRadius: '10px'
-            }}
-          />
         </div>
       )}
     </main>
