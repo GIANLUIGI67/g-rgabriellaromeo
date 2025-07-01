@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 
@@ -22,31 +22,9 @@ export default function CheckoutPage() {
   const [paese, setPaese] = useState('');
   const [cap, setCap] = useState('');
   const [errore, setErrore] = useState('');
-  const [showError, setShowError] = useState(false);
   const [isRegistrazione, setIsRegistrazione] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const [step, setStep] = useState(1);
-  const [profiloCompleto, setProfiloCompleto] = useState(false);
-  const errorTimer = useRef(null);
-
-  // Clear error timer on unmount
-  useEffect(() => {
-    return () => {
-      if (errorTimer.current) clearTimeout(errorTimer.current);
-    };
-  }, []);
-
-  const displayError = (message) => {
-    setErrore(message);
-    setShowError(true);
-    
-    if (errorTimer.current) clearTimeout(errorTimer.current);
-    errorTimer.current = setTimeout(() => {
-      setShowError(false);
-    }, 5000);
-    
-    console.error('Checkout Error:', message);
-  };
+  const [step, setStep] = useState(1); // 1: login/register, 2: profile
 
   const fetchUtente = async () => {
     const { data: session } = await supabase.auth.getSession();
@@ -69,12 +47,8 @@ export default function CheckoutPage() {
         setTelefono1(profilo.telefono1 || '');
         setTelefono2(profilo.telefono2 || '');
         
-        const completo = verificaProfiloCompleto(profilo);
-        setProfiloCompleto(completo);
-        
-        if (!completo) {
-          setStep(2);
-        } else {
+        // Skip to profile step if profile is incomplete
+        if (!verificaProfiloCompleto(profilo)) {
           setStep(2);
         }
       }
@@ -115,38 +89,24 @@ export default function CheckoutPage() {
   };
 
   const registraCliente = async () => {
-    try {
-      const { error } = await supabase
-        .from('clienti')
-        .upsert(
-          {
-            email,
-            nome,
-            cognome,
-            telefono1,
-            telefono2,
-            indirizzo,
-            citta,
-            paese,
-            codice_postale: cap
-          },
-          { onConflict: 'email' }
-        );
+    const { error } = await supabase.from('clienti').upsert({
+      email,
+      nome,
+      cognome,
+      telefono1,
+      telefono2,
+      indirizzo,
+      citta,
+      paese,
+      codice_postale: cap,
+      created_at: new Date().toISOString()
+    });
 
-      if (error) {
-        if (error.code === '23505') {
-          // Duplicate email error
-          displayError(testi.utenteEsistente);
-        } else {
-          displayError(`${testi.erroreCheckout}: ${error.message}`);
-        }
-        return false;
-      }
-      return true;
-    } catch (error) {
-      displayError(`${testi.erroreCheckout}: ${error.message}`);
+    if (error) {
+      setErrore(testi.erroreCheckout + error.message);
       return false;
     }
+    return true;
   };
 
   const loginEmail = async () => {
@@ -155,7 +115,7 @@ export default function CheckoutPage() {
 
     if (error) {
       setIsRedirecting(false);
-      displayError(error.message === 'Invalid login credentials' 
+      setErrore(error.message === 'Invalid login credentials' 
         ? testi.credenzialiErrate
         : error.message
       );
@@ -171,74 +131,59 @@ export default function CheckoutPage() {
   const registraUtente = async () => {
     setIsRedirecting(true);
 
+    // Validate email and password
     if (!email || !password) {
-      displayError(testi.inserisciEmailPassword);
+      setErrore(testi.inserisciEmailPassword);
       setIsRedirecting(false);
       return;
     }
 
     if (!validaEmail(email)) {
-      displayError(testi.erroreEmail);
+      setErrore(testi.erroreEmail);
       setIsRedirecting(false);
       return;
     }
 
-    try {
-      // Check if email already exists
-      const { data: existing, error: checkError } = await supabase
-        .from('clienti')
-        .select('id')
-        .eq('email', email)
-        .maybeSingle();
-
-      if (checkError) throw checkError;
-      
-      if (existing) {
-        displayError(testi.utenteEsistente);
-        setIsRedirecting(false);
-        return;
-      }
-
-      // Create auth account
-      const { error: signupError } = await supabase.auth.signUp({ 
-        email, 
-        password,
-        options: {
-          data: {
-            nome,
-            cognome
-          }
+    // Create auth account
+    const { error: signupError } = await supabase.auth.signUp({ 
+      email, 
+      password,
+      options: {
+        data: {
+          nome,
+          cognome
         }
-      });
-      
-      if (signupError) throw signupError;
-
-      // Create customer profile
-      const registrato = await registraCliente();
-      if (!registrato) {
-        setIsRedirecting(false);
-        return;
       }
-
-      // Login after registration
-      const loggato = await loginEmail();
-      if (loggato) {
-        setStep(2);
-      }
-    } catch (error) {
-      displayError(error.message || testi.erroreGenerico);
+    });
+    
+    if (signupError) {
+      setErrore(signupError.message);
       setIsRedirecting(false);
+      return;
+    }
+
+    // Create/update customer profile
+    const registrato = await registraCliente();
+    if (!registrato) {
+      setIsRedirecting(false);
+      return;
+    }
+
+    // Login after registration
+    const loggato = await loginEmail();
+    if (loggato) {
+      setStep(2);
     }
   };
 
   const verificaCampiObbligatori = () => {
     if (!nome || !cognome || !email || !indirizzo || !citta || !cap || !paese || !telefono1) {
-      displayError(testi.compilaCampi);
+      setErrore(testi.compilaCampi);
       return false;
     }
 
     if (!validaEmail(email)) {
-      displayError(testi.erroreEmail);
+      setErrore(testi.erroreEmail);
       return false;
     }
 
@@ -250,29 +195,8 @@ export default function CheckoutPage() {
     
     setIsRedirecting(true);
     try {
-      // Check if email is being changed to an existing one (for logged-in users)
-      if (utente && email !== utente.email) {
-        const { data: existing, error: checkError } = await supabase
-          .from('clienti')
-          .select('id')
-          .eq('email', email)
-          .maybeSingle();
-
-        if (checkError) throw checkError;
-        
-        if (existing) {
-          displayError(testi.utenteEsistente);
-          setIsRedirecting(false);
-          return false;
-        }
-      }
-
       // Update profile in Supabase
-      const success = await registraCliente();
-      if (!success) {
-        setIsRedirecting(false);
-        return false;
-      }
+      await registraCliente();
       
       // For new users, fetch user data
       if (!utente) {
@@ -282,13 +206,14 @@ export default function CheckoutPage() {
       setIsRedirecting(false);
       return true;
     } catch (error) {
-      displayError(testi.erroreAggiornamento + (error.message || ''));
+      setErrore(testi.erroreAggiornamento + error.message);
       setIsRedirecting(false);
       return false;
     }
   };
 
   const handleProcediPagamento = async () => {
+    // Ensure profile is complete
     const profiloValido = await aggiornaProfilo();
     if (!profiloValido) return;
     
@@ -309,7 +234,6 @@ export default function CheckoutPage() {
       vuoto: 'Il carrello è vuoto.',
       accesso: 'Accedi o Registrati',
       dettagli: 'I Tuoi Dettagli',
-      recensione: 'Verifica i Tuoi Dati',
       loginNecessario: 'Per completare l\'acquisto:',
       login: 'Accedi',
       crea: 'Crea Account',
@@ -331,10 +255,9 @@ export default function CheckoutPage() {
       rimuovi: 'Rimuovi',
       compilaCampi: 'Compila tutti i campi obbligatori',
       erroreEmail: 'Inserisci un indirizzo email valido',
-      erroreCheckout: 'Errore durante il checkout',
-      erroreAggiornamento: 'Errore aggiornamento profilo',
-      erroreGenerico: 'Si è verificato un errore imprevisto',
-      utenteEsistente: 'Email già registrata. Usa un\'altra email o effettua il login',
+      erroreCheckout: 'Errore durante il checkout: ',
+      erroreAggiornamento: 'Errore aggiornamento profilo: ',
+      utenteEsistente: 'Utente già registrato',
       inserisciEmailPassword: 'Inserisci email e password',
       credenzialiErrate: 'Credenziali di accesso non valide',
     },
@@ -343,7 +266,6 @@ export default function CheckoutPage() {
       vuoto: 'Your cart is empty.',
       accesso: 'Login or Register',
       dettagli: 'Your Details',
-      recensione: 'Review Your Information',
       loginNecessario: 'To complete your purchase:',
       login: 'Login',
       crea: 'Create Account',
@@ -365,10 +287,9 @@ export default function CheckoutPage() {
       rimuovi: 'Remove',
       compilaCampi: 'Please fill all required fields',
       erroreEmail: 'Please enter a valid email address',
-      erroreCheckout: 'Checkout error',
-      erroreAggiornamento: 'Profile update error',
-      erroreGenerico: 'An unexpected error occurred',
-      utenteEsistente: 'Email already registered. Use another email or login',
+      erroreCheckout: 'Checkout error: ',
+      erroreAggiornamento: 'Profile update error: ',
+      utenteEsistente: 'User already registered',
       inserisciEmailPassword: 'Enter email and password',
       credenzialiErrate: 'Invalid login credentials',
     },
@@ -377,7 +298,6 @@ export default function CheckoutPage() {
       vuoto: 'Votre panier est vide.',
       accesso: 'Connexion ou Inscription',
       dettagli: 'Vos Détails',
-      recensione: 'Vérifiez Vos Informations',
       loginNecessario: 'Pour finaliser votre achat :',
       login: 'Connexion',
       crea: 'Créer un compte',
@@ -399,10 +319,9 @@ export default function CheckoutPage() {
       rimuovi: 'Supprimer',
       compilaCampi: 'Veuillez remplir tous les champs requis',
       erroreEmail: 'Veuillez entrer une adresse email valide',
-      erroreCheckout: 'Erreur lors du paiement',
-      erroreAggiornamento: 'Erreur mise à jour profil',
-      erroreGenerico: 'Une erreur inattendue s\'est produite',
-      utenteEsistente: 'Email déjà enregistrée. Utilisez une autre email ou connectez-vous',
+      erroreCheckout: 'Erreur lors du paiement : ',
+      erroreAggiornamento: 'Erreur mise à jour profil : ',
+      utenteEsistente: 'Utilisateur déjà enregistré',
       inserisciEmailPassword: 'Entrez email et mot de passe',
       credenzialiErrate: 'Identifiants de connexion invalides',
     },
@@ -411,7 +330,6 @@ export default function CheckoutPage() {
       vuoto: 'Ihr Warenkorb ist leer.',
       accesso: 'Anmelden oder Registrieren',
       dettagli: 'Ihre Daten',
-      recensione: 'Überprüfen Sie Ihre Daten',
       loginNecessario: 'Um Ihren Kauf abzuschließen:',
       login: 'Anmelden',
       crea: 'Konto erstellen',
@@ -433,10 +351,9 @@ export default function CheckoutPage() {
       rimuovi: 'Entfernen',
       compilaCampi: 'Bitte füllen Sie alle Pflichtfelder aus',
       erroreEmail: 'Bitte geben Sie eine gültige E-Mail-Adresse ein',
-      erroreCheckout: 'Fehler beim Checkout',
-      erroreAggiornamento: 'Profilaktualisierungsfehler',
-      erroreGenerico: 'Ein unerwarteter Fehler ist aufgetreten',
-      utenteEsistente: 'E-Mail bereits registriert. Verwenden Sie eine andere E-Mail oder melden Sie sich an',
+      erroreCheckout: 'Fehler beim Checkout: ',
+      erroreAggiornamento: 'Profilaktualisierungsfehler: ',
+      utenteEsistente: 'Benutzer bereits registriert',
       inserisciEmailPassword: 'E-Mail und Passwort eingeben',
       credenzialiErrate: 'Ungültige Anmeldedaten',
     },
@@ -445,7 +362,6 @@ export default function CheckoutPage() {
       vuoto: 'Tu carrito está vacío.',
       accesso: 'Iniciar sesión o Registrarse',
       dettagli: 'Tus Detalles',
-      recensione: 'Verifique Sus Datos',
       loginNecessario: 'Para completar su compra:',
       login: 'Iniciar sesión',
       crea: 'Crear cuenta',
@@ -467,10 +383,9 @@ export default function CheckoutPage() {
       rimuovi: 'Eliminar',
       compilaCampi: 'Completa todos los campos obligatorios',
       erroreEmail: 'Introduce un correo electrónico válido',
-      erroreCheckout: 'Error en el pago',
-      erroreAggiornamento: 'Error actualización perfil',
-      erroreGenerico: 'Ocurrió un error inesperado',
-      utenteEsistente: 'Correo electrónico ya registrado. Utilice otro correo o inicie sesión',
+      erroreCheckout: 'Error en el pago: ',
+      erroreAggiornamento: 'Error actualización perfil: ',
+      utenteEsistente: 'Usuario ya registrado',
       inserisciEmailPassword: 'Introduce correo y contraseña',
       credenzialiErrate: 'Credenciales de acceso no válidas',
     }
@@ -523,29 +438,9 @@ export default function CheckoutPage() {
           <div className="step-divider"></div>
           <div className={`step ${step >= 2 ? 'active' : ''}`}>
             <div className="step-number">2</div>
-            <div className="step-label">{profiloCompleto ? testi.recensione : testi.dettagli}</div>
+            <div className="step-label">{testi.dettagli}</div>
           </div>
         </div>
-        
-        {/* Persistent Error Message */}
-        {showError && (
-          <div className="error-message">
-            <div className="error-header">
-              <strong>{langPulito === 'en' ? 'Error:' : 
-                      langPulito === 'fr' ? 'Erreur:' : 
-                      langPulito === 'de' ? 'Fehler:' : 
-                      langPulito === 'es' ? 'Error:' : 'Errore:'}
-              </strong>
-              <button 
-                className="close-error"
-                onClick={() => setShowError(false)}
-              >
-                ×
-              </button>
-            </div>
-            {errore}
-          </div>
-        )}
         
         {/* Step 1: Login/Register */}
         {step === 1 && (
@@ -591,7 +486,7 @@ export default function CheckoutPage() {
         {/* Step 2: Profile Details */}
         {step === 2 && (
           <div className="step-container">
-            <h2 className="step-title">{profiloCompleto ? testi.recensione : testi.dettagli}</h2>
+            <h2 className="step-title">{testi.dettagli}</h2>
             
             <div className="form-grid">
               <input 
@@ -662,6 +557,12 @@ export default function CheckoutPage() {
           </div>
         )}
         
+        {errore && (
+          <div className="error-message">
+            {errore}
+          </div>
+        )}
+        
         {step > 1 && (
           <button 
             onClick={() => setStep(1)} 
@@ -671,12 +572,6 @@ export default function CheckoutPage() {
           </button>
         )}
       </div>
-      
-      <style jsx global>{`
-        .price, .total-price {
-          font-family: Arial, sans-serif !important;
-        }
-      `}</style>
       
       <style jsx>{`
         .checkout-container {
@@ -735,7 +630,6 @@ export default function CheckoutPage() {
           display: flex;
           gap: 10px;
           align-items: center;
-          flex: 1;
         }
         
         .quantity {
@@ -749,8 +643,6 @@ export default function CheckoutPage() {
         .price {
           font-weight: bold;
           color: #fff;
-          min-width: 60px;
-          text-align: right;
         }
         
         .remove-button {
@@ -762,7 +654,6 @@ export default function CheckoutPage() {
           padding: 5px 10px;
           border-radius: 4px;
           transition: background 0.2s;
-          margin-left: 10px;
         }
         
         .remove-button:hover {
@@ -780,7 +671,6 @@ export default function CheckoutPage() {
         
         .total-price {
           color: #fff;
-          font-family: Arial, sans-serif;
         }
         
         .progress-steps {
@@ -970,23 +860,7 @@ export default function CheckoutPage() {
           background: rgba(255, 82, 82, 0.15);
           color: #ff5252;
           margin-top: 20px;
-          border: 1px solid rgba(255, 82, 82, 0.3);
-          position: relative;
-        }
-        
-        .error-header {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 5px;
-        }
-        
-        .close-error {
-          background: none;
-          border: none;
-          color: #ff5252;
-          font-size: 1.2rem;
-          cursor: pointer;
-          padding: 0 5px;
+          text-align: center;
         }
         
         @media (min-width: 768px) {
@@ -996,14 +870,6 @@ export default function CheckoutPage() {
           
           .card {
             padding: 40px;
-          }
-        }
-        
-        @media (max-width: 768px) {
-          .error-message {
-            position: sticky;
-            bottom: 20px;
-            z-index: 100;
           }
         }
       `}</style>
