@@ -385,18 +385,12 @@ export default function PagamentoPage() {
             setSpedizione(e.target.value);
             setCostoSpedizione(e.target.value === 'express' ? 15 : e.target.value === 'standard' ? 5 : 0);
           }}
-          style={{ 
-            width: '100%', 
-            marginBottom: '1rem', 
-            padding: '0.5rem', 
-            color: 'black',
-            fontFamily: 'Arial, sans-serif' // Added font family
-          }}
+          style={{ width: '100%', marginBottom: '1rem', padding: '0.5rem', color: 'black' }}
         >
           <option value="">-- {t.seleziona} --</option>
-          <option value="standard" style={{ fontFamily: 'Arial, sans-serif' }}>{t.standard}</option>
-          <option value="express" style={{ fontFamily: 'Arial, sans-serif' }}>{t.express}</option>
-          <option value="ritiro" style={{ fontFamily: 'Arial, sans-serif' }}>{t.ritiro}</option>
+          <option value="standard">{t.standard}</option>
+          <option value="express">{t.express}</option>
+          <option value="ritiro">{t.ritiro}</option>
         </select>
 
         <label style={{ display: 'block', marginBottom: '0.5rem' }}>{t.pagamento}:</label>
@@ -406,28 +400,14 @@ export default function PagamentoPage() {
             setPagamento(e.target.value);
             if (e.target.value === 'paypal') setTimeout(renderPayPalButtons, 300);
           }}
-          style={{ 
-            width: '100%', 
-            marginBottom: '1rem', 
-            padding: '0.5rem', 
-            color: 'black',
-            fontFamily: 'Arial, sans-serif' // Added font family
-          }}
+          style={{ width: '100%', marginBottom: '1rem', padding: '0.5rem', color: 'black' }}
         >
           <option value="">-- {t.seleziona} --</option>
-          <option value="paypal" style={{ fontFamily: 'Arial, sans-serif' }}>{t.paypal}</option>
-          <option value="bonifico" style={{ fontFamily: 'Arial, sans-serif' }}>{t.bonifico}</option>
+          <option value="paypal">{t.paypal}</option>
+          <option value="bonifico">{t.bonifico}</option>
         </select>
 
-        <p 
-          className="total-display" 
-          style={{ 
-            fontWeight: 'bold', 
-            textAlign: 'center', 
-            marginBottom: '1rem',
-            fontFamily: 'Arial, sans-serif' // Added font family
-          }}
-        >
+        <p style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1rem' }}>
           {t.totale}: €{totaleFinale.toFixed(2).replace('.', ',')}
         </p>
 
@@ -463,8 +443,7 @@ export default function PagamentoPage() {
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',
-                cursor: isFormValido ? 'pointer' : 'not-allowed',
-                fontFamily: 'Arial, sans-serif' // Added font family
+                cursor: isFormValido ? 'pointer' : 'not-allowed'
               }}
             >
               {t.conferma}
@@ -472,16 +451,6 @@ export default function PagamentoPage() {
           </div>
         )}
       </div>
-
-      {/* Global style to force Arial for Euro symbol */}
-      <style jsx global>{`
-        /* Force Euro symbol to use Arial */
-        .total-display,
-        .shipping-option,
-        .payment-option {
-          font-family: Arial, sans-serif !important;
-        }
-      `}</style>
     </main>
   );
 }
