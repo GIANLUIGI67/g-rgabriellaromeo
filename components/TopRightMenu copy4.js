@@ -9,11 +9,11 @@ export default function TopRightMenu() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
   const [showContatti, setShowContatti] = useState(false);
-  const [showWishlistMessage, setShowWishlistMessage] = useState(false); // New state for wishlist message
   const contattiRef = useRef();
 
+  // ✅ AZZERA il carrello solo alla prima apertura del browser
   useEffect(() => {
-    sessionStorage.removeItem('carrello');
+    sessionStorage.removeItem('carrello'); // rimuove eventuali residui
   }, []);
 
   useEffect(() => {
@@ -40,27 +40,6 @@ export default function TopRightMenu() {
       zh: '联系方式',
       ja: '連絡先',
       ar: 'اتصل بنا'
-    },
-    // New translations for wishlist message
-    wishlistTitle: {
-      it: 'Pagina in Sviluppo',
-      en: 'Page Under Development',
-      fr: 'Page en Développement',
-      es: 'Página en Desarrollo',
-      de: 'Seite in Entwicklung',
-      zh: '页面开发中',
-      ja: '開発中のページ',
-      ar: 'الصفحة قيد التطوير'
-    },
-    wishlistMessage: {
-      it: 'La pagina della wishlist è attualmente in fase di sviluppo. Tornerà presto disponibile!',
-      en: 'The wishlist page is currently under development. It will be available soon!',
-      fr: 'La page de la liste de souhaits est en cours de développement. Elle sera bientôt disponible!',
-      es: 'La página de la lista de deseos está en desarrollo. ¡Estará disponible pronto!',
-      de: 'Die Wunschlistenseite befindet sich derzeit in der Entwicklung. Sie wird bald verfügbar sein!',
-      zh: '收藏页面正在开发中，即将上线！',
-      ja: 'ウィッシュリストページは現在開発中です。近日中に利用可能になります！',
-      ar: 'صفحة قائمة الأمنيات قيد التطوير حالياً. ستكون متاحة قريباً!'
     }
   };
 
@@ -97,15 +76,8 @@ export default function TopRightMenu() {
         )}
       </div>
 
-      {/* Preferiti - MODIFIED SECTION */}
-      <button 
-        title="Preferiti" 
-        onClick={() => {
-          closeContatti();
-          setShowWishlistMessage(true); // Show development message
-        }} 
-        className="cursor-pointer"
-      >
+      {/* Preferiti */}
+      <button title="Preferiti" onClick={() => { closeContatti(); router.push('/preferiti'); }} className="cursor-pointer">
         <Heart size={22} />
       </button>
 
@@ -118,40 +90,6 @@ export default function TopRightMenu() {
       <div onClick={closeContatti}>
         <UserMenu lang={lang} />
       </div>
-
-      {/* Wishlist Development Message Modal */}
-      {showWishlistMessage && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10000]"
-          onClick={() => setShowWishlistMessage(false)}
-        >
-          <div 
-            className="bg-black text-white p-6 rounded-xl max-w-md w-full mx-4 border border-white relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="absolute top-3 right-3 text-white hover:text-gray-300"
-              onClick={() => setShowWishlistMessage(false)}
-            >
-              <X size={24} />
-            </button>
-            <h3 className="text-xl font-bold mb-3">
-              {translations.wishlistTitle[lang] || 'Page Under Development'}
-            </h3>
-            <p className="mb-4">
-              {translations.wishlistMessage[lang] || 'The wishlist page is currently under development.'}
-            </p>
-            <div className="flex justify-center">
-              <button
-                className="bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
-                onClick={() => setShowWishlistMessage(false)}
-              >
-                OK
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
