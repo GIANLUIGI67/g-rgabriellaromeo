@@ -171,14 +171,18 @@ export default function AbbigliamentoPage() {
           const scontoNum = Number(prodotto.sconto || 0);
           const prezzoScontato = Math.round((prezzoNum - (prezzoNum * scontoNum / 100)) * 10) / 10;
           return (
-            <div key={prodotto.id} style={{
-              backgroundColor: 'white',
-              color: 'black',
-              padding: '0.5rem',
-              borderRadius: '6px',
-              fontSize: '0.75rem',
-              textAlign: 'center'
-            }}>
+              <div key={prodotto.id} style={{
+                backgroundColor: 'white',
+                color: 'black',
+                padding: '0.5rem',
+                borderRadius: '6px',
+                fontSize: '0.75rem',
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                height: '340px'  // puoi aumentare o ridurre se serve
+              }}>
               <img
                 src={baseUrl + immagini[0]}
                 alt={prodotto.nome}
@@ -200,14 +204,14 @@ export default function AbbigliamentoPage() {
                 {prodotto.offerta ? (
                   <>
                     <span style={{ textDecoration: 'line-through', color: 'gray', marginRight: '4px' }}>
-                      {'\u20AC'} {prezzoNum.toFixed(1)}
+                      € {prezzoNum.toFixed(2)}
                     </span>
                     <span style={{ color: 'red', fontWeight: 'bold' }}>
-                      {'\u20AC'} {prezzoScontato.toFixed(1)} (-{scontoNum}%)
+                      € {prezzoScontato.toFixed(2)} (-{scontoNum}%)
                     </span>
                   </>
                 ) : (
-                  <>{'\u20AC'} {prezzoNum.toFixed(1)}</>
+                  <>€ {prezzoNum.toFixed(2)}</>
                 )}
               </p>
             </div>
@@ -296,14 +300,24 @@ export default function AbbigliamentoPage() {
             <h2 style={{ marginBottom: '0.5rem' }}>{popupProdotto.nome}</h2>
             <p style={{ fontSize: '0.9rem' }}>{popupProdotto.descrizione}</p>
             <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>{popupProdotto.taglia}</p>
-            <p style={{ fontWeight: 'bold', fontSize: '1rem' }}>
-              {'\u20AC'} {popupProdotto.offerta
-                ? (
-                  <span style={{ color: 'red' }}>
-                    {(Number(popupProdotto.prezzo) * (1 - (Number(popupProdotto.sconto || 0) / 100))).toFixed(1)}
+            <p style={{ fontWeight: 'bold', fontSize: '1rem', fontFamily: 'Arial, sans-serif' }}>
+              {popupProdotto.offerta ? (
+                <>
+                  <span style={{ textDecoration: 'line-through', color: 'gray', marginRight: '8px' }}>
+                    € {Number(popupProdotto.prezzo).toFixed(2)}
                   </span>
-                )
-                : Number(popupProdotto.prezzo).toFixed(1)}
+                  <span style={{ color: 'red' }}>
+                    € {(Number(popupProdotto.prezzo) * (1 - (popupProdotto.sconto || 0) / 100)).toFixed(2)}
+                    {popupProdotto.sconto > 0 && (
+                      <span style={{ fontSize: '0.9rem', marginLeft: '4px' }}>
+                        (-{popupProdotto.sconto}%)
+                      </span>
+                    )}
+                  </span>
+                </>
+              ) : (
+                <>€ {Number(popupProdotto.prezzo).toFixed(2)}</>
+              )}
             </p>
 
             <div
