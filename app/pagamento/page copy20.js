@@ -474,11 +474,7 @@ export default function PagamentoPage() {
 
   // Render PayPal buttons
   const renderPayPalButtons = useCallback(() => {
-    const container = document.getElementById('paypal-button-container');
-    if (!window.paypal || !container) return;
-    
-    // Clear container to prevent duplicates
-    container.innerHTML = '';
+    if (!window.paypal || !document.getElementById('paypal-button-container')) return;
 
     window.paypal.Buttons({
       createOrder: (data, actions) => actions.order.create({
@@ -564,6 +560,7 @@ export default function PagamentoPage() {
           value={pagamento}
           onChange={(e) => {
             setPagamento(e.target.value);
+            if (e.target.value === 'paypal') setTimeout(renderPayPalButtons, 300);
           }}
           style={{ 
             width: '100%', 

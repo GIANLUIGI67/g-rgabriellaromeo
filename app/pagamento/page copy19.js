@@ -6,8 +6,8 @@ import { supabase } from '../lib/supabaseClient';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-// Initialize Stripe with environment variable
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+// Inizializza Stripe con la tua chiave pubblica
+const stripePromise = loadStripe('pk_test_51RgA7gRYwTNoeu6iRvn1TF3n2E80pSX3FxIx8J99NdrJsPCoBdkwcsRAiwD8e67YyhW1U0JysB7i6jvP0fIqW6mC00MAK9zO9M');
 
 const traduzioni = {
   it: {
@@ -204,7 +204,7 @@ const traduzioni = {
   }
 };
 
-// Stripe Payment Component
+// Componente Stripe
 const StripePayment = ({ 
   totaleFinale, 
   codiceOrdine, 
@@ -226,7 +226,7 @@ const StripePayment = ({
     setIsProcessing(true);
     
     try {
-      // Create Payment Intent
+      // 1. Crea Payment Intent
       const { clientSecret } = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -241,7 +241,7 @@ const StripePayment = ({
         })
       }).then(res => res.json());
 
-      // Confirm payment
+      // 2. Conferma pagamento
       const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),
@@ -254,7 +254,7 @@ const StripePayment = ({
 
       if (error) throw error;
       
-      // Save order
+      // 3. Salva ordine
       const ordine = {
         id: codiceOrdine,
         cliente,
@@ -339,19 +339,19 @@ export default function PagamentoPage() {
 
   const t = traduzioni[lang] || traduzioni.it;
 
-  // Generate unique order code
+  // Genera un codice ordine univoco
   const generaCodiceOrdine = useCallback(() => {
     const oggi = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const random = Math.random().toString(36).substring(2, 7).toUpperCase();
     return `GR-${oggi}-${random}`;
   }, []);
 
-  // Calculate final total (cart + shipping)
+  // Calcola il totale finale (carrello + spedizione)
   const totaleFinale = useMemo(() => {
     return carrello.reduce((acc, p) => acc + p.prezzo * p.quantita, 0) + costoSpedizione;
   }, [carrello, costoSpedizione]);
 
-  // Load cart and customer
+  // Effetto per caricare carrello e cliente
   useEffect(() => {
     const fetchCliente = async () => {
       setIsLoading(true);
@@ -396,17 +396,17 @@ export default function PagamentoPage() {
     setCodiceOrdine(generaCodiceOrdine());
   }, [lang, router, generaCodiceOrdine]);
 
-  // Load PayPal script if needed
+  // Carica lo script PayPal se necessario
   useEffect(() => {
     if (pagamento === 'paypal' && !scriptCaricato && typeof window !== 'undefined') {
       const script = document.createElement('script');
-      script.src = `https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=EUR`;
+      script.src = 'https://www.paypal.com/sdk/js?client-id=AVHqSZU8bVMmQdhJ3Cfij1q9wQGv6XkfZOeGccftRqd08RYgppGute1NYrEZzzHJuomw4l5Cjb4bIv-H&currency=EUR';
       script.onload = () => setScriptCaricato(true);
       document.body.appendChild(script);
     }
   }, [pagamento, scriptCaricato]);
 
-  // Update product quantities in DB after order
+  // Aggiorna le quantità dei prodotti nel DB dopo un ordine
   const aggiornaQuantitaProdotti = async () => {
     for (const item of carrello) {
       const { data: prodottoCorrente } = await supabase
@@ -422,7 +422,7 @@ export default function PagamentoPage() {
     }
   };
 
-  // Confirm bank transfer order
+  // Conferma ordine con bonifico
   const confermaBonificoEffettuato = async () => {
     if (!accettaCondizioni) {
       alert(t.errori.condizioni);
@@ -472,13 +472,9 @@ export default function PagamentoPage() {
     }
   };
 
-  // Render PayPal buttons
+  // Renderizza i pulsanti PayPal
   const renderPayPalButtons = useCallback(() => {
-    const container = document.getElementById('paypal-button-container');
-    if (!window.paypal || !container) return;
-    
-    // Clear container to prevent duplicates
-    container.innerHTML = '';
+    if (!window.paypal || !document.getElementById('paypal-button-container')) return;
 
     window.paypal.Buttons({
       createOrder: (data, actions) => actions.order.create({
@@ -517,14 +513,14 @@ export default function PagamentoPage() {
     }).render('#paypal-button-container');
   }, [totaleFinale, codiceOrdine, cliente, carrello, spedizione, lang, router, t]);
 
-  // Render PayPal buttons when script is loaded
+  // Effetto per renderizzare i pulsanti PayPal quando lo script è caricato
   useEffect(() => {
     if (pagamento === 'paypal' && scriptCaricato) {
       renderPayPalButtons();
     }
   }, [pagamento, scriptCaricato, renderPayPalButtons]);
 
-  // Check if form is valid
+  // Controlla se il form è valido
   const isFormValido = spedizione && pagamento && (pagamento !== 'bonifico' || accettaCondizioni);
 
   return (
@@ -536,7 +532,7 @@ export default function PagamentoPage() {
       )}
 
       <div style={{ maxWidth: '500px', margin: '0 auto' }}>
-        {/* Shipping Section */}
+        {/* Sezione Spedizione */}
         <label style={{ display: 'block', marginBottom: '0.5rem' }}>{t.spedizione}:</label>
         <select
           value={spedizione}
@@ -558,12 +554,13 @@ export default function PagamentoPage() {
           <option value="ritiro">{t.ritiro}</option>
         </select>
 
-        {/* Payment Section */}
+        {/* Sezione Pagamento */}
         <label style={{ display: 'block', marginBottom: '0.5rem' }}>{t.pagamento}:</label>
         <select
           value={pagamento}
           onChange={(e) => {
             setPagamento(e.target.value);
+            if (e.target.value === 'paypal') setTimeout(renderPayPalButtons, 300);
           }}
           style={{ 
             width: '100%', 
@@ -579,12 +576,12 @@ export default function PagamentoPage() {
           <option value="carta">{t.carta}</option>
         </select>
 
-        {/* Total */}
+        {/* Totale */}
         <p style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1rem', fontFamily: 'Arial, sans-serif' }}>
           {t.totale}: €{totaleFinale.toFixed(2).replace('.', ',')}
         </p>
 
-        {/* Conditional Payment Sections */}
+        {/* Sezioni di pagamento condizionali */}
         {pagamento === 'paypal' && (
           <div id="paypal-button-container" style={{ marginTop: '1rem' }}></div>
         )}
@@ -643,7 +640,7 @@ export default function PagamentoPage() {
       </div>
 
       <style jsx global>{`
-        /* Global styles for Stripe elements */
+        /* Stili globali per gli elementi Stripe */
         .StripeElement {
           padding: 10px;
           margin: 5px 0;
