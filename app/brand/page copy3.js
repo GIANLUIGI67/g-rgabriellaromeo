@@ -30,7 +30,7 @@ La marca celebra una feminidad rara, auténtica y poderosa, capaz de iluminar a 
 Este es mi estilo.`,
     de: `Gabriella Romeo wurde in Catania geboren, Wiege von Mythen und mediterranem Licht, wo die Sonne das Meer küsst und sich Geschichte mit Magie vermischt. Jede Kreation ist ein Unikat, von Hand gefertigt mit Liebe und Hingabe — eine zauberhafte Verschmelzung von Kunst und Herz.
 
-Die Marke feiert eine seltene, authentische und kraftvolle Weiblichkeit, die ihre Trägerin mit zeitloser Eleganz erstrahlen lässt. GR Gabriella Romeo ist mehr als Mode: eine poetische Reise zwischen Tradition und Innovation, ein greifbarer Traum, der die lebendige, magische Essenz Siziliens einfängt.
+Die Marke feiert eine seltene, authentische und kraftvolle Weiblichkeit, die ihre Trägerin mit zeitloser Eleganz erstrahlen lässt. GRI Gabriella Romeo ist mehr als Mode: eine poetische Reise zwischen Tradition und Innovation, ein greifbarer Traum, der die lebendige, magische Essenz Siziliens einfängt.
 
 Das ist mein Stil.`,
     ar: `وُلدت علامة Gabriella Romeo في كاتانيا، مهد الأساطير والنور المتوسطي، حيث تقبّل الشمس البحر وتتشابك فيهما الحكاية بالسحر. كلّ تصميم هو قطعة فريدة مصنوعة يدويًا بحب واهتمام، ومزيج ساحر بين الفن والقلب.
@@ -75,7 +75,7 @@ Das ist mein Stil.`,
         left: 0,
         right: 0,
         bottom: 0,
-        background: 'linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.2))',
+        backgroundColor: 'rgba(0, 0, 0, 0.4)',
         zIndex: 1,
       }} />
       
@@ -90,7 +90,7 @@ Das ist mein Stil.`,
       >
         <p style={{ 
           fontSize: '1.4rem', 
-          marginBottom: '0.5rem', // Reduced bottom margin
+          marginBottom: '3rem',
           lineHeight: '1.8',
           fontWeight: 300,
           letterSpacing: '0.5px',
@@ -102,8 +102,6 @@ Das ist mein Stil.`,
         <div style={{
           display: 'flex',
           justifyContent: 'center',
-          marginTop: '0.5rem', // Reduced top margin
-          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))'
         }}>
           <Image
             src="/data/images/firma-gabriella.png"
@@ -111,7 +109,7 @@ Das ist mein Stil.`,
             width={280}
             height={120}
             style={{ 
-              mixBlendMode: 'lighten' // Makes black background transparent
+              // REMOVED THE FILTER - signature should be visible now
             }}
           />
         </div>
