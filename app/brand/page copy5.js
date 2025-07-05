@@ -90,7 +90,7 @@ Das ist mein Stil.`,
       >
         <p style={{ 
           fontSize: '1.4rem', 
-          marginBottom: '0.5rem', // Reduced bottom margin
+          marginBottom: '3rem',
           lineHeight: '1.8',
           fontWeight: 300,
           letterSpacing: '0.5px',
@@ -102,7 +102,7 @@ Das ist mein Stil.`,
         <div style={{
           display: 'flex',
           justifyContent: 'center',
-          marginTop: '0.5rem', // Reduced top margin
+          marginTop: '2rem',
           filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))'
         }}>
           <Image
@@ -111,7 +111,8 @@ Das ist mein Stil.`,
             width={280}
             height={120}
             style={{ 
-              mixBlendMode: 'lighten' // Makes black background transparent
+              // This will make the black background transparent and signature white
+              mixBlendMode: 'lighten'
             }}
           />
         </div>
