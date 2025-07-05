@@ -6,8 +6,8 @@ import { supabase } from '../lib/supabaseClient';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-// Initialize Stripe with environment variable
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+// Inizializza Stripe con la tua chiave pubblica
+const stripePromise = loadStripe('pk_test_51RgA7gRYwTNoeu6iRvn1TF3n2E80pSX3FxIx8J99NdrJsPCoBdkwcsRAiwD8e67YyhW1U0JysB7i6jvP0fIqW6mC00MAK9zO9M');
 
 const traduzioni = {
   it: {
@@ -21,13 +21,16 @@ const traduzioni = {
     ritiro: 'Ritiro in negozio (gratis)',
     paypal: 'PayPal',
     bonifico: 'Bonifico Bancario',
+    carta: 'Carta di Credito',
     intestatario: 'Intestato a: G-R Gabriella Romeo',
     causale: 'Causale: Ordine',
     condizioni: 'Accetto le condizioni e confermo di aver effettuato il bonifico',
     conferma: 'Conferma Bonifico',
+    paga_carta: 'Paga con Carta',
     errori: {
       condizioni: 'Devi accettare le condizioni per proseguire',
-      generico: 'Si è verificato un errore. Riprova più tardi'
+      generico: 'Si è verificato un errore. Riprova più tardi',
+      carta: 'Pagamento rifiutato. Verifica i dati della carta'
     },
     loading: 'Caricamento...'
   },
@@ -42,13 +45,16 @@ const traduzioni = {
     ritiro: 'Store pickup (free)',
     paypal: 'PayPal',
     bonifico: 'Bank Transfer',
+    carta: 'Credit Card',
     intestatario: 'Payee: G-R Gabriella Romeo',
     causale: 'Reference: Order',
     condizioni: 'I accept the terms and confirm the bank transfer',
     conferma: 'Confirm Transfer',
+    paga_carta: 'Pay with Card',
     errori: {
       condizioni: 'You must accept the terms to proceed',
-      generico: 'An error occurred. Please try again later'
+      generico: 'An error occurred. Please try again later',
+      carta: 'Payment declined. Check your card details'
     },
     loading: 'Loading...'
   },
@@ -63,13 +69,16 @@ const traduzioni = {
     ritiro: 'Retrait en magasin (gratuit)',
     paypal: 'PayPal',
     bonifico: 'Virement bancaire',
+    carta: 'Carte de crédit',
     intestatario: 'Bénéficiaire : G-R Gabriella Romeo',
     causale: 'Référence : Commande',
-    condizioni: 'J\'accepte les conditions et confirme le virement',
+    conditions: 'J\'accepte les conditions et confirme le virement',
     conferma: 'Confirmer le virement',
+    paga_carta: 'Payer par carte',
     errori: {
       condizioni: 'Vous devez accepter les conditions pour continuer',
-      generico: 'Une erreur s\'est produite. Veuillez réessayer plus tard'
+      generico: 'Une erreur s\'est produite. Veuillez réessayer plus tard',
+      carta: 'Paiement refusé. Vérifiez les détails de votre carte'
     },
     loading: 'Chargement...'
   },
@@ -84,13 +93,16 @@ const traduzioni = {
     ritiro: 'Abholung im Geschäft (kostenlos)',
     paypal: 'PayPal',
     bonifico: 'Banküberweisung',
+    carta: 'Kreditkarte',
     intestatario: 'Empfänger: G-R Gabriella Romeo',
     causale: 'Verwendungszweck: Bestellung',
     condizioni: 'Ich akzeptiere die Bedingungen und bestätige die Überweisung',
     conferma: 'Überweisung bestätigen',
+    paga_carta: 'Mit Karte zahlen',
     errori: {
       condizioni: 'Sie müssen die Bedingungen akzeptieren',
-      generico: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut'
+      generico: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut',
+      carta: 'Zahlung abgelehnt. Überprüfen Sie Ihre Kartendetails'
     },
     loading: 'Laden...'
   },
@@ -105,13 +117,16 @@ const traduzioni = {
     ritiro: 'Recogida en tienda (gratis)',
     paypal: 'PayPal',
     bonifico: 'Transferencia bancaria',
+    carta: 'Tarjeta de crédito',
     intestatario: 'Titular: G-R Gabriella Romeo',
     causale: 'Concepto: Pedido',
     condizioni: 'Acepto las condiciones y confirmo la transferencia',
     conferma: 'Confirmar transferencia',
+    paga_carta: 'Pagar con tarjeta',
     errori: {
       condizioni: 'Debes aceptar las condiciones para continuar',
-      generico: 'Ocurrió un error. Por favor, inténtelo más tarde'
+      generico: 'Ocurrió un error. Por favor, inténtelo más tarde',
+      carta: 'Pago rechazado. Verifique los datos de su tarjeta'
     },
     loading: 'Cargando...'
   },
@@ -126,13 +141,16 @@ const traduzioni = {
     ritiro: 'استلام من المتجر (مجانا)',
     paypal: 'باي بال',
     bonifico: 'حوالة بنكية',
+    carta: 'بطاقة ائتمان',
     intestatario: 'المستلم: G-R Gabriella Romeo',
     causale: 'المرجع: الطلب',
     condizioni: 'أوافق على الشروط وأؤكد التحويل البنكي',
     conferma: 'تأكيد التحويل',
+    paga_carta: 'الدفع بالبطاقة',
     errori: {
       condizioni: 'يجب قبول الشروط للمتابعة',
-      generico: 'حدث خطأ. يرجى المحاولة لاحقا'
+      generico: 'حدث خطأ. يرجى المحاولة لاحقا',
+      carta: 'تم رفض الدفع. تحقق من تفاصيل بطاقتك'
     },
     loading: 'جاري التحميل...'
   },
@@ -147,13 +165,16 @@ const traduzioni = {
     ritiro: '店内取货 (免费)',
     paypal: '贝宝',
     bonifico: '银行转账',
+    carta: '信用卡',
     intestatario: '收款人: G-R Gabriella Romeo',
     causale: '参考: 订单',
     condizioni: '我接受条款并确认银行转账',
     conferma: '确认转账',
+    paga_carta: '用卡支付',
     errori: {
       condizioni: '必须接受条款才能继续',
-      generico: '发生错误。请稍后再试'
+      generico: '发生错误。请稍后再试',
+      carta: '付款被拒。请检查您的卡信息'
     },
     loading: '加载中...'
   },
@@ -168,19 +189,22 @@ const traduzioni = {
     ritiro: '店頭受取 (無料)',
     paypal: 'PayPal',
     bonifico: '銀行振込',
+    carta: 'クレジットカード',
     intestatario: '受取人: G-R Gabriella Romeo',
     causale: '参考: 注文',
     condizioni: '条件に同意し振込を確認します',
     conferma: '振込を確認',
+    paga_carta: 'カードで支払う',
     errori: {
       condizioni: '続行するには条件に同意する必要があります',
-      generico: 'エラーが発生しました。後でもう一度お試しください'
+      generico: 'エラーが発生しました。後でもう一度お試しください',
+      carta: 'お支払いが拒否されました。カード情報をご確認ください'
     },
     loading: '読み込み中...'
   }
 };
 
-// Stripe Payment Component
+// Componente Stripe
 const StripePayment = ({ 
   totaleFinale, 
   codiceOrdine, 
@@ -202,7 +226,7 @@ const StripePayment = ({
     setIsProcessing(true);
     
     try {
-      // Create Payment Intent
+      // 1. Crea Payment Intent
       const { clientSecret } = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -217,7 +241,7 @@ const StripePayment = ({
         })
       }).then(res => res.json());
 
-      // Confirm payment
+      // 2. Conferma pagamento
       const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),
@@ -230,7 +254,7 @@ const StripePayment = ({
 
       if (error) throw error;
       
-      // Save order
+      // 3. Salva ordine
       const ordine = {
         id: codiceOrdine,
         cliente,
@@ -315,19 +339,19 @@ export default function PagamentoPage() {
 
   const t = traduzioni[lang] || traduzioni.it;
 
-  // Generate unique order code
+  // Genera un codice ordine univoco
   const generaCodiceOrdine = useCallback(() => {
     const oggi = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const random = Math.random().toString(36).substring(2, 7).toUpperCase();
     return `GR-${oggi}-${random}`;
   }, []);
 
-  // Calculate final total (cart + shipping)
+  // Calcola il totale finale (carrello + spedizione)
   const totaleFinale = useMemo(() => {
     return carrello.reduce((acc, p) => acc + p.prezzo * p.quantita, 0) + costoSpedizione;
   }, [carrello, costoSpedizione]);
 
-  // Load cart and customer
+  // Effetto per caricare carrello e cliente
   useEffect(() => {
     const fetchCliente = async () => {
       setIsLoading(true);
@@ -372,17 +396,17 @@ export default function PagamentoPage() {
     setCodiceOrdine(generaCodiceOrdine());
   }, [lang, router, generaCodiceOrdine]);
 
-  // Load PayPal script if needed
+  // Carica lo script PayPal se necessario
   useEffect(() => {
     if (pagamento === 'paypal' && !scriptCaricato && typeof window !== 'undefined') {
       const script = document.createElement('script');
-      script.src = `https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=EUR`;
+      script.src = 'https://www.paypal.com/sdk/js?client-id=AVHqSZU8bVMmQdhJ3Cfij1q9wQGv6XkfZOeGccftRqd08RYgppGute1NYrEZzzHJuomw4l5Cjb4bIv-H&currency=EUR';
       script.onload = () => setScriptCaricato(true);
       document.body.appendChild(script);
     }
   }, [pagamento, scriptCaricato]);
 
-  // Update product quantities in DB after order
+  // Aggiorna le quantità dei prodotti nel DB dopo un ordine
   const aggiornaQuantitaProdotti = async () => {
     for (const item of carrello) {
       const { data: prodottoCorrente } = await supabase
@@ -398,7 +422,7 @@ export default function PagamentoPage() {
     }
   };
 
-  // Confirm bank transfer order
+  // Conferma ordine con bonifico
   const confermaBonificoEffettuato = async () => {
     if (!accettaCondizioni) {
       alert(t.errori.condizioni);
@@ -448,13 +472,9 @@ export default function PagamentoPage() {
     }
   };
 
-  // Render PayPal buttons
+  // Renderizza i pulsanti PayPal
   const renderPayPalButtons = useCallback(() => {
-    const container = document.getElementById('paypal-button-container');
-    if (!window.paypal || !container) return;
-    
-    // Clear container to prevent duplicates
-    container.innerHTML = '';
+    if (!window.paypal || !document.getElementById('paypal-button-container')) return;
 
     window.paypal.Buttons({
       createOrder: (data, actions) => actions.order.create({
@@ -493,14 +513,14 @@ export default function PagamentoPage() {
     }).render('#paypal-button-container');
   }, [totaleFinale, codiceOrdine, cliente, carrello, spedizione, lang, router, t]);
 
-  // Render PayPal buttons when script is loaded
+  // Effetto per renderizzare i pulsanti PayPal quando lo script è caricato
   useEffect(() => {
     if (pagamento === 'paypal' && scriptCaricato) {
       renderPayPalButtons();
     }
   }, [pagamento, scriptCaricato, renderPayPalButtons]);
 
-  // Check if form is valid
+  // Controlla se il form è valido
   const isFormValido = spedizione && pagamento && (pagamento !== 'bonifico' || accettaCondizioni);
 
   return (
@@ -508,13 +528,11 @@ export default function PagamentoPage() {
       <h1 style={{ textAlign: 'center', marginBottom: '1rem' }}>{t.titolo}</h1>
 
       {isLoading && (
-        <div style={{ textAlign: 'center', margin: '1rem 0' }}>
-          {t.loading}
-        </div>
+        <div style={{ textAlign: 'center', margin: '1rem 0' }}>{t.loading}</div>
       )}
 
       <div style={{ maxWidth: '500px', margin: '0 auto' }}>
-        {/* Shipping Section */}
+        {/* Sezione Spedizione */}
         <label style={{ display: 'block', marginBottom: '0.5rem' }}>{t.spedizione}:</label>
         <select
           value={spedizione}
@@ -527,41 +545,43 @@ export default function PagamentoPage() {
             marginBottom: '1rem', 
             padding: '0.5rem', 
             color: 'black',
-            fontFamily: 'Arial, sans-serif' // Added font family
+            fontFamily: 'Arial, sans-serif'
           }}
         >
           <option value="">-- {t.seleziona} --</option>
-          <option value="standard" style={{ fontFamily: 'Arial, sans-serif' }}>{t.standard}</option>
-          <option value="express" style={{ fontFamily: 'Arial, sans-serif' }}>{t.express}</option>
-          <option value="ritiro" style={{ fontFamily: 'Arial, sans-serif' }}>{t.ritiro}</option>
+          <option value="standard">{t.standard}</option>
+          <option value="express">{t.express}</option>
+          <option value="ritiro">{t.ritiro}</option>
         </select>
 
-        {/* Payment Section */}
+        {/* Sezione Pagamento */}
         <label style={{ display: 'block', marginBottom: '0.5rem' }}>{t.pagamento}:</label>
         <select
           value={pagamento}
           onChange={(e) => {
             setPagamento(e.target.value);
+            if (e.target.value === 'paypal') setTimeout(renderPayPalButtons, 300);
           }}
           style={{ 
             width: '100%', 
             marginBottom: '1rem', 
             padding: '0.5rem', 
             color: 'black',
-            fontFamily: 'Arial, sans-serif' // Added font family
+            fontFamily: 'Arial, sans-serif'
           }}
         >
           <option value="">-- {t.seleziona} --</option>
-          <option value="paypal" style={{ fontFamily: 'Arial, sans-serif' }}>{t.paypal}</option>
-          <option value="bonifico" style={{ fontFamily: 'Arial, sans-serif' }}>{t.bonifico}</option>
+          <option value="paypal">{t.paypal}</option>
+          <option value="bonifico">{t.bonifico}</option>
+          <option value="carta">{t.carta}</option>
         </select>
 
-        {/* Total */}
+        {/* Totale */}
         <p style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1rem', fontFamily: 'Arial, sans-serif' }}>
           {t.totale}: €{totaleFinale.toFixed(2).replace('.', ',')}
         </p>
 
-        {/* Conditional Payment Sections */}
+        {/* Sezioni di pagamento condizionali */}
         {pagamento === 'paypal' && (
           <div id="paypal-button-container" style={{ marginTop: '1rem' }}></div>
         )}
@@ -595,18 +615,32 @@ export default function PagamentoPage() {
                 border: 'none',
                 borderRadius: '6px',
                 cursor: isFormValido ? 'pointer' : 'not-allowed',
-                fontFamily: 'Arial, sans-serif' // Added font family
+                fontFamily: 'Arial, sans-serif'
               }}
             >
               {t.conferma}
             </button>
           </div>
         )}
+
+        {pagamento === 'carta' && (
+          <Elements stripe={stripePromise}>
+            <StripePayment 
+              totaleFinale={totaleFinale}
+              codiceOrdine={codiceOrdine}
+              cliente={cliente}
+              carrello={carrello}
+              spedizione={spedizione}
+              lang={lang}
+              router={router}
+              t={t}
+            />
+          </Elements>
+        )}
       </div>
 
-      {/* Global style to force Arial for Euro symbol */}
       <style jsx global>{`
-        /* Global styles for Stripe elements */
+        /* Stili globali per gli elementi Stripe */
         .StripeElement {
           padding: 10px;
           margin: 5px 0;
