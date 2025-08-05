@@ -279,6 +279,34 @@ export default function AdminPage() {
             <button type="submit" style={{ backgroundColor: 'white', color: 'black', padding: '0.5rem 1rem', borderRadius: '6px', fontWeight: 'bold' }}>
               Accedi
             </button>
+
+            <p style={{ fontSize: '0.85rem', color: 'white', marginTop: '1rem' }}>
+                          Password dimenticata? Inserisci la tua email per ricevere il link:
+            </p>
+            <input
+              type="email"
+              placeholder="Email admin"
+              value={loginForm.username}
+              onChange={(e) => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
+              style={{ padding: '0.5rem 1rem', borderRadius: '6px', color: 'black', marginTop: '0.5rem' }}
+            />
+            <button
+              type="button"
+              onClick={async () => {
+                const { error } = await supabase.auth.resetPasswordForEmail(loginForm.username, {
+                  redirectTo: 'https://g-rgabriellaromeo.vercel.app/admin/reset-password'
+                });
+                if (error) {
+                  alert('❌ Errore invio email: ' + error.message);
+                } else {
+                  alert('✅ Email per reset inviata. Controlla la tua casella.');
+                }
+              }}
+              style={{ backgroundColor: '#00BFFF', color: 'white', padding: '0.5rem 1rem', borderRadius: '6px', marginTop: '0.5rem' }}
+            >
+              Invia link reset
+            </button>
+
           </form>
         </div>
       </main>
