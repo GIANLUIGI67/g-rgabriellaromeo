@@ -1,9 +1,17 @@
 'use client';
 
 import Image from 'next/image';
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 export default function BrandPage() {
+  return (
+    <Suspense fallback={null}>
+      <BrandPageContent />
+    </Suspense>
+  );
+}
+function BrandPageContent() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
 
