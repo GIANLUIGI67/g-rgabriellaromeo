@@ -4,8 +4,18 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ShoppingCart } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import { Suspense } from 'react';
 
-export default function AbbigliamentoPage() {
+export default function AbbigliamentoPageWrapper() {
+  return (
+    <Suspense fallback={null}>
+      <AbbigliamentoPage />
+    </Suspense>
+  );
+}
+// Duplicate function declaration removed
+
+function AbbigliamentoPage() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
   const router = useRouter();
