@@ -330,24 +330,44 @@ function AbbigliamentoPage() {
               <button onClick={() => cambiaQuantita(popupProdotto.id, 1)} style={{ fontSize: '1.2rem' }}>+</button>
             </div>
 
+<div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', gap: '0.5rem' }}>
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      aggiungiAlCarrello(popupProdotto);
+      setPopupProdotto(null);
+    }}
+    style={{
+      padding: '0.5rem 1rem',
+      backgroundColor: '#333',
+      color: 'white',
+      borderRadius: '6px',
+      border: 'none',
+      fontSize: '1rem',
+      cursor: 'pointer'
+    }}
+  >
+    {t('aggiungi')}
+  </button>
+
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                aggiungiAlCarrello(popupProdotto);
-                setPopupProdotto(null);
+                router.push(`/checkout?lang=${lang}`);
               }}
               style={{
-                marginTop: '1rem',
                 padding: '0.5rem 1rem',
                 backgroundColor: '#333',
                 color: 'white',
                 borderRadius: '6px',
                 border: 'none',
-                fontSize: '1rem'
+                fontSize: '1rem',
+                cursor: 'pointer'
               }}
             >
-              {t('aggiungi')}
+              {t('checkout')}
             </button>
+          </div>
           </div>
         </div>
       )}

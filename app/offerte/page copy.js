@@ -1,11 +1,10 @@
 'use client';
 
-import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 
-function OffertePageContent() {
+export default function OffertePage() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
   const router = useRouter();
@@ -67,11 +66,6 @@ function OffertePageContent() {
     localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
   };
 
-  // Funzione per ottenere l'URL ottimizzato dell'immagine
-  const getImageUrl = (imagePath) => {
-    return `https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${imagePath}`;
-  };
-
   return (
     <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem' }}>
       <h1 style={{ fontSize: '2rem', marginBottom: '2rem', textAlign: 'center' }}>{t('titolo')}</h1>
@@ -107,9 +101,8 @@ function OffertePageContent() {
               }}>
                 {t('titolo')}
               </div>
-              {/* Utilizzo di img standard invece di next/image */}
               <img
-                src={getImageUrl(prodotto.immagine)}
+                src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
                 alt={prodotto.nome}
                 style={{
                   width: '100%',
@@ -119,7 +112,7 @@ function OffertePageContent() {
                   marginBottom: '0.3rem',
                   cursor: 'pointer'
                 }}
-                onClick={() => setPopupImg(getImageUrl(prodotto.immagine))}
+                onClick={() => setPopupImg(`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`)}
               />
               <strong>{prodotto.nome}</strong>
               <p>{prodotto.taglia}</p>
@@ -271,20 +264,5 @@ function OffertePageContent() {
         </div>
       )}
     </main>
-  );
-}
-
-export default function OffertePage() {
-  return (
-    <Suspense fallback={<div style={{ 
-      backgroundColor: 'black', 
-      color: 'white', 
-      minHeight: '100vh', 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center'
-    }}>Loading...</div>}>
-      <OffertePageContent />
-    </Suspense>
   );
 }

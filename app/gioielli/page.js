@@ -41,7 +41,7 @@ function GioielliPage() {
       accetta: 'Sono d\'accordo con la policy per la produzione',
       continua: 'Continua con l\'ordine',
       rimuovi: 'Rimuovi',
-      policyTitolo: 'Policy per la produzione',
+      policyTitolo: "L'articolo richiesto non è presente in magazzino e deve essere prodotto. Accettando questa policy sono d'accordo ad attenderne la sua produzione e la spedizione sino ad un massimo di 30 giorni dopo i quali potrà essere chiesto un rimborso.",
       carrello: 'Carrello'
     },
     en: {
@@ -56,7 +56,7 @@ function GioielliPage() {
       accetta: 'I agree with the production policy',
       continua: 'Continue with order',
       rimuovi: 'Remove',
-      policyTitolo: 'Production Policy',
+      policyTitolo: "The requested item is not in stock and must be produced. By accepting this policy, I agree to wait for its production and shipping up to a maximum of 30 days, after which a refund may be requested.",
       carrello: 'Cart'
     },
     fr: {
@@ -71,7 +71,7 @@ function GioielliPage() {
       accetta: 'J\'accepte la politique de production',
       continua: 'Continuer la commande',
       rimuovi: 'Supprimer',
-      policyTitolo: 'Politique de production',
+      policyTitolo: "L'article demandé n'est pas en stock et doit être produit. En acceptant cette politique, j'accepte d'attendre sa production et son expédition jusqu'à un maximum de 30 jours, après quoi un remboursement peut être demandé.",
       carrello: 'Panier'
     },
     de: {
@@ -86,7 +86,7 @@ function GioielliPage() {
       accetta: 'Ich stimme der Produktionsrichtlinie zu',
       continua: 'Bestellung fortsetzen',
       rimuovi: 'Entfernen',
-      policyTitolo: 'Produktionsrichtlinie',
+      policyTitolo: "Der angeforderte Artikel ist nicht auf Lager und muss produziert werden. Durch die Annahme dieser Richtlinie stimme ich zu, auf dessen Produktion und Versand bis zu maximal 30 Tage zu warten, danach kann eine Rückerstattung beantragt werden.",
       carrello: 'Warenkorb'
     },
     es: {
@@ -101,7 +101,7 @@ function GioielliPage() {
       accetta: 'Acepto la política de producción',
       continua: 'Continuar pedido',
       rimuovi: 'Eliminar',
-      policyTitolo: 'Política de producción',
+      policyTitolo: "El artículo solicitado no está en stock y debe ser producido. Al aceptar esta política, acepto esperar su producción y envío hasta un máximo de 30 días, después de los cuales se puede solicitar un reembolso.",
       carrello: 'Carrito'
     },
     ar: {
@@ -116,7 +116,7 @@ function GioielliPage() {
       accetta: 'أوافق على سياسة الإنتاج',
       continua: 'متابعة الطلب',
       rimuovi: 'إزالة',
-      policyTitolo: 'سياسة الإنتاج',
+      policyTitolo: "العنصر المطلوب غير متوفر في المخزون ويجب إنتاجه. بقبولي هذه السياسة، أوافق على الانتظار لإنتاجه وشحنه لمدة تصل إلى 30 يومًا كحد أقصى، وبعد ذلك يمكن طلب استرداد الأموال.",
       carrello: 'سلة التسوق'
     },
     zh: {
@@ -131,7 +131,7 @@ function GioielliPage() {
       accetta: '我同意生产政策',
       continua: '继续下单',
       rimuovi: '移除',
-      policyTitolo: '生产政策',
+      policyTitolo: "所请求的商品缺货，需生产。接受此政策即表示我同意等待其生产和运输，最长可达30天，之后可申请退款。",
       carrello: '购物车'
     },
     ja: {
@@ -146,7 +146,7 @@ function GioielliPage() {
       accetta: '生産ポリシーに同意します',
       continua: '注文を続ける',
       rimuovi: '削除',
-      policyTitolo: '生産ポリシー',
+      policyTitolo: "リクエストされた商品は在庫がなく、生産する必要があります。このポリシーに同意することで、最大30日間その生産と発送を待つことに同意し、その後返金を要求できます。",
       carrello: 'カート'
     }
   };
@@ -437,24 +437,44 @@ function GioielliPage() {
               <button onClick={() => cambiaQuantita(popupProdotto.id, 1)} style={{ fontSize: '1.2rem' }}>+</button>
             </div>
 
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                aggiungiAlCarrello(popupProdotto);
-                setPopupProdotto(null);
-              }}
-              style={{
-                marginTop: '1rem',
-                padding: '0.5rem 1rem',
-                backgroundColor: '#333',
-                color: 'white',
-                borderRadius: '6px',
-                border: 'none',
-                fontSize: '1rem'
-              }}
-            >
-              {t('aggiungi')}
-            </button>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', gap: '0.5rem' }}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  aggiungiAlCarrello(popupProdotto);
+                  setPopupProdotto(null);
+                }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#333',
+                  color: 'white',
+                  borderRadius: '6px',
+                  border: 'none',
+                  fontSize: '1rem',
+                  cursor: 'pointer'
+                }}
+              >
+                {t('aggiungi')}
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/checkout?lang=${lang}`);
+                }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#333',
+                  color: 'white',
+                  borderRadius: '6px',
+                  border: 'none',
+                  fontSize: '1rem',
+                  cursor: 'pointer'
+                }}
+              >
+                {t('checkout')}
+              </button>
+            </div>
           </div>
         </div>
       )}

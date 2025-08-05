@@ -1,6 +1,5 @@
 'use client';
 
-import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -63,7 +62,7 @@ const traduzioni = {
   }
 };
 
-function OrderConfirmedContent() {
+export default function ConfermaOrdinePage() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
   const metodo = params.get('metodo');
@@ -77,11 +76,8 @@ function OrderConfirmedContent() {
   const t = traduzioni[lang] || traduzioni.it;
 
   useEffect(() => {
-    // Solo lato client
-    if (typeof window !== 'undefined') {
-      setNome(localStorage.getItem('nomeCliente') || '');
-      setOrdineId(localStorage.getItem('ordineId') || '');
-    }
+    setNome(localStorage.getItem('nomeCliente') || '');
+    setOrdineId(localStorage.getItem('ordineId') || '');
   }, []);
 
   const scaricaFattura = async () => {
@@ -115,6 +111,15 @@ function OrderConfirmedContent() {
       {metodo === 'bonifico' && (
         <p className="mb-6">{t.bonifico}</p>
       )}
+      {/*}
+      <button
+        onClick={scaricaFattura}
+        disabled={isLoading}
+        className="mb-4 px-4 py-2 bg-white text-black rounded hover:bg-gray-200 disabled:opacity-50"
+      >
+        {isLoading ? t.loading : t.fattura}
+      </button>
+      */}
 
       <button
         onClick={() => router.push('/')}
@@ -125,17 +130,3 @@ function OrderConfirmedContent() {
     </main>
   );
 }
-
-export default function OrderConfirmedPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        Loading...
-      </div>
-    }>
-      <OrderConfirmedContent />
-    </Suspense>
-  );
-}
-
-export const dynamic = 'force-dynamic';
