@@ -7,9 +7,23 @@ import { supabase } from '../lib/supabaseClient';
 export default function AdminPage() {
   const router = useRouter();
   const [authenticated, setAuthenticated] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    const isAuth = localStorage.getItem('admin_auth') === 'true';
+    if (isAuth) {
+      setAuthenticated(true);
+    }
+  }, []);
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+  
+  
+
   const [loginForm, setLoginForm] = useState({
     username: '',
-    password: ''
+    password: '',
+    resetEmail: ''
   });
   const [loginError, setLoginError] = useState('');
 
@@ -46,11 +60,12 @@ export default function AdminPage() {
     e.preventDefault();
     if (loginForm.username === 'admin' && loginForm.password === 'Gg5255105@') {
       setAuthenticated(true);
+      localStorage.setItem('admin_auth', 'true');
       setLoginError('');
     } else {
       setLoginError('Credenziali non valide');
     }
-  };
+};
 
   useEffect(() => {
     if (!authenticated) return;
@@ -246,6 +261,7 @@ export default function AdminPage() {
     color: 'white',
     marginLeft: '0.5rem'
   };
+  if (!hydrated) return null;
 
   if (!authenticated) {
     return (
@@ -286,16 +302,18 @@ export default function AdminPage() {
             <input
               type="email"
               placeholder="Email admin"
-              value={loginForm.username}
-              onChange={(e) => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
+              value={loginForm.resetEmail}
+              onChange={(e) => setLoginForm(prev => ({ ...prev, resetEmail: e.target.value }))}
               style={{ padding: '0.5rem 1rem', borderRadius: '6px', color: 'black', marginTop: '0.5rem' }}
             />
+
             <button
               type="button"
               onClick={async () => {
-                const { error } = await supabase.auth.resetPasswordForEmail(loginForm.username, {
+                const { error } = await supabase.auth.resetPasswordForEmail(loginForm.resetEmail, {
                   redirectTo: 'https://g-rgabriellaromeo.vercel.app/admin/reset-password'
                 });
+
                 if (error) {
                   alert('❌ Errore invio email: ' + error.message);
                 } else {
@@ -380,7 +398,14 @@ export default function AdminPage() {
         <button onClick={() => router.push('/admin/clienti')} style={buttonStyle}>👥 CLIENTI</button>
         <button onClick={() => router.push('/admin/vendite')} style={buttonStyle}>💰 VENDITE</button>
         <button onClick={() => router.push('/admin/spedizioni')} style={buttonStyle}>🚚 SPEDIZIONI</button>
-        <button onClick={() => setAuthenticated(false)} style={logoutButtonStyle}>ESCI</button>
+        <button onClick={() => {
+                  localStorage.removeItem('admin_auth');
+                  setAuthenticated(false);
+                }}
+                style={logoutButtonStyle}
+        >
+          ESCI
+        </button>
       </div>
 
       {categoriaSelezionata && (
