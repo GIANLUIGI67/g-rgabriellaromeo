@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ShoppingCart } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
-
-export default function AccessoriPage() {
+import { Suspense } from 'react';
+function AccessoriPage() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
   const router = useRouter();
@@ -606,5 +606,12 @@ export default function AccessoriPage() {
         </div>
       )}
     </main>
+  );
+}
+export default function AccessoriPageWrapper() {
+  return (
+    <Suspense fallback={null}>
+      <AccessoriPage />
+    </Suspense>
   );
 }
