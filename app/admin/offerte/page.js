@@ -3,8 +3,17 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
+import { Suspense } from 'react';
 
-export default function OffertePage() {
+export default function OffertePageWrapper() {
+  return (
+    <Suspense fallback={null}>
+      <OffertePage />
+    </Suspense>
+  );
+}
+function OffertePage() {
+
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
   const router = useRouter();
