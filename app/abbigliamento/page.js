@@ -6,15 +6,6 @@ import { ShoppingCart } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { Suspense } from 'react';
 
-export default function AbbigliamentoPageWrapper() {
-  return (
-    <Suspense fallback={null}>
-      <AbbigliamentoPage />
-    </Suspense>
-  );
-}
-// Duplicate function declaration removed
-
 function AbbigliamentoPage() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
@@ -108,33 +99,33 @@ function AbbigliamentoPage() {
     <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem 1rem', maxWidth: '100vw', overflowX: 'hidden', margin: '0 auto', position: 'relative' }}>
       {/* Icona carrello fissa */}
       {carrello.length > 0 && (
-<div
-  onClick={() => router.push(`/checkout?lang=${lang}`)}
-  style={{
-    position: 'fixed',
-    top: '0.5rem',
-    left: '0.5rem',
-    background: 'none',
-    color: 'white',
-    padding: '0.4rem 0.6rem',
-    fontSize: '0.75rem',
-    fontFamily: 'Michroma, sans-serif',
-    zIndex: 10000,
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.4rem',
-    border: 'none',
-    outline: 'none',
-    boxShadow: 'none',
-    WebkitBoxShadow: 'none',
-    MozBoxShadow: 'none',
-    borderRadius: 0
-  }}
->
-  <ShoppingCart size={16} strokeWidth={1.5} color="white" />
-  <span style={{ lineHeight: 1 }}>Check-out</span>
-</div>
+        <div
+          onClick={() => router.push(`/checkout?lang=${lang}`)}
+          style={{
+            position: 'fixed',
+            top: '0.5rem',
+            left: '0.5rem',
+            background: 'none',
+            color: 'white',
+            padding: '0.4rem 0.6rem',
+            fontSize: '0.75rem',
+            fontFamily: 'Michroma, sans-serif',
+            zIndex: 10000,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            border: 'none',
+            outline: 'none',
+            boxShadow: 'none',
+            WebkitBoxShadow: 'none',
+            MozBoxShadow: 'none',
+            borderRadius: 0
+          }}
+        >
+          <ShoppingCart size={16} strokeWidth={1.5} color="white" />
+          <span style={{ lineHeight: 1 }}>Check-out</span>
+        </div>
       )}
 
       <h1 style={{
@@ -181,18 +172,18 @@ function AbbigliamentoPage() {
           const scontoNum = Number(prodotto.sconto || 0);
           const prezzoScontato = Math.round((prezzoNum - (prezzoNum * scontoNum / 100)) * 10) / 10;
           return (
-              <div key={prodotto.id} style={{
-                backgroundColor: 'white',
-                color: 'black',
-                padding: '0.5rem',
-                borderRadius: '6px',
-                fontSize: '0.75rem',
-                textAlign: 'center',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                height: '340px'  // puoi aumentare o ridurre se serve
-              }}>
+            <div key={prodotto.id} style={{
+              backgroundColor: 'white',
+              color: 'black',
+              padding: '0.5rem',
+              borderRadius: '6px',
+              fontSize: '0.75rem',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              height: '340px'  // puoi aumentare o ridurre se serve
+            }}>
               <img
                 src={baseUrl + immagini[0]}
                 alt={prodotto.nome}
@@ -499,5 +490,12 @@ function AbbigliamentoPage() {
         </div>
       )}
     </main>
+  );
+}
+export default function AbbigliamentoPageWrapper() {
+  return (
+    <Suspense fallback={null}>
+      <AbbigliamentoPage />
+    </Suspense>
   );
 }

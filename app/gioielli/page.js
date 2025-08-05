@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ShoppingCart } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import { Suspense } from 'react';
 
-export default function GioielliPage() {
+function GioielliPage() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
   const router = useRouter();
@@ -597,5 +598,12 @@ export default function GioielliPage() {
         </div>
       )}
     </main>
+  );
+}
+export default function GioielliPageWrapper() {
+  return (
+    <Suspense fallback={null}>
+      <GioielliPage />
+    </Suspense>
   );
 }
