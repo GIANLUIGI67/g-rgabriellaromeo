@@ -7,7 +7,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 // Initialize Stripe with environment variable
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+const stripePromise = loadStripe('pk_test_1234'); // o una tua test key reale
 
 const traduzioni = {
   it: {
@@ -32,7 +32,10 @@ const traduzioni = {
       generico: 'Si è verificato un errore. Riprova più tardi',
       carta: 'Pagamento rifiutato. Verifica i dati della carta'
     },
-    loading: 'Caricamento...'
+    loading: 'Caricamento...',
+    rivedi_condizioni: 'Rivedi termini e condizioni',
+    testo_condizione: 'I prodotti saranno spediti esclusivamente dopo la ricezione del bonifico in entrata.',
+    confermo_bonifico: 'Confermo che il bonifico è stato effettuato'
   },
   en: {
     titolo: 'Payment',
@@ -56,7 +59,10 @@ const traduzioni = {
       generico: 'An error occurred. Please try again later',
       carta: 'Payment declined. Check your card details'
     },
-    loading: 'Loading...'
+    loading: 'Loading...',
+    rivedi_condizioni: 'Review terms and conditions',
+    testo_condizione: 'Products will only be shipped after receiving the bank transfer.',
+    confermo_bonifico: 'I confirm that the bank transfer has been made'
   },
   fr: {
     titolo: 'Paiement',
@@ -80,7 +86,10 @@ const traduzioni = {
       generico: 'Une erreur s\'est produite. Veuillez réessayer plus tard',
       carta: 'Paiement refusé. Vérifiez les détails de votre carte'
     },
-    loading: 'Chargement...'
+    loading: 'Chargement...',
+    rivedi_condizioni: 'Lire les conditions générales',
+    testo_condizione: 'Les produits seront expédiés uniquement après réception du virement bancaire.',
+    confermo_bonifico: 'Je confirme que le virement a été effectué'
   },
   de: {
     titolo: 'Zahlung',
@@ -104,7 +113,10 @@ const traduzioni = {
       generico: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut',
       carta: 'Zahlung abgelehnt. Überprüfen Sie Ihre Kartendetails'
     },
-    loading: 'Laden...'
+    loading: 'Laden...',
+    rivedi_condizioni: 'AGB überprüfen',
+    testo_condizione: 'Die Produkte werden nur nach Eingang der Banküberweisung versendet.',
+    confermo_bonifico: 'Ich bestätige, dass die Überweisung erfolgt ist'
   },
   es: {
     titolo: 'Pago',
@@ -128,7 +140,10 @@ const traduzioni = {
       generico: 'Ocurrió un error. Por favor, inténtelo más tarde',
       carta: 'Pago rechazado. Verifique los datos de su tarjeta'
     },
-    loading: 'Cargando...'
+    loading: 'Cargando...',
+    rivedi_condizioni: 'Revisar términos y condiciones',
+    testo_condizione: 'Los productos solo se enviarán después de recibir la transferencia bancaria.',
+    confermo_bonifico: 'Confirmo que se ha realizado la transferencia bancaria'
   },
   ar: {
     titolo: 'الدفع',
@@ -152,7 +167,10 @@ const traduzioni = {
       generico: 'حدث خطأ. يرجى المحاولة لاحقا',
       carta: 'تم رفض الدفع. تحقق من تفاصيل بطاقتك'
     },
-    loading: 'جاري التحميل...'
+    loading: 'جاري التحميل...',
+    rivedi_condizioni: 'راجع الشروط والأحكام',
+    testo_condizione: 'سيتم شحن المنتجات فقط بعد استلام التحويل المصرفي.',
+    confermo_bonifico: 'أؤكد أن التحويل المصرفي قد تم'
   },
   zh: {
     titolo: '支付',
@@ -176,7 +194,10 @@ const traduzioni = {
       generico: '发生错误。请稍后再试',
       carta: '付款被拒。请检查您的卡信息'
     },
-    loading: '加载中...'
+    loading: '加载中...',
+    rivedi_condizioni: '查看条款和条件',
+    testo_condizione: '仅在收到银行转账后才会发货。',
+    confermo_bonifico: '我确认银行转账已完成'
   },
   ja: {
     titolo: 'お支払い',
@@ -200,7 +221,10 @@ const traduzioni = {
       generico: 'エラーが発生しました。後でもう一度お試しください',
       carta: 'お支払いが拒否されました。カード情報をご確認ください'
     },
-    loading: '読み込み中...'
+    loading: '読み込み中...',
+    rivedi_condizioni: '利用規約を確認する',
+    testo_condizione: '商品の発送は銀行振込の確認後に行われます。',
+    confermo_bonifico: '振込が完了したことを確認します'
   }
 };
 
@@ -333,6 +357,7 @@ export default function PagamentoPage() {
   const [pagamento, setPagamento] = useState('');
   const [costoSpedizione, setCostoSpedizione] = useState(0);
   const [accettaCondizioni, setAccettaCondizioni] = useState(false);
+  const [accettaBonifico, setAccettaBonifico] = useState(false);
   const [codiceOrdine, setCodiceOrdine] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [scriptCaricato, setScriptCaricato] = useState(false);
@@ -525,7 +550,7 @@ export default function PagamentoPage() {
   }, [pagamento, scriptCaricato, renderPayPalButtons]);
 
   // Check if form is valid
-  const isFormValido = spedizione && pagamento && (pagamento !== 'bonifico' || accettaCondizioni);
+  const isFormValido = spedizione && pagamento && (pagamento !== 'bonifico' || (accettaCondizioni && accettaBonifico));
 
   return (
     <main style={{ backgroundColor: 'black', color: 'white', minHeight: '100vh', padding: '2rem' }}>
@@ -596,15 +621,44 @@ export default function PagamentoPage() {
             <p><strong>{t.intestatario}</strong></p>
             <p><strong>{t.causale} {codiceOrdine}</strong></p>
 
-            <label style={{ display: 'block', marginTop: '1rem' }}>
-              <input
-                type="checkbox"
-                checked={accettaCondizioni}
-                onChange={() => setAccettaCondizioni(!accettaCondizioni)}
-                style={{ marginRight: '0.5rem' }}
-              />
-              {t.condizioni}
-            </label>
+            {/* Review Terms */}
+            <div style={{ marginTop: '1rem' }}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={accettaCondizioni}
+                  onChange={() => setAccettaCondizioni(!accettaCondizioni)}
+                  style={{ marginRight: '0.5rem' }}
+                />
+                {t.rivedi_condizioni}
+              </label>
+
+              {/* Condizioni visibili se accettate */}
+              {accettaCondizioni && (
+                <div style={{ 
+                  marginTop: '1rem', 
+                  padding: '1rem', 
+                  border: '1px dashed gray',
+                  fontStyle: 'italic'
+                }}>
+                  {t.testo_condizione}
+                </div>
+              )}
+            </div>
+
+            {/* Conferma bonifico */}
+            <div style={{ marginTop: '1rem' }}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={accettaBonifico}
+                  onChange={() => setAccettaBonifico(!accettaBonifico)}
+                  style={{ marginRight: '0.5rem' }}
+                />
+                {t.confermo_bonifico}
+              </label>
+            </div>
+
 
             <button
               onClick={confermaBonificoEffettuato}
@@ -627,19 +681,19 @@ export default function PagamentoPage() {
         )}
 
         {pagamento === 'carta' && (
-          <Elements stripe={stripePromise}>
-            <StripePayment 
-              totaleFinale={totaleFinale}
-              codiceOrdine={codiceOrdine}
-              cliente={cliente}
-              carrello={carrello}
-              spedizione={spedizione}
-              lang={lang}
-              router={router}
-              t={t}
-            />
-          </Elements>
-        )}
+  <div style={{
+    backgroundColor: '#111',
+    padding: '1rem',
+    border: '1px solid #333',
+    borderRadius: '6px',
+    color: 'white',
+    textAlign: 'center',
+    marginTop: '1rem'
+  }}>
+    ⚠️ Stripe non è ancora configurato. Inserisci la tua chiave in <code>stripePromise</code> per abilitare i pagamenti con carta.
+  </div>
+)}
+
       </div>
 
       <style jsx global>{`

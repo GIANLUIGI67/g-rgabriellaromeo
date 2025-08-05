@@ -111,7 +111,7 @@ export default function ConfermaOrdinePage() {
       {metodo === 'bonifico' && (
         <p className="mb-6">{t.bonifico}</p>
       )}
-
+      {/*}
       <button
         onClick={scaricaFattura}
         disabled={isLoading}
@@ -119,6 +119,7 @@ export default function ConfermaOrdinePage() {
       >
         {isLoading ? t.loading : t.fattura}
       </button>
+      */}
 
       <button
         onClick={() => router.push('/')}

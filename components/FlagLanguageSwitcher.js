@@ -19,10 +19,11 @@ export default function FlagLanguageSwitcher() {
   const currentLang = searchParams.get('lang') || 'it';
 
   const changeLanguage = (lang) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('lang', lang);
-    router.push(`${pathname}?${params.toString()}`);
-  };
+  localStorage.setItem('lang', lang); // <-- salva la lingua scelta
+  const params = new URLSearchParams(searchParams.toString());
+  params.set('lang', lang);
+  router.push(`${pathname}?${params.toString()}`);
+};
 
   return (
     <div className="flex flex-wrap justify-center items-center gap-2 mt-4">
