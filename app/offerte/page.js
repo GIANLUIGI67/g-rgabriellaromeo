@@ -78,7 +78,7 @@ function OffertePageContent() {
 
       <div style={{ display: 'flex', overflowX: 'auto', gap: '1rem', padding: '1rem' }}>
         {prodotti.map(prodotto => {
-          const sconto = prodotto.sconto_offerta || 0;
+          const sconto = prodotto.sconto || 0;
           const prezzoFinale = (prodotto.prezzo * (1 - sconto / 100)).toFixed(2);
 
           return (
@@ -124,13 +124,23 @@ function OffertePageContent() {
               <strong>{prodotto.nome}</strong>
               <p>{prodotto.taglia}</p>
               <p>
-                <span style={{ textDecoration: 'line-through', color: 'gray', fontSize: '0.6rem' }}>
+                <span style={{ 
+                  textDecoration: 'line-through', 
+                  color: 'gray', 
+                  fontSize: '0.6rem', 
+                  fontFamily: 'Arial, sans-serif' 
+                }}>
                   {'\u20AC'} {Number(prodotto.prezzo).toFixed(2)}
                 </span><br />
-                <span style={{ color: 'red', fontWeight: 'bold' }}>
+                <span style={{ 
+                  color: 'red', 
+                  fontWeight: 'bold', 
+                  fontFamily: 'Arial, sans-serif' 
+                }}>
                   {'\u20AC'} {prezzoFinale}
                 </span>
               </p>
+
 
               <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem', margin: '0.3rem 0' }}>
                 <button onClick={() => cambiaQuantita(prodotto.id, -1)}

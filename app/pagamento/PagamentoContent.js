@@ -363,8 +363,15 @@ function PagamentoContent({ lang }) {
   }, []);
 
   const totaleFinale = useMemo(() => {
-    return carrello.reduce((acc, p) => acc + p.prezzo * p.quantita, 0) + costoSpedizione;
-  }, [carrello, costoSpedizione]);
+  return (
+    carrello.reduce((acc, p) => {
+      const prezzoBase = parseFloat(p.prezzo || 0);
+      const sconto = p.offerta && p.sconto ? (prezzoBase * p.sconto) / 100 : 0;
+      const prezzoFinale = prezzoBase - sconto;
+      return acc + prezzoFinale * (p.quantita || 1);
+    }, 0) + costoSpedizione
+  );
+}, [carrello, costoSpedizione]);
 
   useEffect(() => {
     const fetchCliente = async () => {

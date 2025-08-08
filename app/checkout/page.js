@@ -114,11 +114,12 @@ export default function CheckoutPage() {
     const datiCarrello = localStorage.getItem('carrello');
     if (datiCarrello) {
       localStorage.setItem('checkout_dati', JSON.stringify({
-        cliente_id: utente ? utente.id : email,
-        carrello: JSON.parse(datiCarrello),
-        totale: totaleFinale,
-        email
-      }));
+      cliente_id: utente ? utente.id : email,
+      carrello: JSON.parse(datiCarrello),
+      totale: totaleFinale,
+      email
+    }));
+
     }
   };
 
@@ -588,7 +589,12 @@ export default function CheckoutPage() {
 
 
 const testi = testiTutti[lingua] || testiTutti.it;
-  const totaleProdotti = carrello.reduce((tot, p) => tot + parseFloat(p.prezzo || 0) * (p.quantita || 1), 0);
+  const totaleProdotti = carrello.reduce((tot, p) => {
+  const prezzoBase = parseFloat(p.prezzo || 0);
+  const sconto = p.offerta && p.sconto ? prezzoBase * (p.sconto / 100) : 0;
+  const prezzoFinale = prezzoBase - sconto;
+  return tot + prezzoFinale * (p.quantita || 1);
+}, 0);
   const totaleFinale = Math.round(totaleProdotti * 10) / 10;
   
   return (
@@ -607,7 +613,20 @@ const testi = testiTutti[lingua] || testiTutti.it;
                   <div className="item-info">
                     <span className="quantity">{p.quantita || 1}x</span>
                     <span className="name">{p.nome}</span>
-                    <span className="price">{'\u20AC'}{(Number(p.prezzo || 0) * (p.quantita || 1)).toFixed(1)}</span>
+                    <span className="price">
+                      {p.offerta && p.sconto ? (
+                        <>
+                          <span style={{ textDecoration: 'line-through', color: '#888', marginRight: '8px' }}>
+                            {'\u20AC'}{(p.prezzo * (p.quantita || 1)).toFixed(1)}
+                          </span>
+                          <span style={{ color: '#ff5252', fontWeight: 'bold' }}>
+                            {'\u20AC'}{((p.prezzo - (p.prezzo * p.sconto / 100)) * (p.quantita || 1)).toFixed(1)}
+                          </span>
+                        </>
+                      ) : (
+                        '\u20AC' + (p.prezzo * (p.quantita || 1)).toFixed(1)
+                      )}
+                    </span>
                   </div>
                   <button 
                     onClick={() => rimuoviDalCarrello(i)} 
