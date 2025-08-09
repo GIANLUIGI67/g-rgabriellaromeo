@@ -1,0 +1,79 @@
+[
+  {
+    "id": "ord_1754722019229",
+    "created_at": "2025-08-09T06:46:59.229Z",
+    "email": "gabriella.romeo@g-rgabriellaromeo.it",
+    "cliente_id": "2eb54571-2a96-4021-9030-e7a469b6bde6",
+    "carrello": [
+      {
+        "id": "9e1c0e0a-8abb-4bba-9b66-3ba030d4e5cc",
+        "created_at": "2025-06-15T21:58:40.696+00:00",
+        "nome": "MARRAKECH Y/G",
+        "descrizione": "Yellow 18 k gold, Diamonds, Blue, Pink and yellow sapphires and golden pearls",
+        "prezzo": "8500",
+        "taglia": "12",
+        "categoria": "gioielli",
+        "sottocategoria": "anelli",
+        "immagine": "1748296814372_MARRAKECH Y:G.png",
+        "disponibile": true,
+        "quantita": 1,
+        "offerta": false,
+        "sconto": 0,
+        "emailOfferta": false,
+        "updated_at": null
+      }
+    ],
+    "subtotale": 8500,
+    "sconto_primo_acquisto": 10,
+    "valore_sconto": 850,
+    "totale": 7650,
+    "from_checkout": true
+  },
+  {
+    "id": "ord_1754722870667",
+    "created_at": "2025-08-09T07:01:10.667Z",
+    "email": "gianluigi.grassi@g-rgabriellaromeo.it",
+    "cliente_id": "5bb0f709-d4f9-4975-938e-8a154744a78a",
+    "carrello": [
+      {
+        "id": "9e1c0e0a-8abb-4bba-9b66-3ba030d4e5cc",
+        "created_at": "2025-06-15T21:58:40.696+00:00",
+        "nome": "MARRAKECH Y/G",
+        "descrizione": "Yellow 18 k gold, Diamonds, Blue, Pink and yellow sapphires and golden pearls",
+        "prezzo": "8500",
+        "taglia": "12",
+        "categoria": "gioielli",
+        "sottocategoria": "anelli",
+        "immagine": "1748296814372_MARRAKECH Y:G.png",
+        "disponibile": true,
+        "quantita": 1,
+        "offerta": false,
+        "sconto": 0,
+        "emailOfferta": false,
+        "updated_at": null
+      },
+      {
+        "id": "4cea0190-cfc5-4bf6-963a-6add2cf85fec",
+        "created_at": "2025-05-26T22:21:43.522+00:00",
+        "nome": "SIDNEY W/G",
+        "descrizione": "18k white gold with 3,2 ct iolite, acquamarine, violet topaz, diamonds and Australian pearl",
+        "prezzo": "7700",
+        "taglia": "12",
+        "categoria": "gioielli",
+        "sottocategoria": "anelli",
+        "immagine": "1748296710188_SIDNEY W:G.png",
+        "disponibile": true,
+        "quantita": 1,
+        "offerta": false,
+        "sconto": 0,
+        "emailOfferta": false,
+        "updated_at": "2025-06-15T22:16:32.86+00:00"
+      }
+    ],
+    "subtotale": 16200,
+    "sconto_primo_acquisto": 10,
+    "valore_sconto": 1620,
+    "totale": 14580,
+    "from_checkout": true
+  }
+]

@@ -235,7 +235,9 @@ const StripePayment = ({
   spedizione, 
   lang, 
   router,
-  t 
+  t,
+  scontoPrimoOrdine,             // importo € calcolato in PagamentoContent (scontoCalcolato)
+  onScontoConsumato              // callback -> azzeraPrimoScontoSeApplicato
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -287,10 +289,19 @@ const StripePayment = ({
       };
 
       await supabase.from('ordini').insert([ordine]);
+
+      // consuma (azzera) il primo_sconto se applicato
+      if (typeof onScontoConsumato === 'function') {
+        try {
+          await onScontoConsumato(cliente?.email, scontoPrimoOrdine);
+        } catch (e) {
+          console.error('Errore callback onScontoConsumato:', e);
+        }
+      }
+
       localStorage.setItem('ordineId', codiceOrdine);
       localStorage.removeItem('carrello');
       router.push(`/ordine-confermato?lang=${lang}&metodo=carta`);
-      
     } catch (error) {
       console.error('Errore pagamento:', error);
       alert(error.message || t.errori.carta);
@@ -353,6 +364,9 @@ function PagamentoContent({ lang }) {
   const [codiceOrdine, setCodiceOrdine] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [scriptCaricato, setScriptCaricato] = useState(false);
+  // sconto primo ordine
+  const [primoScontoPercent, setPrimoScontoPercent] = useState(null); // es. 10 se il profilo ha primo_sconto
+  const [scontoPrimoOrdine, setScontoPrimoOrdine] = useState(0);      // importo € se arriva da checkout_dati
 
   const t = traduzioni[lang] || traduzioni.it;
 
@@ -362,16 +376,32 @@ function PagamentoContent({ lang }) {
     return `GR-${oggi}-${random}`;
   }, []);
 
-  const totaleFinale = useMemo(() => {
-  return (
-    carrello.reduce((acc, p) => {
+  // Totale prodotti (senza spedizione), rispettando eventuali sconti per-offerta sui singoli prodotti
+  const totaleProdotti = useMemo(() => {
+    return carrello.reduce((acc, p) => {
       const prezzoBase = parseFloat(p.prezzo || 0);
       const sconto = p.offerta && p.sconto ? (prezzoBase * p.sconto) / 100 : 0;
       const prezzoFinale = prezzoBase - sconto;
-      return acc + prezzoFinale * (p.quantita || 1);
-    }, 0) + costoSpedizione
-  );
-}, [carrello, costoSpedizione]);
+      return acc + (prezzoFinale * (p.quantita || 1));
+    }, 0);
+  }, [carrello]);
+
+  // Importo sconto primo ordine da applicare ai soli prodotti
+  // Se arriva da checkout_dati (scontoPrimoOrdine > 0) uso quello,
+  // altrimenti se il profilo ha primo_sconto (%) lo calcolo ora.
+  const scontoCalcolato = useMemo(() => {
+    if (scontoPrimoOrdine > 0) return Math.round(scontoPrimoOrdine * 10) / 10;
+    if (primoScontoPercent) {
+      return Math.round((totaleProdotti * (primoScontoPercent / 100)) * 10) / 10;
+    }
+    return 0;
+  }, [scontoPrimoOrdine, primoScontoPercent, totaleProdotti]);
+
+  // Totale finale = (prodotti - sconto primo ordine) + spedizione
+  const totaleFinale = useMemo(() => {
+    const prodottiScontati = Math.max(0, Math.round((totaleProdotti - scontoCalcolato) * 10) / 10);
+    return prodottiScontati + costoSpedizione;
+  }, [totaleProdotti, scontoCalcolato, costoSpedizione]);
 
   useEffect(() => {
     const fetchCliente = async () => {
@@ -381,6 +411,12 @@ function PagamentoContent({ lang }) {
         if (checkoutDati) {
           const dati = JSON.parse(checkoutDati);
           setCliente({ id: dati.cliente_id, email: dati.email });
+
+          // se dal checkout ho già l'importo sconto, usalo qui
+          if (typeof dati.sconto_primo_ordine === 'number') {
+            setScontoPrimoOrdine(dati.sconto_primo_ordine);
+          }
+
           localStorage.removeItem('checkout_dati');
           return;
         }
@@ -413,6 +449,11 @@ function PagamentoContent({ lang }) {
         }
 
         setCliente(cliente);
+        // se il profilo ha primo_sconto (percentuale), lo uso per calcolare lo sconto qui
+        if (cliente?.primo_sconto !== null && cliente?.primo_sconto !== undefined) {
+          setPrimoScontoPercent(Number(cliente.primo_sconto));
+        }
+
       } catch (error) {
         console.error('Errore fetch cliente:', error);
       } finally {
@@ -435,19 +476,41 @@ function PagamentoContent({ lang }) {
   }, [pagamento, scriptCaricato]);
 
   const aggiornaQuantitaProdotti = async () => {
-    for (const item of carrello) {
-      const { data: prodottoCorrente } = await supabase
-        .from('products')
-        .select('quantita')
-        .eq('id', item.id)
-        .single();
+  for (const item of carrello) {
+    const { data: prodottoCorrente } = await supabase
+      .from('products')
+      .select('quantita')
+      .eq('id', item.id)
+      .single();
 
-      if (prodottoCorrente) {
-        const nuovaQuantita = Math.max((prodottoCorrente.quantita || 0) - item.quantita, 0);
-        await supabase.from('products').update({ quantita: nuovaQuantita }).eq('id', item.id);
+    if (prodottoCorrente) {
+      const nuovaQuantita = Math.max((prodottoCorrente.quantita || 0) - item.quantita, 0);
+      await supabase.from('products').update({ quantita: nuovaQuantita }).eq('id', item.id);
+    }
+  }
+};
+
+  const azzeraPrimoScontoSeApplicato = async (email, scontoUsato) => {
+  try {
+    const safeEmail = (email || '').trim().toLowerCase();
+    if (safeEmail && Number(scontoUsato) > 0) {
+      const { error } = await supabase
+        .from('clienti')
+        .update({ primo_sconto: null, updated_at: new Date().toISOString() })
+        .eq('email', safeEmail);
+
+      if (error) {
+        console.error('Errore Supabase azzeramento primo_sconto:', error);
+      } else {
+        console.log(`Primo sconto azzerato per ${safeEmail}`);
       }
     }
-  };
+  } catch (e) {
+    console.error('Errore azzeramento primo_sconto (catch):', e);
+  }
+};
+
+
 
   const confermaBonificoEffettuato = async () => {
     if (!accettaCondizioni) {
@@ -470,6 +533,8 @@ function PagamentoContent({ lang }) {
 
       await supabase.from('ordini').insert([ordine]);
       await aggiornaQuantitaProdotti();
+      await azzeraPrimoScontoSeApplicato(cliente?.email, scontoCalcolato);
+
 
       if (cliente.email) {
         const { data: clienteAttuale } = await supabase
@@ -526,6 +591,13 @@ function PagamentoContent({ lang }) {
           await supabase.from('ordini').insert([ordine]);
           await aggiornaQuantitaProdotti();
 
+          // azzera primo_sconto SOLO dopo pagamento riuscito (PayPal)
+          try {
+            await azzeraPrimoScontoSeApplicato(cliente?.email, scontoCalcolato);
+          } catch (e) {
+            console.error('Errore azzeramento primo_sconto (PayPal):', e);
+          }
+
           localStorage.setItem('ordineId', codiceOrdine);
           localStorage.setItem('nomeCliente', cliente.nome);
           localStorage.removeItem('carrello');
@@ -539,7 +611,7 @@ function PagamentoContent({ lang }) {
         }
       }
     }).render('#paypal-button-container');
-  }, [totaleFinale, codiceOrdine, cliente, carrello, spedizione, lang, router, t, aggiornaQuantitaProdotti]);
+  }, [totaleFinale, codiceOrdine, cliente, carrello, spedizione, lang, router, t, aggiornaQuantitaProdotti, scontoCalcolato]);
 
   useEffect(() => {
     if (pagamento === 'paypal' && scriptCaricato) {
@@ -680,6 +752,9 @@ function PagamentoContent({ lang }) {
               lang={lang}
               router={router}
               t={t}
+              scontoPrimoOrdine={scontoCalcolato}                 // importo € già calcolato in PagamentoContent
+              onScontoConsumato={azzeraPrimoScontoSeApplicato}
+              // usa la funzione del punto 4
             />
           </Elements>
         )}
@@ -698,4 +773,3 @@ function PagamentoContent({ lang }) {
   );
 }
 export default PagamentoContent;
-

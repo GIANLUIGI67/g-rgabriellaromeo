@@ -99,49 +99,49 @@ export default function UserMenu({ lang }) {
       it: [
         'Per aggiungere i tuoi prodotti alla lista dei desideri',
         'Per un checkout più veloce',
-        'Ottieni uno sconto del 5% sul tuo prossimo acquisto',
+        'Ottieni uno sconto del 10% sul tuo prossimo acquisto',
         'Unisciti al nostro referral program per sconti e buoni acquisto'
       ],
       en: [
         'To add products to your wishlist',
         'For faster checkout',
-        'Get 5% discount on your next purchase',
+        'Get 10% discount on your next purchase',
         'Join our referral program for discounts and vouchers'
       ],
       fr: [
         'Pour ajouter des produits à votre liste de souhaits',
         'Pour un paiement plus rapide',
-        'Bénéficiez de 5% de réduction sur votre prochain achat',
+        'Bénéficiez de 10% de réduction sur votre prochain achat',
         'Rejoignez notre programme de parrainage pour des réductions et des bons d\'achat'
       ],
       es: [
         'Para añadir productos a tu lista de deseos',
         'Para un pago más rápido',
-        'Obtén un 5% de descuento en tu próxima compra',
+        'Obtén un 10% de descuento en tu próxima compra',
         'Únete a nuestro programa de referidos para descuentos y vales de compra'
       ],
       de: [
         'Um Produkte zu Ihrer Wunschliste hinzuzufügen',
         'Für einen schnelleren Checkout',
-        'Erhalten Sie 5% Rabatt auf Ihren nächsten Einkauf',
+        'Erhalten Sie 10% Rabatt auf Ihren nächsten Einkauf',
         'Nehmen Sie an unserem Empfehlungsprogramm für Rabatte und Gutscheine teil'
       ],
       ar: [
         'إضافة منتجاتك إلى قائمة الرغبات',
         'إتمام عملية الدفع بسرعة أكبر',
-        'احصل على خصم 5% على مشترياتك القادمة',
+        'احصل على خصم 10% على مشترياتك القادمة',
         'انضم إلى برنامج الإحالة للحصول على خصومات وكوبونات شراء'
       ],
       zh: [
         '将商品添加到您的愿望清单',
         '更快捷的结账体验',
-        '下次购物享受5%折扣',
+        '下次购物享受10%折扣',
         '加入我们的推荐计划获取折扣和购物券'
       ],
       ja: [
         '商品をウィッシュリストに追加',
         'より速いチェックアウト',
-        '次回のお買い物で5％オフ',
+        '次回のお買い物で10％オフ',
         '紹介プログラムに参加して割引やクーポンをゲット'
       ]
     },
@@ -248,14 +248,14 @@ export default function UserMenu({ lang }) {
       ja: '必須項目'
     },
     registrationSuccess: {
-      it: 'Registrazione completata con successo!',
-      en: 'Registration completed successfully!',
-      fr: 'Inscription réussie!',
-      de: 'Registrierung erfolgreich abgeschlossen!',
-      es: '¡Registro completado con éxito!',
-      ar: 'تم التسجيل بنجاح!',
-      zh: '注册成功完成！',
-      ja: '登録が完了しました！'
+      it: 'Registrazione completata con successo, hai ora uno sconto del 10% sul tuo prossimo acquisto!',
+      en: 'Registration completed successfully, you now have a 10% discount on your next purchase!',
+      fr: 'Inscription réussie, vous bénéficiez maintenant d\'une réduction de 10% sur votre prochain achat !',
+      de: 'Registrierung erfolgreich abgeschlossen, Sie erhalten jetzt 10% Rabatt auf Ihren nächsten Einkauf!',
+      es: '¡Registro completado con éxito, ahora tienes un 10% de descuento en tu próxima compra!',
+      ar: 'اكتملت عملية التسجيل بنجاح، لديك الآن خصم 10٪ على مشترياتك القادمة!',
+      zh: '注册成功，您现在可享受下次购物九折优惠！',
+      ja: '登録が完了しました。次回のご購入で10％割引が適用されます！'
     }
   };
 
@@ -453,19 +453,24 @@ export default function UserMenu({ lang }) {
       if (authError) throw authError;
 
       const { error: dbError } = await supabase.from('clienti').upsert({
-        email,
-        nome,
-        cognome,
-        paese,
-        citta,
-        indirizzo,
-        codice_postale: cap,
-        telefono1,
-        telefono2,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        ordini: []
-      });
+  email,
+  nome,
+  cognome,
+  paese,
+  citta,
+  indirizzo,
+  codice_postale: cap,
+  telefono1,
+  telefono2,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  ordini: [],
+  // ⬇️ assegna il primo sconto al momento della PRIMA creazione
+  primo_sconto: '10',
+  // lascialo vuoto per il futuro referral
+  nuovo_sconto: null
+}, { onConflict: 'email' });
+
 
       if (dbError) throw dbError;
 
