@@ -1,13 +1,109 @@
 'use client';
 
-import { useEffect, useState, useMemo, useCallback, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import dynamic from 'next/dynamic';
+import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 
+const PayPalWrapper = ({ 
+  totaleFinale, 
+  codiceOrdine, 
+  cliente, 
+  carrello, 
+  spedizione, 
+  lang, 
+  router,
+  t,
+  scontoCalcolato,
+  aggiornaQuantitaProdotti,
+  azzeraPrimoScontoSeApplicato
+}) => {
+  const [paypalError, setPaypalError] = useState(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!loaded) {
+        setPaypalError(t.errori.generico);
+      }
+    }, 10000); // Timeout dopo 10 secondi
+
+    return () => clearTimeout(timer);
+  }, [loaded, t.errori.generico]);
+
+  const createOrder = (data, actions) => {
+    return actions.order.create({
+      purchase_units: [{
+        amount: {
+          value: totaleFinale.toFixed(2),
+          currency_code: 'EUR'
+        },
+        description: `Ordine ${codiceOrdine}`
+      }]
+    });
+  };
+
+  const onApprove = async (data, actions) => {
+    try {
+      const details = await actions.order.capture();
+      const ordine = {
+        id: codiceOrdine,
+        cliente,
+        carrello,
+        spedizione,
+        pagamento: 'PayPal',
+        totale: totaleFinale,
+        stato: 'pagato',
+        data: new Date().toISOString(),
+        transazione_id: details.id
+      };
+
+      await supabase.from('ordini').insert([ordine]);
+      await aggiornaQuantitaProdotti();
+      await azzeraPrimoScontoSeApplicato(cliente?.email, scontoCalcolato);
+
+      localStorage.setItem('ordineId', codiceOrdine);
+      localStorage.removeItem('carrello');
+      router.push(`/ordine-confermato?lang=${lang}&metodo=paypal`);
+    } catch (error) {
+      console.error('PayPal approval error:', error);
+      setPaypalError(t.errori.generico);
+    }
+  };
+
+  return (
+    <div className="mt-4">
+      {paypalError && (
+        <div className="text-red-500 mb-4">{paypalError}</div>
+      )}
+      
+      <PayPalScriptProvider 
+        options={{
+          "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+          currency: "EUR",
+          "data-sdk-integration-source": "integrationbuilder_sc",
+          "disable-funding": "credit,card",
+          "components": "buttons"
+        }}
+        onScriptLoad={() => setLoaded(true)}
+      >
+        <PayPalButtons
+          style={{ layout: 'vertical', shape: 'rect' }}
+          createOrder={createOrder}
+          onApprove={onApprove}
+          onError={(err) => {
+            console.error('PayPal error:', err);
+            setPaypalError(t.errori.generico);
+          }}
+        />
+      </PayPalScriptProvider>
+    </div>
+  );
+};
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
-
 const traduzioni = {
   it: {
     titolo: 'Pagamento',
@@ -226,7 +322,7 @@ const traduzioni = {
     confermo_bonifico: '振込が完了したことを確認します'
   }
 };
-
+// componente StripePayment //
 const StripePayment = ({ 
   totaleFinale, 
   codiceOrdine, 
@@ -236,8 +332,8 @@ const StripePayment = ({
   lang, 
   router,
   t,
-  scontoPrimoOrdine,             // importo € calcolato in PagamentoContent (scontoCalcolato)
-  onScontoConsumato              // callback -> azzeraPrimoScontoSeApplicato
+  scontoPrimoOrdine,
+  onScontoConsumato
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -290,7 +386,6 @@ const StripePayment = ({
 
       await supabase.from('ordini').insert([ordine]);
 
-      // consuma (azzera) il primo_sconto se applicato
       if (typeof onScontoConsumato === 'function') {
         try {
           await onScontoConsumato(cliente?.email, scontoPrimoOrdine);
@@ -351,8 +446,8 @@ const StripePayment = ({
     </form>
   );
 };
-
-function PagamentoContent({ lang }) {
+// componente principale PagamentoContent //
+export default function PagamentoContent({ lang }) {
   const router = useRouter();
   const [carrello, setCarrello] = useState([]);
   const [cliente, setCliente] = useState(null);
@@ -363,10 +458,8 @@ function PagamentoContent({ lang }) {
   const [accettaBonifico, setAccettaBonifico] = useState(false);
   const [codiceOrdine, setCodiceOrdine] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [scriptCaricato, setScriptCaricato] = useState(false);
-  // sconto primo ordine
-  const [primoScontoPercent, setPrimoScontoPercent] = useState(null); // es. 10 se il profilo ha primo_sconto
-  const [scontoPrimoOrdine, setScontoPrimoOrdine] = useState(0);      // importo € se arriva da checkout_dati
+  const [primoScontoPercent, setPrimoScontoPercent] = useState(null);
+  const [scontoPrimoOrdine, setScontoPrimoOrdine] = useState(0);
 
   const t = traduzioni[lang] || traduzioni.it;
 
@@ -376,7 +469,6 @@ function PagamentoContent({ lang }) {
     return `GR-${oggi}-${random}`;
   }, []);
 
-  // Totale prodotti (senza spedizione), rispettando eventuali sconti per-offerta sui singoli prodotti
   const totaleProdotti = useMemo(() => {
     return carrello.reduce((acc, p) => {
       const prezzoBase = parseFloat(p.prezzo || 0);
@@ -386,9 +478,6 @@ function PagamentoContent({ lang }) {
     }, 0);
   }, [carrello]);
 
-  // Importo sconto primo ordine da applicare ai soli prodotti
-  // Se arriva da checkout_dati (scontoPrimoOrdine > 0) uso quello,
-  // altrimenti se il profilo ha primo_sconto (%) lo calcolo ora.
   const scontoCalcolato = useMemo(() => {
     if (scontoPrimoOrdine > 0) return Math.round(scontoPrimoOrdine * 10) / 10;
     if (primoScontoPercent) {
@@ -397,7 +486,6 @@ function PagamentoContent({ lang }) {
     return 0;
   }, [scontoPrimoOrdine, primoScontoPercent, totaleProdotti]);
 
-  // Totale finale = (prodotti - sconto primo ordine) + spedizione
   const totaleFinale = useMemo(() => {
     const prodottiScontati = Math.max(0, Math.round((totaleProdotti - scontoCalcolato) * 10) / 10);
     return prodottiScontati + costoSpedizione;
@@ -412,7 +500,6 @@ function PagamentoContent({ lang }) {
           const dati = JSON.parse(checkoutDati);
           setCliente({ id: dati.cliente_id, email: dati.email });
 
-          // se dal checkout ho già l'importo sconto, usalo qui
           if (typeof dati.sconto_primo_ordine === 'number') {
             setScontoPrimoOrdine(dati.sconto_primo_ordine);
           }
@@ -449,7 +536,6 @@ function PagamentoContent({ lang }) {
         }
 
         setCliente(cliente);
-        // se il profilo ha primo_sconto (percentuale), lo uso per calcolare lo sconto qui
         if (cliente?.primo_sconto !== null && cliente?.primo_sconto !== undefined) {
           setPrimoScontoPercent(Number(cliente.primo_sconto));
         }
@@ -466,51 +552,43 @@ function PagamentoContent({ lang }) {
     setCodiceOrdine(generaCodiceOrdine());
   }, [lang, router, generaCodiceOrdine]);
 
-  useEffect(() => {
-    if (pagamento === 'paypal' && !scriptCaricato && typeof window !== 'undefined') {
-      const script = document.createElement('script');
-      script.src = `https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=EUR`;
-      script.onload = () => setScriptCaricato(true);
-      document.body.appendChild(script);
-    }
-  }, [pagamento, scriptCaricato]);
+  const aggiornaQuantitaProdotti = useCallback(async () => {
+    for (const item of carrello) {
+      const { data: prodottoCorrente } = await supabase
+        .from('products')
+        .select('quantita')
+        .eq('id', item.id)
+        .single();
 
-  const aggiornaQuantitaProdotti = async () => {
-  for (const item of carrello) {
-    const { data: prodottoCorrente } = await supabase
-      .from('products')
-      .select('quantita')
-      .eq('id', item.id)
-      .single();
-
-    if (prodottoCorrente) {
-      const nuovaQuantita = Math.max((prodottoCorrente.quantita || 0) - item.quantita, 0);
-      await supabase.from('products').update({ quantita: nuovaQuantita }).eq('id', item.id);
-    }
-  }
-};
-
-  const azzeraPrimoScontoSeApplicato = async (email, scontoUsato) => {
-  try {
-    const safeEmail = (email || '').trim().toLowerCase();
-    if (safeEmail && Number(scontoUsato) > 0) {
-      const { error } = await supabase
-        .from('clienti')
-        .update({ primo_sconto: null, updated_at: new Date().toISOString() })
-        .eq('email', safeEmail);
-
-      if (error) {
-        console.error('Errore Supabase azzeramento primo_sconto:', error);
-      } else {
-        console.log(`Primo sconto azzerato per ${safeEmail}`);
+      if (prodottoCorrente) {
+        const nuovaQuantita = Math.max((prodottoCorrente.quantita || 0) - item.quantita, 0);
+        await supabase
+          .from('products')
+          .update({ quantita: nuovaQuantita })
+          .eq('id', item.id);
       }
     }
-  } catch (e) {
-    console.error('Errore azzeramento primo_sconto (catch):', e);
-  }
-};
+  }, [carrello]);
 
+  const azzeraPrimoScontoSeApplicato = async (email, scontoUsato) => {
+    try {
+      const safeEmail = (email || '').trim().toLowerCase();
+      if (safeEmail && Number(scontoUsato) > 0) {
+        const { error } = await supabase
+          .from('clienti')
+          .update({ primo_sconto: null, updated_at: new Date().toISOString() })
+          .eq('email', safeEmail);
 
+        if (error) {
+          console.error('Errore Supabase azzeramento primo_sconto:', error);
+        } else {
+          console.log(`Primo sconto azzerato per ${safeEmail}`);
+        }
+      }
+    } catch (e) {
+      console.error('Errore azzeramento primo_sconto (catch):', e);
+    }
+  };
 
   const confermaBonificoEffettuato = async () => {
     if (!accettaCondizioni) {
@@ -534,7 +612,6 @@ function PagamentoContent({ lang }) {
       await supabase.from('ordini').insert([ordine]);
       await aggiornaQuantitaProdotti();
       await azzeraPrimoScontoSeApplicato(cliente?.email, scontoCalcolato);
-
 
       if (cliente.email) {
         const { data: clienteAttuale } = await supabase
@@ -562,62 +639,6 @@ function PagamentoContent({ lang }) {
       setIsLoading(false);
     }
   };
-
-  const renderPayPalButtons = useCallback(() => {
-    const container = document.getElementById('paypal-button-container');
-    if (!window.paypal || !container) return;
-    
-    container.innerHTML = '';
-
-    window.paypal.Buttons({
-      createOrder: (data, actions) => actions.order.create({
-        purchase_units: [{ amount: { value: totaleFinale.toFixed(2) } }]
-      }),
-      onApprove: async (data, actions) => {
-        setIsLoading(true);
-        try {
-          await actions.order.capture();
-          const ordine = {
-            id: codiceOrdine,
-            cliente,
-            carrello,
-            spedizione,
-            pagamento: 'PayPal',
-            totale: totaleFinale,
-            stato: 'pagato',
-            data: new Date().toISOString()
-          };
-
-          await supabase.from('ordini').insert([ordine]);
-          await aggiornaQuantitaProdotti();
-
-          // azzera primo_sconto SOLO dopo pagamento riuscito (PayPal)
-          try {
-            await azzeraPrimoScontoSeApplicato(cliente?.email, scontoCalcolato);
-          } catch (e) {
-            console.error('Errore azzeramento primo_sconto (PayPal):', e);
-          }
-
-          localStorage.setItem('ordineId', codiceOrdine);
-          localStorage.setItem('nomeCliente', cliente.nome);
-          localStorage.removeItem('carrello');
-
-          router.push(`/ordine-confermato?lang=${lang}&metodo=paypal`);
-        } catch (error) {
-          console.error(error);
-          alert(t.errori.generico);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    }).render('#paypal-button-container');
-  }, [totaleFinale, codiceOrdine, cliente, carrello, spedizione, lang, router, t, aggiornaQuantitaProdotti, scontoCalcolato]);
-
-  useEffect(() => {
-    if (pagamento === 'paypal' && scriptCaricato) {
-      renderPayPalButtons();
-    }
-  }, [pagamento, scriptCaricato, renderPayPalButtons]);
 
   const isFormValido = spedizione && pagamento && (pagamento !== 'bonifico' || (accettaCondizioni && accettaBonifico));
 
@@ -674,11 +695,28 @@ function PagamentoContent({ lang }) {
         <p style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1rem', fontFamily: 'Arial, sans-serif' }}>
           {t.totale}: €{totaleFinale.toFixed(2).replace('.', ',')}
         </p>
-
         {pagamento === 'paypal' && (
-          <div id="paypal-button-container" style={{ marginTop: '1rem' }}></div>
+          <PayPalScriptProvider 
+            options={{
+              "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+              currency: "EUR"
+            }}
+          >
+            <PayPalWrapper
+              totaleFinale={totaleFinale}
+              codiceOrdine={codiceOrdine}
+              cliente={cliente}
+              carrello={carrello}
+              spedizione={spedizione}
+              lang={lang}
+              router={router}
+              t={t}
+              scontoCalcolato={scontoCalcolato}
+              aggiornaQuantitaProdotti={aggiornaQuantitaProdotti}
+              azzeraPrimoScontoSeApplicato={azzeraPrimoScontoSeApplicato}
+            />
+          </PayPalScriptProvider>
         )}
-
         {pagamento === 'bonifico' && (
           <div style={{ marginTop: '1rem', border: '1px solid gray', padding: '1rem', borderRadius: '6px' }}>
             <p>{lang === 'it' ? 'Per completare il pagamento con bonifico, effettua il versamento su:' : 'To complete payment, transfer to:'}</p>
@@ -752,9 +790,8 @@ function PagamentoContent({ lang }) {
               lang={lang}
               router={router}
               t={t}
-              scontoPrimoOrdine={scontoCalcolato}                 // importo € già calcolato in PagamentoContent
+              scontoPrimoOrdine={scontoCalcolato}
               onScontoConsumato={azzeraPrimoScontoSeApplicato}
-              // usa la funzione del punto 4
             />
           </Elements>
         )}
@@ -772,4 +809,3 @@ function PagamentoContent({ lang }) {
     </main>
   );
 }
-export default PagamentoContent;

@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
+import Image from 'next/image';
 
 function OffertePageContent() {
   const params = useSearchParams();
@@ -67,7 +68,6 @@ function OffertePageContent() {
     localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
   };
 
-  // Funzione per ottenere l'URL ottimizzato dell'immagine
   const getImageUrl = (imagePath) => {
     return `https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${imagePath}`;
   };
@@ -107,13 +107,15 @@ function OffertePageContent() {
               }}>
                 {t('titolo')}
               </div>
-              {/* Utilizzo di img standard invece di next/image */}
-              <img
+              
+              <Image
                 src={getImageUrl(prodotto.immagine)}
                 alt={prodotto.nome}
+                width={150}
+                height={150}
                 style={{
                   width: '100%',
-                  maxHeight: '80px',
+                  height: '80px',
                   objectFit: 'cover',
                   borderRadius: '4px',
                   marginBottom: '0.3rem',
@@ -121,6 +123,7 @@ function OffertePageContent() {
                 }}
                 onClick={() => setPopupImg(getImageUrl(prodotto.immagine))}
               />
+              
               <strong>{prodotto.nome}</strong>
               <p>{prodotto.taglia}</p>
               <p>
@@ -141,10 +144,12 @@ function OffertePageContent() {
                 </span>
               </p>
 
-
               <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem', margin: '0.3rem 0' }}>
-                <button onClick={() => cambiaQuantita(prodotto.id, -1)}
-                  style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>–</button>
+                <button 
+                  onClick={() => cambiaQuantita(prodotto.id, -1)}
+                  style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}
+                  aria-label="Decrease quantity"
+                >–</button>
 
                 <input
                   type="text"
@@ -160,10 +165,14 @@ function OffertePageContent() {
                     borderRadius: '4px',
                     padding: '1px 3px'
                   }}
+                  aria-label="Quantity"
                 />
 
-                <button onClick={() => cambiaQuantita(prodotto.id, 1)}
-                  style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>+</button>
+                <button 
+                  onClick={() => cambiaQuantita(prodotto.id, 1)}
+                  style={{ background: 'none', border: 'none', fontSize: '1rem', cursor: 'pointer' }}
+                  aria-label="Increase quantity"
+                >+</button>
               </div>
 
               <button
@@ -177,6 +186,7 @@ function OffertePageContent() {
                   borderRadius: '4px',
                   cursor: 'pointer'
                 }}
+                aria-label="Add to cart"
               >
                 {t('aggiungi')}
               </button>
@@ -192,7 +202,7 @@ function OffertePageContent() {
           padding: '1rem',
           borderRadius: '8px',
           maxWidth: '400px',
-          margin: 'auto'
+          margin: '2rem auto'
         }}>
           <h3 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>🛒 {t('carrello')}</h3>
           {Array.from(new Set(carrello.map(p => p.id))).map(id => {
@@ -207,7 +217,8 @@ function OffertePageContent() {
                 borderBottom: '1px solid #444'
               }}>
                 <span>{prodotto.nome} × {qta}</span>
-                <button onClick={() => rimuoviDalCarrello(id)}
+                <button 
+                  onClick={() => rimuoviDalCarrello(id)}
                   style={{
                     background: 'red',
                     color: 'white',
@@ -216,7 +227,11 @@ function OffertePageContent() {
                     fontSize: '0.7rem',
                     borderRadius: '4px',
                     cursor: 'pointer'
-                  }}>{t('rimuovi')}</button>
+                  }}
+                  aria-label="Remove item"
+                >
+                  {t('rimuovi')}
+                </button>
               </div>
             );
           })}
@@ -233,6 +248,7 @@ function OffertePageContent() {
               fontSize: '1rem',
               cursor: 'pointer'
             }}
+            aria-label="Proceed to checkout"
           >
             {t('checkout')}
           </button>
@@ -251,6 +267,7 @@ function OffertePageContent() {
             fontSize: '0.95rem',
             cursor: 'pointer'
           }}
+          aria-label="Go back"
         >
           {t('indietro')}
         </button>
@@ -268,10 +285,14 @@ function OffertePageContent() {
             justifyContent: 'center',
             zIndex: 1000
           }}
+          role="dialog"
+          aria-modal="true"
         >
-          <img
+          <Image
             src={popupImg}
-            alt="popup"
+            alt="Product preview"
+            width={800}
+            height={800}
             style={{
               maxHeight: '90%',
               maxWidth: '90%',
@@ -286,14 +307,18 @@ function OffertePageContent() {
 
 export default function OffertePage() {
   return (
-    <Suspense fallback={<div style={{ 
-      backgroundColor: 'black', 
-      color: 'white', 
-      minHeight: '100vh', 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center'
-    }}>Loading...</div>}>
+    <Suspense fallback={
+      <div style={{ 
+        backgroundColor: 'black', 
+        color: 'white', 
+        minHeight: '100vh', 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center'
+      }}>
+        Loading...
+      </div>
+    }>
       <OffertePageContent />
     </Suspense>
   );
