@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef,useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 
@@ -64,7 +64,7 @@ export default function CheckoutPage() {
     );
   };
 
-  const fetchUtente = async () => {
+  const fetchUtente = useCallback(async () => {
     const { data: session } = await supabase.auth.getSession();
     if (session.session?.user) {
       setUtente(session.session.user);
@@ -94,13 +94,13 @@ export default function CheckoutPage() {
         setStep(2);
       }
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchUtente();
     const dati = localStorage.getItem('carrello');
     if (dati) setCarrello(JSON.parse(dati));
-  }, []);
+  }, [fetchUtente]);
 
   const validaEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 

@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import dynamic from 'next/dynamic';
-import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
+import { PayPalScriptProvider, PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 
 const PayPalWrapper = ({ 
   totaleFinale, 
@@ -22,17 +21,7 @@ const PayPalWrapper = ({
   azzeraPrimoScontoSeApplicato
 }) => {
   const [paypalError, setPaypalError] = useState(null);
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!loaded) {
-        setPaypalError(t.errori.generico);
-      }
-    }, 10000); // Timeout dopo 10 secondi
-
-    return () => clearTimeout(timer);
-  }, [loaded, t.errori.generico]);
+  const [{ isPending, isResolved }] = usePayPalScriptReducer();
 
   const createOrder = (data, actions) => {
     return actions.order.create({
@@ -80,16 +69,9 @@ const PayPalWrapper = ({
         <div className="text-red-500 mb-4">{paypalError}</div>
       )}
       
-      <PayPalScriptProvider 
-        options={{
-          "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
-          currency: "EUR",
-          "data-sdk-integration-source": "integrationbuilder_sc",
-          "disable-funding": "credit,card",
-          "components": "buttons"
-        }}
-        onScriptLoad={() => setLoaded(true)}
-      >
+      {isPending && <div className="text-center py-4">{t.loading}</div>}
+      
+      {isResolved && (
         <PayPalButtons
           style={{ layout: 'vertical', shape: 'rect' }}
           createOrder={createOrder}
@@ -98,11 +80,13 @@ const PayPalWrapper = ({
             console.error('PayPal error:', err);
             setPaypalError(t.errori.generico);
           }}
+          forceReRender={[totaleFinale, codiceOrdine]}
         />
-      </PayPalScriptProvider>
+      )}
     </div>
   );
 };
+
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
 const traduzioni = {
   it: {
@@ -130,7 +114,8 @@ const traduzioni = {
     loading: 'Caricamento...',
     rivedi_condizioni: 'Rivedi termini e condizioni',
     testo_condizione: 'I prodotti saranno spediti esclusivamente dopo la ricezione del bonifico in entrata.',
-    confermo_bonifico: 'Confermo che il bonifico è stato effettuato'
+    confermo_bonifico: 'Confermo che il bonifico è stato effettuato',
+    dettagli_carta: 'Dettagli Carta di Credito'
   },
   en: {
     titolo: 'Payment',
@@ -157,7 +142,8 @@ const traduzioni = {
     loading: 'Loading...',
     rivedi_condizioni: 'Review terms and conditions',
     testo_condizione: 'Products will only be shipped after receiving the bank transfer.',
-    confermo_bonifico: 'I confirm that the bank transfer has been made'
+    confermo_bonifico: 'I confirm that the bank transfer has been made',
+    dettagli_carta: 'Credit Card Details'
   },
   fr: {
     titolo: 'Paiement',
@@ -184,7 +170,8 @@ const traduzioni = {
     loading: 'Chargement...',
     rivedi_condizioni: 'Lire les conditions générales',
     testo_condizione: 'Les produits seront expédiés uniquement après réception du virement bancaire.',
-    confermo_bonifico: 'Je confirme que le virement a été effectué'
+    confermo_bonifico: 'Je confirme que le virement a été effectué',
+    dettagli_carta: 'Détails de la carte de crédit'
   },
   de: {
     titolo: 'Zahlung',
@@ -211,7 +198,8 @@ const traduzioni = {
     loading: 'Laden...',
     rivedi_condizioni: 'AGB überprüfen',
     testo_condizione: 'Die Produkte werden nur nach Eingang der Banküberweisung versendet.',
-    confermo_bonifico: 'Ich bestätige, dass die Überweisung erfolgt ist'
+    confermo_bonifico: 'Ich bestätige, dass die Überweisung erfolgt ist',
+    dettagli_carta: 'Kreditkartendetails'
   },
   es: {
     titolo: 'Pago',
@@ -238,7 +226,8 @@ const traduzioni = {
     loading: 'Cargando...',
     rivedi_condizioni: 'Revisar términos y condiciones',
     testo_condizione: 'Los productos solo se enviarán después de recibir la transferencia bancaria.',
-    confermo_bonifico: 'Confirmo que se ha realizado la transferencia bancaria'
+    confermo_bonifico: 'Confirmo que se ha realizado la transferencia bancaria',
+    dettagli_carta: 'Detalles de la tarjeta de crédito'
   },
   ar: {
     titolo: 'الدفع',
@@ -265,7 +254,8 @@ const traduzioni = {
     loading: 'جاري التحميل...',
     rivedi_condizioni: 'راجع الشروط والأحكام',
     testo_condizione: 'سيتم شحن المنتجات فقط بعد استلام التحويل المصرفي.',
-    confermo_bonifico: 'أؤكد أن التحويل المصرفي قد تم'
+    confermo_bonifico: 'أؤكد أن التحويل المصرفي قد تم',
+    dettagli_carta: 'تفاصيل بطاقة الائتمان'
   },
   zh: {
     titolo: '支付',
@@ -292,7 +282,8 @@ const traduzioni = {
     loading: '加载中...',
     rivedi_condizioni: '查看条款和条件',
     testo_condizione: '仅在收到银行转账后才会发货。',
-    confermo_bonifico: '我确认银行转账已完成'
+    confermo_bonifico: '我确认银行转账已完成',
+    dettagli_carta: '信用卡详细信息'
   },
   ja: {
     titolo: 'お支払い',
@@ -319,9 +310,11 @@ const traduzioni = {
     loading: '読み込み中...',
     rivedi_condizioni: '利用規約を確認する',
     testo_condizione: '商品の発送は銀行振込の確認後に行われます。',
-    confermo_bonifico: '振込が完了したことを確認します'
+    confermo_bonifico: '振込が完了したことを確認します',
+    dettagli_carta: 'クレジットカードの詳細'
   }
 };
+
 // componente StripePayment //
 const StripePayment = ({ 
   totaleFinale, 
@@ -413,7 +406,11 @@ const StripePayment = ({
         borderRadius: '6px',
         marginBottom: '1rem'
       }}>
+        <label htmlFor="card-element" style={{ display: 'block', marginBottom: '0.5rem' }}>
+          {t.dettagli_carta}
+        </label>
         <CardElement 
+          id="card-element"
           options={{
             style: {
               base: {
@@ -446,6 +443,7 @@ const StripePayment = ({
     </form>
   );
 };
+
 // componente principale PagamentoContent //
 export default function PagamentoContent({ lang }) {
   const router = useRouter();
@@ -460,6 +458,7 @@ export default function PagamentoContent({ lang }) {
   const [isLoading, setIsLoading] = useState(false);
   const [primoScontoPercent, setPrimoScontoPercent] = useState(null);
   const [scontoPrimoOrdine, setScontoPrimoOrdine] = useState(0);
+  const [paypalLoaded, setPaypalLoaded] = useState(false);
 
   const t = traduzioni[lang] || traduzioni.it;
 
@@ -650,9 +649,12 @@ export default function PagamentoContent({ lang }) {
         <div style={{ textAlign: 'center', margin: '1rem 0' }}>{t.loading}</div>
       )}
 
-      <div style={{ maxWidth: '500px', margin: '0 auto' }}>
-        <label style={{ display: 'block', marginBottom: '0.5rem' }}>{t.spedizione}:</label>
+      <div style={{ maxWidth: '500px', margin: '0 auto' }}>      <label htmlFor="spedizione-select" style={{ display: 'block', marginBottom: '0.5rem' }}>
+          {t.spedizione}:
+        </label>
         <select
+          id="spedizione-select"
+          name="spedizione"
           value={spedizione}
           onChange={(e) => {
             setSpedizione(e.target.value);
@@ -672,8 +674,12 @@ export default function PagamentoContent({ lang }) {
           <option value="ritiro">{t.ritiro}</option>
         </select>
 
-        <label style={{ display: 'block', marginBottom: '0.5rem' }}>{t.pagamento}:</label>
+        <label htmlFor="pagamento-select" style={{ display: 'block', marginBottom: '0.5rem' }}>
+          {t.pagamento}:
+        </label>
         <select
+          id="pagamento-select"
+          name="pagamento"
           value={pagamento}
           onChange={(e) => {
             setPagamento(e.target.value);
@@ -695,11 +701,14 @@ export default function PagamentoContent({ lang }) {
         <p style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1rem', fontFamily: 'Arial, sans-serif' }}>
           {t.totale}: €{totaleFinale.toFixed(2).replace('.', ',')}
         </p>
-        {pagamento === 'paypal' && (
+        
+{pagamento === 'paypal' && (
           <PayPalScriptProvider 
             options={{
               "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
-              currency: "EUR"
+              currency: "EUR",
+              "disable-funding": "credit,card",
+              "components": "buttons"
             }}
           >
             <PayPalWrapper
@@ -717,6 +726,7 @@ export default function PagamentoContent({ lang }) {
             />
           </PayPalScriptProvider>
         )}
+        
         {pagamento === 'bonifico' && (
           <div style={{ marginTop: '1rem', border: '1px solid gray', padding: '1rem', borderRadius: '6px' }}>
             <p>{lang === 'it' ? 'Per completare il pagamento con bonifico, effettua il versamento su:' : 'To complete payment, transfer to:'}</p>
@@ -725,9 +735,11 @@ export default function PagamentoContent({ lang }) {
             <p><strong>{t.causale} {codiceOrdine}</strong></p>
 
             <div style={{ marginTop: '1rem' }}>
-              <label>
+              <label htmlFor="accetta-condizioni">
                 <input
                   type="checkbox"
+                  id="accetta-condizioni"
+                  name="accetta-condizioni"
                   checked={accettaCondizioni}
                   onChange={() => setAccettaCondizioni(!accettaCondizioni)}
                   style={{ marginRight: '0.5rem' }}
@@ -748,9 +760,11 @@ export default function PagamentoContent({ lang }) {
             </div>
 
             <div style={{ marginTop: '1rem' }}>
-              <label>
+              <label htmlFor="confermo-bonifico">
                 <input
                   type="checkbox"
+                  id="confermo-bonifico"
+                  name="confermo-bonifico"
                   checked={accettaBonifico}
                   onChange={() => setAccettaBonifico(!accettaBonifico)}
                   style={{ marginRight: '0.5rem' }}
