@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ShoppingCart } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { Suspense } from 'react';
+
 function AccessoriPage() {
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
@@ -24,6 +25,7 @@ function AccessoriPage() {
     const value = Number(val || 0);
     return `€ ${value.toFixed(2)}`;
   };
+  
   const traduzioni = {
     it: {
       titolo: 'GALLERIA ACCESSORI',
@@ -31,8 +33,8 @@ function AccessoriPage() {
       aggiungi: 'Aggiungi al carrello',
       checkout: 'Check-out',
       indietro: 'Indietro',
-      venduto: 'venduto',
-      erroreQuantita: 'La quantità richiesta è superiore alla disponibilità! Per confermare comunque, controlla la nostra policy per la produzione.',
+      venduto: 'ESAURITO',  // Modificato in versione compatta
+      erroreQuantita: 'Prodotto esaurito!',  // Messaggio semplificato
       visualizzaPolicy: 'Visualizza Policy',
       accetta: 'Sono d\'accordo con la policy per la produzione',
       continua: 'Continua con l\'ordine',
@@ -46,8 +48,8 @@ function AccessoriPage() {
       aggiungi: 'Add to cart',
       checkout: 'Checkout',
       indietro: 'Back',
-      venduto: 'sold',
-      erroreQuantita: 'Requested quantity exceeds available stock! To confirm anyway, check our production policy.',
+      venduto: 'SOLD',  // Modificato in versione compatta
+      erroreQuantita: 'Product out of stock!',  // Messaggio semplificato
       visualizzaPolicy: 'View Policy',
       accetta: 'I agree with the production policy',
       continua: 'Continue with order',
@@ -61,10 +63,10 @@ function AccessoriPage() {
       aggiungi: 'Ajouter au panier',
       checkout: 'Passer à la caisse',
       indietro: 'Retour',
-      venduto: 'vendu',
-      erroreQuantita: 'La quantité demandée dépasse le stock! Consultez notre politique de production.',
+      venduto: 'ÉPUISÉ',  // Versione compatta
+      erroreQuantita: 'Produit en rupture de stock!',  // Messaggio semplificato
       visualizzaPolicy: 'Voir la politique',
-      accetta: 'J’accepte la politique de production',
+      accetta: 'J\'accepte la politique de production',
       continua: 'Continuer la commande',
       rimuovi: 'Supprimer',
       carrello: 'Panier',
@@ -76,8 +78,8 @@ function AccessoriPage() {
       aggiungi: 'In den Warenkorb',
       checkout: 'Zur Kasse',
       indietro: 'Zurück',
-      venduto: 'ausverkauft',
-      erroreQuantita: 'Angeforderte Menge übersteigt den Bestand! Prüfen Sie unsere Produktionsrichtlinie.',
+      venduto: 'AUSVERKAUFT',  // Versione molto più corta
+      erroreQuantita: 'Produkt ausverkauft!',  // Messaggio semplificato
       visualizzaPolicy: 'Richtlinie anzeigen',
       accetta: 'Ich stimme der Produktionsrichtlinie zu',
       continua: 'Bestellung fortsetzen',
@@ -91,8 +93,8 @@ function AccessoriPage() {
       aggiungi: 'Agregar al carrito',
       checkout: 'Finalizar compra',
       indietro: 'Atrás',
-      venduto: 'vendido',
-      erroreQuantita: '¡Cantidad solicitada supera el stock! Revisa nuestra política de producción.',
+      venduto: 'AGOTADO',  // Versione compatta
+      erroreQuantita: '¡Producto agotado!',  // Messaggio semplificato
       visualizzaPolicy: 'Ver política',
       accetta: 'Acepto la política de producción',
       continua: 'Continuar pedido',
@@ -106,8 +108,8 @@ function AccessoriPage() {
       aggiungi: '添加到购物车',
       checkout: '结账',
       indietro: '返回',
-      venduto: '售罄',
-      erroreQuantita: '请求数量超出库存！请查看我们的生产政策。',
+      venduto: '售罄',  // Versione compatta
+      erroreQuantita: '产品缺货!',  // Messaggio semplificato
       visualizzaPolicy: '查看政策',
       accetta: '我同意生产政策',
       continua: '继续下单',
@@ -121,8 +123,8 @@ function AccessoriPage() {
       aggiungi: 'أضف إلى السلة',
       checkout: 'إتمام الشراء',
       indietro: 'رجوع',
-      venduto: 'تم البيع',
-      erroreQuantita: 'الكمية المطلوبة تتجاوز المتوفر! تحقق من سياسة الإنتاج.',
+      venduto: 'نفذ',  // Forma abbreviata
+      erroreQuantita: 'المنتج غير متوفر!',  // Messaggio semplificato
       visualizzaPolicy: 'عرض السياسة',
       accetta: 'أوافق على سياسة الإنتاج',
       continua: 'متابعة الطلب',
@@ -136,8 +138,8 @@ function AccessoriPage() {
       aggiungi: 'カートに追加',
       checkout: 'チェックアウト',
       indietro: '戻る',
-      venduto: '売切れ',
-      erroreQuantita: 'リクエスト数が在庫を超えています。生産ポリシーをご確認ください。',
+      venduto: '売切',  // Versione compatta
+      erroreQuantita: '在庫切れ!',  // Messaggio semplificato
       visualizzaPolicy: 'ポリシーを見る',
       accetta: '生産ポリシーに同意します',
       continua: '注文を続ける',
@@ -156,6 +158,7 @@ function AccessoriPage() {
     borse: { it: 'Borse', en: 'Bags', fr: 'Sacs', de: 'Taschen', es: 'Bolsos', zh: '包', ar: 'حقائب', ja: 'バッグ' },
     foulard: { it: 'Foulard', en: 'Scarves', fr: 'Foulards', de: 'Schals', es: 'Pañuelos', zh: '围巾', ar: 'أوشحة', ja: 'スカーフ' }
   };
+  
   useEffect(() => {
     const carrelloSalvato = JSON.parse(localStorage.getItem('carrello') || '[]');
     setCarrello(carrelloSalvato);
@@ -206,6 +209,7 @@ function AccessoriPage() {
   };
 
   const baseUrl = 'https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/';
+  
   return (
     <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem 1rem', maxWidth: '100vw', overflowX: 'hidden', margin: '0 auto', position: 'relative' }}>
       {carrello.length > 0 && (
@@ -270,6 +274,7 @@ function AccessoriPage() {
           ))}
         </select>
       </div>
+      
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
@@ -279,6 +284,8 @@ function AccessoriPage() {
           const prezzoNum = Number(prodotto.prezzo);
           const scontoNum = Number(prodotto.sconto || 0);
           const prezzoScontato = Math.round((prezzoNum - (prezzoNum * scontoNum / 100)) * 100) / 100;
+          const esaurito = prodotto.quantita !== null && prodotto.quantita <= 0;
+          
           return (
             <div key={prodotto.id} style={{
               backgroundColor: 'white',
@@ -290,8 +297,31 @@ function AccessoriPage() {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
-              height: '340px'
+              height: '340px',
+              position: 'relative'
             }}>
+              {esaurito && (
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  backgroundColor: 'rgba(255, 0, 0, 0.7)',
+                  color: 'white',
+                  padding: '0.3rem 0.4rem',
+                  borderRadius: '4px',
+                  fontWeight: 'bold',
+                  fontSize: '0.75rem',
+                  zIndex: 2,
+                  width: 'auto',
+                  maxWidth: '90%',
+                  textAlign: 'center',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {t('venduto')}
+                </div>
+              )}
+              
               <img
                 src={baseUrl + prodotto.immagine}
                 alt={prodotto.nome}
@@ -299,14 +329,18 @@ function AccessoriPage() {
                   width: '100%',
                   height: '200px',
                   objectFit: 'cover',
-                  cursor: 'pointer',
-                  borderRadius: '4px'
+                  cursor: esaurito ? 'default' : 'pointer',
+                  borderRadius: '4px',
+                  opacity: esaurito ? 0.5 : 1
                 }}
                 onClick={() => {
-                  setPopupProdotto(prodotto);
-                  setImmagineAttiva(prodotto.immagine);
+                  if (!esaurito) {
+                    setPopupProdotto(prodotto);
+                    setImmagineAttiva(prodotto.immagine);
+                  }
                 }}
               />
+              
               <div style={{
                 padding: '0.5rem 0',
                 minHeight: '60px'
@@ -346,6 +380,7 @@ function AccessoriPage() {
           );
         })}
       </div>
+      
       {popupProdotto && (
         <div
           onClick={() => {
@@ -435,6 +470,7 @@ function AccessoriPage() {
                 <>€ {Number(popupProdotto.prezzo).toFixed(2)}</>
               )}
             </p>
+            
             <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
               <button onClick={() => cambiaQuantita(popupProdotto.id, -1)} style={{ fontSize: '1.2rem' }}>–</button>
               <input
@@ -446,44 +482,44 @@ function AccessoriPage() {
               <button onClick={() => cambiaQuantita(popupProdotto.id, 1)} style={{ fontSize: '1.2rem' }}>+</button>
             </div>
 
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', gap: '0.5rem' }}>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                aggiungiAlCarrello(popupProdotto);
-                setPopupProdotto(null);
-              }}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#333',
-                color: 'white',
-                borderRadius: '6px',
-                border: 'none',
-                fontSize: '1rem',
-                cursor: 'pointer'
-              }}
-            >
-              {t('aggiungi')}
-            </button>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', gap: '0.5rem' }}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  aggiungiAlCarrello(popupProdotto);
+                  setPopupProdotto(null);
+                }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#333',
+                  color: 'white',
+                  borderRadius: '6px',
+                  border: 'none',
+                  fontSize: '1rem',
+                  cursor: 'pointer'
+                }}
+              >
+                {t('aggiungi')}
+              </button>
 
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                router.push(`/checkout?lang=${lang}`);
-              }}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#333',
-                color: 'white',
-                borderRadius: '6px',
-                border: 'none',
-                fontSize: '1rem',
-                cursor: 'pointer'
-              }}
-            >
-              {t('checkout')}
-            </button>
-          </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/checkout?lang=${lang}`);
+                }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#333',
+                  color: 'white',
+                  borderRadius: '6px',
+                  border: 'none',
+                  fontSize: '1rem',
+                  cursor: 'pointer'
+                }}
+              >
+                {t('checkout')}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -536,24 +572,10 @@ function AccessoriPage() {
             ✕
           </button>
           {t('erroreQuantita')}
-          <div style={{ marginTop: '0.5rem' }}>
-            <button
-              onClick={() => setShowPolicy(true)}
-              style={{
-                backgroundColor: '#900',
-                color: 'white',
-                padding: '0.3rem 0.8rem',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '0.75rem'
-              }}
-            >
-              {t('visualizzaPolicy')}
-            </button>
-          </div>
         </div>
       )}
+      
+      {/* Sezione policy commentata per un eventuale futuro riutilizzo
       {showPolicy && (
         <div style={{
           position: 'fixed',
@@ -624,10 +646,11 @@ function AccessoriPage() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </main>
   );
 }
+
 export default function AccessoriPageWrapper() {
   return (
     <Suspense fallback={null}>

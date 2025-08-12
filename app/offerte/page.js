@@ -68,8 +68,10 @@ function OffertePageContent() {
     localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
   };
 
+  // FIX: Codifica il nome del file per gestire spazi e caratteri speciali
   const getImageUrl = (imagePath) => {
-    return `https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${imagePath}`;
+    const encodedPath = encodeURIComponent(imagePath);
+    return `https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${encodedPath}`;
   };
 
   return (

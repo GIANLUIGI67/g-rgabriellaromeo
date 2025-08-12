@@ -22,14 +22,126 @@ function AbbigliamentoPage() {
   const [accettaPolicy, setAccettaPolicy] = useState(false);
 
   const traduzioni = {
-    it: { titolo: 'GALLERIA ABBIGLIAMENTO', sottotutte: 'Tutte le sottocategorie', aggiungi: 'Aggiungi al carrello', checkout: 'Check-out', indietro: 'Indietro', venduto: 'venduto', erroreQuantita: 'La quantità richiesta è superiore alla disponibilità! Per confermare comunque, controlla la nostra policy per la produzione.', visualizzaPolicy: 'Visualizza Policy', accetta: 'Sono d\'accordo con la policy per la produzione', continua: 'Continua con l’ordine', rimuovi: 'Rimuovi', policyTitolo: 'Policy per la produzione', carrello: 'Carrello' },
-    en: { titolo: 'FASHION WEAR', sottotutte: 'All subcategories', aggiungi: 'Add to cart', checkout: 'Checkout', indietro: 'Back', venduto: 'sold', erroreQuantita: 'Requested quantity exceeds available stock! To confirm anyway, check our production policy.', visualizzaPolicy: 'View Policy', accetta: 'I agree with the production policy', continua: 'Continue with order', rimuovi: 'Remove', policyTitolo: 'Production Policy', carrello: 'Cart' },
-    fr: { titolo: 'VÊTEMENTS', sottotutte: 'Toutes les sous-catégories', aggiungi: 'Ajouter au panier', checkout: 'Paiement', indietro: 'Retour', venduto: 'vendu', erroreQuantita: 'La quantité demandée dépasse le stock! Consultez notre politique de production.', visualizzaPolicy: 'Voir la politique', accetta: 'J’accepte la politique de production', continua: 'Continuer la commande', rimuovi: 'Supprimer', policyTitolo: 'Politique de production', carrello: 'Panier' },
-    de: { titolo: 'BEKLEIDUNG', sottotutte: 'Alle Unterkategorien', aggiungi: 'In den Warenkorb', checkout: 'Zur Kasse', indietro: 'Zurück', venduto: 'ausverkauft', erroreQuantita: 'Angeforderte Menge übersteigt den Bestand! Prüfen Sie unsere Produktionsrichtlinie.', visualizzaPolicy: 'Richtlinie anzeigen', accetta: 'Ich stimme der Produktionsrichtlinie zu', continua: 'Bestellung fortsetzen', rimuovi: 'Entfernen', policyTitolo: 'Produktionsrichtlinie', carrello: 'Warenkorb' },
-    es: { titolo: 'ROPA', sottotutte: 'Todas las subcategorías', aggiungi: 'Agregar al carrito', checkout: 'Pagar', indietro: 'Atrás', venduto: 'vendido', erroreQuantita: '¡Cantidad solicitada supera el stock! Revisa nuestra política de producción.', visualizzaPolicy: 'Ver política', accetta: 'Acepto la política de producción', continua: 'Continuar pedido', rimuovi: 'Eliminar', policyTitolo: 'Política de producción', carrello: 'Carrito' },
-    ar: { titolo: 'ملابس', sottotutte: 'جميع الفئات الفرعية', aggiungi: 'أضف إلى السلة', checkout: 'الدفع', indietro: 'عودة', venduto: 'تم البيع', erroreQuantita: 'الكمية المطلوبة تتجاوز المتوفر! تحقق من سياسة الإنتاج.', visualizzaPolicy: 'عرض السياسة', accetta: 'أوافق على سياسة الإنتاج', continua: 'متابعة الطلب', rimuovi: 'إزالة', policyTitolo: 'سياسة الإنتاج', carrello: 'سلة التسوق' },
-    zh: { titolo: '服饰', sottotutte: '所有子类别', aggiungi: '加入购物车', checkout: '结账', indietro: '返回', venduto: '售罄', erroreQuantita: '请求数量超出库存！请查看我们的生产政策。', visualizzaPolicy: '查看政策', accetta: '我同意生产政策', continua: '继续下单', rimuovi: '移除', policyTitolo: '生产政策', carrello: '购物车' },
-    ja: { titolo: 'ファッションウェア', sottotutte: 'すべてのサブカテゴリ', aggiungi: 'カートに追加', checkout: 'チェックアウト', indietro: '戻る', venduto: '売切れ', erroreQuantita: 'リクエスト数が在庫を超えています。生産ポリシーをご確認ください。', visualizzaPolicy: 'ポリシーを見る', accetta: '生産ポリシーに同意します', continua: '注文を続ける', rimuovi: '削除', policyTitolo: '生産ポリシー', carrello: 'カート' }
+    it: { 
+      titolo: 'GALLERIA ABBIGLIAMENTO', 
+      sottotutte: 'Tutte le sottocategorie', 
+      aggiungi: 'Aggiungi al carrello', 
+      checkout: 'Check-out', 
+      indietro: 'Indietro', 
+      venduto: 'ESAURITO', 
+      erroreQuantita: 'Prodotto esaurito!', 
+      visualizzaPolicy: 'Visualizza Policy', 
+      accetta: 'Sono d\'accordo con la policy per la produzione', 
+      continua: 'Continua con l\'ordine', 
+      rimuovi: 'Rimuovi', 
+      policyTitolo: 'Policy per la produzione', 
+      carrello: 'Carrello' 
+    },
+    en: { 
+      titolo: 'FASHION WEAR', 
+      sottotutte: 'All subcategories', 
+      aggiungi: 'Add to cart', 
+      checkout: 'Checkout', 
+      indietro: 'Back', 
+      venduto: 'SOLD OUT', 
+      erroreQuantita: 'Product out of stock!', 
+      visualizzaPolicy: 'View Policy', 
+      accetta: 'I agree with the production policy', 
+      continua: 'Continue with order', 
+      rimuovi: 'Remove', 
+      policyTitolo: 'Production Policy', 
+      carrello: 'Cart' 
+    },
+    fr: { 
+      titolo: 'VÊTEMENTS', 
+      sottotutte: 'Toutes les sous-catégories', 
+      aggiungi: 'Ajouter au panier', 
+      checkout: 'Paiement', 
+      indietro: 'Retour', 
+      venduto: 'ÉPUISÉ', 
+      erroreQuantita: 'Produit en rupture de stock!', 
+      visualizzaPolicy: 'Voir la politique', 
+      accetta: 'J\'accepte la politique de production', 
+      continua: 'Continuer la commande', 
+      rimuovi: 'Supprimer', 
+      policyTitolo: 'Politique de production', 
+      carrello: 'Panier' 
+    },
+    de: { 
+      titolo: 'BEKLEIDUNG', 
+      sottotutte: 'Alle Unterkategorien', 
+      aggiungi: 'In den Warenkorb', 
+      checkout: 'Zur Kasse', 
+      indietro: 'Zurück', 
+      venduto: 'AUSVERKAUFT', 
+      erroreQuantita: 'Produkt ausverkauft!', 
+      visualizzaPolicy: 'Richtlinie anzeigen', 
+      accetta: 'Ich stimme der Produktionsrichtlinie zu', 
+      continua: 'Bestellung fortsetzen', 
+      rimuovi: 'Entfernen', 
+      policyTitolo: 'Produktionsrichtlinie', 
+      carrello: 'Warenkorb' 
+    },
+    es: { 
+      titolo: 'ROPA', 
+      sottotutte: 'Todas las subcategorías', 
+      aggiungi: 'Agregar al carrito', 
+      checkout: 'Pagar', 
+      indietro: 'Atrás', 
+      venduto: 'AGOTADO', 
+      erroreQuantita: '¡Producto agotado!', 
+      visualizzaPolicy: 'Ver política', 
+      accetta: 'Acepto la política de producción', 
+      continua: 'Continuar pedido', 
+      rimuovi: 'Eliminar', 
+      policyTitolo: 'Política de producción', 
+      carrello: 'Carrito' 
+    },
+    ar: { 
+      titolo: 'ملابس', 
+      sottotutte: 'جميع الفئات الفرعية', 
+      aggiungi: 'أضف إلى السلة', 
+      checkout: 'الدفع', 
+      indietro: 'عودة', 
+      venduto: 'نفذت الكمية', 
+      erroreQuantita: 'المنتج غير متوفر!', 
+      visualizzaPolicy: 'عرض السياسة', 
+      accetta: 'أوافق على سياسة الإنتاج', 
+      continua: 'متابعة الطلب', 
+      rimuovi: 'إزالة', 
+      policyTitolo: 'سياسة الإنتاج', 
+      carrello: 'سلة التسوق' 
+    },
+    zh: { 
+      titolo: '服饰', 
+      sottotutte: '所有子类别', 
+      aggiungi: '加入购物车', 
+      checkout: '结账', 
+      indietro: '返回', 
+      venduto: '售罄', 
+      erroreQuantita: '产品缺货!', 
+      visualizzaPolicy: '查看政策', 
+      accetta: '我同意生产政策', 
+      continua: '继续下单', 
+      rimuovi: '移除', 
+      policyTitolo: '生产政策', 
+      carrello: '购物车' 
+    },
+    ja: { 
+      titolo: 'ファッションウェア', 
+      sottotutte: 'すべてのサブカテゴリ', 
+      aggiungi: 'カートに追加', 
+      checkout: 'チェックアウト', 
+      indietro: '戻る', 
+      venduto: '売切れ', 
+      erroreQuantita: '在庫切れ!', 
+      visualizzaPolicy: 'ポリシーを見る', 
+      accetta: '生産ポリシーに同意します', 
+      continua: '注文を続ける', 
+      rimuovi: '削除', 
+      policyTitolo: '生産ポリシー', 
+      carrello: 'カート' 
+    }
   };
 
   const t = (key) => traduzioni[lang]?.[key] || traduzioni['it'][key] || key;
@@ -171,6 +283,8 @@ function AbbigliamentoPage() {
           const prezzoNum = Number(prodotto.prezzo);
           const scontoNum = Number(prodotto.sconto || 0);
           const prezzoScontato = Math.round((prezzoNum - (prezzoNum * scontoNum / 100)) * 10) / 10;
+          const esaurito = prodotto.quantita !== null && prodotto.quantita <= 0;
+          
           return (
             <div key={prodotto.id} style={{
               backgroundColor: 'white',
@@ -182,21 +296,45 @@ function AbbigliamentoPage() {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
-              height: '340px'  // puoi aumentare o ridurre se serve
+              height: '340px',
+              position: 'relative'
             }}>
+              {esaurito && (
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  backgroundColor: 'rgba(255, 0, 0, 0.7)',
+                  color: 'white',
+                  padding: '0.3rem 0.4rem',
+                  borderRadius: '4px',
+                  fontWeight: 'bold',
+                  fontSize: '0.75rem',
+                  zIndex: 2,
+                  width: '90%',
+                  textAlign: 'center',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {t('venduto')}
+                </div>
+              )}
               <img
                 src={baseUrl + immagini[0]}
                 alt={prodotto.nome}
                 style={{
                   width: '100%',
-                  height: 'auto',
+                  height: '200px',
                   objectFit: 'cover',
-                  cursor: 'pointer',
-                  borderRadius: '4px'
+                  cursor: esaurito ? 'default' : 'pointer',
+                  borderRadius: '4px',
+                  opacity: esaurito ? 0.5 : 1
                 }}
                 onClick={() => {
-                  setPopupProdotto(prodotto);
-                  setImmagineAttiva(immagini[0]);
+                  if (!esaurito) {
+                    setPopupProdotto(prodotto);
+                    setImmagineAttiva(immagini[0]);
+                  }
                 }}
               />
               <strong>{prodotto.nome}</strong>
@@ -330,44 +468,44 @@ function AbbigliamentoPage() {
               <button onClick={() => cambiaQuantita(popupProdotto.id, 1)} style={{ fontSize: '1.2rem' }}>+</button>
             </div>
 
-<div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', gap: '0.5rem' }}>
-  <button
-    onClick={(e) => {
-      e.stopPropagation();
-      aggiungiAlCarrello(popupProdotto);
-      setPopupProdotto(null);
-    }}
-    style={{
-      padding: '0.5rem 1rem',
-      backgroundColor: '#333',
-      color: 'white',
-      borderRadius: '6px',
-      border: 'none',
-      fontSize: '1rem',
-      cursor: 'pointer'
-    }}
-  >
-    {t('aggiungi')}
-  </button>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', gap: '0.5rem' }}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  aggiungiAlCarrello(popupProdotto);
+                  setPopupProdotto(null);
+                }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#333',
+                  color: 'white',
+                  borderRadius: '6px',
+                  border: 'none',
+                  fontSize: '1rem',
+                  cursor: 'pointer'
+                }}
+              >
+                {t('aggiungi')}
+              </button>
 
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                router.push(`/checkout?lang=${lang}`);
-              }}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#333',
-                color: 'white',
-                borderRadius: '6px',
-                border: 'none',
-                fontSize: '1rem',
-                cursor: 'pointer'
-              }}
-            >
-              {t('checkout')}
-            </button>
-          </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/checkout?lang=${lang}`);
+                }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#333',
+                  color: 'white',
+                  borderRadius: '6px',
+                  border: 'none',
+                  fontSize: '1rem',
+                  cursor: 'pointer'
+                }}
+              >
+                {t('checkout')}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -419,26 +557,11 @@ function AbbigliamentoPage() {
             ✕
           </button>
           {t('erroreQuantita')}
-          <div style={{ marginTop: '0.5rem' }}>
-            <button
-              onClick={() => setShowPolicy(true)}
-              style={{
-                backgroundColor: '#900',
-                color: 'white',
-                padding: '0.3rem 0.8rem',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '0.75rem'
-              }}
-            >
-              {t('visualizzaPolicy')}
-            </button>
-          </div>
         </div>
       )}
 
-      {showPolicy && (
+      {/* Policy section commented out for future use */}
+      {/* {showPolicy && (
         <div style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
@@ -508,10 +631,11 @@ function AbbigliamentoPage() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </main>
   );
 }
+
 export default function AbbigliamentoPageWrapper() {
   return (
     <Suspense fallback={null}>
