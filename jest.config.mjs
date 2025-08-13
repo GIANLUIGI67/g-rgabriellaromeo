@@ -20,7 +20,8 @@ const customJestConfig = {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
-  // imposta soglie "ragionevoli" (puoi adattarle)
+
+  // Soglie di copertura "ragionevoli" (puoi adattarle)
   coverageThreshold: {
     global: { branches: 10, functions: 10, lines: 10, statements: 10 },
   },
@@ -30,6 +31,11 @@ const customJestConfig = {
     '\\.(css|less|sass|scss)$': 'identity-obj-proxy',
     // Alias @/ -> root
     '^@/(.*)$': '<rootDir>/$1',
+
+    // Mock per moduli Next che altrimenti rompono i test in jsdom
+    '^next/link$': '<rootDir>/mocks/nextLinkMock.js',
+    '^next/navigation$': '<rootDir>/mocks/nextNavigationMock.js',
+    '^next/image$': '<rootDir>/mocks/nextImageMock.js',
   },
 
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],

@@ -657,26 +657,30 @@ export default function CheckoutPage() {
                   <div className="item-info">
                     <span className="quantity">{p.quantita || 1}x</span>
                     <span className="name">{p.nome}</span>
-                    <span className="price">
-                      {p.offerta && p.sconto ? (
-                        <>
-                          <span style={{ textDecoration: 'line-through', color: '#888', marginRight: '8px' }}>
-                            {'\u20AC'}
-                            {(p.prezzo * (p.quantita || 1)).toFixed(1)}
-                          </span>
-                          <span style={{ color: '#ff5252', fontWeight: 'bold' }}>
-                            {'\u20AC'}
-                            {((p.prezzo - (p.prezzo * p.sconto / 100)) * (p.quantita || 1)).toFixed(1)}
-                          </span>
-                        </>
-                      ) : (
-                        '\u20AC' + (p.prezzo * (p.quantita || 1)).toFixed(1)
-                      )}
-                    </span>
+                    <div className="price-col">
+                      <span className="price">
+                        {p.offerta && p.sconto ? (
+                          <>
+                            <span style={{ textDecoration: 'line-through', color: '#888', marginRight: '8px' }}>
+                              {'\u20AC'}
+                              {(p.prezzo * (p.quantita || 1)).toFixed(1)}
+                            </span>
+                            <span style={{ color: '#ff5252', fontWeight: 'bold' }}>
+                              {'\u20AC'}
+                              {((p.prezzo - (p.prezzo * p.sconto / 100)) * (p.quantita || 1)).toFixed(1)}
+                            </span>
+                          </>
+                        ) : (
+                          '\u20AC' + (p.prezzo * (p.quantita || 1)).toFixed(1)
+                        )}
+                      </span>
+
+                      {/* RIMUOVI sotto al prezzo */}
+                      <button onClick={() => rimuoviDalCarrello(i)} className="remove-under">
+                        {testi.rimuovi}
+                      </button>
+                    </div>
                   </div>
-                  <button onClick={() => rimuoviDalCarrello(i)} className="remove-button">
-                    {testi.rimuovi}
-                  </button>
                 </li>
               ))}
             </ul>
@@ -882,6 +886,25 @@ export default function CheckoutPage() {
           margin-left: 10px;
         }
         .remove-button:hover { background: rgba(255, 82, 82, 0.1); }
+
+        .price-col {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        .remove-under {
+            background: none;
+            border: none;
+            color: #ff5252;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-top: 4px;
+            padding: 0;
+        }
+        .remove-under:hover {
+            text-decoration: underline;
+        }
+
 
         .total-section {
           display: flex;
