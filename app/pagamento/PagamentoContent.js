@@ -36,32 +36,37 @@ const PayPalWrapper = ({
   };
 
   const onApprove = async (data, actions) => {
-    try {
-      const details = await actions.order.capture();
-      const ordine = {
-        id: codiceOrdine,
-        cliente,
-        carrello,
-        spedizione,
-        pagamento: 'PayPal',
-        totale: totaleFinale,
-        stato: 'pagato',
-        data: new Date().toISOString(),
-        transazione_id: details.id
-      };
+  try {
+    const details = await actions.order.capture();
+    const ordine = {
+      id: codiceOrdine,
+      cliente,
+      carrello,
+      spedizione,
+      pagamento: 'PayPal',
+      totale: totaleFinale,
+      stato: 'pagato',
+      data: new Date().toISOString(),
+      transazione_id: details.id
+    };
 
-      await supabase.from('ordini').insert([ordine]);
-      await aggiornaQuantitaProdotti();
-      await azzeraPrimoScontoSeApplicato(cliente?.email, scontoCalcolato);
+    const { error: ordineErr } = await supabase.from('ordini').insert([ordine]);
+    if (ordineErr) throw ordineErr;
 
-      localStorage.setItem('ordineId', codiceOrdine);
-      localStorage.removeItem('carrello');
-      router.push(`/ordine-confermato?lang=${lang}&metodo=paypal`);
-    } catch (error) {
-      console.error('PayPal approval error:', error);
-      setPaypalError(t.errori.generico);
-    }
-  };
+    await aggiornaQuantitaProdotti();
+    await azzeraPrimoScontoSeApplicato(cliente?.email, scontoCalcolato);
+
+    localStorage.setItem('nomeCliente', cliente?.nome || cliente?.email || '');
+    localStorage.setItem('ordineId', codiceOrdine);
+    localStorage.removeItem('carrello');
+
+    router.push(`/ordine-confermato?lang=${lang}&metodo=paypal`);
+  } catch (error) {
+    console.error('PayPal approval error:', error);
+    setPaypalError(t.errori.generico);
+  }
+};
+
 
   return (
     <div className="mt-4">
@@ -326,77 +331,90 @@ const StripePayment = ({
   router,
   t,
   scontoPrimoOrdine,
-  onScontoConsumato
+  onScontoConsumato,
+  aggiornaQuantitaProdotti
 }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!stripe || !elements) return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!stripe || !elements) return;
 
-    setIsProcessing(true);
-    
-    try {
-      const { clientSecret } = await fetch('/api/create-payment-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          amount: Math.round(totaleFinale * 100),
-          currency: 'eur',
-          metadata: { 
-            order_id: codiceOrdine,
-            email: cliente.email,
-            country: cliente.paese || 'IT'
-          }
-        })
-      }).then(res => res.json());
+  setIsProcessing(true);
 
-      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: elements.getElement(CardElement),
-          billing_details: {
-            name: cliente.nome || cliente.email,
-            email: cliente.email
-          }
-        }
-      });
-
-      if (error) throw error;
-      
-      const ordine = {
-        id: codiceOrdine,
-        cliente,
-        carrello,
-        spedizione,
-        pagamento: 'Carta di Credito',
-        totale: totaleFinale,
-        stato: 'pagato',
-        data: new Date().toISOString(),
-        transazione_id: paymentIntent.id
-      };
-
-      await supabase.from('ordini').insert([ordine]);
-
-      if (typeof onScontoConsumato === 'function') {
-        try {
-          await onScontoConsumato(cliente?.email, scontoPrimoOrdine);
-        } catch (e) {
-          console.error('Errore callback onScontoConsumato:', e);
-        }
-      }
-
-      localStorage.setItem('ordineId', codiceOrdine);
-      localStorage.removeItem('carrello');
-      router.push(`/ordine-confermato?lang=${lang}&metodo=carta`);
-    } catch (error) {
-      console.error('Errore pagamento:', error);
-      alert(error.message || t.errori.carta);
-    } finally {
-      setIsProcessing(false);
+  try {
+    const resp = await fetch('/api/create-payment-intent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: Math.round(totaleFinale * 100),
+        currency: 'eur',
+        metadata: {
+          order_id: codiceOrdine,
+          email: cliente.email,
+          country: cliente.paese || 'IT',
+        },
+      }),
+    });
+    if (!resp.ok) {
+      const txt = await resp.text();
+      throw new Error(`API /create-payment-intent ${resp.status}: ${txt}`);
     }
-  };
+    const { clientSecret } = await resp.json();
+    if (!clientSecret) throw new Error('Missing clientSecret');
+
+    const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: elements.getElement(CardElement),
+        billing_details: {
+          name: cliente.nome || cliente.email,
+          email: cliente.email,
+        },
+      },
+    });
+    if (error) throw error;
+
+    const ordine = {
+      id: codiceOrdine,
+      cliente,
+      carrello,
+      spedizione,
+      pagamento: 'Carta di Credito',
+      totale: totaleFinale,
+      stato: 'pagato',
+      data: new Date().toISOString(),
+      transazione_id: paymentIntent.id,
+    };
+
+    const { error: ordineErr } = await supabase.from('ordini').insert([ordine]);
+    if (ordineErr) throw ordineErr;
+
+    if (typeof aggiornaQuantitaProdotti === 'function') {
+      await aggiornaQuantitaProdotti();
+    }
+
+    if (typeof onScontoConsumato === 'function') {
+      try {
+        await onScontoConsumato(cliente?.email, scontoPrimoOrdine);
+      } catch (e) {
+        console.error('Errore callback onScontoConsumato:', e);
+      }
+    }
+
+    localStorage.setItem('nomeCliente', cliente?.nome || cliente?.email || '');
+    localStorage.setItem('ordineId', codiceOrdine);
+    localStorage.removeItem('carrello');
+
+    router.push(`/ordine-confermato?lang=${lang}&metodo=carta`);
+  } catch (error) {
+    console.error('Errore pagamento (stripe):', error);
+    alert(error.message || t.errori.carta);
+  } finally {
+    setIsProcessing(false);
+  }
+};
 
   return (
     <form onSubmit={handleSubmit} style={{ marginTop: '1rem' }}>
@@ -555,11 +573,22 @@ export default function PagamentoContent({ lang }) {
     for (const item of carrello) {
       const { data: prodottoCorrente } = await supabase
         .from('products')
-        .select('quantita')
+        .select('quantita, made_to_order, allow_backorder')
         .eq('id', item.id)
         .single();
 
-      if (prodottoCorrente) {
+      if (!prodottoCorrente) continue;
+
+      if (prodottoCorrente.made_to_order) {
+        // opzionale: se consenti backorder, puoi far scendere anche sotto zero
+        if (prodottoCorrente.allow_backorder) {
+          await supabase
+            .from('products')
+            .update({ quantita: (prodottoCorrente.quantita ?? 0) - item.quantita })
+            .eq('id', item.id);
+        }
+        // altrimenti non toccare lo stock
+      } else {
         const nuovaQuantita = Math.max((prodottoCorrente.quantita || 0) - item.quantita, 0);
         await supabase
           .from('products')
@@ -806,7 +835,9 @@ export default function PagamentoContent({ lang }) {
               t={t}
               scontoPrimoOrdine={scontoCalcolato}
               onScontoConsumato={azzeraPrimoScontoSeApplicato}
+              aggiornaQuantitaProdotti={aggiornaQuantitaProdotti}
             />
+
           </Elements>
         )}
       </div>
