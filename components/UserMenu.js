@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { User, X } from 'lucide-react';
 import { supabase } from '../app/lib/supabaseClient';
 import paesi from '../app/lib/paesi';
@@ -259,37 +259,37 @@ export default function UserMenu({ lang }) {
     }
   };
 
-  const tracciaAccesso = async (email) => {
-    const accessoTracciato = sessionStorage.getItem('accessoTracciato');
-    if (accessoTracciato === email) return;
+  const tracciaAccesso = useCallback(async (email) => {
+  const accessoTracciato = sessionStorage.getItem('accessoTracciato');
+  if (accessoTracciato === email) return;
 
-    try {
-      const ipAddress = await getClientIp();
-      
-      await supabase.from('user_tracking').insert({
-        email,
-        language: lang,
-        access_time: new Date().toISOString(),
-        browser: navigator.userAgent,
-        ip_address: ipAddress,
-        user_agent: navigator.userAgent,
-        screen_resolution: `${window.screen.width}x${window.screen.height}`,
-        referrer: document.referrer || 'direct'
-      });
+  try {
+    const ipAddress = await getClientIp();
 
-      sessionStorage.setItem('accessoTracciato', email);
-    } catch (error) {
-      console.error('Tracking error:', error);
-      await supabase.from('user_tracking').insert({
-        email,
-        language: lang,
-        access_time: new Date().toISOString(),
-        browser: navigator.userAgent,
-        ip_address: null,
-        error: 'IP lookup failed'
-      });
-    }
-  };
+    await supabase.from('user_tracking').insert({
+      email,
+      language: lang,
+      access_time: new Date().toISOString(),
+      browser: navigator.userAgent,
+      ip_address: ipAddress,
+      user_agent: navigator.userAgent,
+      screen_resolution: `${window.screen.width}x${window.screen.height}`,
+      referrer: document.referrer || 'direct'
+    });
+
+    sessionStorage.setItem('accessoTracciato', email);
+  } catch (error) {
+    console.error('Tracking error:', error);
+    await supabase.from('user_tracking').insert({
+      email,
+      language: lang,
+      access_time: new Date().toISOString(),
+      browser: navigator.userAgent,
+      ip_address: null,
+      error: 'IP lookup failed'
+    });
+  }
+}, [lang]);
 
   useEffect(() => {
     if (window.location.hash === '#crea-account') {
@@ -318,30 +318,30 @@ export default function UserMenu({ lang }) {
   }, [isOpen]);
 
   useEffect(() => {
-    const checkLogin = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        const user = session?.user;
+  const checkLogin = async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      const user = session?.user;
 
-        if (!user || error) return;
+      if (!user || error) return;
 
-        const nomeCliente = await fetchNomeUtente(user.email);
-        
-        setUtente(user);
-        setNomeUtente(
-          nomeCliente || 
-          user.user_metadata?.name || 
-          user.email.split('@')[0] || 
-          'Utente'
-        );
-        tracciaAccesso(user.email);
-      } catch (err) {
-        console.error('Errore checkLogin:', err);
-      }
-    };
+      const nomeCliente = await fetchNomeUtente(user.email);
 
-    checkLogin();
-  }, []);
+      setUtente(user);
+      setNomeUtente(
+        nomeCliente ||
+        user.user_metadata?.name ||
+        user.email.split('@')[0] ||
+        'Utente'
+      );
+      tracciaAccesso(user.email);
+    } catch (err) {
+      console.error('Errore checkLogin:', err);
+    }
+  };
+
+  checkLogin();
+}, [tracciaAccesso]);
 
   const logout = async () => {
     await supabase.auth.signOut();
