@@ -3,7 +3,8 @@
 .env.local
 .env.*.local
 .env.development
-.env production
+.env.production
+.env*.local
 
 # Node modules
 node_modules/
@@ -20,7 +21,9 @@ out/
 # IDE/Editor files
 .vscode/
 .DS_Store
-node_modules
-resend api key .txt
-.env*.local
+
+# Vercel deployment folder
 .vercel
+
+# API key text files (personal)
+resend api key .txt
