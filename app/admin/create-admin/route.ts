@@ -1,28 +1,26 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL as string,
-  process.env.SUPABASE_SERVICE_ROLE_KEY as string
-);
-
 export async function POST(req: Request) {
   try {
     const { email } = await req.json();
-    if (!email || typeof email !== 'string') {
-      return NextResponse.json({ error: 'missing email' }, { status: 400 });
+    if (!email) return NextResponse.json({ error: 'email required' }, { status: 400 });
+
+    const url = process.env.SUPABASE_URL;
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !serviceKey) {
+      return NextResponse.json({ error: 'Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY' }, { status: 500 });
     }
 
-    const { error } = await supabase.from('admin_emails').insert([{ email }]);
+    const s = createClient(url, serviceKey, { auth: { persistSession: false } });
 
-    // 23505 = UNIQUE VIOLATION (già presente) -> lo consideriamo OK
-    // @ts-ignore
-    if (error && error.code !== '23505') {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    const { error } = await s
+      .from('admin_emails')
+      .upsert({ email }, { onConflict: 'email' });
 
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ ok: true });
   } catch (e: any) {
-    return NextResponse.json({ error: e?.message || String(e) }, { status: 500 });
+    return NextResponse.json({ error: e?.message || 'error' }, { status: 500 });
   }
 }
