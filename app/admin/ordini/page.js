@@ -1,147 +1,422 @@
 'use client';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
 
 export default function OrdiniPage() {
-  const [ordini, setOrdini] = useState([]);
   const router = useRouter();
 
+  // auth / admin
+  const [me, setMe] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  // dati ordini + UI
+  const [ordini, setOrdini] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errore, setErrore] = useState('');
+  const [showCarrelloId, setShowCarrelloId] = useState(null);
+
+  // editor tracking
+  const [editTrackingId, setEditTrackingId] = useState(null);
+  const [trackingInput, setTrackingInput] = useState('');
+
+  // --------- sessione
+  useEffect(() => {
+    let mounted = true;
+
+    const boot = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!mounted) return;
+      setMe(user ?? null);
+    };
+    boot();
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setMe(session?.user ?? null);
+    });
+
+    return () => sub?.subscription?.unsubscribe();
+  }, []);
+
+  // --------- check admin tramite tabella admin_emails
+  useEffect(() => {
+    const check = async () => {
+      setChecking(true);
+      try {
+        if (!me?.email) { setIsAdmin(false); return; }
+        const { data, error } = await supabase
+          .from('admin_emails')
+          .select('email')
+          .eq('email', me.email)
+          .maybeSingle();
+        setIsAdmin(!!data && !error);
+      } finally {
+        setChecking(false);
+      }
+    };
+    check();
+  }, [me]);
+
+  // --------- util
+  const inEuro = (val) => {
+  const n = Number(val || 0);
+  if (!isFinite(n)) return '-';
+  return '\u20AC ' + (Math.round(n * 10) / 10).toFixed(1);
+};
+
+// per chi lo usa già nei carrelli, lasciamo il nome compatibile
+const euroText = inEuro;
+
+
+  const readPrezzoItem = (it) =>
+    Number(it?.prezzo ?? it?.price ?? it?.prezzoUnitario ?? it?.unit_price ?? 0);
+
+  const fmtData = (ts) => {
+    if (!ts) return '-';
+    const d = new Date(ts);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mi = String(d.getMinutes()).padStart(2, '0');
+    return `${dd}/${mm}/${yyyy} ${hh}:${mi}`;
+  };
+
+  const infoCliente = (o) => {
+    const snap = (o?.cliente && typeof o.cliente === 'object') ? o.cliente : {};
+    const c = o?.cliente_merged || {};
+    // priorità: merge già calcolato -> snapshot JSON -> fallback stringhe vuote
+    return {
+      email: c.email || snap.email || o?.cliente_email || '',
+      nome: c.nome || snap.nome || '',
+      cognome: c.cognome || snap.cognome || '',
+      indirizzo: c.indirizzo || snap.indirizzo || '',
+      cap: c.codice_postale || snap.codice_postale || '',
+      citta: c.citta || snap.citta || '',
+      paese: c.paese || snap.paese || '',
+      telefono: c.telefono1 || c.telefono2 || snap.telefono1 || snap.telefono2 || ''
+    };
+  };
+
+  const sanitize = (x) => (x ?? '').toString().replace(/\s+/g, ' ').trim();
+
+  // --------- carico ordini (solo admin)
   useEffect(() => {
     const fetchOrdini = async () => {
-      const { data, error } = await supabase
-        .from('ordini')
-        .select('*')
-        .order('data', { ascending: false });
+      if (!isAdmin) { setOrdini([]); setLoading(false); return; }
+      setLoading(true);
+      setErrore('');
+      try {
+        const { data: ordiniData, error: ordErr } = await supabase
+          .from('ordini')
+          .select('id, data, stato, totale, spedizione, pagamento, tracking, cliente, cliente_email, carrello')
+          .order('data', { ascending: false });
+        if (ordErr) throw ordErr;
 
-      console.log('📦 ORDINI RAW SUPABASE:', data);
-      if (error) {
-        console.error('Errore nel caricamento ordini:', error);
-      } else {
-        const parsed = data.map(o => ({
-          ...o,
-          cliente: typeof o.cliente === 'string' ? JSON.parse(o.cliente) : o.cliente,
-          carrello: typeof o.carrello === 'string' ? JSON.parse(o.carrello) : o.carrello
-        }));
-        setOrdini(parsed);
+        const emails = Array.from(
+          new Set(
+            (ordiniData || [])
+              .map(o => o.cliente_email)
+              .filter(e => typeof e === 'string' && e.trim().length > 0)
+          )
+        );
+
+        let clientiMap = new Map();
+        if (emails.length > 0) {
+          const { data: clientiData, error: cliErr } = await supabase
+            .from('clienti')
+            .select('email, nome, cognome, indirizzo, codice_postale, citta, paese, telefono1, telefono2')
+            .in('email', emails);
+          if (cliErr) throw cliErr;
+          (clientiData || []).forEach(c => clientiMap.set(c.email, c));
+        }
+
+        const completati = (ordiniData || []).map(o => {
+          const snap = (o?.cliente && typeof o.cliente === 'object') ? o.cliente : {};
+          const fromClienti = o?.cliente_email ? (clientiMap.get(o.cliente_email) || {}) : {};
+          const clienteMerged = {
+            email: o?.cliente_email || snap?.email || '',
+            nome: snap?.nome || fromClienti?.nome || '',
+            cognome: snap?.cognome || fromClienti?.cognome || '',
+            indirizzo: snap?.indirizzo || fromClienti?.indirizzo || '',
+            codice_postale: snap?.codice_postale || fromClienti?.codice_postale || '',
+            citta: snap?.citta || fromClienti?.citta || '',
+            paese: snap?.paese || fromClienti?.paese || '',
+            telefono1: snap?.telefono1 || fromClienti?.telefono1 || '',
+            telefono2: snap?.telefono2 || fromClienti?.telefono2 || ''
+          };
+          return { ...o, cliente_merged: clienteMerged };
+        });
+
+        setOrdini(completati);
+      } catch (e) {
+        console.error('Errore nel caricamento ordini:', e);
+        setErrore('Errore nel caricamento ordini: ' + (e?.message || ''));
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchOrdini();
-  }, []);
+    if (!checking) fetchOrdini();
+  }, [isAdmin, checking]);
 
-  const marcaComeSpedito = async (id) => {
-    const codiceTracking = prompt('Inserisci codice di spedizione (tracking number):');
-    const { error } = await supabase
-      .from('ordini')
-      .update({ stato: 'spedito', tracking: codiceTracking || null })
-      .eq('id', id);
-
-    if (error) {
-      alert('Errore nel salvataggio dello stato di spedizione');
-      console.error(error);
-      return;
-    }
-
-    const aggiornata = ordini.map(o =>
-      o.id === id ? { ...o, stato: 'spedito', tracking: codiceTracking } : o
-    );
-    setOrdini(aggiornata);
+  // --------- tracking
+  const startEditTracking = (order) => {
+    setEditTrackingId(order.id);
+    setTrackingInput(order.tracking || '');
   };
 
-  const daSpedire = ordini.filter(o =>
-    Array.isArray(o.carrello) &&
-    o.stato !== 'spedito' &&
-    o.spedizione?.toLowerCase() !== 'ritiro'
-  );
+  const cancelEditTracking = () => {
+    setEditTrackingId(null);
+    setTrackingInput('');
+  };
 
-  const spediti = ordini.filter(o =>
-    Array.isArray(o.carrello) &&
-    (o.stato === 'spedito' || o.spedizione?.toLowerCase() === 'ritiro')
-  );
+  const saveTracking = async () => {
+    if (!editTrackingId) return;
+    const payload = { tracking: trackingInput.trim(), stato: 'spedito' };
+    const { error } = await supabase.from('ordini').update(payload).eq('id', editTrackingId);
+    if (error) { alert('Errore salvataggio tracking: ' + error.message); return; }
+    cancelEditTracking();
+    // ricarico
+    setChecking(c => !c); // forza il useEffect di fetch (toglie/riporta checking)
+    setChecking(c => !c);
+  };
 
-  const renderOrdine = (o) => (
-    <div key={o.id} style={{
-      backgroundColor: '#fff',
-      color: '#000',
-      padding: '0.5rem',
-      borderRadius: '8px',
-      fontSize: '0.72rem',
-      lineHeight: '1.2',
-      boxShadow: '0 0 4px rgba(255,255,255,0.1)',
-      display: 'inline-block',
-      verticalAlign: 'top',
-      maxWidth: '100%',
-      boxSizing: 'border-box',
-      wordBreak: 'break-word'
-    }}>
-      <div><strong>Ordine:</strong> {o.id}</div>
-      <div><strong>Data:</strong> {new Date(o.data).toLocaleDateString()}</div>
-      <div><strong>Prodotti:</strong> {o.carrello?.map((p, i) => (
-        <div key={i}>{p.nome} ({p.taglia}) x{p.quantita}</div>
-      ))}</div>
-      <div><strong>Dest:</strong> {o.cliente?.nome} {o.cliente?.cognome}</div>
-      <div>{o.cliente?.email}</div>
-      <div style={{ fontSize: '0.68rem' }}>{o.cliente?.citta}, {o.cliente?.paese}</div>
-      <div><strong>Sped:</strong> {o.spedizione}</div>
-      <div><strong>Pag:</strong> {o.pagamento}</div>
-      {o.tracking && <div><strong>Track:</strong> {o.tracking}</div>}
-      {o.stato !== 'spedito' && o.spedizione?.toLowerCase() !== 'ritiro' && (
-        <button
-          onClick={() => marcaComeSpedito(o.id)}
-          style={{
-            marginTop: '0.3rem',
-            padding: '0.3rem 0.6rem',
-            backgroundColor: 'green',
-            color: 'white',
-            borderRadius: '4px',
-            fontSize: '0.7rem',
-            cursor: 'pointer'
-          }}
-        >
-          ✅ Spedisci
-        </button>
-      )}
-    </div>
-  );
+  const clearTracking = async (id) => {
+    const { error } = await supabase.from('ordini').update({ tracking: null, stato: 'pagato' }).eq('id', id);
+    if (error) { alert('Errore rimozione tracking: ' + error.message); return; }
+    setChecking(c => !c);
+    setChecking(c => !c);
+  };
+
+  // --------- stampa ordini da spedire (una riga per ordine)
+  const printDaSpedire = () => {
+    const daSpedire = ordini.filter(o => !o.tracking || String(o.tracking).trim() === '');
+    const lines = daSpedire.map(o => {
+      const c = infoCliente(o);
+      return [
+        `ID: ${sanitize(o.id)}`,
+        `Data: ${sanitize(fmtData(o.data))}`,
+        `Nome: ${sanitize(`${c.nome} ${c.cognome}`)}`,
+        `Email: ${sanitize(c.email)}`,
+        `Indirizzo: ${sanitize(c.indirizzo)}`,
+        `CAP: ${sanitize(c.cap)}`,
+        `Città: ${sanitize(c.citta)}`,
+        `Paese: ${sanitize(c.paese)}`,
+        `Telefono: ${sanitize(c.telefono)}`,
+        `Totale: ${sanitize(inEuro(o.totale))}`,
+        `Stato: ${sanitize(o.stato || '')}`
+      ].join(' | ');
+    });
+
+    const html = `<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<title>Ordini da spedire</title>
+<style>
+  body{font-family:Arial, sans-serif; font-size:12px; padding:16px;}
+  h1{font-size:16px; margin:0 0 12px;}
+  pre{white-space:pre-wrap; word-break:break-word;}
+</style>
+</head>
+<body>
+  <h1>Ordini da spedire (${daSpedire.length})</h1>
+  <pre>${lines.join('\n')}</pre>
+</body></html>`;
+    const w = window.open('', 'print', 'width=900,height=700');
+    if (!w) return;
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    w.print();
+  };
+
+  // --------- viste
+  if (!me) {
+    return (
+      <main style={styles.main}>
+        <h1 style={styles.h1}>Area Admin — Ordini</h1>
+        <button onClick={() => router.push('/admin')} style={styles.btnWhite}>Vai al login admin</button>
+      </main>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <main style={styles.main}>
+        <h1 style={styles.h1}>Area Admin — Ordini</h1>
+        <div style={{ marginBottom: 8 }}>Loggato come: {me.email}</div>
+        <div>Il tuo account non ha permessi admin.</div>
+        <div style={{ marginTop: 10 }}>
+          <button
+            onClick={async () => { await supabase.auth.signOut(); router.push('/admin'); }}
+            style={styles.btnRed}
+          >
+            Esci
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  const ordiniDaSpedire = ordini.filter(o => !o.tracking || String(o.tracking).trim() === '');
+  const ordiniSpediti   = ordini.filter(o => o.tracking && String(o.tracking).trim() !== '');
+
+  const renderOrdineCard = (o) => {
+    const c = infoCliente(o);
+    const isEditing = editTrackingId === o.id;
+
+    return (
+      <div key={o.id} style={styles.card}>
+        <div style={styles.cardCol}>
+          <div style={styles.row}><b>ID:</b> {o.id}</div>
+          <div style={styles.row}><b>Data:</b> {fmtData(o.data)}</div>
+          <div style={styles.row}><b>Stato:</b> {o.stato || '-'}</div>
+          <div style={styles.row}>
+            <b>Totale:</b>{' '}
+            <span style={{ fontFamily: 'Arial, sans-serif' }}>{inEuro(o.totale)}</span>
+          </div>
+          <div style={styles.row}><b>Email:</b> {c.email}</div>
+          <div style={styles.row}><b>Cliente:</b> {c.nome} {c.cognome}</div>
+          <div style={styles.row}><b>Indirizzo:</b> {c.indirizzo}</div>
+          <div style={styles.row}><b>CAP/Città/Paese:</b> {c.cap} {c.citta} {c.paese}</div>
+          <div style={styles.row}><b>Telefono:</b> {c.telefono}</div>
+
+          {!isEditing && (
+            <div style={styles.row}>
+              <b>Tracking:</b> {o.tracking ? o.tracking : <i>— nessuno —</i>}
+            </div>
+          )}
+
+          {isEditing && (
+            <div style={{ marginTop: 6 }}>
+              <input
+                value={trackingInput}
+                onChange={e => setTrackingInput(e.target.value)}
+                placeholder="Inserisci tracking"
+                style={styles.input}
+              />
+              <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+                <button onClick={saveTracking} style={styles.btnGreen}>Salva</button>
+                <button onClick={cancelEditTracking} style={styles.btnGrey}>Annulla</button>
+              </div>
+            </div>
+          )}
+
+          {!isEditing && (
+            <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
+              <button onClick={() => setShowCarrelloId(showCarrelloId === o.id ? null : o.id)} style={styles.btnWhite}>
+                {showCarrelloId === o.id ? 'Nascondi carrello' : 'Vedi carrello'}
+              </button>
+
+              {!o.tracking && (
+                <button onClick={() => startEditTracking(o)} style={styles.btnBlue}>Spedisci</button>
+              )}
+              {o.tracking && (
+                <>
+                  <button onClick={() => startEditTracking(o)} style={styles.btnBlue}>Modifica tracking</button>
+                  <button onClick={() => clearTracking(o.id)} style={styles.btnGrey}>Rimuovi tracking</button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
+        {showCarrelloId === o.id && (
+          <div style={styles.cartBox}>
+            {Array.isArray(o.carrello?.items || o.carrello) ? (
+              (o.carrello.items || o.carrello).map((it, i) => (
+                <div key={i} style={styles.cartLine}>
+                  • {it?.nome || it?.name} {it?.taglia ? `(${it.taglia})` : ''} × {it?.quantita || it?.qty || 1}
+                  {' — '}
+                  <span style={{ fontFamily: 'Arial, sans-serif' }}>
+                    {euroText(readPrezzoItem(it))}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div style={styles.cartLine}>Carrello non disponibile</div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <main style={{ backgroundColor: 'black', color: 'white', minHeight: '100vh', padding: '2rem' }}>
-      <button
-        onClick={() => router.push('/admin')}
-        style={{
-          marginBottom: '1.5rem',
-          backgroundColor: '#333',
-          color: 'white',
-          borderRadius: '5px',
-          padding: '0.5rem 1rem',
-          cursor: 'pointer'
-        }}
-      >🔙 Indietro</button>
-
-      <h1 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>📦 Ordini da spedire</h1>
-      <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '0.7rem',
-        justifyContent: 'flex-start'
-      }}>
-        {daSpedire.length
-          ? daSpedire.map(renderOrdine)
-          : <p style={{ width: '100%' }}>Nessun ordine da spedire</p>}
+    <main style={styles.main}>
+      <div style={styles.headerCol}>
+        <h1 style={styles.h1}>📦 Ordini</h1>
+        <div style={{ fontSize: 14, marginBottom: 4 }}>Loggato come: {me.email}</div>
+        <div style={styles.btnRow}>
+          <button onClick={() => router.push('/admin')} style={styles.btnWhite}>Torna al pannello</button>
+          <button onClick={printDaSpedire} style={styles.btnWhite}>🖨️ Stampa da spedire</button>
+          <button onClick={async () => { await supabase.auth.signOut(); router.push('/admin'); }} style={styles.btnRed}>Esci</button>
+        </div>
       </div>
 
-      <h1 style={{ fontSize: '1.8rem', marginTop: '3rem', marginBottom: '1rem' }}>📬 Ordini spediti</h1>
-      <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '0.7rem',
-        justifyContent: 'flex-start'
-      }}>
-        {spediti.length
-          ? spediti.map(renderOrdine)
-          : <p style={{ width: '100%' }}>Nessun ordine spedito</p>}
-      </div>
+      <section style={{ marginTop: 10 }}>
+        <h2 style={styles.h2}>📮 Da spedire</h2>
+        <div style={styles.list}>
+          {ordiniDaSpedire.length === 0 && <div style={styles.empty}>Nessun ordine da spedire.</div>}
+          {ordiniDaSpedire.map(renderOrdineCard)}
+        </div>
+      </section>
+
+      <section style={{ marginTop: 18 }}>
+        <h2 style={styles.h2}>🚚 Spediti</h2>
+        <div style={styles.list}>
+          {ordiniSpediti.length === 0 && <div style={styles.empty}>Nessun ordine spedito.</div>}
+          {ordiniSpediti.map(renderOrdineCard)}
+        </div>
+      </section>
     </main>
   );
 }
+
+const styles = {
+  main: {
+    backgroundColor: 'black',
+    color: 'white',
+    minHeight: '100vh',
+    padding: 12,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10
+  },
+  headerCol: { display: 'flex', flexDirection: 'column', gap: 6 },
+  btnRow: { display: 'flex', gap: 8, flexWrap: 'wrap' },
+  h1: { fontSize: '1.9rem', margin: 0 },
+  h2: { fontSize: '1.2rem', margin: '6px 0' },
+  list: { display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start' },
+  card: {
+    background: '#111',
+    border: '1px solid #333',
+    borderRadius: 10,
+    padding: 10,
+    fontSize: '0.85rem',
+    width: 'fit-content',
+    maxWidth: '100%'
+  },
+  cardCol: { display: 'flex', flexDirection: 'column', gap: 2 },
+  row: { lineHeight: 1.3, wordBreak: 'break-word' },
+  cartBox: {
+    marginTop: 6,
+    background: '#0b0b0b',
+    border: '1px dashed #444',
+    borderRadius: 8,
+    padding: 8,
+    maxHeight: 220,
+    overflowY: 'auto'
+  },
+  cartLine: { fontSize: '0.8rem', lineHeight: 1.25 },
+  btnWhite: { background: 'white', color: 'black', border: 'none', padding: '6px 10px', borderRadius: 6, fontWeight: 'bold', cursor: 'pointer' },
+  btnRed:   { background: 'red',   color: 'white', border: 'none', padding: '6px 10px', borderRadius: 6, fontWeight: 'bold', cursor: 'pointer' },
+  btnBlue:  { background: '#2d7ef7', color: 'white', border: 'none', padding: '6px 10px', borderRadius: 6, fontWeight: 'bold', cursor: 'pointer' },
+  btnGreen: { background: '#21b66f', color: 'white', border: 'none', padding: '6px 10px', borderRadius: 6, fontWeight: 'bold', cursor: 'pointer' },
+  btnGrey:  { background: '#444', color: 'white', border: 'none', padding: '6px 10px', borderRadius: 6, fontWeight: 'bold', cursor: 'pointer' },
+  input: { width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid #555', background: 'white', color: 'black', fontSize: '0.9rem' },
+  empty: { opacity: 0.85, fontSize: '0.9rem' }
+};

@@ -6,27 +6,15 @@ import { supabase } from '../lib/supabaseClient';
 
 export default function AdminPage() {
   const router = useRouter();
-  const [authenticated, setAuthenticated] = useState(false);
+
+  // sessione reale Supabase
+  const [me, setMe] = useState(null);
   const [hydrated, setHydrated] = useState(false);
-  useEffect(() => {
-    const isAuth = localStorage.getItem('admin_auth') === 'true';
-    if (isAuth) {
-      setAuthenticated(true);
-    }
-  }, []);
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
-  
-  
+  const [loading, setLoading] = useState(true);
+  const [errore, setErrore] = useState('');
+  const [isAdminFlag, setIsAdminFlag] = useState(false);
 
-  const [loginForm, setLoginForm] = useState({
-    username: '',
-    password: '',
-    resetEmail: ''
-  });
-  const [loginError, setLoginError] = useState('');
-
+  // stato UI prodotti (come avevi)
   const [form, setForm] = useState({
     categoria: '',
     sottocategoria: '',
@@ -39,7 +27,6 @@ export default function AdminPage() {
     emailOfferta: false,
     sconto: 0,
   });
-
   const [prodottiFiltrati, setProdottiFiltrati] = useState([]);
   const [nomeFileSelezionato, setNomeFileSelezionato] = useState('');
   const [categoriaSelezionata, setCategoriaSelezionata] = useState('');
@@ -51,45 +38,104 @@ export default function AdminPage() {
     accessori: ['collane', 'orecchini', 'bracciali', 'borse', 'foulard']
   };
 
-  const handleLoginChange = (e) => {
-    const { name, value } = e.target;
-    setLoginForm(prev => ({ ...prev, [name]: value }));
-  };
+  // form login reale
+  const [loginEmail, setLoginEmail] = useState('gianluigi.grassi@g-rgabriellaromeo.it');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (loginForm.username === 'admin' && loginForm.password === 'Gg5255105@') {
-      setAuthenticated(true);
-      localStorage.setItem('admin_auth', 'true');
-      setLoginError('');
-    } else {
-      setLoginError('Credenziali non valide');
-    }
-};
+  // Hydration per Next.js
+  useEffect(() => { setHydrated(true); }, []);
 
+  // leggo la sessione e ascolto i cambiamenti
   useEffect(() => {
-    if (!authenticated) return;
+    let mounted = true;
 
-    const fetchProdotti = async () => {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Errore caricamento da Supabase:', error.message);
-      } else {
-        setProdottiFiltrati(data);
+    const load = async () => {
+      setLoading(true);
+      setErrore('');
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!mounted) return;
+        setMe(user || null);
+      } catch (e) {
+        if (!mounted) return;
+        setErrore(e?.message || String(e));
+      } finally {
+        if (!mounted) return;
+        setLoading(false);
       }
     };
 
+    load();
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setMe(session?.user ?? null);
+    });
+    return () => {
+      mounted = false;
+      sub?.subscription?.unsubscribe();
+    };
+  }, []);
+
+  // verifica se l'utente loggato è nella whitelist admin_emails
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (!me?.email) { setIsAdminFlag(false); return; }
+      const { data, error } = await supabase
+        .from('admin_emails')
+        .select('email')
+        .eq('email', me.email)
+        .maybeSingle();
+      setIsAdminFlag(!!data && !error);
+    };
+    checkAdmin();
+  }, [me]);
+
+  // carica i prodotti SOLO quando c'è un admin loggato
+  useEffect(() => {
+    const fetchProdotti = async () => {
+      if (!me || !isAdminFlag) { setProdottiFiltrati([]); return; }
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        setProdottiFiltrati(data || []);
+      } catch (e) {
+        console.error('Errore caricamento da Supabase:', e?.message || e);
+      }
+    };
     fetchProdotti();
-  }, [authenticated]);
+  }, [me, isAdminFlag]);
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    setLoginError('');
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: loginEmail.trim(),
+        password: loginPassword
+      });
+      if (error) throw error;
+    } catch (e) {
+      setLoginError(e?.message || 'Credenziali non valide');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    setProdottiFiltrati([]);
+    setNomeFileSelezionato('');
+    setCategoriaSelezionata('');
+    setModificaId(null);
+  }
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     const val = type === 'checkbox' ? checked : value;
-
     setForm((prev) => ({ ...prev, [name]: val }));
     if (name === 'categoria') setCategoriaSelezionata(val);
   };
@@ -97,21 +143,14 @@ export default function AdminPage() {
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      const res = await fetch('/api/upload-image', {
-        method: 'POST',
-        body: formData,
-      });
-
+      const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
       const result = await res.json();
-
-      if (res.ok) {
-        setNomeFileSelezionato(result.fileName);
-      } else {
+      if (res.ok) setNomeFileSelezionato(result.fileName);
+      else {
         console.error('Errore upload:', result.error);
         alert('Errore upload immagine: ' + result.error);
       }
@@ -123,6 +162,10 @@ export default function AdminPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!me || !isAdminFlag) {
+      alert('Devi essere loggato come admin.');
+      return;
+    }
 
     const prezzoNum = Number(form.prezzo) || 0;
     const scontoNum = form.offerta ? Number(form.sconto) : 0;
@@ -151,28 +194,18 @@ export default function AdminPage() {
       if (modificaId) {
         res = await fetch(`/api/products/${modificaId}`, {
           method: 'PUT',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer Gg5255105@'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(prodottoData)
         });
       } else {
         res = await fetch('/api/save-product', {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer Gg5255105@'
-          },
-          body: JSON.stringify({
-            ...prodottoData,
-            created_at: new Date().toISOString()
-          })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...prodottoData, created_at: new Date().toISOString() })
         });
       }
 
       const result = await res.json();
-
       if (res.ok) {
         alert(result.message || (modificaId ? '✅ Prodotto aggiornato!' : '✅ Prodotto salvato!'));
         setForm({ categoria: '', sottocategoria: '', nome: '', descrizione: '', taglia: '', prezzo: '', quantita: 0, offerta: false, emailOfferta: false, sconto: 0 });
@@ -180,17 +213,13 @@ export default function AdminPage() {
         setCategoriaSelezionata('');
         setModificaId(null);
 
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (!error) setProdottiFiltrati(data);
+        const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+        if (!error) setProdottiFiltrati(data || []);
       } else {
         alert('❌ Errore: ' + (result.error || 'Errore sconosciuto'));
       }
     } catch (err) {
-      console.error('Errore rete:', err);
+      console.error('Errore rete durante il salvataggio:', err);
       alert('❌ Errore di rete durante il salvataggio.');
     }
   };
@@ -214,18 +243,11 @@ export default function AdminPage() {
   };
 
   const handleDelete = async (id) => {
+    if (!me || !isAdminFlag) return;
     try {
-      const res = await fetch(`/api/products/${id}`, { 
-        method: 'DELETE',
-        headers: {
-          'Authorization': 'Bearer Gg5255105@'
-        }
-      });
-      if (res.ok) {
-        setProdottiFiltrati((prev) => prev.filter((item) => item.id !== id));
-      } else {
-        console.error('Errore nella cancellazione:', res.status);
-      }
+      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      if (res.ok) setProdottiFiltrati(prev => prev.filter(item => item.id !== id));
+      else console.error('Errore nella cancellazione:', res.status);
     } catch (err) {
       console.error('Errore di rete durante la cancellazione:', err);
     }
@@ -243,7 +265,6 @@ export default function AdminPage() {
     WebkitAppearance: 'none',
     MozAppearance: 'none',
   };
-
   const buttonStyle = {
     backgroundColor: 'white',
     color: 'black',
@@ -254,86 +275,72 @@ export default function AdminPage() {
     border: 'none',
     cursor: 'pointer'
   };
+  const logoutButtonStyle = { ...buttonStyle, backgroundColor: 'red', color: 'white', marginLeft: '0.5rem' };
 
-  const logoutButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: 'red',
-    color: 'white',
-    marginLeft: '0.5rem'
-  };
   if (!hydrated) return null;
 
-  if (!authenticated) {
+  // ======= VISTA LOGIN =======
+  if (!me) {
     return (
-      <main style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'black', color: 'white', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <div style={{ maxWidth: '400px', width: '100%' }}>
+      <main style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'black', color: 'white', minHeight: '100vh',
+                    display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ maxWidth: 400, width: '100%' }}>
           <h1 style={{ fontSize: '2.3rem', marginBottom: '2rem' }}>ACCESSO ADMIN</h1>
-          
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={loginForm.username}
-              onChange={handleLoginChange}
-              required
-              style={{ padding: '0.5rem 1rem', borderRadius: '6px', color: 'black' }}
-            />
-            
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={loginForm.password}
-              onChange={handleLoginChange}
-              required
-              style={{ padding: '0.5rem 1rem', borderRadius: '6px', color: 'black' }}
-            />
-            
+            <input type="email" placeholder="Email admin" value={loginEmail}
+                  onChange={(e)=>setLoginEmail(e.target.value)} required
+                  style={{ padding: '0.5rem 1rem', borderRadius: '6px', color: 'black' }} />
+            <input type="password" placeholder="Password" value={loginPassword}
+                  onChange={(e)=>setLoginPassword(e.target.value)} required
+                  style={{ padding: '0.5rem 1rem', borderRadius: '6px', color: 'black' }} />
             {loginError && <p style={{ color: 'red' }}>{loginError}</p>}
-            
-            <button type="submit" style={{ backgroundColor: 'white', color: 'black', padding: '0.5rem 1rem', borderRadius: '6px', fontWeight: 'bold' }}>
-              Accedi
+            <button type="submit" disabled={loading}
+                    style={{ backgroundColor: 'white', color: 'black', padding: '0.5rem 1rem', borderRadius: '6px', fontWeight: 'bold' }}>
+              {loading ? 'Accesso…' : 'Accedi'}
             </button>
-
-            <p style={{ fontSize: '0.85rem', color: 'white', marginTop: '1rem' }}>
-                          Password dimenticata? Inserisci la tua email per ricevere il link:
-            </p>
-            <input
-              type="email"
-              placeholder="Email admin"
-              value={loginForm.resetEmail}
-              onChange={(e) => setLoginForm(prev => ({ ...prev, resetEmail: e.target.value }))}
-              style={{ padding: '0.5rem 1rem', borderRadius: '6px', color: 'black', marginTop: '0.5rem' }}
-            />
-
-            <button
-              type="button"
-              onClick={async () => {
-                const { error } = await supabase.auth.resetPasswordForEmail(loginForm.resetEmail, {
-                  redirectTo: 'https://g-rgabriellaromeo.vercel.app/admin/reset-password'
-                });
-
-                if (error) {
-                  alert('❌ Errore invio email: ' + error.message);
-                } else {
-                  alert('✅ Email per reset inviata. Controlla la tua casella.');
-                }
-              }}
-              style={{ backgroundColor: '#00BFFF', color: 'white', padding: '0.5rem 1rem', borderRadius: '6px', marginTop: '0.5rem' }}
-            >
-              Invia link reset
-            </button>
-
           </form>
+
+          <p style={{ fontSize: '0.85rem', color: 'white', marginTop: '1rem' }}>
+            Password dimenticata?
+          </p>
+          <button
+            type="button"
+            onClick={async () => {
+              const { error } = await supabase.auth.resetPasswordForEmail(loginEmail, {
+                redirectTo: 'https://g-rgabriellaromeo.vercel.app/admin/reset-password'
+              });
+              if (error) alert('❌ Errore invio email: ' + error.message);
+              else alert('✅ Email per reset inviata. Controlla la tua casella.');
+            }}
+            style={{ backgroundColor: '#00BFFF', color: 'white', padding: '0.5rem 1rem', borderRadius: '6px', marginTop: '0.5rem' }}
+          >
+            Invia link reset
+          </button>
         </div>
       </main>
     );
   }
 
+  // se loggato ma non admin → blocco UI prodotti (le policy DB comunque proteggono)
+  if (!isAdminFlag) {
+    return (
+      <main style={{ padding: '2rem', backgroundColor: 'black', color: 'white', minHeight: '100vh' }}>
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+          <h1>Area Admin</h1>
+          <div>Loggato come: {me.email} <button onClick={handleLogout} style={logoutButtonStyle}>Esci</button></div>
+        </div>
+        <p style={{ marginTop: 12 }}>Il tuo account non ha permessi admin.</p>
+      </main>
+    );
+  }
+
+  // ======= VISTA ADMIN (come avevi)
   return (
     <main style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'black', color: 'white', minHeight: '100vh' }}>
-      <h1 style={{ fontSize: '2.3rem', marginBottom: '1rem' }}>GESTIONE PRODOTTI</h1>
+      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+        <h1 style={{ fontSize: '2.3rem', marginBottom: '1rem' }}>GESTIONE PRODOTTI</h1>
+        <div>Loggato come: {me.email} <button onClick={handleLogout} style={logoutButtonStyle}>ESCI</button></div>
+      </div>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', maxWidth: '400px', margin: 'auto' }}>
         <select name="categoria" value={form.categoria} onChange={handleInputChange} required style={selectStyle}>
@@ -368,16 +375,9 @@ export default function AdminPage() {
             Manda email a tutti i clienti
           </label>
           {form.offerta && (
-            <input
-              type="number"
-              name="sconto"
-              min="0"
-              max="100"
-              placeholder="Sconto %"
-              value={form.sconto}
-              onChange={handleInputChange}
-              style={{ color: 'black', width: '100%', padding: '0.5rem' }}
-            />
+            <input type="number" name="sconto" min="0" max="100" placeholder="Sconto %"
+                    value={form.sconto} onChange={handleInputChange}
+                    style={{ color: 'black', width: '100%', padding: '0.5rem' }} />
           )}
         </div>
 
@@ -397,15 +397,7 @@ export default function AdminPage() {
         <button onClick={() => router.push('/admin/inventario')} style={buttonStyle}>📊 MAGAZZINO</button>
         <button onClick={() => router.push('/admin/clienti')} style={buttonStyle}>👥 CLIENTI</button>
         <button onClick={() => router.push('/admin/vendite')} style={buttonStyle}>💰 VENDITE</button>
-        <button onClick={() => router.push('/admin/spedizioni')} style={buttonStyle}>🚚 SPEDIZIONI</button>
-        <button onClick={() => {
-                  localStorage.removeItem('admin_auth');
-                  setAuthenticated(false);
-                }}
-                style={logoutButtonStyle}
-        >
-          ESCI
-        </button>
+        <button onClick={handleLogout} style={logoutButtonStyle}>ESCI</button>
       </div>
 
       {categoriaSelezionata && (
