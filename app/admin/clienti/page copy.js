@@ -6,104 +6,17 @@ import { Download, Mail, MessageSquareText, Star } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
-function parseJSON(maybeJSON) {
-  if (typeof maybeJSON === 'string') {
-    try { return JSON.parse(maybeJSON); } catch { return null; }
-  }
-  return maybeJSON;
-}
-
-function euro(val) {
-  const n = Number(val) || 0;
-  const fmt = new Intl.NumberFormat('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return '\u20AC ' + fmt.format(n);
-}
-
-function totaleOrdine(record) {
-  // 1) se esiste un campo 'totale' lo usiamo
-  if (record && record.totale != null) return Number(record.totale) || 0;
-
-  // 2) altrimenti sommiamo dal carrello (array di item con prezzo * qta)
-  let carrello = record?.carrello;
-  carrello = parseJSON(carrello) ?? carrello;
-  if (Array.isArray(carrello)) {
-    return carrello.reduce((sum, it) => {
-      const prezzo = Number(it.prezzo) || 0;
-      const qta = Number(it.qta ?? it.quantita ?? 1) || 1;
-      return sum + prezzo * qta;
-    }, 0);
-  }
-  return 0;
-}
-
 export default function ClientiPage() {
   const [clienti, setClienti] = useState([]);
   const [selezionati, setSelezionati] = useState([]);
   const [selezionaTutti, setSelezionaTutti] = useState(false);
 
   useEffect(() => {
-    async function fetchData() {
-      // prende clienti
-      const { data: clientiData, error: errClienti } = await supabase
-        .from('clienti')
-        .select('*');
-
-      // prende ordini
-      const { data: ordiniData, error: errOrdini } = await supabase
-        .from('ordini')
-        .select('*');
-
-      if (errClienti) {
-        console.error('Errore clienti:', errClienti);
-        setClienti([]);
-        return;
-      }
-
-      // indicizzazione ordini per email
-      const aggByEmail = {};
-      (ordiniData || []).forEach(o => {
-        // email può stare in 'cliente_email' oppure dentro 'cliente' (JSON)
-        let email =
-          o.cliente_email ||
-          parseJSON(o.cliente)?.email ||
-          o.email ||
-          '';
-
-        email = (email || '').trim().toLowerCase();
-        if (!email) return;
-
-        const tot = totaleOrdine(o);
-
-        if (!aggByEmail[email]) {
-          aggByEmail[email] = { totale: 0, count: 0, ordini: [] };
-        }
-        aggByEmail[email].totale += tot;
-        aggByEmail[email].count += 1;
-
-        // salva qualche info essenziale (se vuoi mostrare dettaglio in futuro)
-        aggByEmail[email].ordini.push({
-          id: o.id,
-          data: o.data || o.created_at,
-          totale: tot
-        });
-      });
-
-      // unisce aggregati ai clienti
-      const merged = (clientiData || []).map(c => {
-        const emailKey = (c.email || '').trim().toLowerCase();
-        const agg = aggByEmail[emailKey] || { totale: 0, count: 0, ordini: [] };
-        return {
-          ...c,
-          totaleOrdini: agg.totale,
-          numeroOrdini: agg.count,
-          ordiniDettaglio: agg.ordini
-        };
-      });
-
-      setClienti(merged);
+    async function fetchClienti() {
+      const { data, error } = await supabase.from('clienti').select('*');
+      if (!error) setClienti(data);
     }
-
-    fetchData();
+    fetchClienti();
   }, []);
 
   const toggleSelezione = (email) => {
@@ -124,19 +37,7 @@ export default function ClientiPage() {
   };
 
   const exportCSV = () => {
-    const headers = [
-      'Email',
-      'Nome',
-      'Cognome',
-      'Telefono1',
-      'Telefono2',
-      'Indirizzo',
-      'Città',
-      'Paese',
-      'Data Iscrizione',
-      'Numero Ordini',
-      'Totale Ordini (€)'
-    ];
+    const headers = ['Email', 'Nome', 'Cognome', 'Telefono1', 'Telefono2', 'Indirizzo', 'Città', 'Paese', 'Data Iscrizione', 'Totale Acquisti'];
     const rows = clienti.map(c => [
       c.email,
       c.nome,
@@ -146,9 +47,8 @@ export default function ClientiPage() {
       c.indirizzo,
       c.citta,
       c.paese,
-      c.created_at ? new Date(c.created_at).toLocaleDateString() : '',
-      c.numeroOrdini || 0,
-      (Number(c.totaleOrdini) || 0).toFixed(2)
+      new Date(c.created_at).toLocaleDateString(),
+      '\u20AC ' + (Math.round((c.ordini || []).reduce((acc, o) => acc + (parseFloat(o.prezzo) || 0), 0) * 10) / 10).toFixed(1)
     ]);
     const csvContent = [headers, ...rows].map(r => r.join(',')).join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -164,7 +64,7 @@ export default function ClientiPage() {
   const exportPDF = () => {
     const doc = new jsPDF();
     doc.autoTable({
-      head: [['Email', 'Nome', 'Cognome', 'Telefono', 'Città', 'Paese', 'N. Ordini', 'Totale €']],
+      head: [['Email', 'Nome', 'Cognome', 'Telefono', 'Città', 'Paese', 'Totale €']],
       body: clienti.map(c => [
         c.email,
         c.nome,
@@ -172,8 +72,7 @@ export default function ClientiPage() {
         c.telefono1,
         c.citta,
         c.paese,
-        c.numeroOrdini || 0,
-        (Number(c.totaleOrdini) || 0).toFixed(2)
+        '\u20AC ' + (Math.round((c.ordini || []).reduce((acc, o) => acc + (parseFloat(o.prezzo) || 0), 0) * 10) / 10).toFixed(1)
       ])
     });
     doc.save('clienti.pdf');
@@ -218,7 +117,7 @@ export default function ClientiPage() {
         <button onClick={() => alert('Funzione eventi/promozioni in sviluppo')} className="bg-yellow-500 text-white px-3 py-1 rounded flex items-center gap-2"><Star size={16}/> Eventi/Offerte</button>
       </div>
 
-      <table className="min-w-full border text-sm text-white" style={{ fontFamily: 'Arial, sans-serif' }}>
+      <table className="min-w-full border text-sm text-white">
         <thead className="bg-gray-700">
           <tr>
             <th className="border px-2 py-1"><input type="checkbox" checked={selezionaTutti} onChange={toggleSelezionaTutti} /></th>
@@ -226,7 +125,7 @@ export default function ClientiPage() {
             <th className="border px-2 py-1">Email</th>
             <th className="border px-2 py-1">Telefono</th>
             <th className="border px-2 py-1">Totale €</th>
-            <th className="border px-2 py-1">N. Ordini</th>
+            <th className="border px-2 py-1">Ordini</th>
           </tr>
         </thead>
         <tbody>
@@ -242,8 +141,21 @@ export default function ClientiPage() {
               <td className="border px-2 py-1 whitespace-normal break-words">{c.nome} {c.cognome}</td>
               <td className="border px-2 py-1 whitespace-normal break-words">{c.email}</td>
               <td className="border px-2 py-1 whitespace-normal break-words">{c.telefono1}</td>
-              <td className="border px-2 py-1 whitespace-nowrap text-right">{euro(c.totaleOrdini)}</td>
-              <td className="border px-2 py-1 whitespace-nowrap text-center">{c.numeroOrdini || 0}</td>
+              <td className="border px-2 py-1 whitespace-nowrap text-right" style={{ fontFamily: 'Arial, sans-serif' }}>
+                {'\u20AC'} {(Math.round((c.ordini || []).reduce((acc, o) => acc + (parseFloat(o.prezzo) || 0), 0) * 10) / 10).toFixed(1)}
+              </td>
+              <td className="border px-2 py-1 whitespace-normal break-words">
+                <ul className="pl-3 list-disc">
+                  {(c.ordini || [])
+                    .filter(o => o.prodotto && parseFloat(o.prezzo) > 0)
+                    .map((o, j) => (
+                      <li key={j}>
+                        {o.prodotto} {o.taglia ? `(${o.taglia})` : ''} – {'\u20AC'} {o.prezzo}<br />
+                        {o.data ? new Date(o.data).toLocaleString() : '-'}
+                      </li>
+                    ))}
+                </ul>
+              </td>
             </tr>
           ))}
         </tbody>
