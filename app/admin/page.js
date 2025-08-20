@@ -397,6 +397,7 @@ export default function AdminPage() {
         <button onClick={() => router.push('/admin/inventario')} style={buttonStyle}>📊 MAGAZZINO</button>
         <button onClick={() => router.push('/admin/clienti')} style={buttonStyle}>👥 CLIENTI</button>
         <button onClick={() => router.push('/admin/vendite')} style={buttonStyle}>💰 VENDITE</button>
+        <button onClick={() => router.push('/admin/eventi')} style={buttonStyle}>🎉 EVENTI</button>
         <button onClick={handleLogout} style={logoutButtonStyle}>ESCI</button>
       </div>
 
