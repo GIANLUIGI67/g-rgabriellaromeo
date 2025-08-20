@@ -17,16 +17,17 @@ export default function HomeContent() {
   useEffect(() => {
     const fetchUtente = async () => {
       setNomeUtente(''); // Reset
-      const { data: session } = await supabase.auth.getUser();
-      const email = session?.user?.email;
+    const { data: { user } } = await supabase.auth.getUser();
+    const email = user?.email;
       console.log('Utente loggato:', email);
       if (!email) return;
 
-      const { data: cliente, error } = await supabase
-        .from('clienti')
-        .select('nome')
-        .eq('email', email)
-        .single();
+    const { data: cliente, error } = await supabase
+      .from('clienti')
+      .select('nome')
+      .eq('email', email)
+      .limit(1)
+      .maybeSingle();
 
       if (error) {
         console.error('Errore Supabase:', error);

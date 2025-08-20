@@ -73,6 +73,26 @@ const euroText = inEuro;
   const readPrezzoItem = (it) =>
     Number(it?.prezzo ?? it?.price ?? it?.prezzoUnitario ?? it?.unit_price ?? 0);
 
+  // --- helper prodotti per riepilogo compatto ---
+  const estraiItems = (o) => {
+    if (Array.isArray(o?.carrello?.items)) return o.carrello.items;
+    if (Array.isArray(o?.carrello)) return o.carrello;
+    return [];
+  };
+  const itemsSummary = (o) => {
+    const items = estraiItems(o);
+    if (!items.length) return '—';
+    return items
+      .map(it => {
+        const nome = it?.nome || it?.name || 'Prodotto';
+        const taglia = it?.taglia ? ` (${it.taglia})` : '';
+        const qty = it?.quantita ?? it?.qty ?? 1;
+        return `${nome}${taglia} × ${qty}`;
+      })
+      .join(', ');
+  };
+
+
   const fmtData = (ts) => {
     if (!ts) return '-';
     const d = new Date(ts);
@@ -207,24 +227,24 @@ const euroText = inEuro;
         `Paese: ${sanitize(c.paese)}`,
         `Telefono: ${sanitize(c.telefono)}`,
         `Totale: ${sanitize(inEuro(o.totale))}`,
+        `Prodotti: ${sanitize(itemsSummary(o))}`,
         `Stato: ${sanitize(o.stato || '')}`
       ].join(' | ');
     });
-
     const html = `<!doctype html>
-<html><head>
-<meta charset="utf-8">
-<title>Ordini da spedire</title>
-<style>
-  body{font-family:Arial, sans-serif; font-size:12px; padding:16px;}
-  h1{font-size:16px; margin:0 0 12px;}
-  pre{white-space:pre-wrap; word-break:break-word;}
-</style>
-</head>
-<body>
-  <h1>Ordini da spedire (${daSpedire.length})</h1>
-  <pre>${lines.join('\n')}</pre>
-</body></html>`;
+      <html><head>
+      <meta charset="utf-8">
+      <title>Ordini da spedire</title>
+      <style>
+        body{font-family:Arial, sans-serif; font-size:12px; padding:16px;}
+        h1{font-size:16px; margin:0 0 12px;}
+        pre{white-space:pre-wrap; word-break:break-word;}
+      </style>
+      </head>
+      <body>
+        <h1>Ordini da spedire (${daSpedire.length})</h1>
+        <pre>${lines.join('\n')}</pre>
+      </body></html>`;
     const w = window.open('', 'print', 'width=900,height=700');
     if (!w) return;
     w.document.write(html);
@@ -278,6 +298,7 @@ const euroText = inEuro;
             <b>Totale:</b>{' '}
             <span style={{ fontFamily: 'Arial, sans-serif' }}>{inEuro(o.totale)}</span>
           </div>
+          <div style={styles.row}><b>Prodotti:</b> {itemsSummary(o)}</div>
           <div style={styles.row}><b>Email:</b> {c.email}</div>
           <div style={styles.row}><b>Cliente:</b> {c.nome} {c.cognome}</div>
           <div style={styles.row}><b>Indirizzo:</b> {c.indirizzo}</div>
