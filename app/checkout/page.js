@@ -123,21 +123,7 @@ export default function CheckoutPage() {
   );
 
   const salvaDatiCheckout = () => {
-    const datiCarrello = localStorage.getItem('carrello');
-    if (datiCarrello) {
-      localStorage.setItem(
-        'checkout_dati',
-        JSON.stringify({
-          cliente_id: utente ? utente.id : email,
-          carrello: JSON.parse(datiCarrello),
-          totale_senza_sconti: Math.round(totaleProdotti * 10) / 10,
-          sconto_primo_ordine: scontoPrimoOrdine,
-          primo_sconto_applicato: scontoPrimoOrdine > 0,
-          totale: totaleFinale,
-          email,
-        })
-      );
-    }
+    localStorage.setItem('checkout_email', email);
   };
 
   // ---------- REGISTRAZIONE / LOGIN / PROFILO ----------

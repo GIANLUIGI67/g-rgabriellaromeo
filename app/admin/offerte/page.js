@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
+import { getPublicImageUrl } from '../../lib/storageUrl';
 import { Suspense } from 'react';
 
 export default function OffertePageWrapper() {
@@ -120,7 +121,7 @@ function OffertePage() {
               </div>
 
               <img
-                src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`}
+                src={getPublicImageUrl(prodotto.immagine)}
                 alt={prodotto.nome}
                 style={{
                   width: '100%',
@@ -130,7 +131,7 @@ function OffertePage() {
                   borderRadius: '4px',
                   marginBottom: '0.3rem'
                 }}
-                onClick={() => setPopupImg(`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${prodotto.immagine}`)}
+                onClick={() => setPopupImg(getPublicImageUrl(prodotto.immagine))}
               />
               <strong>{prodotto.nome}</strong>
               <p>{prodotto.taglia}</p>

@@ -5,8 +5,6 @@ import { supabase } from '../../lib/supabaseClient';
 
 export default function AdminLogin() {
   const router = useRouter();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [errore, setErrore] = useState('');
   const [utente, setUtente] = useState(null);
   const [email, setEmail] = useState('');
@@ -18,40 +16,13 @@ export default function AdminLogin() {
     });
   }, []);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-
-    const userOk = username === 'administrator';
-    const passOk = password === 'Gabriella';
-
-    if (userOk && passOk) {
-      localStorage.setItem('adminAuth', 'true');
-
-      const logEntry = {
-        user: username,
-        tipo: 'login',
-        data: new Date().toISOString(),
-      };
-
-      await fetch('/api/admin-log', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(logEntry)
-      });
-
-      router.push('/admin');
-    } else {
-      setErrore('Credenziali non valide');
-    }
-  };
-
   const loginConEmail = async () => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password: emailPass,
     });
     if (error) setErrore(error.message);
-    else router.refresh();
+    else router.push('/admin');
   };
 
   const loginConGoogle = async () => {
@@ -83,7 +54,7 @@ export default function AdminLogin() {
       justifyContent: 'center',
       alignItems: 'center'
     }}>
-      <form onSubmit={handleLogin} style={{
+      <form onSubmit={(e) => e.preventDefault()} style={{
         display: 'flex',
         flexDirection: 'column',
         gap: '1rem',
@@ -92,34 +63,9 @@ export default function AdminLogin() {
         borderRadius: '8px'
       }}>
         <h1>Login Amministratore</h1>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-          style={{ padding: '0.5rem' }}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={{ padding: '0.5rem' }}
-        />
-        <button type="submit" style={{
-          padding: '0.5rem',
-          backgroundColor: '#4caf50',
-          color: 'white',
-          cursor: 'pointer'
-        }}>
-          Accedi
-        </button>
-
-        <hr style={{ marginTop: '1rem', marginBottom: '0.5rem' }} />
-
-        <h3>Login Utente Registrato</h3>
+        <p style={{ margin: 0, color: '#bbb' }}>
+          Accedi con un account Supabase autorizzato nella whitelist admin.
+        </p>
         <input
           type="email"
           placeholder="Email"
@@ -136,11 +82,11 @@ export default function AdminLogin() {
         />
         <button type="button" onClick={loginConEmail} style={{
           padding: '0.5rem',
-          backgroundColor: '#2196f3',
+          backgroundColor: '#4caf50',
           color: 'white',
           cursor: 'pointer'
         }}>
-          Login con Email
+          Accedi con Email
         </button>
         <button type="button" onClick={loginConGoogle} style={{
           padding: '0.5rem',

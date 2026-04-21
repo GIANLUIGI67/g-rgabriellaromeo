@@ -10,7 +10,7 @@ const customJestConfig = {
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '/out/'],
 
   // Coverage
-  collectCoverage: true,
+  collectCoverage: false,
   collectCoverageFrom: [
     'app/**/*.{js,jsx,ts,tsx}',
     'components/**/*.{js,jsx,ts,tsx}',
@@ -33,9 +33,9 @@ const customJestConfig = {
     '^@/(.*)$': '<rootDir>/$1',
 
     // Mock per moduli Next che altrimenti rompono i test in jsdom
-    '^next/link$': '<rootDir>/mocks/nextLinkMock.js',
-    '^next/navigation$': '<rootDir>/mocks/nextNavigationMock.js',
-    '^next/image$': '<rootDir>/mocks/nextImageMock.js',
+    '^next/link$': '<rootDir>/test/mocks/nextLinkMock.js',
+    '^next/navigation$': '<rootDir>/test/mocks/nextNavigationMock.js',
+    '^next/image$': '<rootDir>/test/mocks/nextImageMock.js',
   },
 
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],

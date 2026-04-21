@@ -3,7 +3,13 @@ import { Resend } from 'resend';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { supabase } from '../../lib/supabaseClient';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error('Missing RESEND_API_KEY');
+  }
+  return new Resend(apiKey);
+}
 
 export async function POST(req) {
   const { email, nome, ordineId, totale, lang } = await req.json();
@@ -57,6 +63,7 @@ export async function POST(req) {
   }[lang];
 
   try {
+    const resend = getResendClient();
     await resend.emails.send({
       from: 'info@g-rgabriellaromeo.it',
       to: email,

@@ -18,7 +18,7 @@ function makeQuery(table) {
 
   const api = {
     select() {
-      return Promise.resolve({ data: rows, error: null });
+      return api;
     },
     insert(payload) {
       const toInsert = Array.isArray(payload) ? payload : [payload];
@@ -35,9 +35,20 @@ function makeQuery(table) {
       rows = rows.filter((r) => r?.[field] === value);
       return api;
     },
+    limit(count) {
+      rows = rows.slice(0, count);
+      return api;
+    },
     single() {
       const first = rows[0] ?? null;
       return Promise.resolve({ data: first, error: null });
+    },
+    maybeSingle() {
+      const first = rows[0] ?? null;
+      return Promise.resolve({ data: first, error: null });
+    },
+    then(resolve, reject) {
+      return Promise.resolve({ data: rows, error: null }).then(resolve, reject);
     },
   };
 
@@ -47,6 +58,15 @@ function makeQuery(table) {
 const auth = {
   getUser: () =>
     Promise.resolve({ data: { user: _db.users[0] }, error: null }),
+  getSession: () =>
+    Promise.resolve({ data: { session: { user: _db.users[0], access_token: 'test-token' } }, error: null }),
+  onAuthStateChange: () => ({
+    data: {
+      subscription: {
+        unsubscribe: () => {},
+      },
+    },
+  }),
   signInWithPassword: async ({ email }) => {
     const user = _db.users.find((u) => u.email === email) || null;
     return { data: { user }, error: null };

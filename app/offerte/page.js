@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
+import { getPublicImageUrl } from '../lib/storageUrl';
 import Image from 'next/image';
 
 function OffertePageContent() {
@@ -68,12 +69,6 @@ function OffertePageContent() {
     localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
   };
 
-  // FIX: Codifica il nome del file per gestire spazi e caratteri speciali
-  const getImageUrl = (imagePath) => {
-    const encodedPath = encodeURIComponent(imagePath);
-    return `https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${encodedPath}`;
-  };
-
   return (
     <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem' }}>
       <h1 style={{ fontSize: '2rem', marginBottom: '2rem', textAlign: 'center' }}>{t('titolo')}</h1>
@@ -111,7 +106,7 @@ function OffertePageContent() {
               </div>
               
               <Image
-                src={getImageUrl(prodotto.immagine)}
+                src={getPublicImageUrl(prodotto.immagine)}
                 alt={prodotto.nome}
                 width={150}
                 height={150}
@@ -123,7 +118,7 @@ function OffertePageContent() {
                   marginBottom: '0.3rem',
                   cursor: 'pointer'
                 }}
-                onClick={() => setPopupImg(getImageUrl(prodotto.immagine))}
+                onClick={() => setPopupImg(getPublicImageUrl(prodotto.immagine))}
               />
               
               <strong>{prodotto.nome}</strong>

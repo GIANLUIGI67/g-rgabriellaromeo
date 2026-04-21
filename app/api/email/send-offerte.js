@@ -2,7 +2,13 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { supabase } from '../../../lib/supabaseClient';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error('Missing RESEND_API_KEY');
+  }
+  return new Resend(apiKey);
+}
 
 export async function POST(req) {
   try {
@@ -39,6 +45,7 @@ export async function POST(req) {
       <p>Visita il nostro sito per vedere tutti i prodotti in offerta!</p>
     `;
 
+    const resend = getResendClient();
     const result = await resend.emails.send({
       from: 'info@g-rgabriellaromeo.it',
       to: destinatari,

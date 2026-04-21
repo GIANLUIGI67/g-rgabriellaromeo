@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
+import { getPublicImageUrl } from '../lib/storageUrl';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [errore, setErrore] = useState('');
   const [isAdminFlag, setIsAdminFlag] = useState(false);
+  const [accessToken, setAccessToken] = useState('');
 
   // stato UI prodotti (come avevi)
   const [form, setForm] = useState({
@@ -54,9 +56,13 @@ export default function AdminPage() {
       setLoading(true);
       setErrore('');
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const [{ data: { user } }, { data: sessionData }] = await Promise.all([
+          supabase.auth.getUser(),
+          supabase.auth.getSession(),
+        ]);
         if (!mounted) return;
         setMe(user || null);
+        setAccessToken(sessionData?.session?.access_token || '');
       } catch (e) {
         if (!mounted) return;
         setErrore(e?.message || String(e));
@@ -69,6 +75,7 @@ export default function AdminPage() {
     load();
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setMe(session?.user ?? null);
+      setAccessToken(session?.access_token || '');
     });
     return () => {
       mounted = false;
@@ -131,6 +138,7 @@ export default function AdminPage() {
     setNomeFileSelezionato('');
     setCategoriaSelezionata('');
     setModificaId(null);
+    setAccessToken('');
   }
 
   const handleInputChange = (e) => {
@@ -147,7 +155,11 @@ export default function AdminPage() {
     formData.append('file', file);
 
     try {
-      const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
+      const res = await fetch('/api/upload-image', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+        body: formData,
+      });
       const result = await res.json();
       if (res.ok) setNomeFileSelezionato(result.fileName);
       else {
@@ -194,13 +206,19 @@ export default function AdminPage() {
       if (modificaId) {
         res = await fetch(`/api/products/${modificaId}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
           body: JSON.stringify(prodottoData)
         });
       } else {
         res = await fetch('/api/save-product', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
           body: JSON.stringify({ ...prodottoData, created_at: new Date().toISOString() })
         });
       }
@@ -245,7 +263,10 @@ export default function AdminPage() {
   const handleDelete = async (id) => {
     if (!me || !isAdminFlag) return;
     try {
-      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/products/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       if (res.ok) setProdottiFiltrati(prev => prev.filter(item => item.id !== id));
       else console.error('Errore nella cancellazione:', res.status);
     } catch (err) {
@@ -441,7 +462,7 @@ export default function AdminPage() {
                     }}>✨ OFFERTA</div>
                   )}
                   <img
-                    src={`https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/${item.immagine}`}
+                    src={getPublicImageUrl(item.immagine)}
                     alt={item.nome}
                     style={{ width: '100%', height: 'auto', maxHeight: '60px', objectFit: 'cover', borderRadius: '4px', marginBottom: '0.2rem' }}
                   />

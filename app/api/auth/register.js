@@ -1,17 +1,9 @@
-import fs from 'fs';
-import path from 'path';
 import bcrypt from 'bcryptjs';
+import { readJsonFile, writeJsonFile } from '../../lib/serverData';
 
 export async function POST(req) {
   const body = await req.json();
-  const filePath = path.join(process.cwd(), 'public', 'data', 'clienti.json');
-
-  let clienti = [];
-  try {
-    clienti = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-  } catch {
-    clienti = [];
-  }
+  const clienti = await readJsonFile('clienti.json', []);
 
   const esiste = clienti.find(c => c.email === body.email);
   if (esiste) {
@@ -31,6 +23,6 @@ export async function POST(req) {
   };
 
   clienti.push(nuovo);
-  fs.writeFileSync(filePath, JSON.stringify(clienti, null, 2));
+  await writeJsonFile('clienti.json', clienti);
   return new Response(JSON.stringify({ ok: true }), { status: 201 });
 }

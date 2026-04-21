@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ShoppingCart } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import { getPublicImageUrl } from '../lib/storageUrl';
 import { Suspense } from 'react';
 
 function AbbigliamentoPage() {
@@ -205,7 +206,7 @@ function AbbigliamentoPage() {
     localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
   };
 
-  const baseUrl = 'https://xmiaatzxskmuxyzsvyjn.supabase.co/storage/v1/object/public/immagini/';
+  const baseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/immagini/`;
 
   return (
     <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem 1rem', maxWidth: '100vw', overflowX: 'hidden', margin: '0 auto', position: 'relative' }}>
@@ -409,7 +410,7 @@ function AbbigliamentoPage() {
             </button>
 
             <img
-              src={baseUrl + immagineAttiva}
+              src={getPublicImageUrl(immagineAttiva)}
               alt="zoom"
               style={{ width: '100%', height: 'auto', borderRadius: '6px', marginBottom: '1rem' }}
             />
@@ -418,7 +419,7 @@ function AbbigliamentoPage() {
               {popupProdotto.immagine.split(',').map((img, idx) => (
                 <img
                   key={idx}
-                  src={baseUrl + img.trim()}
+                  src={getPublicImageUrl(img.trim())}
                   alt={`miniatura-${idx}`}
                   onClick={(e) => {
                     e.stopPropagation();

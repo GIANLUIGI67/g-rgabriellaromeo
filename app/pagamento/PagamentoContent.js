@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { loadStripe } from '@stripe/stripe-js';
@@ -9,16 +9,13 @@ import { PayPalScriptProvider, PayPalButtons, usePayPalScriptReducer } from '@pa
 
 const PayPalWrapper = ({ 
   totaleFinale, 
-  codiceOrdine, 
   cliente, 
   carrello, 
   spedizione, 
   lang, 
   router,
   t,
-  scontoCalcolato,
-  aggiornaQuantitaProdotti,
-  azzeraPrimoScontoSeApplicato
+  accessToken
 }) => {
   const [paypalError, setPaypalError] = useState(null);
   const [{ isPending, isResolved }] = usePayPalScriptReducer();
@@ -30,42 +27,43 @@ const PayPalWrapper = ({
           value: totaleFinale.toFixed(2),
           currency_code: 'EUR'
         },
-        description: `Ordine ${codiceOrdine}`
+        description: 'Ordine GR Gabriella Romeo'
       }]
     });
   };
 
   const onApprove = async (data, actions) => {
-  try {
-    const details = await actions.order.capture();
-    const ordine = {
-      id: codiceOrdine,
-      cliente,
-      carrello,
-      spedizione,
-      pagamento: 'PayPal',
-      totale: totaleFinale,
-      stato: 'pagato',
-      data: new Date().toISOString(),
-      transazione_id: details.id
-    };
+    try {
+      const details = await actions.order.capture();
+      const finalizeRes = await fetch('/api/checkout/finalize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          cart: carrello,
+          shippingMethod: spedizione,
+          paymentMethod: 'PayPal',
+          paymentStatus: 'pagato',
+          transactionId: details.id,
+        }),
+      });
+      const finalizeJson = await finalizeRes.json();
+      if (!finalizeRes.ok) {
+        throw new Error(finalizeJson?.error || t.errori.generico);
+      }
 
-    const { error: ordineErr } = await supabase.from('ordini').insert([ordine]);
-    if (ordineErr) throw ordineErr;
+      localStorage.setItem('nomeCliente', cliente?.nome || cliente?.email || '');
+      localStorage.setItem('ordineId', finalizeJson.orderId);
+      localStorage.removeItem('carrello');
 
-    await aggiornaQuantitaProdotti();
-    await azzeraPrimoScontoSeApplicato(cliente?.email, scontoCalcolato);
-
-    localStorage.setItem('nomeCliente', cliente?.nome || cliente?.email || '');
-    localStorage.setItem('ordineId', codiceOrdine);
-    localStorage.removeItem('carrello');
-
-    router.push(`/ordine-confermato?lang=${lang}&metodo=paypal`);
-  } catch (error) {
-    console.error('PayPal approval error:', error);
-    setPaypalError(t.errori.generico);
-  }
-};
+      router.push(`/ordine-confermato?lang=${lang}&metodo=paypal`);
+    } catch (error) {
+      console.error('PayPal approval error:', error);
+      setPaypalError(error.message || t.errori.generico);
+    }
+  };
 
 
   return (
@@ -85,7 +83,7 @@ const PayPalWrapper = ({
             console.error('PayPal error:', err);
             setPaypalError(t.errori.generico);
           }}
-          forceReRender={[totaleFinale, codiceOrdine]}
+          forceReRender={[totaleFinale, spedizione]}
         />
       )}
     </div>
@@ -323,16 +321,13 @@ const traduzioni = {
 // componente StripePayment //
 const StripePayment = ({ 
   totaleFinale, 
-  codiceOrdine, 
   cliente, 
   carrello, 
   spedizione, 
   lang, 
   router,
   t,
-  scontoPrimoOrdine,
-  onScontoConsumato,
-  aggiornaQuantitaProdotti
+  accessToken
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -347,15 +342,14 @@ const handleSubmit = async (e) => {
   try {
     const resp = await fetch('/api/create-payment-intent', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
       body: JSON.stringify({
-        amount: Math.round(totaleFinale * 100),
         currency: 'eur',
-        metadata: {
-          order_id: codiceOrdine,
-          email: cliente.email,
-          country: cliente.paese || 'IT',
-        },
+        cart: carrello,
+        shippingMethod: spedizione,
       }),
     });
     if (!resp.ok) {
@@ -376,35 +370,27 @@ const handleSubmit = async (e) => {
     });
     if (error) throw error;
 
-    const ordine = {
-      id: codiceOrdine,
-      cliente,
-      carrello,
-      spedizione,
-      pagamento: 'Carta di Credito',
-      totale: totaleFinale,
-      stato: 'pagato',
-      data: new Date().toISOString(),
-      transazione_id: paymentIntent.id,
-    };
-
-    const { error: ordineErr } = await supabase.from('ordini').insert([ordine]);
-    if (ordineErr) throw ordineErr;
-
-    if (typeof aggiornaQuantitaProdotti === 'function') {
-      await aggiornaQuantitaProdotti();
-    }
-
-    if (typeof onScontoConsumato === 'function') {
-      try {
-        await onScontoConsumato(cliente?.email, scontoPrimoOrdine);
-      } catch (e) {
-        console.error('Errore callback onScontoConsumato:', e);
-      }
+    const finalizeRes = await fetch('/api/checkout/finalize', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        cart: carrello,
+        shippingMethod: spedizione,
+        paymentMethod: 'Carta di Credito',
+        paymentStatus: 'pagato',
+        transactionId: paymentIntent.id,
+      }),
+    });
+    const finalizeJson = await finalizeRes.json();
+    if (!finalizeRes.ok) {
+      throw new Error(finalizeJson?.error || t.errori.generico);
     }
 
     localStorage.setItem('nomeCliente', cliente?.nome || cliente?.email || '');
-    localStorage.setItem('ordineId', codiceOrdine);
+    localStorage.setItem('ordineId', finalizeJson.orderId);
     localStorage.removeItem('carrello');
 
     router.push(`/ordine-confermato?lang=${lang}&metodo=carta`);
@@ -467,24 +453,18 @@ export default function PagamentoContent({ lang }) {
   const router = useRouter();
   const [carrello, setCarrello] = useState([]);
   const [cliente, setCliente] = useState(null);
+  const [accessToken, setAccessToken] = useState('');
   const [spedizione, setSpedizione] = useState('');
   const [pagamento, setPagamento] = useState('');
   const [costoSpedizione, setCostoSpedizione] = useState(0);
   const [accettaCondizioni, setAccettaCondizioni] = useState(false);
   const [accettaBonifico, setAccettaBonifico] = useState(false);
-  const [codiceOrdine, setCodiceOrdine] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [primoScontoPercent, setPrimoScontoPercent] = useState(null);
   const [scontoPrimoOrdine, setScontoPrimoOrdine] = useState(0);
-  const [paypalLoaded, setPaypalLoaded] = useState(false);
+  const [quote, setQuote] = useState(null);
 
   const t = traduzioni[lang] || traduzioni.it;
-
-  const generaCodiceOrdine = useCallback(() => {
-    const oggi = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const random = Math.random().toString(36).substring(2, 7).toUpperCase();
-    return `GR-${oggi}-${random}`;
-  }, []);
 
   const totaleProdotti = useMemo(() => {
     return carrello.reduce((acc, p) => {
@@ -512,19 +492,6 @@ export default function PagamentoContent({ lang }) {
     const fetchCliente = async () => {
       setIsLoading(true);
       try {
-        const checkoutDati = localStorage.getItem('checkout_dati');
-        if (checkoutDati) {
-          const dati = JSON.parse(checkoutDati);
-          setCliente({ id: dati.cliente_id, email: dati.email });
-
-          if (typeof dati.sconto_primo_ordine === 'number') {
-            setScontoPrimoOrdine(dati.sconto_primo_ordine);
-          }
-
-          localStorage.removeItem('checkout_dati');
-          return;
-        }
-
         const { data, error } = await supabase.auth.getSession();
         if (error || !data?.session) {
           localStorage.removeItem('carrello');
@@ -534,6 +501,7 @@ export default function PagamentoContent({ lang }) {
         }
         
         const session = data.session;
+        setAccessToken(session?.access_token || '');
         if (!session?.user) {
           localStorage.removeItem('carrello');
           localStorage.removeItem('datiTemporaneiCliente');
@@ -566,57 +534,40 @@ export default function PagamentoContent({ lang }) {
 
     fetchCliente();
     setCarrello(JSON.parse(localStorage.getItem('carrello')) || []);
-    setCodiceOrdine(generaCodiceOrdine());
-  }, [lang, router, generaCodiceOrdine]);
+  }, [lang, router]);
 
-  const aggiornaQuantitaProdotti = useCallback(async () => {
-    for (const item of carrello) {
-      const { data: prodottoCorrente } = await supabase
-        .from('products')
-        .select('quantita, made_to_order, allow_backorder')
-        .eq('id', item.id)
-        .single();
-
-      if (!prodottoCorrente) continue;
-
-      if (prodottoCorrente.made_to_order) {
-        // opzionale: se consenti backorder, puoi far scendere anche sotto zero
-        if (prodottoCorrente.allow_backorder) {
-          await supabase
-            .from('products')
-            .update({ quantita: (prodottoCorrente.quantita ?? 0) - item.quantita })
-            .eq('id', item.id);
-        }
-        // altrimenti non toccare lo stock
-      } else {
-        const nuovaQuantita = Math.max((prodottoCorrente.quantita || 0) - item.quantita, 0);
-        await supabase
-          .from('products')
-          .update({ quantita: nuovaQuantita })
-          .eq('id', item.id);
+  useEffect(() => {
+    const fetchQuote = async () => {
+      if (!accessToken || !spedizione || carrello.length === 0) {
+        setQuote(null);
+        return;
       }
-    }
-  }, [carrello]);
 
-  const azzeraPrimoScontoSeApplicato = async (email, scontoUsato) => {
-    try {
-      const safeEmail = (email || '').trim().toLowerCase();
-      if (safeEmail && Number(scontoUsato) > 0) {
-        const { error } = await supabase
-          .from('clienti')
-          .update({ primo_sconto: null, updated_at: new Date().toISOString() })
-          .eq('email', safeEmail);
-
-        if (error) {
-          console.error('Errore Supabase azzeramento primo_sconto:', error);
-        } else {
-          console.log(`Primo sconto azzerato per ${safeEmail}`);
+      try {
+        const response = await fetch('/api/checkout/quote', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            cart: carrello,
+            shippingMethod: spedizione,
+          }),
+        });
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result?.error || t.errori.generico);
         }
+        setQuote(result.quote);
+      } catch (error) {
+        console.error('Errore fetch quote:', error);
+        setQuote(null);
       }
-    } catch (e) {
-      console.error('Errore azzeramento primo_sconto (catch):', e);
-    }
-  };
+    };
+
+    fetchQuote();
+  }, [accessToken, carrello, spedizione, t.errori.generico]);
 
   const confermaBonificoEffettuato = async () => {
     if (!accettaCondizioni) {
@@ -626,36 +577,25 @@ export default function PagamentoContent({ lang }) {
 
     setIsLoading(true);
     try {
-      const ordine = {
-        id: codiceOrdine,
-        cliente,
-        carrello,
-        spedizione,
-        pagamento: 'bonifico',
-        totale: totaleFinale,
-        stato: 'in attesa bonifico',
-        data: new Date().toISOString()
-      };
-
-      await supabase.from('ordini').insert([ordine]);
-      await aggiornaQuantitaProdotti();
-      await azzeraPrimoScontoSeApplicato(cliente?.email, scontoCalcolato);
-
-      if (cliente.email) {
-        const { data: clienteAttuale } = await supabase
-          .from('clienti')
-          .select('ordini')
-          .eq('email', cliente.email)
-          .single();
-
-        const ordiniEsistenti = Array.isArray(clienteAttuale?.ordini) ? clienteAttuale.ordini : [];
-        await supabase
-          .from('clienti')
-          .update({ ordini: [...ordiniEsistenti, ordine] })
-          .eq('email', cliente.email);
+      const response = await fetch('/api/checkout/finalize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          cart: carrello,
+          shippingMethod: spedizione,
+          paymentMethod: 'bonifico',
+          paymentStatus: 'in attesa bonifico',
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result?.error || t.errori.generico);
       }
 
-      localStorage.setItem('ordineId', codiceOrdine);
+      localStorage.setItem('ordineId', result.orderId);
       localStorage.setItem('nomeCliente', cliente.nome);
       localStorage.removeItem('carrello');
 
@@ -669,6 +609,7 @@ export default function PagamentoContent({ lang }) {
   };
 
   const isFormValido = spedizione && pagamento && (pagamento !== 'bonifico' || (accettaCondizioni && accettaBonifico));
+  const totaleVisualizzato = quote?.total ?? totaleFinale;
 
   return (
     <main style={{ backgroundColor: 'black', color: 'white', minHeight: '100vh', padding: '2rem' }}>
@@ -728,7 +669,7 @@ export default function PagamentoContent({ lang }) {
         </select>
 
         <p style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1rem', fontFamily: 'Arial, sans-serif' }}>
-          {t.totale}: €{totaleFinale.toFixed(2).replace('.', ',')}
+          {t.totale}: €{totaleVisualizzato.toFixed(2).replace('.', ',')}
         </p>
         
 {pagamento === 'paypal' && (
@@ -741,17 +682,14 @@ export default function PagamentoContent({ lang }) {
             }}
           >
             <PayPalWrapper
-              totaleFinale={totaleFinale}
-              codiceOrdine={codiceOrdine}
+              totaleFinale={totaleVisualizzato}
               cliente={cliente}
               carrello={carrello}
               spedizione={spedizione}
               lang={lang}
               router={router}
               t={t}
-              scontoCalcolato={scontoCalcolato}
-              aggiornaQuantitaProdotti={aggiornaQuantitaProdotti}
-              azzeraPrimoScontoSeApplicato={azzeraPrimoScontoSeApplicato}
+              accessToken={accessToken}
             />
           </PayPalScriptProvider>
         )}
@@ -761,7 +699,7 @@ export default function PagamentoContent({ lang }) {
             <p>{lang === 'it' ? 'Per completare il pagamento con bonifico, effettua il versamento su:' : 'To complete payment, transfer to:'}</p>
             <p><strong>IBAN:</strong> IT10 Y050 3426 2010 0000 0204 438</p>
             <p><strong>{t.intestatario}</strong></p>
-            <p><strong>{t.causale} {codiceOrdine}</strong></p>
+            <p><strong>{t.causale} GR</strong></p>
 
             <div style={{ marginTop: '1rem' }}>
               <label htmlFor="accetta-condizioni">
@@ -825,17 +763,14 @@ export default function PagamentoContent({ lang }) {
         {pagamento === 'carta' && (
           <Elements stripe={stripePromise}>
             <StripePayment
-              totaleFinale={totaleFinale}
-              codiceOrdine={codiceOrdine}
+              totaleFinale={totaleVisualizzato}
               cliente={cliente}
               carrello={carrello}
               spedizione={spedizione}
               lang={lang}
               router={router}
               t={t}
-              scontoPrimoOrdine={scontoCalcolato}
-              onScontoConsumato={azzeraPrimoScontoSeApplicato}
-              aggiornaQuantitaProdotti={aggiornaQuantitaProdotti}
+              accessToken={accessToken}
             />
 
           </Elements>

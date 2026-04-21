@@ -1,17 +1,4 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-
-const filePath = path.join(process.cwd(), 'public', 'data', 'ordini.json');
-
-// Utility: legge JSON esistente o restituisce []
-async function readJsonSafe(p) {
-  try {
-    const buf = await fs.readFile(p, 'utf8');
-    return JSON.parse(buf || '[]');
-  } catch {
-    return [];
-  }
-}
+import { readJsonFile, writeJsonFile } from '../../lib/serverData';
 
 export async function POST(request) {
   try {
@@ -26,10 +13,9 @@ export async function POST(request) {
     };
 
     // Leggi lista esistente e appendi
-    const ordiniEsistenti = await readJsonSafe(filePath);
+    const ordiniEsistenti = await readJsonFile('ordini.json', []);
     ordiniEsistenti.push(ordineConMeta);
-
-    await fs.writeFile(filePath, JSON.stringify(ordiniEsistenti, null, 2));
+    await writeJsonFile('ordini.json', ordiniEsistenti);
 
     return new Response(
       JSON.stringify({ ok: true, id: ordineConMeta.id, created_at: ordineConMeta.created_at }),

@@ -5,6 +5,7 @@ import '@testing-library/jest-dom';
 // Mock router + search params per App Router in JSDOM
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: jest.fn(), replace: jest.fn(), prefetch: jest.fn() }),
+  usePathname: () => '/',
   useSearchParams: () => new URLSearchParams('lang=it'),
 }));
 

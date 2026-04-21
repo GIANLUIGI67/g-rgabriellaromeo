@@ -1,19 +1,18 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-
-const logPath = path.join(process.cwd(), 'public', 'data', 'admin-log.json');
+import { jsonResponse, requireAdmin } from '../../lib/serverAuth';
+import { readJsonFile, writeJsonFile } from '../../lib/serverData';
 
 export async function POST(request) {
   try {
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
+
     const nuovoLog = await request.json();
-    const data = await fs.readFile(logPath, 'utf-8').catch(() => '[]');
-    const logs = JSON.parse(data);
-
+    const logs = await readJsonFile('admin-log.json', []);
     logs.push(nuovoLog);
-    await fs.writeFile(logPath, JSON.stringify(logs, null, 2));
+    await writeJsonFile('admin-log.json', logs);
 
-    return new Response(JSON.stringify({ status: 'ok' }), { status: 200 });
+    return jsonResponse({ status: 'ok' }, 200);
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Errore salvataggio log' }), { status: 500 });
+    return jsonResponse({ error: 'Errore salvataggio log' }, 500);
   }
 }

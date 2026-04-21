@@ -1,12 +1,9 @@
-import fs from 'fs';
-import path from 'path';
 import bcrypt from 'bcryptjs';
+import { readJsonFile } from '../../lib/serverData';
 
 export async function POST(req) {
   const body = await req.json();
-  const filePath = path.join(process.cwd(), 'public', 'data', 'clienti.json');
-
-  const clienti = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  const clienti = await readJsonFile('clienti.json', []);
   const utente = clienti.find(c => c.email === body.email);
   if (!utente) {
     return new Response(JSON.stringify({ error: 'Email non trovata' }), { status: 404 });

@@ -1,18 +1,16 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '../../lib/serverAuth';
+import { createServerSupabaseServiceClient } from '../../lib/serverSupabase';
 
 export async function POST(req: Request) {
   try {
+    const auth = await requireAdmin(req as any);
+    if ((auth as any).error) return (auth as any).error;
+
     const { email } = await req.json();
     if (!email) return NextResponse.json({ error: 'email required' }, { status: 400 });
 
-    const url = process.env.SUPABASE_URL;
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!url || !serviceKey) {
-      return NextResponse.json({ error: 'Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY' }, { status: 500 });
-    }
-
-    const s = createClient(url, serviceKey, { auth: { persistSession: false } });
+    const s = createServerSupabaseServiceClient();
 
     const { error } = await s
       .from('admin_emails')
