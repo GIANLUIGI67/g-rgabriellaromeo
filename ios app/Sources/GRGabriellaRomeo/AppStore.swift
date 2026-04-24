@@ -2,7 +2,11 @@ import Foundation
 
 @MainActor
 final class AppStore: ObservableObject {
-    @Published var language: AppLanguage = .it
+    @Published var language: AppLanguage = AppLanguage(rawValue: UserDefaults.standard.string(forKey: "gr.language") ?? "") ?? .it {
+        didSet {
+            UserDefaults.standard.set(language.rawValue, forKey: "gr.language")
+        }
+    }
     @Published var products: [Product] = []
     @Published var cart: [CartItem] = []
     @Published var session: AuthSession?

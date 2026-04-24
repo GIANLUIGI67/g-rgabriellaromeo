@@ -211,14 +211,22 @@ private struct BrandMark: View {
 }
 
 private struct FooterSocialBlock: View {
-    private let flags = ["🇮🇹", "🇬🇧", "🇫🇷", "🇩🇪", "🇪🇸", "🇸🇦", "🇨🇳", "🇯🇵"]
+    @EnvironmentObject private var store: AppStore
 
     var body: some View {
         VStack(spacing: 18) {
             HStack(spacing: 13) {
-                ForEach(flags, id: \.self) { flag in
-                    Text(flag)
-                        .font(.system(size: 20))
+                ForEach(AppLanguage.allCases) { language in
+                    Button {
+                        store.language = language
+                    } label: {
+                        Text(language.flag)
+                            .font(.system(size: 20))
+                            .opacity(store.language == language ? 1 : 0.5)
+                            .scaleEffect(store.language == language ? 1.08 : 1)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Lingua \(language.rawValue)")
                 }
             }
 
@@ -239,16 +247,17 @@ private struct FooterSocialBlock: View {
 
 private struct NavigationDrawer: View {
     @Binding var isPresented: Bool
+    @EnvironmentObject private var store: AppStore
 
-    private let items: [(String, String?)] = [
-        ("Home", nil),
-        ("Gioielli", "gioielli"),
-        ("Abbigliamento", "abbigliamento"),
-        ("Accessori", "accessori"),
-        ("Offerte", "offerte"),
-        ("Servizi", "servizi"),
-        ("Eventi", "eventi"),
-        ("Il Brand", "brand")
+    private let items: [(L10n.Key?, String?, String)] = [
+        (nil, nil, "Home"),
+        (.gioielli, "gioielli", "Gioielli"),
+        (.abbigliamento, "abbigliamento", "Abbigliamento"),
+        (.accessori, "accessori", "Accessori"),
+        (.offerte, "offerte", "Offerte"),
+        (nil, "servizi", "Servizi"),
+        (nil, "eventi", "Eventi"),
+        (nil, "brand", "Il Brand")
     ]
 
     var body: some View {
@@ -268,19 +277,19 @@ private struct NavigationDrawer: View {
             }
 
             VStack(spacing: 16) {
-                ForEach(items, id: \.0) { item in
+                ForEach(items, id: \.2) { item in
                     if let category = item.1 {
                         NavigationLink {
                             ProductListView(category: category, title: title(for: category))
                         } label: {
-                            Text(item.0)
+                            Text(label(for: item))
                                 .drawerItem()
                         }
                     } else {
                         Button {
                             withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }
                         } label: {
-                            Text(item.0)
+                            Text(label(for: item))
                                 .drawerItem()
                         }
                     }
@@ -293,6 +302,13 @@ private struct NavigationDrawer: View {
         .frame(width: 292)
         .background(Color.white)
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func label(for item: (L10n.Key?, String?, String)) -> String {
+        if let key = item.0 {
+            return store.l10n.text(key)
+        }
+        return item.2
     }
 
     private func title(for category: String) -> String {

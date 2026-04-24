@@ -7,14 +7,14 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 
     var flag: String {
         switch self {
-        case .it: "IT"
-        case .en: "EN"
-        case .fr: "FR"
-        case .de: "DE"
-        case .es: "ES"
-        case .ar: "AR"
-        case .zh: "ZH"
-        case .ja: "JA"
+        case .it: "🇮🇹"
+        case .en: "🇬🇧"
+        case .fr: "🇫🇷"
+        case .de: "🇩🇪"
+        case .es: "🇪🇸"
+        case .ar: "🇸🇦"
+        case .zh: "🇨🇳"
+        case .ja: "🇯🇵"
         }
     }
 }
