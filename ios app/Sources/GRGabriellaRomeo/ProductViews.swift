@@ -77,6 +77,11 @@ struct ProductListView: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 42)
             }
+
+            WebBackButton()
+                .padding(.top, 48)
+                .padding(.leading, 14)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .toolbar(.hidden, for: .navigationBar)
     }
@@ -204,6 +209,11 @@ struct ProductDetailView: View {
                 .padding(.top, 42)
                 .padding(.bottom, 30)
             }
+
+            WebBackButton()
+                .padding(.top, 48)
+                .padding(.leading, 14)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .toolbar(.hidden, for: .navigationBar)
     }

@@ -54,9 +54,10 @@ struct RootView: View {
 
                     if isAccountOpen {
                         LoginPanel(isPresented: $isAccountOpen)
-                            .frame(width: min(geometry.size.width * 0.86, 360))
+                            .frame(width: min(geometry.size.width * 0.85, 336))
+                            .frame(maxHeight: min(geometry.size.height * 0.66, 560), alignment: .top)
                             .frame(maxWidth: .infinity, alignment: .trailing)
-                            .padding(.top, max(70, geometry.safeAreaInsets.top + 44))
+                            .padding(.top, max(56, geometry.safeAreaInsets.top + 30))
                             .transition(.move(edge: .trailing).combined(with: .opacity))
                             .zIndex(12)
                     }
@@ -398,5 +399,24 @@ extension View {
             .font(.custom("GRGabriellaFinal", size: 20))
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+struct WebBackButton: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        Button {
+            dismiss()
+        } label: {
+            Image(systemName: "chevron.left")
+                .font(.system(size: 28, weight: .regular))
+                .foregroundStyle(.white)
+                .frame(width: 48, height: 48)
+                .background(Color.black.opacity(0.28))
+                .clipShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Indietro")
     }
 }

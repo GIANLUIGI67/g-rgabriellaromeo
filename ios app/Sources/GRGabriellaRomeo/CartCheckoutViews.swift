@@ -63,6 +63,11 @@ struct CheckoutView: View {
                 }
                 .padding(.bottom, 36)
             }
+
+            WebBackButton()
+                .padding(.top, 48)
+                .padding(.leading, 14)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .toolbar(.hidden, for: .navigationBar)
         .task { await loadQuote() }
