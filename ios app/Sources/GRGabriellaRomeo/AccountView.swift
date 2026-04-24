@@ -8,8 +8,9 @@ struct AccountView: View {
             HeroBackground()
             if isPresented {
                 LoginPanel(isPresented: $isPresented)
-                    .frame(maxWidth: 336)
-                    .frame(maxHeight: 560, alignment: .top)
+                    .frame(maxWidth: 306)
+                    .frame(height: 390, alignment: .top)
+                    .clipped()
                     .padding(.top, 56)
             }
         }
@@ -35,25 +36,25 @@ struct LoginPanel: View {
     @State private var infoMessage: String?
 
     private let benefits = [
-        "Per aggiungere i tuoi prodotti alla lista dei desideri",
+        "Aggiungi prodotti alla lista desideri",
         "Per un checkout piu veloce",
-        "Ottieni uno sconto del 10% sul tuo prossimo acquisto",
-        "Unisciti al nostro referral program per sconti e buoni acquisto"
+        "Sconto 10% sul prossimo acquisto",
+        "Referral program per sconti e buoni"
     ]
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 10) {
                 HStack(alignment: .top) {
                     Text(store.session == nil ? "LOGIN" : "ACCOUNT")
-                        .font(.custom("GRGabriellaFinal", size: 24))
+                        .font(.custom("GRGabriellaFinal", size: 22))
                         .foregroundStyle(.black)
                     Spacer()
                     Button {
                         withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }
                     } label: {
                         Image(systemName: "xmark")
-                            .font(.system(size: 24, weight: .regular))
+                            .font(.system(size: 22, weight: .regular))
                             .foregroundStyle(.black)
                     }
                 }
@@ -64,15 +65,15 @@ struct LoginPanel: View {
                     authContent
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 18)
-            .padding(.bottom, 20)
+            .padding(.horizontal, 14)
+            .padding(.top, 14)
+            .padding(.bottom, 14)
         }
         .background(Color.white)
     }
 
     private var authContent: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             TextField("Email", text: $email)
                 .keyboardType(.emailAddress)
                 .textInputAutocapitalization(.never)
@@ -103,11 +104,11 @@ struct LoginPanel: View {
                         ProgressView().tint(.white)
                     } else {
                         Text(isRegistering ? "REGISTRATI" : "LOGIN")
-                            .font(.custom("GRGabriellaFinal", size: 22))
+                            .font(.custom("GRGabriellaFinal", size: 20))
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: 42)
+                .frame(height: 38)
                 .foregroundStyle(.white)
                 .background(Color.black)
             }
@@ -118,7 +119,7 @@ struct LoginPanel: View {
                     Task { await handleForgotPassword() }
                 } label: {
                     Text("Password dimenticata?")
-                        .font(.custom("GRGabriellaFinal", size: 18))
+                        .font(.custom("GRGabriellaFinal", size: 16))
                         .foregroundStyle(Color(red: 0.17, green: 0.38, blue: 0.96))
                 }
             }
@@ -134,22 +135,24 @@ struct LoginPanel: View {
                 }
             } label: {
                 Text(isRegistering ? "LOGIN" : "CREA ACCOUNT")
-                    .font(.custom("GRGabriellaFinal", size: 22))
+                    .font(.custom("GRGabriellaFinal", size: 20))
                     .foregroundStyle(.black)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 42)
+                    .frame(height: 38)
                     .overlay(Rectangle().stroke(Color.black, lineWidth: 1.2))
             }
 
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
                 ForEach(benefits, id: \.self) { benefit in
                     Text("-  \(benefit)")
-                        .font(.custom("GRGabriellaFinal", size: 18))
+                        .font(.custom("GRGabriellaFinal", size: 14))
                         .foregroundStyle(Color(red: 0.34, green: 0.37, blue: 0.43))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.72)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            .padding(.top, 4)
+            .padding(.top, 2)
 
             if let infoMessage {
                 Text(infoMessage)
@@ -234,10 +237,10 @@ struct LoginPanel: View {
 private extension View {
     func loginField() -> some View {
         self
-            .font(.custom("GRGabriellaFinal", size: 20))
+            .font(.custom("GRGabriellaFinal", size: 18))
             .foregroundStyle(.black)
-            .padding(.horizontal, 14)
-            .frame(height: 44)
+            .padding(.horizontal, 12)
+            .frame(height: 40)
             .overlay(Rectangle().stroke(Color.black, lineWidth: 1.2))
     }
 }

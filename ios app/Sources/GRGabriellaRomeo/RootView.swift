@@ -54,8 +54,9 @@ struct RootView: View {
 
                     if isAccountOpen {
                         LoginPanel(isPresented: $isAccountOpen)
-                            .frame(width: min(geometry.size.width * 0.85, 336))
-                            .frame(maxHeight: min(geometry.size.height * 0.66, 560), alignment: .top)
+                            .frame(width: min(geometry.size.width * 0.74, 306))
+                            .frame(height: min(geometry.size.height * 0.43, 390), alignment: .top)
+                            .clipped()
                             .frame(maxWidth: .infinity, alignment: .trailing)
                             .padding(.top, max(56, geometry.safeAreaInsets.top + 30))
                             .transition(.move(edge: .trailing).combined(with: .opacity))
