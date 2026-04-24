@@ -7,14 +7,20 @@ enum AppConfig {
     static let storageBucket = "immagini"
 
     static func imageURL(for path: String?) -> URL? {
-        guard let path, !path.isEmpty else { return nil }
-        if let direct = URL(string: path), direct.scheme != nil {
+        guard let rawPath = path else { return nil }
+        let cleanedPath = rawPath
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .first { !$0.isEmpty } ?? ""
+        guard !cleanedPath.isEmpty else { return nil }
+
+        if let direct = URL(string: cleanedPath), direct.scheme != nil {
             return direct
         }
-        let encoded = path
+        let encoded = cleanedPath
             .split(separator: "/")
             .map { String($0).addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? String($0) }
             .joined(separator: "/")
-        return supabaseURL.appending(path: "storage/v1/object/public/\(storageBucket)/\(encoded)")
+        return URL(string: "\(supabaseURL.absoluteString)/storage/v1/object/public/\(storageBucket)/\(encoded)")
     }
 }
