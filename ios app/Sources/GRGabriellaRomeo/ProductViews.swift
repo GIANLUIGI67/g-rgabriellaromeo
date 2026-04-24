@@ -5,25 +5,51 @@ struct ProductListView: View {
     let category: String?
     let title: String
     var onlyOffers = false
+    @State private var selectedSubcategory = "Tutte le sottocategorie"
+
+    private var subcategories: [String] {
+        let values = store.products
+            .filter { product in
+                guard let category else { return true }
+                return product.categoria?.localizedCaseInsensitiveContains(category) == true
+            }
+            .compactMap(\.sottocategoria)
+            .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        let unique = Array(Set(values)).sorted()
+
+        if category == "gioielli", unique.isEmpty {
+            return ["Anelli", "Collane", "Bracciali", "Orecchini"]
+        }
+        return unique
+    }
 
     private var filteredProducts: [Product] {
         store.products.filter { product in
             let categoryMatch = category == nil || product.categoria?.localizedCaseInsensitiveContains(category!) == true
             let offerMatch = !onlyOffers || product.offerta == true
-            return categoryMatch && offerMatch
+            let subcategoryMatch = selectedSubcategory == "Tutte le sottocategorie" || product.sottocategoria == selectedSubcategory
+            return categoryMatch && offerMatch && subcategoryMatch
         }
     }
 
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
+
             ScrollView {
-                LazyVStack(spacing: 18) {
+                VStack(spacing: 28) {
                     Text(title)
-                        .font(.custom("GRGabriellaUltraCustom", size: 40))
+                        .font(.custom("GRGabriellaFinal", size: 38))
+                        .tracking(3)
                         .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 24)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.7)
+                        .padding(.top, 92)
+
+                    if category != nil {
+                        subcategoryMenu
+                    }
 
                     if store.isLoading {
                         ProgressView()
@@ -31,25 +57,77 @@ struct ProductListView: View {
                             .padding(.top, 30)
                     } else if filteredProducts.isEmpty {
                         Text("Nessun prodotto disponibile")
-                            .font(.custom("GRGabriellaFinal", size: 18))
+                            .font(.custom("GRGabriellaFinal", size: 24))
                             .foregroundStyle(.white.opacity(0.72))
                             .padding(.top, 30)
                     } else {
-                        ForEach(filteredProducts) { product in
-                            NavigationLink {
-                                ProductDetailView(product: product)
-                            } label: {
-                                ProductCard(product: product)
+                        LazyVStack(spacing: 22) {
+                            ForEach(filteredProducts) { product in
+                                NavigationLink {
+                                    ProductDetailView(product: product)
+                                } label: {
+                                    ProductCard(product: product)
+                                }
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
                         }
+                        .padding(.top, 6)
                     }
                 }
-                .padding(.horizontal, 18)
-                .padding(.bottom, 30)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 42)
             }
         }
         .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private var subcategoryMenu: some View {
+        Menu {
+            Button {
+                selectedSubcategory = "Tutte le sottocategorie"
+            } label: {
+                if selectedSubcategory == "Tutte le sottocategorie" {
+                    Label("Tutte le sottocategorie", systemImage: "checkmark")
+                } else {
+                    Text("Tutte le sottocategorie")
+                }
+            }
+
+            ForEach(subcategories, id: \.self) { value in
+                Button {
+                    selectedSubcategory = value
+                } label: {
+                    if selectedSubcategory == value {
+                        Label(value, systemImage: "checkmark")
+                    } else {
+                        Text(value)
+                    }
+                }
+            }
+        } label: {
+            HStack {
+                Text(selectedSubcategory)
+                    .font(.custom("GRGabriellaFinal", size: 24))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                Spacer()
+                Image(systemName: "chevron.down")
+                    .foregroundStyle(.white)
+            }
+            .padding(.horizontal, 18)
+            .frame(height: 54)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.white, lineWidth: 2)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color(red: 0.0, green: 0.32, blue: 0.78), lineWidth: 4)
+                    .padding(-5)
+            )
+        }
+        .padding(.horizontal, 25)
     }
 }
 
@@ -60,22 +138,22 @@ struct ProductCard: View {
         VStack(alignment: .leading, spacing: 10) {
             ProductImage(product: product)
                 .frame(height: 280)
-                .clipShape(RoundedRectangle(cornerRadius: 2))
+                .clipShape(Rectangle())
 
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(product.nome)
-                        .font(.custom("GRGabriellaFinal", size: 20))
+                        .font(.custom("GRGabriellaFinal", size: 22))
                         .foregroundStyle(.white)
                     if let sottocategoria = product.sottocategoria, !sottocategoria.isEmpty {
                         Text(sottocategoria)
-                            .font(.custom("GRGabriellaFinal", size: 14))
+                            .font(.custom("GRGabriellaFinal", size: 16))
                             .foregroundStyle(.white.opacity(0.62))
                     }
                 }
                 Spacer()
                 Text(product.displayPrice.euro)
-                    .font(.custom("GRGabriellaFinal", size: 18))
+                    .font(.custom("GRGabriellaFinal", size: 20))
                     .foregroundStyle(.white)
             }
         }
@@ -96,7 +174,7 @@ struct ProductDetailView: View {
                         .clipped()
 
                     Text(product.nome)
-                        .font(.custom("GRGabriellaUltraCustom", size: 38))
+                        .font(.custom("GRGabriellaFinal", size: 38))
                         .foregroundStyle(.white)
 
                     Text(product.displayPrice.euro)
@@ -105,7 +183,7 @@ struct ProductDetailView: View {
 
                     if let description = product.descrizione, !description.isEmpty {
                         Text(description)
-                            .font(.custom("GRGabriellaFinal", size: 17))
+                            .font(.custom("GRGabriellaFinal", size: 19))
                             .foregroundStyle(.white.opacity(0.78))
                     }
 
@@ -113,7 +191,7 @@ struct ProductDetailView: View {
                         store.addToCart(product)
                     } label: {
                         Text(product.isAvailable ? store.l10n.text(.addToCart) : store.l10n.text(.soldOut))
-                            .font(.custom("GRGabriellaFinal", size: 21))
+                            .font(.custom("GRGabriellaFinal", size: 24))
                             .foregroundStyle(.black)
                             .frame(maxWidth: .infinity)
                             .frame(height: 54)
@@ -123,6 +201,7 @@ struct ProductDetailView: View {
                     .opacity(product.isAvailable ? 1 : 0.45)
                 }
                 .padding(18)
+                .padding(.top, 42)
                 .padding(.bottom, 30)
             }
         }
@@ -148,11 +227,9 @@ struct ProductImage: View {
             case .failure:
                 ZStack {
                     Color.white.opacity(0.08)
-                    Image("BrandLogo")
-                        .resizable()
-                        .scaledToFit()
-                        .padding(50)
-                        .opacity(0.8)
+                    Text("G-R")
+                        .font(.custom("GRGabriellaFinal", size: 46))
+                        .foregroundStyle(.white.opacity(0.75))
                 }
             @unknown default:
                 Color.white.opacity(0.08)

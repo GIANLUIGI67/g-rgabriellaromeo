@@ -22,6 +22,56 @@ struct Product: Identifiable, Codable, Hashable {
         case allowBackorder = "allow_backorder"
     }
 
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decodeFlexibleString(forKey: .id)
+        nome = try container.decodeIfPresent(String.self, forKey: .nome) ?? ""
+        descrizione = try container.decodeIfPresent(String.self, forKey: .descrizione)
+        prezzo = try container.decodeFlexibleDecimal(forKey: .prezzo)
+        taglia = try container.decodeIfPresent(String.self, forKey: .taglia)
+        categoria = try container.decodeIfPresent(String.self, forKey: .categoria)
+        sottocategoria = try container.decodeIfPresent(String.self, forKey: .sottocategoria)
+        immagine = try container.decodeIfPresent(String.self, forKey: .immagine)
+        disponibile = try container.decodeIfPresent(Bool.self, forKey: .disponibile)
+        quantita = try container.decodeIfPresent(Int.self, forKey: .quantita)
+        offerta = try container.decodeIfPresent(Bool.self, forKey: .offerta)
+        sconto = try container.decodeFlexibleDecimalIfPresent(forKey: .sconto)
+        madeToOrder = try container.decodeIfPresent(Bool.self, forKey: .madeToOrder)
+        allowBackorder = try container.decodeIfPresent(Bool.self, forKey: .allowBackorder)
+    }
+
+    init(
+        id: String,
+        nome: String,
+        descrizione: String?,
+        prezzo: Decimal,
+        taglia: String?,
+        categoria: String?,
+        sottocategoria: String?,
+        immagine: String?,
+        disponibile: Bool?,
+        quantita: Int?,
+        offerta: Bool?,
+        sconto: Decimal?,
+        madeToOrder: Bool?,
+        allowBackorder: Bool?
+    ) {
+        self.id = id
+        self.nome = nome
+        self.descrizione = descrizione
+        self.prezzo = prezzo
+        self.taglia = taglia
+        self.categoria = categoria
+        self.sottocategoria = sottocategoria
+        self.immagine = immagine
+        self.disponibile = disponibile
+        self.quantita = quantita
+        self.offerta = offerta
+        self.sconto = sconto
+        self.madeToOrder = madeToOrder
+        self.allowBackorder = allowBackorder
+    }
+
     var displayPrice: Decimal {
         let discount = sconto ?? 0
         guard offerta == true, discount > 0 else { return prezzo }
@@ -74,6 +124,20 @@ struct CustomerProfile: Codable {
         case email, nome, cognome, telefono1, telefono2, indirizzo, citta, paese
         case codicePostale = "codice_postale"
         case primoSconto = "primo_sconto"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        email = try container.decodeIfPresent(String.self, forKey: .email) ?? ""
+        nome = try container.decodeIfPresent(String.self, forKey: .nome)
+        cognome = try container.decodeIfPresent(String.self, forKey: .cognome)
+        telefono1 = try container.decodeIfPresent(String.self, forKey: .telefono1)
+        telefono2 = try container.decodeIfPresent(String.self, forKey: .telefono2)
+        indirizzo = try container.decodeIfPresent(String.self, forKey: .indirizzo)
+        citta = try container.decodeIfPresent(String.self, forKey: .citta)
+        paese = try container.decodeIfPresent(String.self, forKey: .paese)
+        codicePostale = try container.decodeIfPresent(String.self, forKey: .codicePostale)
+        primoSconto = try container.decodeFlexibleDecimalIfPresent(forKey: .primoSconto)
     }
 }
 
@@ -171,4 +235,45 @@ struct FinalizeResponse: Codable {
 
 struct APIErrorResponse: Codable {
     let error: String?
+}
+
+extension KeyedDecodingContainer {
+    func decodeFlexibleString(forKey key: Key) throws -> String {
+        if let value = try? decode(String.self, forKey: key) {
+            return value
+        }
+        if let value = try? decode(Int.self, forKey: key) {
+            return String(value)
+        }
+        if let value = try? decode(UUID.self, forKey: key) {
+            return value.uuidString
+        }
+        throw DecodingError.typeMismatch(
+            String.self,
+            DecodingError.Context(codingPath: codingPath + [key], debugDescription: "Expected string-compatible value")
+        )
+    }
+
+    func decodeFlexibleDecimal(forKey key: Key) throws -> Decimal {
+        if let value = try? decode(Decimal.self, forKey: key) {
+            return value
+        }
+        if let value = try? decode(Double.self, forKey: key) {
+            return Decimal(value)
+        }
+        if let value = try? decode(Int.self, forKey: key) {
+            return Decimal(value)
+        }
+        if let value = try? decode(String.self, forKey: key) {
+            return Decimal(string: value.replacingOccurrences(of: ",", with: ".")) ?? 0
+        }
+        return 0
+    }
+
+    func decodeFlexibleDecimalIfPresent(forKey key: Key) throws -> Decimal? {
+        if try decodeNil(forKey: key) {
+            return nil
+        }
+        return try decodeFlexibleDecimal(forKey: key)
+    }
 }

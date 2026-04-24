@@ -35,12 +35,12 @@ struct CheckoutView: View {
 
             ScrollView {
                 VStack(spacing: 0) {
-                    RoundedRectangle(cornerRadius: 30)
+                    RoundedRectangle(cornerRadius: 16)
                         .fill(Color(red: 0.12, green: 0.12, blue: 0.12))
                         .overlay {
                             VStack(alignment: .leading, spacing: 22) {
                                 Text("Riepilogo\nOrdine")
-                                    .font(.custom("GRGabriellaUltraCustom", size: 36))
+                                    .font(.custom("GRGabriellaFinal", size: 55))
                                     .foregroundStyle(.white)
                                     .multilineTextAlignment(.center)
                                     .frame(maxWidth: .infinity)
@@ -54,12 +54,12 @@ struct CheckoutView: View {
                                     checkoutDetailsSection
                                 }
                             }
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 28)
+                            .padding(.horizontal, 30)
+                            .padding(.vertical, 32)
                         }
                         .frame(maxWidth: 430)
-                        .padding(.horizontal, 22)
-                        .padding(.top, 40)
+                        .padding(.horizontal, 21)
+                        .padding(.top, 98)
                 }
                 .padding(.bottom, 36)
             }
@@ -90,11 +90,11 @@ struct CheckoutView: View {
     private var checkoutSummary: some View {
         VStack(alignment: .leading, spacing: 12) {
             if store.cart.isEmpty {
-                Text("Il carrello e vuoto.")
-                    .font(.custom("GRGabriellaFinal", size: 20))
+                Text("Il carrello è vuoto.")
+                    .font(.custom("GRGabriellaFinal", size: 30))
                     .foregroundStyle(.white.opacity(0.75))
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 20)
+                    .padding(.vertical, 22)
             } else {
                 ForEach(store.cart) { item in
                     VStack(alignment: .leading, spacing: 6) {
@@ -141,7 +141,7 @@ struct CheckoutView: View {
     private var checkoutAuthSection: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Accedi o Registrati")
-                .font(.custom("GRGabriellaFinal", size: 26))
+                .font(.custom("GRGabriellaFinal", size: 40))
                 .foregroundStyle(.white)
 
             CheckoutField(text: $email, placeholder: "Email", keyboard: .emailAddress)
@@ -158,14 +158,14 @@ struct CheckoutView: View {
                             ProgressView().tint(.white)
                         } else {
                             Text(isRegistering ? "Registrati" : "Accedi")
-                                .font(.custom("GRGabriellaFinal", size: 20))
+                                .font(.custom("GRGabriellaFinal", size: 30))
                         }
                     }
                     .frame(maxWidth: .infinity)
-                    .frame(height: 72)
+                    .frame(height: 86)
                     .foregroundStyle(.white)
-                    .background(Color.blue)
-                    .clipShape(RoundedRectangle(cornerRadius: 18))
+                    .background(Color(red: 0.0, green: 0.45, blue: 0.95))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .disabled(isSubmitting)
 
@@ -173,19 +173,19 @@ struct CheckoutView: View {
                     withAnimation(.easeInOut(duration: 0.2)) { isRegistering.toggle() }
                 } label: {
                     Text(isRegistering ? "Login" : "Crea\nAccount")
-                        .font(.custom("GRGabriellaFinal", size: 20))
+                        .font(.custom("GRGabriellaFinal", size: 30))
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 72)
+                        .frame(height: 86)
                         .foregroundStyle(.white)
-                        .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.white.opacity(0.18), lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.white.opacity(0.18), lineWidth: 1.2))
                 }
             }
 
             Button("Password dimenticata?") {
                 Task { await forgotPassword() }
             }
-            .font(.custom("GRGabriellaFinal", size: 14))
+            .font(.custom("GRGabriellaFinal", size: 18))
             .foregroundStyle(.blue)
 
             if let infoMessage, !infoMessage.isEmpty {
@@ -213,7 +213,7 @@ struct CheckoutView: View {
     private var checkoutDetailsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("I Tuoi Dettagli")
-                .font(.custom("GRGabriellaFinal", size: 22))
+                .font(.custom("GRGabriellaFinal", size: 36))
                 .foregroundStyle(.white)
 
             if let customer = store.customer {
@@ -371,10 +371,10 @@ struct CheckoutStep: View {
                 .font(.custom("GRGabriellaFinal", size: 24))
                 .foregroundStyle(.white)
                 .frame(width: 54, height: 54)
-                .background(isActive ? Color.blue : Color.white.opacity(0.12))
+                .background(isActive ? Color(red: 0.0, green: 0.45, blue: 0.95) : Color.white.opacity(0.12))
                 .clipShape(Circle())
             Text(title)
-                .font(.custom("GRGabriellaFinal", size: 14))
+                .font(.custom("GRGabriellaFinal", size: 24))
                 .foregroundStyle(.white.opacity(0.82))
                 .multilineTextAlignment(.center)
         }
@@ -388,13 +388,14 @@ struct CheckoutField: View {
 
     var body: some View {
         TextField(placeholder, text: $text)
-            .font(.custom("GRGabriellaFinal", size: 18))
+            .font(.custom("GRGabriellaFinal", size: 28))
             .foregroundStyle(.white)
             .keyboardType(keyboard)
-            .padding(.horizontal, 16)
-            .frame(height: 60)
-            .background(Color(red: 0.2, green: 0.2, blue: 0.2))
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .padding(.horizontal, 18)
+            .frame(height: 67)
+            .background(Color(red: 0.16, green: 0.16, blue: 0.16))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.white.opacity(0.12), lineWidth: 1.2))
     }
 }
 
@@ -404,12 +405,13 @@ struct CheckoutSecureField: View {
 
     var body: some View {
         SecureField(placeholder, text: $text)
-            .font(.custom("GRGabriellaFinal", size: 18))
+            .font(.custom("GRGabriellaFinal", size: 28))
             .foregroundStyle(.white)
-            .padding(.horizontal, 16)
-            .frame(height: 60)
-            .background(Color(red: 0.2, green: 0.2, blue: 0.2))
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .padding(.horizontal, 18)
+            .frame(height: 67)
+            .background(Color(red: 0.16, green: 0.16, blue: 0.16))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.white.opacity(0.12), lineWidth: 1.2))
     }
 }
 

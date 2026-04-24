@@ -1,46 +1,74 @@
 import SwiftUI
+import UIKit
 
 struct RootView: View {
     @EnvironmentObject private var store: AppStore
     @State private var isMenuOpen = false
+    @State private var isContactOpen = false
     @State private var isAccountOpen = false
-    @State private var navigateToCart = false
+    @State private var showWishlistMessage = false
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .top) {
-                Color.black.ignoresSafeArea()
+            GeometryReader { geometry in
+                ZStack(alignment: .top) {
+                    HeroBackground()
 
-                ScrollView {
                     VStack(spacing: 0) {
-                        hero
-                        categoryButtons
-                        ProductListView(category: nil, title: "Collezione")
-                            .padding(.top, 18)
+                        WebHeader(
+                            isMenuOpen: $isMenuOpen,
+                            isContactOpen: $isContactOpen,
+                            isAccountOpen: $isAccountOpen,
+                            showWishlistMessage: $showWishlistMessage
+                        )
+                        .padding(.top, max(12, geometry.safeAreaInsets.top + 8))
+                        .padding(.horizontal, 18)
+
+                        Spacer()
+
+                        BrandMark()
+                            .padding(.bottom, geometry.size.height * 0.23)
+
+                        Spacer()
+
+                        FooterSocialBlock()
+                            .padding(.bottom, max(26, geometry.safeAreaInsets.bottom + 18))
+                    }
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+
+                    if isMenuOpen {
+                        NavigationDrawer(isPresented: $isMenuOpen)
+                            .padding(.top, max(98, geometry.safeAreaInsets.top + 72))
+                            .transition(.opacity)
+                            .zIndex(10)
+                    }
+
+                    if isContactOpen {
+                        ContactCard(isPresented: $isContactOpen)
+                            .padding(.top, max(92, geometry.safeAreaInsets.top + 66))
+                            .padding(.trailing, 96)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            .transition(.opacity)
+                            .zIndex(11)
+                    }
+
+                    if isAccountOpen {
+                        LoginPanel(isPresented: $isAccountOpen)
+                            .frame(width: min(geometry.size.width * 0.86, 360))
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            .padding(.top, max(70, geometry.safeAreaInsets.top + 44))
+                            .transition(.move(edge: .trailing).combined(with: .opacity))
+                            .zIndex(12)
                     }
                 }
-                .ignoresSafeArea(edges: .top)
-
-                header
-
-                if isMenuOpen {
-                    sideMenu
-                }
-
-                if isAccountOpen {
-                    WebAccountPanel(isPresented: $isAccountOpen)
-                        .padding(.top, 84)
-                        .padding(.horizontal, 14)
-                        .transition(.move(edge: .top).combined(with: .opacity))
-                }
-
-                NavigationLink(isActive: $navigateToCart) {
-                    CheckoutView()
-                } label: {
-                    EmptyView()
-                }
+                .ignoresSafeArea()
             }
             .toolbar(.hidden, for: .navigationBar)
+            .alert("Pagina in Sviluppo", isPresented: $showWishlistMessage) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("La pagina della wishlist e attualmente in fase di sviluppo. Tornera presto disponibile!")
+            }
             .alert("Errore", isPresented: Binding(
                 get: { store.errorMessage != nil },
                 set: { if !$0 { store.errorMessage = nil } }
@@ -51,143 +79,307 @@ struct RootView: View {
             }
         }
     }
+}
 
-    private var hero: some View {
-        ZStack(alignment: .bottom) {
-            Image("BrandLogo")
-                .resizable()
-                .scaledToFit()
-                .frame(maxWidth: 260)
-                .padding(.top, 115)
-                .padding(.bottom, 38)
-
-            LinearGradient(colors: [.black.opacity(0.0), .black.opacity(0.85)], startPoint: .top, endPoint: .bottom)
-                .frame(height: 90)
-                .frame(maxHeight: .infinity, alignment: .bottom)
-        }
-        .frame(maxWidth: .infinity)
-        .frame(height: 360)
-        .background {
-            Image("hero")
-                .resizable()
+struct HeroBackground: View {
+    var body: some View {
+        GeometryReader { geometry in
+            BundleImage(name: "hero", extensionName: "png")
                 .scaledToFill()
-                .opacity(0.92)
+                .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
+                .clipped()
+                .overlay(Color.black.opacity(0.10))
         }
-        .clipped()
+        .ignoresSafeArea()
     }
+}
 
-    private var header: some View {
-        HStack(spacing: 14) {
-            Button {
-                withAnimation(.easeInOut(duration: 0.2)) { isMenuOpen.toggle() }
+struct BundleImage: View {
+    let name: String
+    let extensionName: String
+
+    var body: some View {
+        if let url = Bundle.main.url(forResource: name, withExtension: extensionName),
+           let uiImage = UIImage(contentsOfFile: url.path) {
+            Image(uiImage: uiImage)
+                .resizable()
+        } else {
+            Color.black
+        }
+    }
+}
+
+private struct WebHeader: View {
+    @Binding var isMenuOpen: Bool
+    @Binding var isContactOpen: Bool
+    @Binding var isAccountOpen: Bool
+    @Binding var showWishlistMessage: Bool
+
+    var body: some View {
+        HStack(spacing: 16) {
+            NavigationLink {
+                ProductListView(category: nil, title: "CERCA")
             } label: {
-                Image(systemName: "line.3.horizontal")
-                    .font(.system(size: 22, weight: .medium))
-                    .foregroundStyle(.white)
-                    .frame(width: 44, height: 44)
+                Image(systemName: "magnifyingglass")
+                    .webHeaderIcon(size: 28)
             }
 
-            Spacer()
-
-            Menu {
-                ForEach(AppLanguage.allCases) { language in
-                    Button(language.flag) {
-                        store.language = language
-                    }
+            Button {
+                withAnimation(.easeInOut(duration: 0.18)) {
+                    isMenuOpen.toggle()
+                    isContactOpen = false
+                    isAccountOpen = false
                 }
             } label: {
-                Text(store.language.flag)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: 42, height: 42)
-                    .overlay(Circle().stroke(Color.white.opacity(0.28), lineWidth: 1))
+                HStack(spacing: 12) {
+                    Image(systemName: "line.3.horizontal")
+                        .font(.system(size: 26, weight: .regular))
+                    Text("MENU")
+                        .font(.custom("GRGabriellaFinal", size: 26))
+                        .lineLimit(1)
+                        .fixedSize()
+                }
+                .foregroundStyle(.white)
             }
 
+            Spacer(minLength: 0)
+
             Button {
-                withAnimation(.easeInOut(duration: 0.2)) { isAccountOpen.toggle() }
+                withAnimation(.easeInOut(duration: 0.18)) {
+                    isContactOpen.toggle()
+                    isMenuOpen = false
+                    isAccountOpen = false
+                }
             } label: {
-                Image(systemName: "person")
-                    .font(.system(size: 20, weight: .medium))
-                    .foregroundStyle(.white)
-                    .frame(width: 42, height: 42)
+                Image(systemName: "phone")
+                    .webHeaderIcon(size: 27)
             }
 
             Button {
                 isMenuOpen = false
+                isContactOpen = false
                 isAccountOpen = false
-                navigateToCart = true
+                showWishlistMessage = true
             } label: {
-                ZStack(alignment: .topTrailing) {
-                    Image(systemName: "cart")
-                        .font(.system(size: 21, weight: .medium))
-                        .foregroundStyle(.white)
-                        .frame(width: 42, height: 42)
-                    if store.cartCount > 0 {
-                        Text("\(store.cartCount)")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(.black)
-                            .frame(minWidth: 17, minHeight: 17)
-                            .background(Color.white)
-                            .clipShape(Circle())
-                    }
+                Image(systemName: "heart")
+                    .webHeaderIcon(size: 29)
+            }
+
+            NavigationLink {
+                CheckoutView()
+            } label: {
+                Image(systemName: "cart")
+                    .webHeaderIcon(size: 28)
+            }
+
+            Button {
+                withAnimation(.easeInOut(duration: 0.18)) {
+                    isAccountOpen.toggle()
+                    isMenuOpen = false
+                    isContactOpen = false
                 }
+            } label: {
+                Image(systemName: "person")
+                    .webHeaderIcon(size: 28)
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.top, 48)
     }
+}
 
-    private var categoryButtons: some View {
-        VStack(spacing: 12) {
-            NavigationLink {
-                ProductListView(category: "gioielli", title: store.l10n.text(.gioielli))
-            } label: {
-                Text(store.l10n.text(.gioielli))
-                    .webButton()
+private struct BrandMark: View {
+    var body: some View {
+        VStack(spacing: 18) {
+            Text("G-R")
+                .font(.custom("GRGabriellaFinal", size: 60))
+                .frame(maxWidth: .infinity)
+            Text("GABRIELLA")
+                .font(.custom("GRGabriellaFinal", size: 45))
+                .frame(maxWidth: .infinity)
+            Text("ROMEO")
+                .font(.custom("GRGabriellaFinal", size: 45))
+                .frame(maxWidth: .infinity)
+        }
+        .foregroundStyle(.white)
+        .tracking(5)
+        .multilineTextAlignment(.center)
+        .minimumScaleFactor(0.72)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 24)
+    }
+}
+
+private struct FooterSocialBlock: View {
+    private let flags = ["🇮🇹", "🇬🇧", "🇫🇷", "🇩🇪", "🇪🇸", "🇸🇦", "🇨🇳", "🇯🇵"]
+
+    var body: some View {
+        VStack(spacing: 18) {
+            HStack(spacing: 13) {
+                ForEach(flags, id: \.self) { flag in
+                    Text(flag)
+                        .font(.system(size: 20))
+                }
             }
-            NavigationLink {
-                ProductListView(category: "abbigliamento", title: store.l10n.text(.abbigliamento))
-            } label: {
-                Text(store.l10n.text(.abbigliamento))
-                    .webButton()
+
+            BundleImage(name: "qr-instagram", extensionName: "png")
+                .scaledToFit()
+                .frame(width: 104, height: 104)
+
+            HStack(spacing: 10) {
+                Image(systemName: "camera")
+                    .font(.system(size: 25, weight: .regular))
+                Text("Instagram")
+                    .font(.custom("GRGabriellaFinal", size: 31))
             }
-            NavigationLink {
-                ProductListView(category: "accessori", title: store.l10n.text(.accessori))
-            } label: {
-                Text(store.l10n.text(.accessori))
-                    .webButton()
+            .foregroundStyle(.white)
+        }
+    }
+}
+
+private struct NavigationDrawer: View {
+    @Binding var isPresented: Bool
+
+    private let items: [(String, String?)] = [
+        ("Home", nil),
+        ("Gioielli", "gioielli"),
+        ("Abbigliamento", "abbigliamento"),
+        ("Accessori", "accessori"),
+        ("Offerte", "offerte"),
+        ("Servizi", "servizi"),
+        ("Eventi", "eventi"),
+        ("Il Brand", "brand")
+    ]
+
+    var body: some View {
+        VStack(spacing: 14) {
+            HStack {
+                Text("NAVIGAZIONE")
+                    .font(.custom("GRGabriellaFinal", size: 28))
+                    .foregroundStyle(.black)
+                Spacer()
+                Button {
+                    withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 28, weight: .regular))
+                        .foregroundStyle(.black)
+                }
+            }
+
+            VStack(spacing: 16) {
+                ForEach(items, id: \.0) { item in
+                    if let category = item.1 {
+                        NavigationLink {
+                            ProductListView(category: category, title: title(for: category))
+                        } label: {
+                            Text(item.0)
+                                .drawerItem()
+                        }
+                    } else {
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }
+                        } label: {
+                            Text(item.0)
+                                .drawerItem()
+                        }
+                    }
+                }
             }
         }
         .padding(.horizontal, 28)
-        .padding(.top, 20)
+        .padding(.top, 24)
+        .padding(.bottom, 28)
+        .frame(width: 292)
+        .background(Color.white)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private var sideMenu: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 22) {
-                Button("Home") { withAnimation { isMenuOpen = false } }
-                NavigationLink(store.l10n.text(.gioielli)) { ProductListView(category: "gioielli", title: store.l10n.text(.gioielli)) }
-                NavigationLink(store.l10n.text(.abbigliamento)) { ProductListView(category: "abbigliamento", title: store.l10n.text(.abbigliamento)) }
-                NavigationLink(store.l10n.text(.accessori)) { ProductListView(category: "accessori", title: store.l10n.text(.accessori)) }
-                NavigationLink(store.l10n.text(.offerte)) { ProductListView(category: nil, title: store.l10n.text(.offerte), onlyOffers: true) }
-                Button("info@g-rgabriellaromeo.it") {
-                    if let url = URL(string: "mailto:info@g-rgabriellaromeo.it") {
-                        UIApplication.shared.open(url)
-                    }
-                }
-                Spacer()
-            }
-            .font(.custom("GRGabriellaFinal", size: 22))
-            .foregroundStyle(.white)
-            .padding(.top, 110)
-            .padding(.horizontal, 22)
-            .frame(width: 280, alignment: .leading)
-            .background(Color.black.opacity(0.96))
-
-            Spacer()
+    private func title(for category: String) -> String {
+        switch category {
+        case "gioielli":
+            return "GALLERIA GIOIELLI"
+        case "abbigliamento":
+            return "GALLERIA ABBIGLIAMENTO"
+        case "accessori":
+            return "GALLERIA ACCESSORI"
+        case "offerte":
+            return "OFFERTE"
+        case "servizi":
+            return "SERVIZI"
+        case "eventi":
+            return "EVENTI"
+        case "brand":
+            return "IL BRAND"
+        default:
+            return category.uppercased()
         }
-        .ignoresSafeArea()
-        .transition(.move(edge: .leading))
+    }
+}
+
+private struct ContactCard: View {
+    @Binding var isPresented: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 15) {
+            HStack {
+                Text("CONTATTI")
+                    .font(.custom("GRGabriellaFinal", size: 27))
+                Spacer()
+                Button {
+                    withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 24, weight: .regular))
+                }
+            }
+
+            ContactLink(label: "✉️ info@g-\nrgabriellaromeo.it", url: "mailto:info@g-rgabriellaromeo.it")
+            ContactLink(label: "💬 WhatsApp", url: "https://wa.me/393429506938")
+            ContactLink(label: "📸 Instagram", url: "https://www.instagram.com/grgabriellaromeo/")
+            ContactLink(label: "📘 Facebook", url: "https://www.facebook.com/GRGabriellaRomeoItalianStyle")
+        }
+        .font(.custom("GRGabriellaFinal", size: 24))
+        .foregroundStyle(.white)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 23)
+        .frame(width: 222, alignment: .leading)
+        .background(Color(red: 0.07, green: 0.09, blue: 0.14))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color(red: 0.26, green: 0.31, blue: 0.43), lineWidth: 1))
+    }
+}
+
+private struct ContactLink: View {
+    let label: String
+    let url: String
+
+    var body: some View {
+        Button {
+            if let url = URL(string: url) {
+                UIApplication.shared.open(url)
+            }
+        } label: {
+            Text(label)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private extension Image {
+    func webHeaderIcon(size: CGFloat) -> some View {
+        self
+            .font(.system(size: size, weight: .regular))
+            .foregroundStyle(.white)
+    }
+}
+
+private extension Text {
+    func drawerItem() -> some View {
+        self
+            .font(.custom("GRGabriellaFinal", size: 28))
+            .foregroundStyle(.black)
+            .frame(maxWidth: .infinity)
     }
 }
 

@@ -1,15 +1,31 @@
 import SwiftUI
 
 struct AccountView: View {
+    @State private var isPresented = true
+
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            HeroBackground()
+            if isPresented {
+                LoginPanel(isPresented: $isPresented)
+                    .frame(maxWidth: 360)
+                    .padding(.top, 70)
+            }
+        }
+        .toolbar(.hidden, for: .navigationBar)
+    }
+}
+
+struct LoginPanel: View {
+    @Binding var isPresented: Bool
     @EnvironmentObject private var store: AppStore
-    @Environment(\.dismiss) private var dismiss
     @State private var isRegistering = false
     @State private var email = ""
     @State private var password = ""
     @State private var nome = ""
     @State private var cognome = ""
     @State private var paese = "Italia"
-    @State private var citta = "Roma"
+    @State private var citta = ""
     @State private var indirizzo = ""
     @State private var codicePostale = ""
     @State private var telefono1 = ""
@@ -17,40 +33,65 @@ struct AccountView: View {
     @State private var isSubmitting = false
     @State private var infoMessage: String?
 
+    private let benefits = [
+        "Per aggiungere i tuoi prodotti alla\nlista dei desideri",
+        "Per un checkout piu veloce",
+        "Ottieni uno sconto del 10% sul tuo\nprossimo acquisto",
+        "Unisciti al nostro referral program\nper sconti e buoni acquisto"
+    ]
+
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                if let session = store.session, let email = session.user.email {
-                    loggedInContent(userEmail: email)
+            VStack(alignment: .leading, spacing: 18) {
+                HStack(alignment: .top) {
+                    Text(store.session == nil ? "LOGIN" : "ACCOUNT")
+                        .font(.custom("GRGabriellaFinal", size: 34))
+                        .foregroundStyle(.black)
+                    Spacer()
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 31, weight: .regular))
+                            .foregroundStyle(.black)
+                    }
+                }
+
+                if let session = store.session, let userEmail = session.user.email {
+                    loggedInContent(email: userEmail)
                 } else {
                     authContent
                 }
             }
-            .padding(.horizontal, 17)
-            .padding(.vertical, 24)
+            .padding(.horizontal, 18)
+            .padding(.top, 24)
+            .padding(.bottom, 34)
         }
         .background(Color.white)
-        .scrollContentBackground(.hidden)
-        .toolbar(.hidden, for: .navigationBar)
     }
 
     private var authContent: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text(isRegistering ? store.l10n.text(.register) : store.l10n.text(.login))
-                .font(.custom("GRGabriellaUltraCustom", size: 38))
-                .foregroundStyle(.black)
-
-            TextField(store.l10n.text(.email), text: $email)
+        VStack(alignment: .leading, spacing: 16) {
+            TextField("Email", text: $email)
                 .keyboardType(.emailAddress)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
-                .accountField()
+                .loginField()
 
-            SecureField(store.l10n.text(.password), text: $password)
-                .accountField()
+            SecureField("Password", text: $password)
+                .loginField()
 
             if isRegistering {
-                registrationFields
+                VStack(spacing: 12) {
+                    TextField("Nome", text: $nome).loginField()
+                    TextField("Cognome", text: $cognome).loginField()
+                    TextField("Paese", text: $paese).loginField()
+                    TextField("Citta", text: $citta).loginField()
+                    TextField("Indirizzo", text: $indirizzo).loginField()
+                    TextField("CAP", text: $codicePostale).keyboardType(.numberPad).loginField()
+                    TextField("Telefono 1", text: $telefono1).keyboardType(.phonePad).loginField()
+                    TextField("Telefono 2", text: $telefono2).keyboardType(.phonePad).loginField()
+                }
             }
 
             Button {
@@ -60,76 +101,87 @@ struct AccountView: View {
                     if isSubmitting {
                         ProgressView().tint(.white)
                     } else {
-                        Text(isRegistering ? store.l10n.text(.register) : store.l10n.text(.login))
-                            .font(.custom("GRGabriellaFinal", size: 18))
+                        Text(isRegistering ? "REGISTRATI" : "LOGIN")
+                            .font(.custom("GRGabriellaFinal", size: 29))
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: 48)
+                .frame(height: 50)
                 .foregroundStyle(.white)
                 .background(Color.black)
             }
             .disabled(isSubmitting)
 
-            if let infoMessage, !infoMessage.isEmpty {
-                Text(infoMessage)
-                    .font(.custom("GRGabriellaFinal", size: 14))
-                    .foregroundStyle(Color(red: 0.14, green: 0.43, blue: 0.19))
-            }
-
             if !isRegistering {
-                Button("Password dimenticata?") {
+                Button {
                     Task { await handleForgotPassword() }
+                } label: {
+                    Text("Password dimenticata?")
+                        .font(.custom("GRGabriellaFinal", size: 22))
+                        .foregroundStyle(Color(red: 0.17, green: 0.38, blue: 0.96))
                 }
-                .font(.custom("GRGabriellaFinal", size: 14))
-                .foregroundStyle(.blue)
             }
 
-            Button(isRegistering ? "Hai gia un account? Login" : "Crea account") {
-                isRegistering.toggle()
-                infoMessage = nil
+            Rectangle()
+                .fill(Color.black.opacity(0.11))
+                .frame(height: 1)
+
+            Button {
+                withAnimation(.easeInOut(duration: 0.18)) {
+                    isRegistering.toggle()
+                    infoMessage = nil
+                }
+            } label: {
+                Text(isRegistering ? "LOGIN" : "CREA ACCOUNT")
+                    .font(.custom("GRGabriellaFinal", size: 28))
+                    .foregroundStyle(.black)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
+                    .overlay(Rectangle().stroke(Color.black, lineWidth: 1.2))
             }
-            .font(.custom("GRGabriellaFinal", size: 15))
-            .foregroundStyle(.black.opacity(0.7))
+
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(benefits, id: \.self) { benefit in
+                    Text("-  \(benefit)")
+                        .font(.custom("GRGabriellaFinal", size: 24))
+                        .foregroundStyle(Color(red: 0.34, green: 0.37, blue: 0.43))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(.top, 6)
+
+            if let infoMessage {
+                Text(infoMessage)
+                    .font(.custom("GRGabriellaFinal", size: 15))
+                    .foregroundStyle(Color(red: 0.1, green: 0.45, blue: 0.18))
+            }
         }
     }
 
-    private var registrationFields: some View {
-        VStack(spacing: 10) {
-            TextField(store.l10n.text(.name), text: $nome).accountField()
-            TextField(store.l10n.text(.surname), text: $cognome).accountField()
-            TextField(store.l10n.text(.country), text: $paese).accountField()
-            TextField(store.l10n.text(.city), text: $citta).accountField()
-            TextField(store.l10n.text(.address), text: $indirizzo).accountField()
-            TextField(store.l10n.text(.postalCode), text: $codicePostale).keyboardType(.numberPad).accountField()
-            TextField(store.l10n.text(.phone), text: $telefono1).keyboardType(.phonePad).accountField()
-            TextField("Telefono 2", text: $telefono2).keyboardType(.phonePad).accountField()
-        }
-    }
-
-    private func loggedInContent(userEmail: String) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Account")
-                .font(.custom("GRGabriellaUltraCustom", size: 40))
-            Text(userEmail)
-                .font(.custom("GRGabriellaFinal", size: 18))
+    private func loggedInContent(email: String) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(email)
+                .font(.custom("GRGabriellaFinal", size: 22))
+                .foregroundStyle(.black)
             if let customer = store.customer {
                 Text([customer.nome, customer.cognome].compactMap { $0 }.joined(separator: " "))
+                    .font(.custom("GRGabriellaFinal", size: 22))
+                    .foregroundStyle(.black)
+                Text([customer.indirizzo, customer.citta, customer.codicePostale, customer.paese].compactMap { $0 }.joined(separator: " "))
                     .font(.custom("GRGabriellaFinal", size: 18))
-                Text(customer.indirizzo ?? "")
-                    .font(.custom("GRGabriellaFinal", size: 15))
-                Text("\(customer.citta ?? "") \(customer.codicePostale ?? "")")
-                    .font(.custom("GRGabriellaFinal", size: 15))
+                    .foregroundStyle(.black.opacity(0.72))
             }
-            Button(store.l10n.text(.logout)) {
+
+            Button {
                 store.logout()
-                dismiss()
+            } label: {
+                Text("LOGOUT")
+                    .font(.custom("GRGabriellaFinal", size: 28))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(Color.black)
             }
-            .font(.custom("GRGabriellaFinal", size: 18))
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity)
-            .frame(height: 48)
-            .background(Color.black)
         }
     }
 
@@ -154,7 +206,7 @@ struct AccountView: View {
             } else {
                 try await store.login(email: email.trimmingCharacters(in: .whitespacesAndNewlines), password: password)
             }
-            dismiss()
+            withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }
         } catch {
             store.errorMessage = error.localizedDescription
         }
@@ -172,63 +224,19 @@ struct AccountView: View {
         do {
             try await store.requestPasswordReset(email: normalizedEmail)
             infoMessage = "Ti abbiamo inviato una email per reimpostare la password."
-            store.errorMessage = nil
         } catch {
             store.errorMessage = error.localizedDescription
         }
     }
 }
 
-struct WebAccountPanel: View {
-    @Binding var isPresented: Bool
-    @EnvironmentObject private var store: AppStore
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Text("Account")
-                    .font(.custom("GRGabriellaFinal", size: 22))
-                Spacer()
-                Button {
-                    withAnimation { isPresented = false }
-                } label: {
-                    Image(systemName: "xmark")
-                }
-            }
-
-            if let email = store.session?.user.email {
-                Text(email)
-                    .font(.custom("GRGabriellaFinal", size: 16))
-                Button(store.l10n.text(.logout)) {
-                    store.logout()
-                    isPresented = false
-                }
-            } else {
-                NavigationLink {
-                    AccountView()
-                } label: {
-                    Text(store.l10n.text(.login))
-                        .font(.custom("GRGabriellaFinal", size: 18))
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 46)
-                        .foregroundStyle(.white)
-                        .background(Color.black)
-                }
-            }
-        }
-        .foregroundStyle(.black)
-        .padding(18)
-        .background(Color.white)
-    }
-}
-
 private extension View {
-    func accountField() -> some View {
+    func loginField() -> some View {
         self
-            .font(.custom("GRGabriellaFinal", size: 17))
+            .font(.custom("GRGabriellaFinal", size: 29))
             .foregroundStyle(.black)
-            .padding(.horizontal, 12)
-            .frame(height: 48)
-            .overlay(Rectangle().stroke(Color.black.opacity(0.24), lineWidth: 1))
+            .padding(.horizontal, 18)
+            .frame(height: 53)
+            .overlay(Rectangle().stroke(Color.black, lineWidth: 1.2))
     }
 }

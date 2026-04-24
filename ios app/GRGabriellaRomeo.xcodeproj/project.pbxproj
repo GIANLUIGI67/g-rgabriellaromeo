@@ -7,30 +7,42 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		094725FAB5422F5B158C3A9A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 603E48D79D91CADE7A7FFED3 /* Assets.xcassets */; };
+		1AD0556D1B4FB5C2809C8F11 /* GRGabriellaFinal.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F2B6349B9991FBEB6723F01A /* GRGabriellaFinal.ttf */; };
 		202EAB26F9688AFF19994AEA /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B47F5511614C5AA436F567A4 /* APIClient.swift */; };
+		236227DD2AC3B4BDF90EB7EB /* GRGabriellaModern.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A2D0BF84AE197441B3C622BC /* GRGabriellaModern.ttf */; };
 		31DF6B46CCF75803A84D21DE /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4CA9C5A4322778A705FD940 /* Localization.swift */; };
+		380A9CF749D3C0DA0129C859 /* hero.png in Resources */ = {isa = PBXBuildFile; fileRef = C7071C0754F378D485CE515E /* hero.png */; };
 		47589729E3D00178D2EFB427 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = E37D8F709E52CBC384700AA8 /* AppConfig.swift */; };
 		55761FFE98898340621CB331 /* GRGabriellaRomeoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01BAB2B1CFB2EE2B01E2DA4 /* GRGabriellaRomeoApp.swift */; };
 		5A8E5E8D65FBE4C48B9F2887 /* CartCheckoutViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E12B726C34267559A7B9B4E /* CartCheckoutViews.swift */; };
+		686BA4D188BC1D4C0E92553E /* GRGabriellaUltraCustom.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C9889B2F5A422C7AD7F52539 /* GRGabriellaUltraCustom.ttf */; };
 		6999DF38ABE5C6820BF2D59A /* ProductViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57E31CCF8FE1CB456A01B2F0 /* ProductViews.swift */; };
 		6F0B9B571E92D2B97E8AC928 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE2429766C373F111B9E3CBC /* AppStore.swift */; };
 		744C1EDA4D187533F896CAFC /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920A6AC81E48076583139EB4 /* Models.swift */; };
 		75037E2F378C362C0C59480F /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AFE40F6388D6A2A109BE41F /* RootView.swift */; };
+		9AEC197D7EB23C00DB4F9369 /* qr-instagram.png in Resources */ = {isa = PBXBuildFile; fileRef = 495A828A769D9EA2BF07EEAD /* qr-instagram.png */; };
 		D1262EF1A7D1A9D9F45E89BE /* AccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BDAD5AB5B5D89378530CC4E /* AccountView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0AFE40F6388D6A2A109BE41F /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		1221DCD926797A2D6ACEB471 /* GRGabriellaRomeo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = GRGabriellaRomeo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		495A828A769D9EA2BF07EEAD /* qr-instagram.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "qr-instagram.png"; sourceTree = "<group>"; };
 		57E31CCF8FE1CB456A01B2F0 /* ProductViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductViews.swift; sourceTree = "<group>"; };
+		603E48D79D91CADE7A7FFED3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		920A6AC81E48076583139EB4 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		9BDAD5AB5B5D89378530CC4E /* AccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
 		9E12B726C34267559A7B9B4E /* CartCheckoutViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartCheckoutViews.swift; sourceTree = "<group>"; };
+		A2D0BF84AE197441B3C622BC /* GRGabriellaModern.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = GRGabriellaModern.ttf; sourceTree = "<group>"; };
 		B47F5511614C5AA436F567A4 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		C7071C0754F378D485CE515E /* hero.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hero.png; sourceTree = "<group>"; };
+		C9889B2F5A422C7AD7F52539 /* GRGabriellaUltraCustom.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = GRGabriellaUltraCustom.ttf; sourceTree = "<group>"; };
 		D01BAB2B1CFB2EE2B01E2DA4 /* GRGabriellaRomeoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GRGabriellaRomeoApp.swift; sourceTree = "<group>"; };
 		D4CA9C5A4322778A705FD940 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		DE2429766C373F111B9E3CBC /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
 		E37D8F709E52CBC384700AA8 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
+		F2B6349B9991FBEB6723F01A /* GRGabriellaFinal.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = GRGabriellaFinal.ttf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -48,6 +60,19 @@
 				C6E814F79C4032B654F8D985 /* GRGabriellaRomeo */,
 			);
 			path = Sources;
+			sourceTree = "<group>";
+		};
+		A4E3CB812170951E085CE71A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				603E48D79D91CADE7A7FFED3 /* Assets.xcassets */,
+				F2B6349B9991FBEB6723F01A /* GRGabriellaFinal.ttf */,
+				A2D0BF84AE197441B3C622BC /* GRGabriellaModern.ttf */,
+				C9889B2F5A422C7AD7F52539 /* GRGabriellaUltraCustom.ttf */,
+				C7071C0754F378D485CE515E /* hero.png */,
+				495A828A769D9EA2BF07EEAD /* qr-instagram.png */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		C6E814F79C4032B654F8D985 /* GRGabriellaRomeo */ = {
@@ -70,6 +95,7 @@
 		CCD70A368CD28AA77AB569E6 = {
 			isa = PBXGroup;
 			children = (
+				A4E3CB812170951E085CE71A /* Resources */,
 				52542B42F183D3FDC94B420E /* Sources */,
 				3B05C0A326E50DBA5C1517C9 /* Products */,
 			);
@@ -83,6 +109,7 @@
 			buildConfigurationList = 1115E9B6E5C3010BD5E2FB66 /* Build configuration list for PBXNativeTarget "GRGabriellaRomeo" */;
 			buildPhases = (
 				56049865518B7240FD056DF2 /* Sources */,
+				9BB0CF939663149318BE7BCD /* Resources */,
 			);
 			buildRules = (
 			);
@@ -128,6 +155,22 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9BB0CF939663149318BE7BCD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				094725FAB5422F5B158C3A9A /* Assets.xcassets in Resources */,
+				1AD0556D1B4FB5C2809C8F11 /* GRGabriellaFinal.ttf in Resources */,
+				236227DD2AC3B4BDF90EB7EB /* GRGabriellaModern.ttf in Resources */,
+				686BA4D188BC1D4C0E92553E /* GRGabriellaUltraCustom.ttf in Resources */,
+				380A9CF749D3C0DA0129C859 /* hero.png in Resources */,
+				9AEC197D7EB23C00DB4F9369 /* qr-instagram.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		56049865518B7240FD056DF2 /* Sources */ = {
