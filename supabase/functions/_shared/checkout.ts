@@ -42,11 +42,13 @@ export async function buildCheckoutQuote({
   customer,
   cart,
   shippingMethod,
+  productionPolicyAccepted = false,
 }: {
   service: any;
   customer: any;
   cart: unknown[];
   shippingMethod: string;
+  productionPolicyAccepted?: boolean;
 }) {
   const normalizedInputCart = normalizeCart(cart);
 
@@ -74,13 +76,13 @@ export async function buildCheckoutQuote({
 
     const quantity = normalizeQuantity(item.quantita ?? item.quantity ?? 1);
     const available = Number(product.quantita ?? 0);
-    const canBackorder = Boolean(product.made_to_order && product.allow_backorder);
+    const isProductionOrder = quantity > available;
 
     if (!product.disponibile) {
       throw new Error(`Product unavailable: ${product.nome}`);
     }
-    if (!product.made_to_order && !canBackorder && quantity > available) {
-      throw new Error(`Insufficient stock for ${product.nome}`);
+    if (isProductionOrder && !productionPolicyAccepted) {
+      throw new Error(`Production policy acceptance required for ${product.nome}`);
     }
 
     const unitPrice = roundCurrency(product.prezzo);
@@ -91,8 +93,10 @@ export async function buildCheckoutQuote({
       prezzo: unitPrice,
       quantita: quantity,
       disponibile: product.disponibile,
-      made_to_order: Boolean(product.made_to_order),
-      allow_backorder: Boolean(product.allow_backorder),
+      made_to_order: Boolean(product.made_to_order) || isProductionOrder,
+      allow_backorder: Boolean(product.allow_backorder) || isProductionOrder,
+      production_required: isProductionOrder,
+      availableQuantity: available,
       lineTotal: roundCurrency(unitPrice * quantity),
     };
   });
@@ -113,6 +117,15 @@ export async function buildCheckoutQuote({
     firstDiscountPercent,
     discountAmount,
     total,
+    productionPolicyRequired: normalizedQuoteCart.some((item) => item.production_required),
+    productionItems: normalizedQuoteCart
+      .filter((item) => item.production_required)
+      .map((item) => ({
+        id: item.id,
+        nome: item.nome,
+        requestedQuantity: item.quantita,
+        availableQuantity: item.availableQuantity,
+      })),
   };
 }
 
@@ -134,11 +147,11 @@ async function decrementProductInventory(service: any, item: any) {
     if (!currentProduct) return;
 
     const currentQuantity = Number(currentProduct.quantita || 0);
-    const canBackorder = Boolean(currentProduct.allow_backorder);
+    const canBackorder = Boolean(currentProduct.allow_backorder || item.allow_backorder || item.production_required);
     const madeToOrder = Boolean(currentProduct.made_to_order);
 
     if (madeToOrder && currentQuantity <= 0) {
-      return;
+      return null;
     }
 
     if (!canBackorder && item.quantita > currentQuantity) {
@@ -155,11 +168,23 @@ async function decrementProductInventory(service: any, item: any) {
 
     if (updateError) throw updateError;
     if (Array.isArray(updatedRows) && updatedRows.length > 0) {
-      return;
+      return {
+        productId: item.id,
+        previousQuantity: currentQuantity,
+      };
     }
   }
 
   throw new Error(`Stock changed while finalizing ${item.nome}. Please retry checkout`);
+}
+
+async function restoreProductInventory(service: any, adjustments: any[]) {
+  for (const adjustment of adjustments.reverse()) {
+    await service
+      .from('products')
+      .update({ quantita: adjustment.previousQuantity })
+      .eq('id', adjustment.productId);
+  }
 }
 
 export async function finalizeCheckout({
@@ -178,7 +203,7 @@ export async function finalizeCheckout({
   transactionId?: string | null;
 }) {
   const now = new Date().toISOString();
-  const orderRecord = {
+  const orderDetails = {
     id: generateOrderId(),
     cliente: customer,
     carrello: quote.cart,
@@ -193,16 +218,34 @@ export async function finalizeCheckout({
     transazione_id: transactionId,
   };
 
-  const { error: orderError } = await service.from('ordini').insert([orderRecord]);
-  if (orderError) throw orderError;
+  const orderRecord = {
+    id: orderDetails.id,
+    cliente: orderDetails.cliente,
+    carrello: orderDetails.carrello,
+    spedizione: orderDetails.spedizione,
+    pagamento: orderDetails.pagamento,
+    totale: orderDetails.totale,
+    stato: orderDetails.stato,
+    data: orderDetails.data,
+    tracking: null,
+    corriere: null,
+  };
 
+  const inventoryAdjustments = [];
   for (const item of quote.cart) {
-    await decrementProductInventory(service, item);
+    const adjustment = await decrementProductInventory(service, item);
+    if (adjustment) inventoryAdjustments.push(adjustment);
+  }
+
+  const { error: orderError } = await service.from('ordini').insert([orderRecord]);
+  if (orderError) {
+    await restoreProductInventory(service, inventoryAdjustments);
+    throw orderError;
   }
 
   const ordiniEsistenti = Array.isArray(customer?.ordini) ? customer.ordini : [];
-  const customerUpdate = {
-    ordini: [...ordiniEsistenti, orderRecord],
+  const customerUpdate: Record<string, unknown> = {
+    ordini: [...ordiniEsistenti, orderDetails],
     updated_at: now,
   };
   if (quote.discountAmount > 0) {
@@ -216,5 +259,5 @@ export async function finalizeCheckout({
 
   if (customerError) throw customerError;
 
-  return orderRecord;
+  return orderDetails;
 }

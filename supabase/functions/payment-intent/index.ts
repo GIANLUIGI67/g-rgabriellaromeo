@@ -30,6 +30,7 @@ Deno.serve(async (request) => {
       customer,
       cart: body?.cart,
       shippingMethod: body?.shippingMethod,
+      productionPolicyAccepted: Boolean(body?.productionPolicyAccepted),
     });
 
     const amount = Math.round(quote.total * 100);

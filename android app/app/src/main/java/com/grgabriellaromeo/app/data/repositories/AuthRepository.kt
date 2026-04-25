@@ -72,7 +72,7 @@ class AuthRepository {
 
     suspend fun getCliente(userId: String): Cliente? =
         client.from("clienti").select {
-            filter { eq("id", userId) }
+            filter { eq("user_id", userId) }
         }.decodeSingleOrNull()
 
     suspend fun updateCliente(cliente: Cliente) {
@@ -82,8 +82,8 @@ class AuthRepository {
     }
 
     suspend fun markPrimoScontoUsed(userId: String) {
-        client.from("clienti").update(mapOf("primo_sconto" to false)) {
-            filter { eq("id", userId) }
+        client.from("clienti").update(mapOf("primo_sconto" to null)) {
+            filter { eq("user_id", userId) }
         }
     }
 

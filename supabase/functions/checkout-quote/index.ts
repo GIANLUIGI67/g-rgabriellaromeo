@@ -19,7 +19,13 @@ Deno.serve(async (request) => {
     const { cart, shippingMethod } = await request.json();
     const service = createServiceClient();
     const customer = await loadCustomerProfile(service, auth.user.email ?? '');
-    const quote = await buildCheckoutQuote({ service, customer, cart, shippingMethod });
+    const quote = await buildCheckoutQuote({
+      service,
+      customer,
+      cart,
+      shippingMethod,
+      productionPolicyAccepted: true,
+    });
 
     return jsonResponse({ ok: true, quote });
   } catch (error) {
