@@ -388,12 +388,15 @@ export default function UserMenu({ lang }) {
 
   const passwordDimenticata = async () => {
     const authEmail = normalizeAuthEmail(email);
+    setErrore('');
+    setRegistrationMessage('');
 
     if (!authEmail) {
       setErrore('Inserisci la tua email');
       return;
     }
   
+    setAuthLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(authEmail, {
         redirectTo: `${window.location.origin}/reset-password`
@@ -402,11 +405,13 @@ export default function UserMenu({ lang }) {
       if (error) {
         setErrore(getReadableAuthErrorMessage(error, 'Errore durante il recupero password'));
       } else {
-        alert('Ti abbiamo inviato una email per reimpostare la password.');
+        setRegistrationMessage('Email inviata. Controlla la posta e lo spam per reimpostare la password.');
       }
     } catch (err) {
       console.error('Errore recupero password:', err);
       setErrore(getReadableAuthErrorMessage(err, 'Si è verificato un errore durante il recupero password'));
+    } finally {
+      setAuthLoading(false);
     }
   };
 
