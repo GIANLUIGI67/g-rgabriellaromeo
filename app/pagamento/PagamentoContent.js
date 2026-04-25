@@ -659,6 +659,7 @@ export default function PagamentoContent({ lang }) {
           {t.spedizione}:
         </label>
         <select
+          className="gr-price"
           id="spedizione-select"
           name="spedizione"
           value={spedizione}
@@ -704,7 +705,7 @@ export default function PagamentoContent({ lang }) {
           <option value="carta">{t.carta}</option>
         </select>
 
-        <p style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1rem', fontFamily: 'Arial, sans-serif' }}>
+        <p className="gr-price" style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1rem' }}>
           {t.totale}: {EURO}{totaleVisualizzato.toFixed(2).replace('.', ',')}
         </p>
 
