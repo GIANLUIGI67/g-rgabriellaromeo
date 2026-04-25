@@ -25,6 +25,7 @@ struct CheckoutView: View {
     @State private var shippingMethod = "ritiro"
     @State private var quote: CheckoutQuote?
     @State private var isAccepted = false
+    @State private var isProductionPolicyAccepted = false
     @State private var isSubmitting = false
     @State private var orderId: String?
     @State private var infoMessage: String?
@@ -40,8 +41,8 @@ struct CheckoutView: View {
                         .overlay {
                             VStack(alignment: .leading, spacing: 22) {
                                 Text("Riepilogo\nOrdine")
-                                    .font(.custom("GRGabriellaFinal", size: 55))
-                                    .foregroundStyle(.white)
+                                    .font(.custom("Michroma", size: 55))
+                                    .foregroundStyle(Color.grGold)
                                     .multilineTextAlignment(.center)
                                     .frame(maxWidth: .infinity)
 
@@ -96,8 +97,8 @@ struct CheckoutView: View {
         VStack(alignment: .leading, spacing: 12) {
             if store.cart.isEmpty {
                 Text("Il carrello è vuoto.")
-                    .font(.custom("GRGabriellaFinal", size: 30))
-                    .foregroundStyle(.white.opacity(0.75))
+                    .font(.custom("Michroma", size: 30))
+                    .foregroundStyle(Color.grGold.opacity(0.75))
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 22)
             } else {
@@ -105,12 +106,12 @@ struct CheckoutView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         HStack(alignment: .top) {
                             Text("\(item.quantity)x \(item.product.nome)")
-                                .font(.custom("GRGabriellaFinal", size: 18))
-                                .foregroundStyle(.white)
+                                .font(.custom("Michroma", size: 18))
+                                .foregroundStyle(Color.grGold)
                             Spacer()
                             Text(item.lineTotal.euro)
-                                .font(.custom("GRGabriellaFinal", size: 18))
-                                .foregroundStyle(.white)
+                                .font(.system(size: 18, weight: .regular))
+                                .foregroundStyle(Color.grGold)
                         }
 
                         HStack {
@@ -119,8 +120,8 @@ struct CheckoutView: View {
                                 store.removeFromCart(item)
                                 Task { await loadQuote() }
                             }
-                            .font(.custom("GRGabriellaFinal", size: 13))
-                            .foregroundStyle(.white.opacity(0.65))
+                            .font(.custom("Michroma", size: 13))
+                            .foregroundStyle(Color.grGold.opacity(0.65))
                         }
                     }
                     .padding(.bottom, 6)
@@ -135,8 +136,8 @@ struct CheckoutView: View {
                         }
                         Row(label: "Totale da pagare:", value: quote.total.euro, isBold: true)
                     }
-                    .font(.custom("GRGabriellaFinal", size: 16))
-                    .foregroundStyle(.white)
+                    .font(.custom("Michroma", size: 16))
+                    .foregroundStyle(Color.grGold)
                     .padding(.top, 8)
                 }
             }
@@ -146,8 +147,8 @@ struct CheckoutView: View {
     private var checkoutAuthSection: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Accedi o Registrati")
-                .font(.custom("GRGabriellaFinal", size: 40))
-                .foregroundStyle(.white)
+                .font(.custom("Michroma", size: 40))
+                .foregroundStyle(Color.grGold)
 
             CheckoutField(text: $email, placeholder: "Email", keyboard: .emailAddress)
                 .textInputAutocapitalization(.never)
@@ -163,12 +164,12 @@ struct CheckoutView: View {
                             ProgressView().tint(.white)
                         } else {
                             Text(isRegistering ? "Registrati" : "Accedi")
-                                .font(.custom("GRGabriellaFinal", size: 30))
+                                .font(.custom("Michroma", size: 30))
                         }
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 86)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.grGold)
                     .background(Color(red: 0.0, green: 0.45, blue: 0.95))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
@@ -178,24 +179,24 @@ struct CheckoutView: View {
                     withAnimation(.easeInOut(duration: 0.2)) { isRegistering.toggle() }
                 } label: {
                     Text(isRegistering ? "Login" : "Crea\nAccount")
-                        .font(.custom("GRGabriellaFinal", size: 30))
+                        .font(.custom("Michroma", size: 30))
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: .infinity)
                         .frame(height: 86)
-                        .foregroundStyle(.white)
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.white.opacity(0.18), lineWidth: 1.2))
+                        .foregroundStyle(Color.grGold)
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.grGold.opacity(0.18), lineWidth: 1.2))
                 }
             }
 
             Button("Password dimenticata?") {
                 Task { await forgotPassword() }
             }
-            .font(.custom("GRGabriellaFinal", size: 18))
+            .font(.custom("Michroma", size: 18))
             .foregroundStyle(.blue)
 
             if let infoMessage, !infoMessage.isEmpty {
                 Text(infoMessage)
-                    .font(.custom("GRGabriellaFinal", size: 14))
+                    .font(.custom("Michroma", size: 14))
                     .foregroundStyle(.green)
             }
 
@@ -218,8 +219,8 @@ struct CheckoutView: View {
     private var checkoutDetailsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("I Tuoi Dettagli")
-                .font(.custom("GRGabriellaFinal", size: 36))
-                .foregroundStyle(.white)
+                .font(.custom("Michroma", size: 36))
+                .foregroundStyle(Color.grGold)
 
             if let customer = store.customer {
                 VStack(alignment: .leading, spacing: 6) {
@@ -230,8 +231,8 @@ struct CheckoutView: View {
                     Text(customer.paese ?? "")
                     Text(customer.telefono1 ?? "")
                 }
-                .font(.custom("GRGabriellaFinal", size: 15))
-                .foregroundStyle(.white.opacity(0.78))
+                .font(.custom("Michroma", size: 15))
+                .foregroundStyle(Color.grGold.opacity(0.78))
             }
 
             Text(store.l10n.text(.shipping)).webSectionTitle()
@@ -245,7 +246,7 @@ struct CheckoutView: View {
             .tint(.white)
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
-            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.white.opacity(0.35)))
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.grGold.opacity(0.35)))
 
             Text(store.l10n.text(.payment)).webSectionTitle()
 
@@ -255,15 +256,37 @@ struct CheckoutView: View {
                 Text("Intestato a: G-R Gabriella Romeo")
                 Text("Causale: Ordine GR")
             }
-            .font(.custom("GRGabriellaFinal", size: 15))
-            .foregroundStyle(.white.opacity(0.8))
+            .font(.custom("Michroma", size: 15))
+            .foregroundStyle(Color.grGold.opacity(0.8))
             .padding()
-            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.white.opacity(0.25)))
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.grGold.opacity(0.25)))
 
             Toggle(store.l10n.text(.terms), isOn: $isAccepted)
-                .font(.custom("GRGabriellaFinal", size: 15))
-                .foregroundStyle(.white.opacity(0.82))
+                .font(.custom("Michroma", size: 15))
+                .foregroundStyle(Color.grGold.opacity(0.82))
                 .tint(.blue)
+
+            if quote?.productionPolicyRequired == true {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Policy di produzione")
+                        .font(.custom("Michroma", size: 18))
+                        .foregroundStyle(Color.grGold)
+                    Text("Uno o più prodotti non sono disponibili in pronta consegna. Confermando la policy accetti che l'ordine venga prodotto e che i tempi di evasione dipendano dalla produzione.")
+                        .font(.custom("Michroma", size: 13))
+                        .foregroundStyle(Color.grGold.opacity(0.82))
+                    if let items = quote?.productionItems, !items.isEmpty {
+                        Text(items.map(\.nome).joined(separator: ", "))
+                            .font(.custom("Michroma", size: 13))
+                            .foregroundStyle(Color.grGold)
+                    }
+                    Toggle("Accetto la policy di produzione", isOn: $isProductionPolicyAccepted)
+                        .font(.custom("Michroma", size: 13))
+                        .foregroundStyle(Color.grGold.opacity(0.86))
+                        .tint(.blue)
+                }
+                .padding()
+                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.grGold.opacity(0.35)))
+            }
 
             Button {
                 Task { await confirm() }
@@ -272,22 +295,32 @@ struct CheckoutView: View {
                     ProgressView().tint(.white)
                 } else {
                     Text(store.l10n.text(.confirmBankTransfer))
-                        .font(.custom("GRGabriellaFinal", size: 18))
+                        .font(.custom("Michroma", size: 18))
                 }
             }
             .frame(maxWidth: .infinity)
             .frame(height: 54)
-            .foregroundStyle(.white)
-            .background((!isAccepted || quote == nil || isSubmitting || store.cart.isEmpty) ? Color.green.opacity(0.35) : Color.green.opacity(0.72))
+            .foregroundStyle(Color.grGold)
+            .background((!canConfirm || isSubmitting) ? Color.green.opacity(0.35) : Color.green.opacity(0.72))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .disabled(!isAccepted || quote == nil || isSubmitting || store.cart.isEmpty)
+            .disabled(!canConfirm || isSubmitting)
         }
+    }
+
+    private var canConfirm: Bool {
+        isAccepted &&
+        quote != nil &&
+        !store.cart.isEmpty &&
+        (quote?.productionPolicyRequired != true || isProductionPolicyAccepted)
     }
 
     private func loadQuote() async {
         guard store.session != nil, !store.cart.isEmpty else { return }
         do {
             quote = try await store.requestQuote(shippingMethod: shippingMethod)
+            if quote?.productionPolicyRequired != true {
+                isProductionPolicyAccepted = false
+            }
         } catch {
             store.errorMessage = error.localizedDescription
         }
@@ -297,7 +330,10 @@ struct CheckoutView: View {
         isSubmitting = true
         defer { isSubmitting = false }
         do {
-            let result = try await store.confirmBankTransfer(shippingMethod: shippingMethod)
+            let result = try await store.confirmBankTransfer(
+                shippingMethod: shippingMethod,
+                productionPolicyAccepted: isProductionPolicyAccepted
+            )
             orderId = result.orderId
         } catch {
             store.errorMessage = error.localizedDescription
@@ -356,7 +392,7 @@ struct CheckoutStepsView: View {
         HStack(spacing: 14) {
             CheckoutStep(number: "1", title: "Accedi o\nRegistrati", isActive: true)
             Rectangle()
-                .fill(Color.white.opacity(0.14))
+                .fill(Color.grGold.opacity(0.14))
                 .frame(height: 1)
                 .frame(maxWidth: .infinity)
             CheckoutStep(number: "2", title: isAuthenticated ? "Verifica i\nTuoi Dati" : "I Tuoi\nDettagli", isActive: isAuthenticated)
@@ -373,14 +409,14 @@ struct CheckoutStep: View {
     var body: some View {
         VStack(spacing: 8) {
             Text(number)
-                .font(.custom("GRGabriellaFinal", size: 24))
-                .foregroundStyle(.white)
+                .font(.custom("Michroma", size: 24))
+                .foregroundStyle(Color.grGold)
                 .frame(width: 54, height: 54)
-                .background(isActive ? Color(red: 0.0, green: 0.45, blue: 0.95) : Color.white.opacity(0.12))
+                .background(isActive ? Color(red: 0.0, green: 0.45, blue: 0.95) : Color.grGold.opacity(0.12))
                 .clipShape(Circle())
             Text(title)
-                .font(.custom("GRGabriellaFinal", size: 24))
-                .foregroundStyle(.white.opacity(0.82))
+                .font(.custom("Michroma", size: 24))
+                .foregroundStyle(Color.grGold.opacity(0.82))
                 .multilineTextAlignment(.center)
         }
     }
@@ -393,14 +429,14 @@ struct CheckoutField: View {
 
     var body: some View {
         TextField(placeholder, text: $text)
-            .font(.custom("GRGabriellaFinal", size: 28))
-            .foregroundStyle(.white)
+            .font(.custom("Michroma", size: 28))
+            .foregroundStyle(Color.grGold)
             .keyboardType(keyboard)
             .padding(.horizontal, 18)
             .frame(height: 67)
             .background(Color(red: 0.16, green: 0.16, blue: 0.16))
             .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.white.opacity(0.12), lineWidth: 1.2))
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.grGold.opacity(0.12), lineWidth: 1.2))
     }
 }
 
@@ -410,13 +446,13 @@ struct CheckoutSecureField: View {
 
     var body: some View {
         SecureField(placeholder, text: $text)
-            .font(.custom("GRGabriellaFinal", size: 28))
-            .foregroundStyle(.white)
+            .font(.custom("Michroma", size: 28))
+            .foregroundStyle(Color.grGold)
             .padding(.horizontal, 18)
             .frame(height: 67)
             .background(Color(red: 0.16, green: 0.16, blue: 0.16))
             .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.white.opacity(0.12), lineWidth: 1.2))
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.grGold.opacity(0.12), lineWidth: 1.2))
     }
 }
 
@@ -430,6 +466,7 @@ struct Row: View {
             Text(label)
             Spacer()
             Text(value)
+                .font(.system(size: 16, weight: isBold ? .bold : .regular))
                 .fontWeight(isBold ? .bold : .regular)
         }
     }
@@ -446,11 +483,11 @@ struct OrderConfirmedView: View {
                     .font(.system(size: 58))
                     .foregroundStyle(.green)
                 Text("Ordine confermato")
-                    .font(.custom("GRGabriellaUltraCustom", size: 38))
-                    .foregroundStyle(.white)
+                    .font(.custom("Michroma", size: 38))
+                    .foregroundStyle(Color.grGold)
                 Text(orderId)
-                    .font(.custom("GRGabriellaFinal", size: 18))
-                    .foregroundStyle(.white.opacity(0.75))
+                    .font(.custom("Michroma", size: 18))
+                    .foregroundStyle(Color.grGold.opacity(0.75))
             }
             .padding()
         }

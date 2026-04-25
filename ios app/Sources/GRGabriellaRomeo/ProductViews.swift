@@ -39,9 +39,9 @@ struct ProductListView: View {
             ScrollView {
                 VStack(spacing: 28) {
                     Text(title)
-                        .font(.custom("GRGabriellaFinal", size: 38))
+                        .font(.custom("Michroma", size: 38))
                         .tracking(3)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.grGold)
                         .multilineTextAlignment(.center)
                         .lineLimit(2)
                         .minimumScaleFactor(0.7)
@@ -57,8 +57,8 @@ struct ProductListView: View {
                             .padding(.top, 30)
                     } else if filteredProducts.isEmpty {
                         Text("Nessun prodotto disponibile")
-                            .font(.custom("GRGabriellaFinal", size: 24))
-                            .foregroundStyle(.white.opacity(0.72))
+                            .font(.custom("Michroma", size: 24))
+                            .foregroundStyle(Color.grGold.opacity(0.72))
                             .padding(.top, 30)
                     } else {
                         LazyVStack(spacing: 22) {
@@ -112,19 +112,19 @@ struct ProductListView: View {
         } label: {
             HStack {
                 Text(selectedSubcategory)
-                    .font(.custom("GRGabriellaFinal", size: 24))
-                    .foregroundStyle(.white)
+                    .font(.custom("Michroma", size: 24))
+                    .foregroundStyle(Color.grGold)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                 Spacer()
                 Image(systemName: "chevron.down")
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.grGold)
             }
             .padding(.horizontal, 18)
             .frame(height: 54)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.white, lineWidth: 2)
+                    .stroke(Color.grGold, lineWidth: 2)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
@@ -148,18 +148,18 @@ struct ProductCard: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(product.nome)
-                        .font(.custom("GRGabriellaFinal", size: 22))
-                        .foregroundStyle(.white)
+                        .font(.custom("Michroma", size: 22))
+                        .foregroundStyle(Color.grGold)
                     if let sottocategoria = product.sottocategoria, !sottocategoria.isEmpty {
                         Text(sottocategoria)
-                            .font(.custom("GRGabriellaFinal", size: 16))
-                            .foregroundStyle(.white.opacity(0.62))
+                            .font(.custom("Michroma", size: 16))
+                            .foregroundStyle(Color.grGold.opacity(0.62))
                     }
                 }
                 Spacer()
                 Text(product.displayPrice.euro)
-                    .font(.custom("GRGabriellaFinal", size: 20))
-                    .foregroundStyle(.white)
+                    .font(.system(size: 20, weight: .regular))
+                    .foregroundStyle(Color.grGold)
             }
         }
     }
@@ -179,28 +179,28 @@ struct ProductDetailView: View {
                         .clipped()
 
                     Text(product.nome)
-                        .font(.custom("GRGabriellaFinal", size: 38))
-                        .foregroundStyle(.white)
+                        .font(.custom("Michroma", size: 38))
+                        .foregroundStyle(Color.grGold)
 
                     Text(product.displayPrice.euro)
-                        .font(.custom("GRGabriellaFinal", size: 24))
-                        .foregroundStyle(.white)
+                        .font(.system(size: 24, weight: .regular))
+                        .foregroundStyle(Color.grGold)
 
                     if let description = product.descrizione, !description.isEmpty {
                         Text(description)
-                            .font(.custom("GRGabriellaFinal", size: 19))
-                            .foregroundStyle(.white.opacity(0.78))
+                            .font(.custom("Michroma", size: 19))
+                            .foregroundStyle(Color.grGold.opacity(0.78))
                     }
 
                     Button {
                         store.addToCart(product)
                     } label: {
                         Text(product.isAvailable ? store.l10n.text(.addToCart) : store.l10n.text(.soldOut))
-                            .font(.custom("GRGabriellaFinal", size: 24))
+                            .font(.custom("Michroma", size: 24))
                             .foregroundStyle(.black)
                             .frame(maxWidth: .infinity)
                             .frame(height: 54)
-                            .background(Color.white)
+                            .background(Color.grGold)
                     }
                     .disabled(!product.isAvailable)
                     .opacity(product.isAvailable ? 1 : 0.45)
@@ -227,7 +227,7 @@ struct ProductImage: View {
             switch phase {
             case .empty:
                 ZStack {
-                    Color.white.opacity(0.08)
+                    Color.grGold.opacity(0.08)
                     ProgressView().tint(.white)
                 }
             case .success(let image):
@@ -236,13 +236,13 @@ struct ProductImage: View {
                     .scaledToFill()
             case .failure:
                 ZStack {
-                    Color.white.opacity(0.08)
+                    Color.grGold.opacity(0.08)
                     Text("G-R")
-                        .font(.custom("GRGabriellaFinal", size: 46))
-                        .foregroundStyle(.white.opacity(0.75))
+                        .font(.custom("Michroma", size: 46))
+                        .foregroundStyle(Color.grGold.opacity(0.75))
                 }
             @unknown default:
-                Color.white.opacity(0.08)
+                Color.grGold.opacity(0.08)
             }
         }
     }

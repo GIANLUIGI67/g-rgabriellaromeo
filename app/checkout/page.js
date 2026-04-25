@@ -2,7 +2,9 @@
 
 import { useEffect, useState, useRef,useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { getReadableAuthErrorMessage, registerCustomerWithBackend } from '../lib/authHelpers';
 import { supabase } from '../lib/supabaseClient';
+import { loadCartFromStorage, removeProductFromCart, saveCartToStorage } from '../lib/cart';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -98,8 +100,7 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     fetchUtente();
-    const dati = localStorage.getItem('carrello');
-    if (dati) setCarrello(JSON.parse(dati));
+    setCarrello(loadCartFromStorage());
   }, [fetchUtente]);
 
   const validaEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -230,40 +231,38 @@ export default function CheckoutPage() {
     }
 
     try {
-      const { data: existing, error: checkError } = await supabase
-        .from('clienti')
-        .select('id')
-        .eq('email', email)
-        .maybeSingle();
+      await registerCustomerWithBackend({
+        email,
+        password,
+        nome,
+        cognome,
+        telefono1,
+        telefono2,
+        indirizzo,
+        citta,
+        paese,
+        codice_postale: cap,
+      });
 
-      if (checkError) throw checkError;
-
-      if (existing) {
-        displayError(testi.utenteEsistente);
+      const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
+      if (loginError) {
+        displayError('Account creato correttamente. Premi Login per continuare.');
+        setIsRegistrazione(false);
         setIsRedirecting(false);
         return;
       }
 
-      const { error: signupError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { nome, cognome },
-        },
-      });
-
-      if (signupError) throw signupError;
-
+      await fetchUtente();
       const registrato = await registraCliente();
       if (!registrato) {
         setIsRedirecting(false);
         return;
       }
 
-      const loggato = await loginEmail();
-      if (loggato) setStep(2);
+      setStep(2);
+      setIsRedirecting(false);
     } catch (error) {
-      displayError(error.message || testi.erroreGenerico);
+      displayError(getReadableAuthErrorMessage(error, testi.erroreGenerico));
       setIsRedirecting(false);
     }
   };
@@ -324,11 +323,10 @@ export default function CheckoutPage() {
     router.push(`/pagamento?lang=${lingua}&from_checkout=true`);
   };
 
-  const rimuoviDalCarrello = (indice) => {
-    const nuovo = [...carrello];
-    nuovo.splice(indice, 1);
+  const rimuoviDalCarrello = (productId) => {
+    const nuovo = removeProductFromCart(carrello, productId);
     setCarrello(nuovo);
-    localStorage.setItem('carrello', JSON.stringify(nuovo));
+    saveCartToStorage(nuovo);
   };
 
   // ---------- TESTI ----------
@@ -662,7 +660,7 @@ export default function CheckoutPage() {
                       </span>
 
                       {/* RIMUOVI sotto al prezzo */}
-                      <button onClick={() => rimuoviDalCarrello(i)} className="remove-under">
+                      <button onClick={() => rimuoviDalCarrello(p.id)} className="remove-under">
                         {testi.rimuovi}
                       </button>
                     </div>

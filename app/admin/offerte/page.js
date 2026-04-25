@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
+import { addProductToCart, getCartItemCount, getCartQuantityForProduct, loadCartFromStorage, removeProductFromCart, saveCartToStorage } from '../../lib/cart';
 import { getPublicImageUrl } from '../../lib/storageUrl';
 import { Suspense } from 'react';
 
@@ -38,6 +39,8 @@ function OffertePage() {
   const t = (key) => traduzioni[lang]?.[key] || traduzioni['it'][key] || key;
 
   useEffect(() => {
+    setCarrello(loadCartFromStorage());
+
     const fetchProdotti = async () => {
       const { data, error } = await supabase
         .from('products')
@@ -65,15 +68,15 @@ function OffertePage() {
 
   const aggiungiAlCarrello = (prodotto) => {
     const qta = quantita[prodotto.id] || 1;
-    const nuovoCarrello = [...carrello, ...Array(qta).fill(prodotto)];
+    const nuovoCarrello = addProductToCart(carrello, prodotto, qta);
     setCarrello(nuovoCarrello);
-    localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
+    saveCartToStorage(nuovoCarrello);
   };
 
   const rimuoviDalCarrello = (prodottoId) => {
-    const nuovoCarrello = carrello.filter(p => p.id !== prodottoId);
+    const nuovoCarrello = removeProductFromCart(carrello, prodottoId);
     setCarrello(nuovoCarrello);
-    localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
+    saveCartToStorage(nuovoCarrello);
   };
 
   return (
@@ -185,7 +188,7 @@ function OffertePage() {
         })}
       </div>
 
-      {carrello.length > 0 && (
+      {getCartItemCount(carrello) > 0 && (
         <div style={{
           marginTop: '2rem',
           backgroundColor: '#222',
@@ -198,11 +201,10 @@ function OffertePage() {
           marginRight: 'auto'
         }}>
           <h3 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>🛒 {t('carrello')}</h3>
-          {Array.from(new Set(carrello.map(p => p.id))).map(id => {
-            const prodotto = carrello.find(p => p.id === id);
-            const qta = carrello.filter(p => p.id === id).length;
+          {carrello.map((prodotto) => {
+            const qta = prodotto.quantita || 1;
             return (
-              <div key={id} style={{
+              <div key={prodotto.id} style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -210,7 +212,7 @@ function OffertePage() {
                 borderBottom: '1px solid #444'
               }}>
                 <span>{prodotto.nome} × {qta}</span>
-                <button onClick={() => rimuoviDalCarrello(id)}
+                <button onClick={() => rimuoviDalCarrello(prodotto.id)}
                   style={{
                     background: 'red',
                     color: 'white',

@@ -4,8 +4,11 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ShoppingCart } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import { addProductToCart, getCartItemCount, getCartQuantityForProduct, loadCartFromStorage, removeProductFromCart, saveCartToStorage } from '../lib/cart';
 import { getPublicImageUrl } from '../lib/storageUrl';
 import { Suspense } from 'react';
+
+const EURO = '\u20AC';
 
 function GioielliPage() {
   const params = useSearchParams();
@@ -22,10 +25,10 @@ function GioielliPage() {
   const [erroreQuantita, setErroreQuantita] = useState(false);
   const [accettaPolicy, setAccettaPolicy] = useState(false);
 
-  // ✅ funzione per mostrare € correttamente (come in inventario)
+  // Mostra il simbolo euro con escape Unicode per evitare problemi di encoding/font.
   const formatEuro = (val) => {
     const value = Number(val || 0);
-    return `€ ${value.toFixed(2)}`;
+    return `${EURO} ${value.toFixed(2)}`;
   };
 
   // ... (il resto del codice rimane invariato)
@@ -160,8 +163,7 @@ function GioielliPage() {
     orecchini: { it: 'Orecchini', en: 'Earrings', fr: 'Boucles d\'oreilles', de: 'Ohrringe', es: 'Pendientes', zh: '耳环', ar: 'أقراط', ja: 'イヤリング' }
   };
   useEffect(() => {
-    const carrelloSalvato = JSON.parse(localStorage.getItem('carrello') || '[]');
-    setCarrello(carrelloSalvato);
+    setCarrello(loadCartFromStorage());
 
     const fetchProdotti = async () => {
       const { data, error } = await supabase
@@ -193,25 +195,21 @@ function GioielliPage() {
 
   const aggiungiAlCarrello = (prodotto) => {
     const qta = quantita[prodotto.id] || 1;
-    if (prodotto.quantita !== null && prodotto.quantita !== undefined && qta > prodotto.quantita) {
-      setErroreQuantita(true);
-      return;
-    }
-    const nuovoCarrello = [...carrello, ...Array(qta).fill(prodotto)];
+    const nuovoCarrello = addProductToCart(carrello, prodotto, qta);
     setCarrello(nuovoCarrello);
-    localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
+    saveCartToStorage(nuovoCarrello);
   };
 
   const rimuoviDalCarrello = (prodottoId) => {
-    const nuovoCarrello = carrello.filter(p => p.id !== prodottoId);
+    const nuovoCarrello = removeProductFromCart(carrello, prodottoId);
     setCarrello(nuovoCarrello);
-    localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
+    saveCartToStorage(nuovoCarrello);
   };
 
   const baseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/immagini/`;
   return (
     <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem 1rem', maxWidth: '100vw', overflowX: 'hidden', margin: '0 auto', position: 'relative' }}>
-      {carrello.length > 0 && (
+      {getCartItemCount(carrello) > 0 && (
         <div
           onClick={() => router.push(`/checkout?lang=${lang}`)}
           style={{
@@ -331,7 +329,7 @@ function GioielliPage() {
                   color: '#555',
                   marginBottom: '0.3rem'
                 }}>{prodotto.taglia}</p>
-                <p style={{ fontFamily: 'Arial' }}>
+                <p className="gr-price">
                   {prodotto.offerta ? (
                     <>
                       <span style={{ textDecoration: 'line-through', color: 'gray', marginRight: '4px' }}>
@@ -410,14 +408,14 @@ function GioielliPage() {
             <p style={{ fontSize: '0.9rem' }}>{popupProdotto.descrizione}</p>
             <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>{popupProdotto.taglia}</p>
 
-<p style={{ fontWeight: 'bold', fontSize: '1rem', margin: '1rem 0', fontFamily: 'Arial, sans-serif' }}>
+<p className="gr-price" style={{ fontWeight: 'bold', fontSize: '1rem', margin: '1rem 0' }}>
   {popupProdotto.offerta ? (
     <>
       <span style={{ textDecoration: 'line-through', color: 'gray', marginRight: '8px' }}>
-        € {Number(popupProdotto.prezzo).toFixed(2)}
+        {EURO} {Number(popupProdotto.prezzo).toFixed(2)}
       </span>
       <span style={{ color: 'red' }}>
-        € {(Number(popupProdotto.prezzo) * (1 - (popupProdotto.sconto || 0) / 100)).toFixed(2)}
+        {EURO} {(Number(popupProdotto.prezzo) * (1 - (popupProdotto.sconto || 0) / 100)).toFixed(2)}
         {popupProdotto.sconto > 0 && (
           <span style={{ fontSize: '0.9rem', marginLeft: '4px' }}>
             (-{popupProdotto.sconto}%)
@@ -426,7 +424,7 @@ function GioielliPage() {
       </span>
     </>
   ) : (
-    <>€ {Number(popupProdotto.prezzo).toFixed(2)}</>
+    <>{EURO} {Number(popupProdotto.prezzo).toFixed(2)}</>
   )}
 </p>
             <div

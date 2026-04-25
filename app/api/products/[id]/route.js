@@ -1,16 +1,24 @@
 import { jsonResponse, requireAdmin } from '../../../lib/serverAuth';
+import { sanitizeProductPayload } from '../../../lib/adminProducts';
 
 export async function PUT(request, { params }) {
   const auth = await requireAdmin(request);
   if (auth.error) return auth.error;
 
   const id = params.id;
-  const body = await request.json();
+  let body;
+  try {
+    body = sanitizeProductPayload(await request.json());
+  } catch (error) {
+    return jsonResponse({ error: error.message }, 400);
+  }
 
   const { data, error } = await auth.service
     .from('products')
     .update(body)
-    .eq('id', id);
+    .eq('id', id)
+    .select('*')
+    .single();
 
   if (error) {
     return jsonResponse({ error: error.message }, 500);

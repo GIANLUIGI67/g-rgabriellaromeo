@@ -27,9 +27,7 @@ targets:
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: false
         UIAppFonts:
-          - GRGabriellaFinal.ttf
-          - GRGabriellaUltraCustom.ttf
-          - GRGabriellaModern.ttf
+          - Michroma.ttf
         UIRequiresFullScreen: true
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
@@ -39,3 +37,6 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: M293D8XT82
+        SUPABASE_URL: https://mdpplumkmxjwyzunpjpg.supabase.co
+        SUPABASE_ANON_KEY: ""
+        WEB_API_BASE_URL: https://g-rgabriellaromeo.vercel.app

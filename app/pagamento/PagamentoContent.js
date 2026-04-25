@@ -3,6 +3,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
+import { loadCartFromStorage } from '../lib/cart';
+import { resolveBackendEndpoint } from '../lib/backendApi';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { PayPalScriptProvider, PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
@@ -15,7 +17,8 @@ const PayPalWrapper = ({
   lang, 
   router,
   t,
-  accessToken
+  accessToken,
+  productionPolicyAccepted
 }) => {
   const [paypalError, setPaypalError] = useState(null);
   const [{ isPending, isResolved }] = usePayPalScriptReducer();
@@ -35,7 +38,7 @@ const PayPalWrapper = ({
   const onApprove = async (data, actions) => {
     try {
       const details = await actions.order.capture();
-      const finalizeRes = await fetch('/api/checkout/finalize', {
+      const finalizeRes = await fetch(resolveBackendEndpoint('checkout-finalize', '/api/checkout/finalize'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -47,6 +50,7 @@ const PayPalWrapper = ({
           paymentMethod: 'PayPal',
           paymentStatus: 'pagato',
           transactionId: details.id,
+          productionPolicyAccepted,
         }),
       });
       const finalizeJson = await finalizeRes.json();
@@ -91,6 +95,7 @@ const PayPalWrapper = ({
 };
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+const EURO = '\u20AC';
 const traduzioni = {
   it: {
     titolo: 'Pagamento',
@@ -98,8 +103,8 @@ const traduzioni = {
     pagamento: 'Metodo di pagamento',
     totale: 'Totale',
     seleziona: 'Seleziona',
-    standard: 'Standard (€5.00)',
-    express: 'Express (€15.00)',
+    standard: `Standard (${EURO}5.00)`,
+    express: `Express (${EURO}15.00)`,
     ritiro: 'Ritiro in negozio (gratis)',
     paypal: 'PayPal',
     bonifico: 'Bonifico Bancario',
@@ -118,7 +123,10 @@ const traduzioni = {
     rivedi_condizioni: 'Rivedi termini e condizioni',
     testo_condizione: 'I prodotti saranno spediti esclusivamente dopo la ricezione del bonifico in entrata.',
     confermo_bonifico: 'Confermo che il bonifico è stato effettuato',
-    dettagli_carta: 'Dettagli Carta di Credito'
+    dettagli_carta: 'Dettagli Carta di Credito',
+    policy_produzione_titolo: 'Policy di produzione',
+    policy_produzione_testo: "Uno o più prodotti non sono disponibili in pronta consegna. Confermando la policy accetti che l'ordine venga prodotto e che i tempi di evasione dipendano dalla produzione.",
+    accetto_policy_produzione: 'Accetto la policy di produzione e voglio procedere al pagamento'
   },
   en: {
     titolo: 'Payment',
@@ -126,8 +134,8 @@ const traduzioni = {
     pagamento: 'Payment method',
     totale: 'Total',
     seleziona: 'Select',
-    standard: 'Standard (€5.00)',
-    express: 'Express (€15.00)',
+    standard: `Standard (${EURO}5.00)`,
+    express: `Express (${EURO}15.00)`,
     ritiro: 'Store pickup (free)',
     paypal: 'PayPal',
     bonifico: 'Bank Transfer',
@@ -146,7 +154,10 @@ const traduzioni = {
     rivedi_condizioni: 'Review terms and conditions',
     testo_condizione: 'Products will only be shipped after receiving the bank transfer.',
     confermo_bonifico: 'I confirm that the bank transfer has been made',
-    dettagli_carta: 'Credit Card Details'
+    dettagli_carta: 'Credit Card Details',
+    policy_produzione_titolo: 'Production policy',
+    policy_produzione_testo: 'One or more products are not ready to ship. By accepting, you agree that the order will be produced and fulfillment times depend on production.',
+    accetto_policy_produzione: 'I accept the production policy and want to proceed to payment'
   },
   fr: {
     titolo: 'Paiement',
@@ -154,8 +165,8 @@ const traduzioni = {
     pagamento: 'Méthode de paiement',
     totale: 'Total',
     seleziona: 'Sélectionner',
-    standard: 'Standard (5,00 €)',
-    express: 'Express (15,00 €)',
+    standard: `Standard (5,00 ${EURO})`,
+    express: `Express (15,00 ${EURO})`,
     ritiro: 'Retrait en magasin (gratuit)',
     paypal: 'PayPal',
     bonifico: 'Virement bancaire',
@@ -182,8 +193,8 @@ const traduzioni = {
     pagamento: 'Zahlungsmethode',
     totale: 'Gesamt',
     seleziona: 'Auswählen',
-    standard: 'Standard (5,00 €)',
-    express: 'Express (15,00 €)',
+    standard: `Standard (5,00 ${EURO})`,
+    express: `Express (15,00 ${EURO})`,
     ritiro: 'Abholung im Geschäft (kostenlos)',
     paypal: 'PayPal',
     bonifico: 'Banküberweisung',
@@ -210,8 +221,8 @@ const traduzioni = {
     pagamento: 'Método de pago',
     totale: 'Total',
     seleziona: 'Seleccionar',
-    standard: 'Estándar (5,00 €)',
-    express: 'Express (15,00 €)',
+    standard: `Estándar (5,00 ${EURO})`,
+    express: `Express (15,00 ${EURO})`,
     ritiro: 'Recogida en tienda (gratis)',
     paypal: 'PayPal',
     bonifico: 'Transferencia bancaria',
@@ -238,8 +249,8 @@ const traduzioni = {
     pagamento: 'طريقة الدفع',
     totale: 'المجموع',
     seleziona: 'اختر',
-    standard: 'قياسي (5.00 €)',
-    express: 'سريع (15.00 €)',
+    standard: `قياسي (5.00 ${EURO})`,
+    express: `سريع (15.00 ${EURO})`,
     ritiro: 'استلام من المتجر (مجانا)',
     paypal: 'باي بال',
     bonifico: 'حوالة بنكية',
@@ -266,8 +277,8 @@ const traduzioni = {
     pagamento: '支付方式',
     totale: '总计',
     seleziona: '选择',
-    standard: '标准 (5.00 €)',
-    express: '快速 (15.00 €)',
+    standard: `标准 (5.00 ${EURO})`,
+    express: `快速 (15.00 ${EURO})`,
     ritiro: '店内取货 (免费)',
     paypal: '贝宝',
     bonifico: '银行转账',
@@ -294,8 +305,8 @@ const traduzioni = {
     pagamento: 'お支払い方法',
     totale: '合計',
     seleziona: '選択',
-    standard: '標準 (5.00 €)',
-    express: '速達 (15.00 €)',
+    standard: `標準 (5.00 ${EURO})`,
+    express: `速達 (15.00 ${EURO})`,
     ritiro: '店頭受取 (無料)',
     paypal: 'PayPal',
     bonifico: '銀行振込',
@@ -327,7 +338,9 @@ const StripePayment = ({
   lang, 
   router,
   t,
-  accessToken
+  accessToken,
+  productionPolicyAccepted,
+  canSubmit
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -340,7 +353,7 @@ const handleSubmit = async (e) => {
   setIsProcessing(true);
 
   try {
-    const resp = await fetch('/api/create-payment-intent', {
+    const resp = await fetch(resolveBackendEndpoint('payment-intent', '/api/create-payment-intent'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -350,11 +363,12 @@ const handleSubmit = async (e) => {
         currency: 'eur',
         cart: carrello,
         shippingMethod: spedizione,
+        productionPolicyAccepted,
       }),
     });
     if (!resp.ok) {
-      const txt = await resp.text();
-      throw new Error(`API /create-payment-intent ${resp.status}: ${txt}`);
+      const result = await resp.json().catch(() => ({}));
+      throw new Error(result?.error || t.errori.generico);
     }
     const { clientSecret } = await resp.json();
     if (!clientSecret) throw new Error('Missing clientSecret');
@@ -370,7 +384,7 @@ const handleSubmit = async (e) => {
     });
     if (error) throw error;
 
-    const finalizeRes = await fetch('/api/checkout/finalize', {
+    const finalizeRes = await fetch(resolveBackendEndpoint('checkout-finalize', '/api/checkout/finalize'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -382,6 +396,7 @@ const handleSubmit = async (e) => {
         paymentMethod: 'Carta di Credito',
         paymentStatus: 'pagato',
         transactionId: paymentIntent.id,
+        productionPolicyAccepted,
       }),
     });
     const finalizeJson = await finalizeRes.json();
@@ -430,15 +445,15 @@ const handleSubmit = async (e) => {
       </div>
       <button 
         type="submit" 
-        disabled={!stripe || isProcessing}
+        disabled={!stripe || isProcessing || !canSubmit}
         style={{
           width: '100%',
           padding: '0.75rem',
-          backgroundColor: stripe ? '#635bff' : 'gray',
+          backgroundColor: stripe && canSubmit ? '#635bff' : 'gray',
           color: 'white',
           border: 'none',
           borderRadius: '6px',
-          cursor: stripe ? 'pointer' : 'not-allowed',
+          cursor: stripe && canSubmit ? 'pointer' : 'not-allowed',
           fontFamily: 'Arial, sans-serif'
         }}
       >
@@ -463,6 +478,10 @@ export default function PagamentoContent({ lang }) {
   const [primoScontoPercent, setPrimoScontoPercent] = useState(null);
   const [scontoPrimoOrdine, setScontoPrimoOrdine] = useState(0);
   const [quote, setQuote] = useState(null);
+  const [quoteError, setQuoteError] = useState('');
+  const [accettaPolicyProduzione, setAccettaPolicyProduzione] = useState(false);
+  const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+  const paypalEnabled = process.env.NEXT_PUBLIC_PAYPAL_ENABLED === 'true' && Boolean(paypalClientId);
 
   const t = traduzioni[lang] || traduzioni.it;
 
@@ -533,18 +552,20 @@ export default function PagamentoContent({ lang }) {
     };
 
     fetchCliente();
-    setCarrello(JSON.parse(localStorage.getItem('carrello')) || []);
+    setCarrello(loadCartFromStorage());
   }, [lang, router]);
 
   useEffect(() => {
     const fetchQuote = async () => {
       if (!accessToken || !spedizione || carrello.length === 0) {
         setQuote(null);
+        setQuoteError('');
         return;
       }
 
       try {
-        const response = await fetch('/api/checkout/quote', {
+        setQuoteError('');
+        const response = await fetch(resolveBackendEndpoint('checkout-quote', '/api/checkout/quote'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -555,19 +576,27 @@ export default function PagamentoContent({ lang }) {
             shippingMethod: spedizione,
           }),
         });
-        const result = await response.json();
+        const result = await response.json().catch(() => ({}));
         if (!response.ok) {
-          throw new Error(result?.error || t.errori.generico);
+          setQuote(null);
+          setQuoteError(result?.error || t.errori.generico);
+          return;
         }
         setQuote(result.quote);
       } catch (error) {
-        console.error('Errore fetch quote:', error);
         setQuote(null);
+        setQuoteError(error?.message || t.errori.generico);
       }
     };
 
     fetchQuote();
   }, [accessToken, carrello, spedizione, t.errori.generico]);
+
+  useEffect(() => {
+    if (!quote?.productionPolicyRequired) {
+      setAccettaPolicyProduzione(false);
+    }
+  }, [quote?.productionPolicyRequired]);
 
   const confermaBonificoEffettuato = async () => {
     if (!accettaCondizioni) {
@@ -577,7 +606,7 @@ export default function PagamentoContent({ lang }) {
 
     setIsLoading(true);
     try {
-      const response = await fetch('/api/checkout/finalize', {
+      const response = await fetch(resolveBackendEndpoint('checkout-finalize', '/api/checkout/finalize'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -588,6 +617,7 @@ export default function PagamentoContent({ lang }) {
           shippingMethod: spedizione,
           paymentMethod: 'bonifico',
           paymentStatus: 'in attesa bonifico',
+          productionPolicyAccepted: accettaPolicyProduzione,
         }),
       });
       const result = await response.json();
@@ -602,13 +632,19 @@ export default function PagamentoContent({ lang }) {
       router.push(`/ordine-confermato?lang=${lang}&metodo=bonifico`);
     } catch (error) {
       console.error(error);
-      alert(t.errori.generico);
+      alert(error?.message || t.errori.generico);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const isFormValido = spedizione && pagamento && (pagamento !== 'bonifico' || (accettaCondizioni && accettaBonifico));
+  const productionPolicyRequired = Boolean(quote?.productionPolicyRequired);
+  const productionPolicyReady = !productionPolicyRequired || accettaPolicyProduzione;
+  const isFormValido =
+    spedizione &&
+    pagamento &&
+    productionPolicyReady &&
+    (pagamento !== 'bonifico' || (accettaCondizioni && accettaBonifico));
   const totaleVisualizzato = quote?.total ?? totaleFinale;
 
   return (
@@ -663,19 +699,68 @@ export default function PagamentoContent({ lang }) {
           }}
         >
           <option value="">-- {t.seleziona} --</option>
-          <option value="paypal">{t.paypal}</option>
+          {paypalEnabled && <option value="paypal">{t.paypal}</option>}
           <option value="bonifico">{t.bonifico}</option>
           <option value="carta">{t.carta}</option>
         </select>
 
         <p style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1rem', fontFamily: 'Arial, sans-serif' }}>
-          {t.totale}: €{totaleVisualizzato.toFixed(2).replace('.', ',')}
+          {t.totale}: {EURO}{totaleVisualizzato.toFixed(2).replace('.', ',')}
         </p>
+
+        {quoteError && (
+          <div style={{
+            marginBottom: '1rem',
+            padding: '0.75rem',
+            backgroundColor: '#fee2e2',
+            color: '#b91c1c',
+            borderRadius: '6px',
+            textAlign: 'center',
+            fontFamily: 'Arial, sans-serif'
+          }}>
+            {quoteError}
+          </div>
+        )}
+
+        {productionPolicyRequired && (
+          <div style={{
+            marginBottom: '1rem',
+            padding: '1rem',
+            border: '1px solid #b91c1c',
+            borderRadius: '6px',
+            backgroundColor: '#fee2e2',
+            color: '#b91c1c',
+            fontFamily: 'Arial, sans-serif'
+          }}>
+            <p style={{ margin: '0 0 0.5rem', fontWeight: 'bold' }}>
+              {t.policy_produzione_titolo || traduzioni.it.policy_produzione_titolo}
+            </p>
+            <p style={{ margin: '0 0 0.75rem' }}>
+              {t.policy_produzione_testo || traduzioni.it.policy_produzione_testo}
+            </p>
+            {quote.productionItems?.length > 0 && (
+              <p style={{ margin: '0 0 0.75rem' }}>
+                {quote.productionItems.map((item) => item.nome).join(', ')}
+              </p>
+            )}
+            <label htmlFor="accetta-policy-produzione" style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+              <input
+                type="checkbox"
+                id="accetta-policy-produzione"
+                name="accetta-policy-produzione"
+                checked={accettaPolicyProduzione}
+                onChange={() => setAccettaPolicyProduzione(!accettaPolicyProduzione)}
+                style={{ marginTop: '0.2rem' }}
+              />
+              <span>{t.accetto_policy_produzione || traduzioni.it.accetto_policy_produzione}</span>
+            </label>
+          </div>
+        )}
         
-{pagamento === 'paypal' && (
+{pagamento === 'paypal' && paypalEnabled && productionPolicyReady && (
           <PayPalScriptProvider 
             options={{
-              "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+              "client-id": paypalClientId,
               currency: "EUR",
               "disable-funding": "credit,card",
               "components": "buttons"
@@ -690,6 +775,7 @@ export default function PagamentoContent({ lang }) {
               router={router}
               t={t}
               accessToken={accessToken}
+              productionPolicyAccepted={accettaPolicyProduzione}
             />
           </PayPalScriptProvider>
         )}
@@ -771,6 +857,8 @@ export default function PagamentoContent({ lang }) {
               router={router}
               t={t}
               accessToken={accessToken}
+              productionPolicyAccepted={accettaPolicyProduzione}
+              canSubmit={productionPolicyReady}
             />
 
           </Elements>

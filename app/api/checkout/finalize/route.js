@@ -49,11 +49,18 @@ export async function POST(request) {
       paymentMethod,
       paymentStatus,
       transactionId = null,
+      productionPolicyAccepted = false,
     } = await request.json();
 
     const service = createServerSupabaseServiceClient();
     const customer = await loadCustomerProfile(service, auth.user.email);
-    const quote = await buildCheckoutQuote({ service, customer, cart, shippingMethod });
+    const quote = await buildCheckoutQuote({
+      service,
+      customer,
+      cart,
+      shippingMethod,
+      productionPolicyAccepted,
+    });
 
     if (paymentMethod === 'PayPal') {
       if (!transactionId) {

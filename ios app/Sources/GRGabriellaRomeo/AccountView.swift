@@ -47,7 +47,7 @@ struct LoginPanel: View {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(alignment: .top) {
                     Text(store.session == nil ? "LOGIN" : "ACCOUNT")
-                        .font(.custom("GRGabriellaFinal", size: 22))
+                        .font(.custom("Michroma", size: 22))
                         .foregroundStyle(.black)
                     Spacer()
                     Button {
@@ -69,7 +69,7 @@ struct LoginPanel: View {
             .padding(.top, 14)
             .padding(.bottom, 14)
         }
-        .background(Color.white)
+        .background(Color.grGold)
     }
 
     private var authContent: some View {
@@ -104,12 +104,12 @@ struct LoginPanel: View {
                         ProgressView().tint(.white)
                     } else {
                         Text(isRegistering ? "REGISTRATI" : "LOGIN")
-                            .font(.custom("GRGabriellaFinal", size: 20))
+                            .font(.custom("Michroma", size: 20))
                     }
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 38)
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.grGold)
                 .background(Color.black)
             }
             .disabled(isSubmitting)
@@ -119,7 +119,7 @@ struct LoginPanel: View {
                     Task { await handleForgotPassword() }
                 } label: {
                     Text("Password dimenticata?")
-                        .font(.custom("GRGabriellaFinal", size: 16))
+                        .font(.custom("Michroma", size: 16))
                         .foregroundStyle(Color(red: 0.17, green: 0.38, blue: 0.96))
                 }
             }
@@ -135,7 +135,7 @@ struct LoginPanel: View {
                 }
             } label: {
                 Text(isRegistering ? "LOGIN" : "CREA ACCOUNT")
-                    .font(.custom("GRGabriellaFinal", size: 20))
+                    .font(.custom("Michroma", size: 20))
                     .foregroundStyle(.black)
                     .frame(maxWidth: .infinity)
                     .frame(height: 38)
@@ -145,7 +145,7 @@ struct LoginPanel: View {
             VStack(alignment: .leading, spacing: 4) {
                 ForEach(benefits, id: \.self) { benefit in
                     Text("-  \(benefit)")
-                        .font(.custom("GRGabriellaFinal", size: 14))
+                        .font(.custom("Michroma", size: 14))
                         .foregroundStyle(Color(red: 0.34, green: 0.37, blue: 0.43))
                         .lineLimit(1)
                         .minimumScaleFactor(0.72)
@@ -156,7 +156,7 @@ struct LoginPanel: View {
 
             if let infoMessage {
                 Text(infoMessage)
-                    .font(.custom("GRGabriellaFinal", size: 15))
+                    .font(.custom("Michroma", size: 15))
                     .foregroundStyle(Color(red: 0.1, green: 0.45, blue: 0.18))
             }
         }
@@ -165,14 +165,14 @@ struct LoginPanel: View {
     private func loggedInContent(email: String) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             Text(email)
-                .font(.custom("GRGabriellaFinal", size: 18))
+                .font(.custom("Michroma", size: 18))
                 .foregroundStyle(.black)
             if let customer = store.customer {
                 Text([customer.nome, customer.cognome].compactMap { $0 }.joined(separator: " "))
-                    .font(.custom("GRGabriellaFinal", size: 22))
+                    .font(.custom("Michroma", size: 22))
                     .foregroundStyle(.black)
                 Text([customer.indirizzo, customer.citta, customer.codicePostale, customer.paese].compactMap { $0 }.joined(separator: " "))
-                    .font(.custom("GRGabriellaFinal", size: 18))
+                    .font(.custom("Michroma", size: 18))
                     .foregroundStyle(.black.opacity(0.72))
             }
 
@@ -180,8 +180,8 @@ struct LoginPanel: View {
                 store.logout()
             } label: {
                 Text("LOGOUT")
-                    .font(.custom("GRGabriellaFinal", size: 22))
-                    .foregroundStyle(.white)
+                    .font(.custom("Michroma", size: 22))
+                    .foregroundStyle(Color.grGold)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
                     .background(Color.black)
@@ -237,7 +237,7 @@ struct LoginPanel: View {
 private extension View {
     func loginField() -> some View {
         self
-            .font(.custom("GRGabriellaFinal", size: 18))
+            .font(.custom("Michroma", size: 18))
             .foregroundStyle(.black)
             .padding(.horizontal, 12)
             .frame(height: 40)

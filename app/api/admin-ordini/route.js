@@ -23,3 +23,32 @@ export async function GET(request) {
     return jsonResponse({ ok: false, error: e.message }, 500);
   }
 }
+
+export async function PATCH(request) {
+  try {
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
+
+    const body = await request.json().catch(() => ({}));
+    const id = String(body?.id || '').trim();
+    if (!id) return jsonResponse({ ok: false, error: 'Missing order id' }, 400);
+
+    const tracking = body?.tracking === null ? null : String(body?.tracking || '').trim();
+    const stato = tracking ? 'spedito' : 'pagato';
+
+    const { data, error } = await auth.service
+      .from('ordini')
+      .update({ tracking, stato })
+      .eq('id', id)
+      .select('id,tracking,stato')
+      .single();
+
+    if (error) {
+      return jsonResponse({ ok: false, error: error.message }, 500);
+    }
+
+    return jsonResponse({ ok: true, ordine: data });
+  } catch (e) {
+    return jsonResponse({ ok: false, error: e.message }, 500);
+  }
+}

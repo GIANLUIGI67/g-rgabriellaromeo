@@ -12,8 +12,9 @@ jest.mock('next/navigation', () => ({
 jest.mock('../app/lib/supabaseClient', () => require('../test/mocks/supabaseClient'));
 jest.mock('@/app/lib/supabaseClient', () => require('../test/mocks/supabaseClient'));
 
-// Se la pagina importa un PaypalButton che usa window/SDK, stubbiamo per sicurezza
-jest.mock('../components/PaypalButton', () => () => <div data-testid="paypal-button" />);
+// Se la pagina importa un PaypalButton che usa window/SDK, stubbiamo per sicurezza.
+// Il file non esiste in tutte le versioni del progetto, quindi il mock e virtuale.
+jest.mock('../components/PaypalButton', () => () => <div data-testid="paypal-button" />, { virtual: true });
 
 import CheckoutPage from '../app/checkout/page';
 

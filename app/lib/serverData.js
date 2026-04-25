@@ -4,7 +4,15 @@ import path from 'path';
 const dataDir = path.join(process.cwd(), 'data');
 
 function resolveDataPath(fileName) {
-  return path.join(dataDir, fileName);
+  if (typeof fileName !== 'string' || !/^[A-Za-z0-9._-]+\.json$/.test(fileName)) {
+    throw new Error('Invalid data file name');
+  }
+  const filePath = path.resolve(dataDir, fileName);
+  const baseDir = path.resolve(dataDir);
+  if (filePath !== baseDir && !filePath.startsWith(`${baseDir}${path.sep}`)) {
+    throw new Error('Invalid data file path');
+  }
+  return filePath;
 }
 
 export async function ensureDataFile(fileName, fallback = []) {

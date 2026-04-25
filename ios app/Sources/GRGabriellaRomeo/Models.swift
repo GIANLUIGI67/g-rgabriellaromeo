@@ -79,7 +79,11 @@ struct Product: Identifiable, Codable, Hashable {
     }
 
     var isAvailable: Bool {
-        disponibile != false && ((quantita ?? 0) > 0 || madeToOrder == true || allowBackorder == true)
+        disponibile != false
+    }
+
+    func requiresProduction(for quantity: Int) -> Bool {
+        quantity > (quantita ?? 0)
     }
 }
 
@@ -141,6 +145,54 @@ struct CustomerProfile: Codable {
     }
 }
 
+struct EventRecord: Identifiable, Codable, Hashable {
+    let id: String
+    let titolo: String
+    let descrizione: String?
+    let dataInizio: String?
+    let dataFine: String?
+    let stato: String
+    let pdfUrls: [String]
+    let videoUrls: [String]
+    let fotoUrls: [String]
+    let createdAt: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, titolo, descrizione, stato
+        case dataInizio = "data_inizio"
+        case dataFine = "data_fine"
+        case pdfUrls = "pdf_urls"
+        case videoUrls = "video_urls"
+        case fotoUrls = "foto_urls"
+        case createdAt = "created_at"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decodeFlexibleString(forKey: .id)
+        titolo = try container.decodeIfPresent(String.self, forKey: .titolo) ?? ""
+        descrizione = try container.decodeIfPresent(String.self, forKey: .descrizione)
+        dataInizio = try container.decodeIfPresent(String.self, forKey: .dataInizio)
+        dataFine = try container.decodeIfPresent(String.self, forKey: .dataFine)
+        stato = try container.decodeIfPresent(String.self, forKey: .stato) ?? "in_programmazione"
+        pdfUrls = try container.decodeIfPresent([String].self, forKey: .pdfUrls) ?? []
+        videoUrls = try container.decodeIfPresent([String].self, forKey: .videoUrls) ?? []
+        fotoUrls = try container.decodeIfPresent([String].self, forKey: .fotoUrls) ?? []
+        createdAt = try container.decodeIfPresent(String.self, forKey: .createdAt)
+    }
+
+    var isInProgrammazione: Bool { stato == "in_programmazione" }
+    var primaryImageURL: URL? { fotoUrls.compactMap { URL(string: $0) }.first }
+
+    var dateLabel: String? {
+        guard let start = dataInizio?.prefix(10) else { return nil }
+        if let end = dataFine?.prefix(10), end != start {
+            return "\(start) - \(end)"
+        }
+        return String(start)
+    }
+}
+
 struct SignupPayload: Codable {
     var email: String
     var password: String
@@ -170,6 +222,7 @@ struct FinalizeRequest: Codable {
     let paymentMethod: String
     let paymentStatus: String
     let transactionId: String?
+    let productionPolicyAccepted: Bool
 }
 
 struct CheckoutCartItem: Codable {
@@ -219,12 +272,22 @@ struct QuoteResponse: Codable {
 }
 
 struct CheckoutQuote: Codable {
+    let cart: [CheckoutCartItem]?
     let shippingMethod: String
     let shippingCost: Decimal
     let subtotal: Decimal
     let firstDiscountPercent: Decimal
     let discountAmount: Decimal
     let total: Decimal
+    let productionPolicyRequired: Bool?
+    let productionItems: [ProductionItem]?
+}
+
+struct ProductionItem: Codable, Identifiable {
+    let id: String
+    let nome: String
+    let requestedQuantity: Int
+    let availableQuantity: Int
 }
 
 struct FinalizeResponse: Codable {

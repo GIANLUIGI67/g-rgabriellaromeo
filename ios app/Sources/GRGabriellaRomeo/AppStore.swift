@@ -8,6 +8,7 @@ final class AppStore: ObservableObject {
         }
     }
     @Published var products: [Product] = []
+    @Published var events: [EventRecord] = []
     @Published var cart: [CartItem] = []
     @Published var session: AuthSession?
     @Published var customer: CustomerProfile?
@@ -24,6 +25,7 @@ final class AppStore: ObservableObject {
     func bootstrap() async {
         loadPersistedState()
         await refreshProducts()
+        await refreshEvents()
         await refreshCustomer()
     }
 
@@ -32,6 +34,14 @@ final class AppStore: ObservableObject {
         defer { isLoading = false }
         do {
             products = try await APIClient.shared.fetchProducts()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func refreshEvents() async {
+        do {
+            events = try await APIClient.shared.fetchEvents()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -71,10 +81,8 @@ final class AppStore: ObservableObject {
     func addToCart(_ product: Product) {
         guard product.isAvailable else { return }
         let currentQuantity = cart.first(where: { $0.id == product.id })?.quantity ?? 0
-        let stock = product.quantita ?? 0
-        let canBackorder = product.madeToOrder == true || product.allowBackorder == true
-        guard canBackorder || currentQuantity < stock else {
-            errorMessage = "Quantita non disponibile"
+        guard currentQuantity < 99 else {
+            errorMessage = "Quantita non valida"
             return
         }
 
@@ -108,11 +116,16 @@ final class AppStore: ObservableObject {
         return try await APIClient.shared.quote(cart: cart, shippingMethod: shippingMethod, accessToken: token)
     }
 
-    func confirmBankTransfer(shippingMethod: String) async throws -> FinalizeResponse {
+    func confirmBankTransfer(shippingMethod: String, productionPolicyAccepted: Bool) async throws -> FinalizeResponse {
         guard let token = session?.accessToken else {
             throw AppError.server(l10n.text(.profileRequired))
         }
-        let result = try await APIClient.shared.finalizeBankTransfer(cart: cart, shippingMethod: shippingMethod, accessToken: token)
+        let result = try await APIClient.shared.finalizeBankTransfer(
+            cart: cart,
+            shippingMethod: shippingMethod,
+            accessToken: token,
+            productionPolicyAccepted: productionPolicyAccepted
+        )
         cart.removeAll()
         persistCart()
         await refreshProducts()
@@ -144,11 +157,12 @@ final class AppStore: ObservableObject {
 
 extension Decimal {
     var euro: String {
+        let euroSymbol = "\u{20AC}"
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.currencyCode = "EUR"
-        formatter.currencySymbol = "€"
+        formatter.currencySymbol = euroSymbol
         formatter.locale = Locale(identifier: "it_IT")
-        return formatter.string(from: self as NSDecimalNumber) ?? "€\(self)"
+        return formatter.string(from: self as NSDecimalNumber) ?? "\(euroSymbol)\(self)"
     }
 }

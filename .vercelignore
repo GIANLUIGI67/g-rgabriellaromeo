@@ -1,0 +1,13 @@
+node_modules
+.next
+tmp
+
+# Local native build artifacts are not part of the web deployment.
+android app/.gradle
+android app/.idea
+android app/**/build
+ios app/**/xcuserdata
+
+# Local editor/system files.
+.DS_Store
+.vscode

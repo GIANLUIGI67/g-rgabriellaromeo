@@ -4,8 +4,11 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ShoppingCart } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import { addProductToCart, getCartItemCount, getCartQuantityForProduct, loadCartFromStorage, removeProductFromCart, saveCartToStorage } from '../lib/cart';
 import { getPublicImageUrl } from '../lib/storageUrl';
 import { Suspense } from 'react';
+
+const EURO = '\u20AC';
 
 function AbbigliamentoPage() {
   const params = useSearchParams();
@@ -158,8 +161,7 @@ function AbbigliamentoPage() {
   };
 
   useEffect(() => {
-    const carrelloSalvato = JSON.parse(localStorage.getItem('carrello') || '[]');
-    setCarrello(carrelloSalvato);
+    setCarrello(loadCartFromStorage());
 
     const fetchProdotti = async () => {
       const { data, error } = await supabase
@@ -191,19 +193,15 @@ function AbbigliamentoPage() {
 
   const aggiungiAlCarrello = (prodotto) => {
     const qta = quantita[prodotto.id] || 1;
-    if (prodotto.quantita !== null && prodotto.quantita !== undefined && qta > prodotto.quantita) {
-      setErroreQuantita(true);
-      return;
-    }
-    const nuovoCarrello = [...carrello, ...Array(qta).fill(prodotto)];
+    const nuovoCarrello = addProductToCart(carrello, prodotto, qta);
     setCarrello(nuovoCarrello);
-    localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
+    saveCartToStorage(nuovoCarrello);
   };
 
   const rimuoviDalCarrello = (prodottoId) => {
-    const nuovoCarrello = carrello.filter(p => p.id !== prodottoId);
+    const nuovoCarrello = removeProductFromCart(carrello, prodottoId);
     setCarrello(nuovoCarrello);
-    localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
+    saveCartToStorage(nuovoCarrello);
   };
 
   const baseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/immagini/`;
@@ -211,7 +209,7 @@ function AbbigliamentoPage() {
   return (
     <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem 1rem', maxWidth: '100vw', overflowX: 'hidden', margin: '0 auto', position: 'relative' }}>
       {/* Icona carrello fissa */}
-      {carrello.length > 0 && (
+      {getCartItemCount(carrello) > 0 && (
         <div
           onClick={() => router.push(`/checkout?lang=${lang}`)}
           style={{
@@ -340,18 +338,18 @@ function AbbigliamentoPage() {
               />
               <strong>{prodotto.nome}</strong>
               <p>{prodotto.taglia}</p>
-              <p style={{ fontFamily: 'Arial' }}>
+              <p className="gr-price">
                 {prodotto.offerta ? (
                   <>
                     <span style={{ textDecoration: 'line-through', color: 'gray', marginRight: '4px' }}>
-                      € {prezzoNum.toFixed(2)}
+                      {EURO} {prezzoNum.toFixed(2)}
                     </span>
                     <span style={{ color: 'red', fontWeight: 'bold' }}>
-                      € {prezzoScontato.toFixed(2)} (-{scontoNum}%)
+                      {EURO} {prezzoScontato.toFixed(2)} (-{scontoNum}%)
                     </span>
                   </>
                 ) : (
-                  <>€ {prezzoNum.toFixed(2)}</>
+                  <>{EURO} {prezzoNum.toFixed(2)}</>
                 )}
               </p>
             </div>
@@ -440,14 +438,14 @@ function AbbigliamentoPage() {
             <h2 style={{ marginBottom: '0.5rem' }}>{popupProdotto.nome}</h2>
             <p style={{ fontSize: '0.9rem' }}>{popupProdotto.descrizione}</p>
             <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>{popupProdotto.taglia}</p>
-            <p style={{ fontWeight: 'bold', fontSize: '1rem', fontFamily: 'Arial, sans-serif' }}>
+            <p className="gr-price" style={{ fontWeight: 'bold', fontSize: '1rem' }}>
               {popupProdotto.offerta ? (
                 <>
                   <span style={{ textDecoration: 'line-through', color: 'gray', marginRight: '8px' }}>
-                    € {Number(popupProdotto.prezzo).toFixed(2)}
+                    {EURO} {Number(popupProdotto.prezzo).toFixed(2)}
                   </span>
                   <span style={{ color: 'red' }}>
-                    € {(Number(popupProdotto.prezzo) * (1 - (popupProdotto.sconto || 0) / 100)).toFixed(2)}
+                    {EURO} {(Number(popupProdotto.prezzo) * (1 - (popupProdotto.sconto || 0) / 100)).toFixed(2)}
                     {popupProdotto.sconto > 0 && (
                       <span style={{ fontSize: '0.9rem', marginLeft: '4px' }}>
                         (-{popupProdotto.sconto}%)
@@ -456,7 +454,7 @@ function AbbigliamentoPage() {
                   </span>
                 </>
               ) : (
-                <>€ {Number(popupProdotto.prezzo).toFixed(2)}</>
+                <>{EURO} {Number(popupProdotto.prezzo).toFixed(2)}</>
               )}
             </p>
 

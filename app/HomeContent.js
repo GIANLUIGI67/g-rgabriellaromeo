@@ -6,7 +6,7 @@ import FlagLanguageSwitcher from '../components/FlagLanguageSwitcher';
 import MobileMenu from '../components/MobileMenu';
 import SearchIcon from '../components/SearchIcon';
 import TopRightMenu from '../components/TopRightMenu';
-import { Instagram } from 'lucide-react';
+import { Copyright, Instagram } from 'lucide-react';
 import { supabase } from './lib/supabaseClient';
 
 export default function HomeContent() {
@@ -82,9 +82,13 @@ export default function HomeContent() {
             />
           </a>
 
-          <div className="mt-2 flex items-center justify-center gap-2 text-white text-sm">
+          <div className="mt-2 flex items-center justify-center gap-2 text-sm text-[#d4af37]">
             <Instagram size={18} />
             <span>Instagram</span>
+          </div>
+          <div className="mt-1 flex items-center justify-center gap-2 text-xs text-[#d4af37]">
+            <Copyright size={14} />
+            <span>grgabriellaromeo</span>
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { User, X } from 'lucide-react';
 import { supabase } from '../app/lib/supabaseClient';
+import { getReadableAuthErrorMessage, registerCustomerWithBackend } from '../app/lib/authHelpers';
 import paesi from '../app/lib/paesi';
 import { citta as cittaData } from '../app/lib/citta';
 
@@ -77,6 +78,8 @@ export default function UserMenu({ lang }) {
   const [cap, setCap] = useState('');
   const [telefono1, setTelefono1] = useState('');
   const [telefono2, setTelefono2] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [registrationMessage, setRegistrationMessage] = useState('');
   const menuRef = useRef();
 
   const translations = {
@@ -386,13 +389,13 @@ export default function UserMenu({ lang }) {
       });
   
       if (error) {
-        setErrore(error.message);
+        setErrore(getReadableAuthErrorMessage(error, 'Errore durante il recupero password'));
       } else {
-        alert('📩 Ti abbiamo inviato una email per reimpostare la password.');
+        alert('Ti abbiamo inviato una email per reimpostare la password.');
       }
     } catch (err) {
       console.error('Errore recupero password:', err);
-      setErrore('Si è verificato un errore durante il recupero password');
+      setErrore(getReadableAuthErrorMessage(err, 'Si è verificato un errore durante il recupero password'));
     }
   };
 
@@ -429,61 +432,60 @@ export default function UserMenu({ lang }) {
   };
 
   const registraUtente = async () => {
+    setAuthLoading(true);
     setErrore('');
+    setRegistrationMessage('');
     
     if (!email || !password) {
       setErrore('Inserisci email e password');
+      setAuthLoading(false);
       return;
     }
 
-    if (!validateFields()) return;
+    if (!validateFields()) {
+      setAuthLoading(false);
+      return;
+    }
 
     try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({ 
-        email, 
+      await registerCustomerWithBackend({
+        email,
         password,
-        options: {
-          data: {
-            nome,
-            cognome
-          }
-        }
+        nome,
+        cognome,
+        telefono1,
+        telefono2,
+        indirizzo,
+        citta,
+        paese,
+        codice_postale: cap,
       });
 
-      if (authError) throw authError;
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error || !data?.user) {
+        setUtente(null);
+        setNomeUtente('');
+        setRegistrazioneOk(true);
+        setModalitaRegistrazione(false);
+        setPassword('');
+        setErrore('');
+        setRegistrationMessage('Account creato correttamente. Inserisci la password e premi Login.');
+        return;
+      }
 
-      const { error: dbError } = await supabase.from('clienti').upsert({
-  email,
-  nome,
-  cognome,
-  paese,
-  citta,
-  indirizzo,
-  codice_postale: cap,
-  telefono1,
-  telefono2,
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-  ordini: [],
-  // ⬇️ assegna il primo sconto al momento della PRIMA creazione
-  primo_sconto: '10',
-  // lascialo vuoto per il futuro referral
-  nuovo_sconto: null
-}, { onConflict: 'email' });
-
-
-      if (dbError) throw dbError;
-
-      setUtente(authData.user);
+      setUtente(data.user);
       setNomeUtente(nome);
       setRegistrazioneOk(true);
       setErrore('');
       setModalitaRegistrazione(false);
+      setRegistrationMessage(translations.registrationSuccess[langPulito]);
       tracciaAccesso(email);
       sessionStorage.setItem('checkout_redirect', 'true');
     } catch (error) {
       console.error('Errore registrazione:', error);
-      setErrore(error.message || 'Errore durante la registrazione');
+      setErrore(getReadableAuthErrorMessage(error, 'Errore durante la registrazione'));
+    } finally {
+      setAuthLoading(false);
     }
   };
 
@@ -528,7 +530,8 @@ export default function UserMenu({ lang }) {
                   
                   <button 
                     onClick={modalitaRegistrazione ? registraUtente : loginEmail} 
-                    className="w-full bg-black text-white py-2 rounded uppercase"
+                    disabled={authLoading}
+                    className="w-full bg-black text-white py-2 rounded uppercase disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {modalitaRegistrazione ? translations.register[langPulito] : translations.login[langPulito]}
                   </button>
@@ -545,6 +548,12 @@ export default function UserMenu({ lang }) {
                   {errore && (
                     <p className="text-sm text-red-600 mb-4 py-2 px-3 bg-red-50 rounded">
                       {errore}
+                    </p>
+                  )}
+
+                  {registrationMessage && (
+                    <p className="text-sm text-green-600 mb-4 py-2 px-3 bg-green-50 rounded">
+                      {registrationMessage}
                     </p>
                   )}
                   
@@ -682,9 +691,9 @@ export default function UserMenu({ lang }) {
               ) : (
                 <div className="space-y-4 text-sm">
                   <p>{translations.welcome[langPulito](nomeUtente)}</p>
-                  {registrazioneOk && (
+                  {registrazioneOk && registrationMessage && (
                     <p className="text-sm text-green-600 font-semibold mb-4 py-2 px-3 bg-green-50 rounded">
-                      🎉 {translations.registrationSuccess[langPulito]}
+                      {registrationMessage}
                     </p>
                   )}
                   <button 

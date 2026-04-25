@@ -35,6 +35,20 @@ function makeQuery(table) {
       rows = rows.filter((r) => r?.[field] === value);
       return api;
     },
+    order(field, options = {}) {
+      const ascending = options.ascending !== false;
+      rows = [...rows].sort((a, b) => {
+        const left = a?.[field];
+        const right = b?.[field];
+        if (left == null && right == null) return 0;
+        if (left == null) return ascending ? 1 : -1;
+        if (right == null) return ascending ? -1 : 1;
+        if (left < right) return ascending ? -1 : 1;
+        if (left > right) return ascending ? 1 : -1;
+        return 0;
+      });
+      return api;
+    },
     limit(count) {
       rows = rows.slice(0, count);
       return api;

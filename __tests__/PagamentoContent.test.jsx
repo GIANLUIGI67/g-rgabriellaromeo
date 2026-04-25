@@ -23,7 +23,7 @@ import {
   buildOrderPayload,
   mockRouter,
   calcTotal,
-} from "../mocks/pagamentoContent.mocks";
+} from "../test/mocks/pagamentoContent.mocks";
 
 // --- MOCK: next/navigation (App Router) ---
 jest.mock("next/navigation", () => {
@@ -35,13 +35,34 @@ jest.mock("next/navigation", () => {
 });
 
 // --- MOCK: supabase client (se lo importi nel componente) ---
-jest.mock("../../app/lib/supabaseClient.js", () => {
+jest.mock("../app/lib/supabaseClient.js", () => {
+  const cliente = {
+    email: "mario@example.com",
+    nome: "Mario Rossi",
+    primo_sconto: null,
+  };
+
   return {
     __esModule: true,
-    default: {
+    supabase: {
       auth: {
-        getSession: async () => ({ data: { session: null } }),
+        getSession: async () => ({
+          data: {
+            session: {
+              access_token: "test-token",
+              user: { email: cliente.email },
+            },
+          },
+          error: null,
+        }),
       },
+      from: () => ({
+        select: () => ({
+          eq: () => ({
+            single: async () => ({ data: cliente, error: null }),
+          }),
+        }),
+      }),
     },
   };
 });
@@ -49,9 +70,25 @@ jest.mock("../../app/lib/supabaseClient.js", () => {
 // --- MOCK: fetch verso le tue API (/api/save-ordini, /api/fattura, ...) ---
 const okJson = (data) => Promise.resolve({ ok: true, json: () => Promise.resolve(data) });
 beforeEach(() => {
+  localStorage.setItem(
+    "carrello",
+    JSON.stringify([{ id: "sku-1", nome: "Collana", prezzo: 10, quantita: 1 }])
+  );
   global.fetch = jest.fn((url, opts) => {
-    if (url.includes("/api/save-ordini")) {
-      return okJson({ id: "ord-123" });
+    if (url.includes("/api/checkout/quote")) {
+      return okJson({
+        quote: {
+          subtotal: 10,
+          discountAmount: 0,
+          shippingAmount: 5,
+          total: 15,
+          productionPolicyRequired: false,
+          productionItems: [],
+        },
+      });
+    }
+    if (url.includes("/api/checkout/finalize")) {
+      return okJson({ orderId: "ord-123" });
     }
     if (url.includes("/api/fattura")) {
       return okJson({ invoice: "inv-999" });
@@ -65,12 +102,13 @@ beforeEach(() => {
 
 afterEach(() => {
   jest.clearAllMocks();
+  localStorage.clear();
 });
 
 // Import del componente sotto test
 // NB: Percorso previsto -> app/pagamento/PagamentoContent.js
 // Se il file ha un nome diverso, aggiorna SOLO la riga sottostante.
-import PagamentoContent from "../../app/pagamento/PagamentoContent";
+import PagamentoContent from "../app/pagamento/PagamentoContent";
 
 // Helpers “robusti” per trovare controlli anche senza testid
 const pickFirstRadioIn = (root) => {
@@ -109,53 +147,40 @@ describe("PagamentoContent", () => {
     ).toBeInTheDocument();
   });
 
-  test("selezione metodi + conferma invia l'ordine e fa push alla pagina di conferma", async () => {
+  test("selezione metodi + conferma bonifico invia l'ordine e fa push alla pagina di conferma", async () => {
     const { router, pushes } = (global.__TEST_ROUTER__ = mockRouter());
-
-    const cart = buildCart();
-    const shipping = shippingMethods[1]; // espressa
-    const payment = paymentMethods[0];   // carta
 
     render(
       <PagamentoContent
-        cart={cart}
+        lang="it"
+        cart={buildCart()}
         shippingOptions={shippingMethods}
         paymentOptions={paymentMethods}
         customer={{ name: "Mario Rossi", email: "mario@example.com" }}
       />
     );
 
-    // Proviamo prima con i data-testid "consigliati"
-    const shippingEl =
-      screen.queryByTestId(`shipping-option-${shipping.id}`) ||
-      screen.getByRole("radiogroup", { name: /spedizione|shipping/i });
+    await waitFor(() => {
+      expect(screen.queryByText(/caricamento/i)).not.toBeInTheDocument();
+    });
 
-    if (shippingEl.getAttribute?.("data-testid")) {
-      fireEvent.click(shippingEl);
-    } else {
-      // fallback: seleziona il primo radio dentro al radiogroup
-      pickFirstRadioIn(shippingEl);
-    }
+    fireEvent.change(screen.getByLabelText(/metodo di spedizione/i), {
+      target: { value: "standard" },
+    });
+    fireEvent.change(screen.getByLabelText(/metodo di pagamento/i), {
+      target: { value: "bonifico" },
+    });
 
-    const paymentEl =
-      screen.queryByTestId(`payment-option-${payment.id}`) ||
-      screen.getByRole("radiogroup", { name: /pagamento|payment/i });
+    fireEvent.click(screen.getByLabelText(/rivedi termini/i));
+    fireEvent.click(screen.getByLabelText(/bonifico è stato effettuato/i));
 
-    if (paymentEl.getAttribute?.("data-testid")) {
-      fireEvent.click(paymentEl);
-    } else {
-      pickFirstRadioIn(paymentEl);
-    }
-
-    const confirmBtn =
-      screen.queryByTestId("confirm-order") || pickFirstButtonByLabel();
+    const confirmBtn = screen.getByRole("button", { name: /conferma bonifico/i });
 
     fireEvent.click(confirmBtn);
 
     await waitFor(() => {
-      // chiamata all'endpoint principale di salvataggio ordine
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringMatching(/\/api\/save-ordini/),
+        expect.stringMatching(/\/api\/checkout\/finalize/),
         expect.objectContaining({ method: "POST" })
       );
     });
@@ -163,7 +188,7 @@ describe("PagamentoContent", () => {
     // spinta verso la pagina di conferma (percorso tipico)
     const pushed = pushes.join(" | ");
     expect(pushed).toMatch(/ordine-confermato/i);
-    expect(pushed).toMatch(/ord-123/); // id mockato
+    expect(localStorage.getItem("ordineId")).toBe("ord-123");
   });
 
   test("calcolo totale include spedizione", () => {

@@ -22,7 +22,7 @@ struct GRGabriellaRomeoApp: App {
 
 enum FontRegistrar {
     static func registerAll() {
-        ["GRGabriellaFinal.ttf", "GRGabriellaUltraCustom.ttf", "GRGabriellaModern.ttf"].forEach(registerFont)
+        ["Michroma.ttf"].forEach(registerFont)
     }
 
     private static func registerFont(named fileName: String) {
@@ -31,4 +31,8 @@ enum FontRegistrar {
               let url = Bundle.main.url(forResource: name, withExtension: ext) else { return }
         CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
     }
+}
+
+extension Color {
+    static let grGold = Color(red: 0.831, green: 0.686, blue: 0.216)
 }

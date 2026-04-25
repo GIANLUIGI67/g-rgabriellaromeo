@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
+import { addProductToCart, getCartItemCount, getCartQuantityForProduct, loadCartFromStorage, removeProductFromCart, saveCartToStorage } from '../lib/cart';
 import { getPublicImageUrl } from '../lib/storageUrl';
 import Image from 'next/image';
 
@@ -31,6 +32,8 @@ function OffertePageContent() {
   const t = (key) => traduzioni[lang]?.[key] || traduzioni['it'][key];
 
   useEffect(() => {
+    setCarrello(loadCartFromStorage());
+
     const fetchProdotti = async () => {
       const { data, error } = await supabase
         .from('products')
@@ -58,15 +61,15 @@ function OffertePageContent() {
 
   const aggiungiAlCarrello = (prodotto) => {
     const qta = quantita[prodotto.id] || 1;
-    const nuovoCarrello = [...carrello, ...Array(qta).fill(prodotto)];
+    const nuovoCarrello = addProductToCart(carrello, prodotto, qta);
     setCarrello(nuovoCarrello);
-    localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
+    saveCartToStorage(nuovoCarrello);
   };
 
   const rimuoviDalCarrello = (prodottoId) => {
-    const nuovoCarrello = carrello.filter(p => p.id !== prodottoId);
+    const nuovoCarrello = removeProductFromCart(carrello, prodottoId);
     setCarrello(nuovoCarrello);
-    localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
+    saveCartToStorage(nuovoCarrello);
   };
 
   return (
@@ -123,19 +126,17 @@ function OffertePageContent() {
               
               <strong>{prodotto.nome}</strong>
               <p>{prodotto.taglia}</p>
-              <p>
+              <p className="gr-price">
                 <span style={{ 
                   textDecoration: 'line-through', 
                   color: 'gray', 
-                  fontSize: '0.6rem', 
-                  fontFamily: 'Arial, sans-serif' 
+                  fontSize: '0.6rem'
                 }}>
                   {'\u20AC'} {Number(prodotto.prezzo).toFixed(2)}
                 </span><br />
                 <span style={{ 
                   color: 'red', 
-                  fontWeight: 'bold', 
-                  fontFamily: 'Arial, sans-serif' 
+                  fontWeight: 'bold'
                 }}>
                   {'\u20AC'} {prezzoFinale}
                 </span>
@@ -192,7 +193,7 @@ function OffertePageContent() {
         })}
       </div>
 
-      {carrello.length > 0 && (
+      {getCartItemCount(carrello) > 0 && (
         <div style={{
           marginTop: '2rem',
           backgroundColor: '#222',
@@ -202,11 +203,10 @@ function OffertePageContent() {
           margin: '2rem auto'
         }}>
           <h3 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>🛒 {t('carrello')}</h3>
-          {Array.from(new Set(carrello.map(p => p.id))).map(id => {
-            const prodotto = carrello.find(p => p.id === id);
-            const qta = carrello.filter(p => p.id === id).length;
+          {carrello.map((prodotto) => {
+            const qta = prodotto.quantita || 1;
             return (
-              <div key={id} style={{
+              <div key={prodotto.id} style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -215,7 +215,7 @@ function OffertePageContent() {
               }}>
                 <span>{prodotto.nome} × {qta}</span>
                 <button 
-                  onClick={() => rimuoviDalCarrello(id)}
+                  onClick={() => rimuoviDalCarrello(prodotto.id)}
                   style={{
                     background: 'red',
                     color: 'white',

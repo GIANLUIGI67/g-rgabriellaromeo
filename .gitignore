@@ -17,13 +17,25 @@ yarn-error.log*
 # Build output
 .next/
 out/
+tmp/
 
 # IDE/Editor files
 .vscode/
 .DS_Store
+.idea/
+*.xcuserstate
+xcuserdata/
+
+# Native build output
+android app/.gradle/
+android app/**/build/
+ios app/**/xcuserdata/
 
 # Vercel deployment folder
 .vercel
+
+# Supabase local metadata
+supabase/.temp/
 
 # API key text files (personal)
 resend api key .txt

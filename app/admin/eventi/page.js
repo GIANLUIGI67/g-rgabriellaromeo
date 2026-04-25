@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
 
@@ -72,7 +72,7 @@ export default function AdminEventiPage(){
   }, [me]);
 
   // ---- fetch eventi
-  const loadEventi = async () => {
+  const loadEventi = useCallback(async () => {
     if (!isAdmin) { setEventi([]); setLoading(false); return; }
     setLoading(true);
     try{
@@ -84,8 +84,8 @@ export default function AdminEventiPage(){
       setEventi(data || []);
     } catch(e){ console.error(e); }
     finally{ setLoading(false); }
-  };
-  useEffect(() => { if (!checking) loadEventi(); }, [isAdmin, checking]);
+  }, [isAdmin]);
+  useEffect(() => { if (!checking) loadEventi(); }, [checking, loadEventi]);
 
   // ---- input handlers
   const onChange = (e) => {

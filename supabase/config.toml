@@ -1,0 +1,8 @@
+[functions.checkout-quote]
+verify_jwt = true
+
+[functions.checkout-finalize]
+verify_jwt = true
+
+[functions.payment-intent]
+verify_jwt = true

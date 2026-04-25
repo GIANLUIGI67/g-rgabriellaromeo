@@ -137,11 +137,11 @@ private struct WebHeader: View {
                     Image(systemName: "line.3.horizontal")
                         .font(.system(size: 26, weight: .regular))
                     Text("MENU")
-                        .font(.custom("GRGabriellaFinal", size: 26))
+                        .font(.custom("Michroma", size: 26))
                         .lineLimit(1)
                         .fixedSize()
                 }
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.grGold)
             }
 
             Spacer(minLength: 0)
@@ -190,23 +190,21 @@ private struct WebHeader: View {
 
 private struct BrandMark: View {
     var body: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: 14) {
             Text("G-R")
-                .font(.custom("GRGabriellaFinal", size: 60))
+                .font(.custom("Michroma", size: 60))
                 .frame(maxWidth: .infinity)
-            Text("GABRIELLA")
-                .font(.custom("GRGabriellaFinal", size: 45))
-                .frame(maxWidth: .infinity)
-            Text("ROMEO")
-                .font(.custom("GRGabriellaFinal", size: 45))
+            Text("GABRIELLA ROMEO")
+                .font(.custom("Michroma", size: 30))
                 .frame(maxWidth: .infinity)
         }
-        .foregroundStyle(.white)
+        .foregroundStyle(Color.grGold)
         .tracking(5)
         .multilineTextAlignment(.center)
-        .minimumScaleFactor(0.72)
+        .minimumScaleFactor(0.62)
+        .lineLimit(1)
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, 24)
+        .padding(.horizontal, 18)
     }
 }
 
@@ -234,13 +232,22 @@ private struct FooterSocialBlock: View {
                 .scaledToFit()
                 .frame(width: 104, height: 104)
 
-            HStack(spacing: 10) {
-                Image(systemName: "camera")
-                    .font(.system(size: 25, weight: .regular))
-                Text("Instagram")
-                    .font(.custom("GRGabriellaFinal", size: 31))
+            VStack(spacing: 5) {
+                HStack(spacing: 10) {
+                    Image(systemName: "camera")
+                        .font(.system(size: 18, weight: .regular))
+                    Text("Instagram")
+                        .font(.custom("Michroma", size: 18))
+                }
+
+                HStack(spacing: 7) {
+                    Image(systemName: "c.circle")
+                        .font(.system(size: 12, weight: .regular))
+                    Text("grgabriellaromeo")
+                        .font(.custom("Michroma", size: 12))
+                }
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(Color.grGold)
         }
     }
 }
@@ -264,7 +271,7 @@ private struct NavigationDrawer: View {
         VStack(spacing: 14) {
             HStack {
                 Text("NAVIGAZIONE")
-                    .font(.custom("GRGabriellaFinal", size: 28))
+                    .font(.custom("Michroma", size: 28))
                     .foregroundStyle(.black)
                 Spacer()
                 Button {
@@ -280,7 +287,11 @@ private struct NavigationDrawer: View {
                 ForEach(items, id: \.2) { item in
                     if let category = item.1 {
                         NavigationLink {
-                            ProductListView(category: category, title: title(for: category))
+                            if category == "eventi" {
+                                EventsView()
+                            } else {
+                                ProductListView(category: category, title: title(for: category))
+                            }
                         } label: {
                             Text(label(for: item))
                                 .drawerItem()
@@ -300,7 +311,7 @@ private struct NavigationDrawer: View {
         .padding(.top, 24)
         .padding(.bottom, 28)
         .frame(width: 292)
-        .background(Color.white)
+        .background(Color.grGold)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
@@ -333,6 +344,124 @@ private struct NavigationDrawer: View {
     }
 }
 
+struct EventsView: View {
+    @EnvironmentObject private var store: AppStore
+
+    private var inProgrammazione: [EventRecord] {
+        store.events.filter { $0.isInProgrammazione }
+    }
+
+    private var conclusi: [EventRecord] {
+        store.events.filter { $0.stato == "concluso" }
+    }
+
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    Text("EVENTI")
+                        .font(.custom("Michroma", size: 26))
+                        .foregroundStyle(Color.grGold)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.top, 24)
+
+                    if store.events.isEmpty {
+                        Text("NESSUN EVENTO")
+                            .font(.custom("Michroma", size: 14))
+                            .foregroundStyle(Color.grGold.opacity(0.76))
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.top, 40)
+                    } else {
+                        EventsSection(title: "IN PROGRAMMAZIONE", events: inProgrammazione)
+                        EventsSection(title: "CONCLUSI", events: conclusi)
+                    }
+                }
+                .padding(.horizontal, 18)
+                .padding(.bottom, 34)
+            }
+        }
+        .task {
+            await store.refreshEvents()
+        }
+        .toolbar(.hidden, for: .navigationBar)
+    }
+}
+
+private struct EventsSection: View {
+    let title: String
+    let events: [EventRecord]
+
+    var body: some View {
+        if !events.isEmpty {
+            VStack(alignment: .leading, spacing: 14) {
+                Text(title)
+                    .font(.custom("Michroma", size: 14))
+                    .foregroundStyle(Color.grGold)
+
+                ForEach(events) { event in
+                    EventCard(event: event)
+                }
+            }
+        }
+    }
+}
+
+private struct EventCard: View {
+    let event: EventRecord
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if let url = event.primaryImageURL {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    default:
+                        Color(red: 0.07, green: 0.07, blue: 0.07)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 210)
+                .clipped()
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(event.titolo)
+                    .font(.custom("Michroma", size: 17))
+                    .foregroundStyle(Color.grGold)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.78)
+
+                if let dateLabel = event.dateLabel {
+                    Text(dateLabel)
+                        .font(.custom("Michroma", size: 11))
+                        .foregroundStyle(Color.grGold.opacity(0.68))
+                }
+
+                if let description = event.descrizione, !description.isEmpty {
+                    Text(description)
+                        .font(.custom("Michroma", size: 11))
+                        .foregroundStyle(Color.grGold.opacity(0.82))
+                        .lineSpacing(4)
+                }
+
+                if !event.pdfUrls.isEmpty || !event.videoUrls.isEmpty {
+                    Text("PDF \(event.pdfUrls.count)  VIDEO \(event.videoUrls.count)")
+                        .font(.custom("Michroma", size: 10))
+                        .foregroundStyle(Color.grGold.opacity(0.74))
+                        .padding(.top, 2)
+                }
+            }
+            .padding(14)
+        }
+        .background(Color(red: 0.04, green: 0.04, blue: 0.04))
+        .overlay(Rectangle().stroke(Color.grGold.opacity(0.18), lineWidth: 1))
+    }
+}
+
 private struct ContactCard: View {
     @Binding var isPresented: Bool
 
@@ -340,7 +469,7 @@ private struct ContactCard: View {
         VStack(alignment: .leading, spacing: 15) {
             HStack {
                 Text("CONTATTI")
-                    .font(.custom("GRGabriellaFinal", size: 27))
+                    .font(.custom("Michroma", size: 27))
                 Spacer()
                 Button {
                     withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }
@@ -355,8 +484,8 @@ private struct ContactCard: View {
             ContactLink(label: "📸 Instagram", url: "https://www.instagram.com/grgabriellaromeo/")
             ContactLink(label: "📘 Facebook", url: "https://www.facebook.com/GRGabriellaRomeoItalianStyle")
         }
-        .font(.custom("GRGabriellaFinal", size: 24))
-        .foregroundStyle(.white)
+        .font(.custom("Michroma", size: 24))
+        .foregroundStyle(Color.grGold)
         .padding(.horizontal, 24)
         .padding(.vertical, 23)
         .frame(width: 222, alignment: .leading)
@@ -388,14 +517,14 @@ private extension Image {
     func webHeaderIcon(size: CGFloat) -> some View {
         self
             .font(.system(size: size, weight: .regular))
-            .foregroundStyle(.white)
+            .foregroundStyle(Color.grGold)
     }
 }
 
 private extension Text {
     func drawerItem() -> some View {
         self
-            .font(.custom("GRGabriellaFinal", size: 28))
+            .font(.custom("Michroma", size: 28))
             .foregroundStyle(.black)
             .frame(maxWidth: .infinity)
     }
@@ -404,17 +533,17 @@ private extension Text {
 extension View {
     func webButton() -> some View {
         self
-            .font(.custom("GRGabriellaFinal", size: 22))
-            .foregroundStyle(.white)
+            .font(.custom("Michroma", size: 22))
+            .foregroundStyle(Color.grGold)
             .frame(maxWidth: .infinity)
             .frame(height: 52)
-            .overlay(Rectangle().stroke(Color.white.opacity(0.72), lineWidth: 1))
+            .overlay(Rectangle().stroke(Color.grGold.opacity(0.72), lineWidth: 1))
     }
 
     func webSectionTitle() -> some View {
         self
-            .font(.custom("GRGabriellaFinal", size: 20))
-            .foregroundStyle(.white)
+            .font(.custom("Michroma", size: 20))
+            .foregroundStyle(Color.grGold)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
@@ -428,7 +557,7 @@ struct WebBackButton: View {
         } label: {
             Image(systemName: "chevron.left")
                 .font(.system(size: 28, weight: .regular))
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.grGold)
                 .frame(width: 48, height: 48)
                 .background(Color.black.opacity(0.28))
                 .clipShape(Circle())

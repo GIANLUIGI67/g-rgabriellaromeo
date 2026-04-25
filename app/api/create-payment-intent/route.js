@@ -23,6 +23,7 @@ export async function POST(req) {
       customer,
       cart: body?.cart,
       shippingMethod: body?.shippingMethod,
+      productionPolicyAccepted: Boolean(body?.productionPolicyAccepted),
     });
     const amount = Math.round(quote.total * 100);
     const metadata = {
@@ -41,7 +42,7 @@ export async function POST(req) {
     return jsonResponse({ clientSecret: pi.client_secret, total: quote.total }, 200);
   } catch (err) {
     console.error('create-payment-intent error:', err);
-    return jsonResponse({ error: err?.message || 'Server error' }, 500);
+    return jsonResponse({ error: err?.message || 'Server error' }, 400);
   }
 }
 

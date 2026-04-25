@@ -24,6 +24,17 @@ final class APIClient {
         return try await send(request)
     }
 
+    func fetchEvents() async throws -> [EventRecord] {
+        var components = URLComponents(url: AppConfig.supabaseURL.appending(path: "rest/v1/eventi"), resolvingAgainstBaseURL: false)!
+        components.queryItems = [
+            URLQueryItem(name: "select", value: "*"),
+            URLQueryItem(name: "order", value: "data_inizio.desc")
+        ]
+        var request = URLRequest(url: components.url!)
+        applySupabaseHeaders(to: &request)
+        return try await send(request)
+    }
+
     func login(email: String, password: String) async throws -> AuthSession {
         var components = URLComponents(url: AppConfig.supabaseURL.appending(path: "auth/v1/token"), resolvingAgainstBaseURL: false)!
         components.queryItems = [URLQueryItem(name: "grant_type", value: "password")]
@@ -76,13 +87,19 @@ final class APIClient {
         return response.quote
     }
 
-    func finalizeBankTransfer(cart: [CartItem], shippingMethod: String, accessToken: String) async throws -> FinalizeResponse {
+    func finalizeBankTransfer(
+        cart: [CartItem],
+        shippingMethod: String,
+        accessToken: String,
+        productionPolicyAccepted: Bool
+    ) async throws -> FinalizeResponse {
         let payload = FinalizeRequest(
             cart: cart.map(CheckoutCartItem.init(item:)),
             shippingMethod: shippingMethod,
             paymentMethod: "bonifico",
             paymentStatus: "in attesa bonifico",
-            transactionId: nil
+            transactionId: nil,
+            productionPolicyAccepted: productionPolicyAccepted
         )
         var request = URLRequest(url: AppConfig.webAPIBaseURL.appending(path: "api/checkout/finalize"))
         request.httpMethod = "POST"

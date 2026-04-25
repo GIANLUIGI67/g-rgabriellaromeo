@@ -14,8 +14,9 @@
 */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --foreground: #d4af37;
+  --gr-gold: #d4af37;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -29,4 +30,13 @@ body {
   background: var(--background);
   color: var(--foreground);
   /* font-family: 'GRGabriellaFinal', Arial, Helvetica, sans-serif; */ /* ← rimosso */
+}
+
+body * {
+  color: var(--gr-gold) !important;
+  font-family: inherit !important;
+}
+
+.gr-price {
+  font-family: Arial, Helvetica, sans-serif !important;
 }

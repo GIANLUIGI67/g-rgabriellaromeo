@@ -11,6 +11,7 @@ export default function OrdiniPage() {
   const [me, setMe] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [accessToken, setAccessToken] = useState('');
 
   // dati ordini + UI
   const [ordini, setOrdini] = useState([]);
@@ -27,14 +28,19 @@ export default function OrdiniPage() {
     let mounted = true;
 
     const boot = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const [{ data: { user } }, { data: sessionData }] = await Promise.all([
+        supabase.auth.getUser(),
+        supabase.auth.getSession(),
+      ]);
       if (!mounted) return;
       setMe(user ?? null);
+      setAccessToken(sessionData?.session?.access_token || '');
     };
     boot();
 
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setMe(session?.user ?? null);
+      setAccessToken(session?.access_token || '');
     });
 
     return () => sub?.subscription?.unsubscribe();
@@ -129,29 +135,14 @@ const euroText = inEuro;
       setLoading(true);
       setErrore('');
       try {
-        const { data: ordiniData, error: ordErr } = await supabase
-          .from('ordini')
-          .select('id, data, stato, totale, spedizione, pagamento, tracking, cliente, cliente_email, carrello')
-          .order('data', { ascending: false });
-        if (ordErr) throw ordErr;
+        const res = await fetch('/api/admin-ordini', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const result = await res.json().catch(() => ({}));
+        if (!res.ok || !result.ok) throw new Error(result.error || 'Errore caricamento ordini');
 
-        const emails = Array.from(
-          new Set(
-            (ordiniData || [])
-              .map(o => o.cliente_email)
-              .filter(e => typeof e === 'string' && e.trim().length > 0)
-          )
-        );
-
-        let clientiMap = new Map();
-        if (emails.length > 0) {
-          const { data: clientiData, error: cliErr } = await supabase
-            .from('clienti')
-            .select('email, nome, cognome, indirizzo, codice_postale, citta, paese, telefono1, telefono2')
-            .in('email', emails);
-          if (cliErr) throw cliErr;
-          (clientiData || []).forEach(c => clientiMap.set(c.email, c));
-        }
+        const ordiniData = result.ordini || [];
+        const clientiMap = new Map((result.clienti || []).map((c) => [c.email, c]));
 
         const completati = (ordiniData || []).map(o => {
           const snap = (o?.cliente && typeof o.cliente === 'object') ? o.cliente : {};
@@ -180,7 +171,7 @@ const euroText = inEuro;
     };
 
     if (!checking) fetchOrdini();
-  }, [isAdmin, checking]);
+  }, [isAdmin, checking, accessToken]);
 
   // --------- tracking
   const startEditTracking = (order) => {
@@ -195,9 +186,16 @@ const euroText = inEuro;
 
   const saveTracking = async () => {
     if (!editTrackingId) return;
-    const payload = { tracking: trackingInput.trim(), stato: 'spedito' };
-    const { error } = await supabase.from('ordini').update(payload).eq('id', editTrackingId);
-    if (error) { alert('Errore salvataggio tracking: ' + error.message); return; }
+    const res = await fetch('/api/admin-ordini', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ id: editTrackingId, tracking: trackingInput.trim() }),
+    });
+    const result = await res.json().catch(() => ({}));
+    if (!res.ok || !result.ok) { alert('Errore salvataggio tracking: ' + (result.error || res.status)); return; }
     cancelEditTracking();
     // ricarico
     setChecking(c => !c); // forza il useEffect di fetch (toglie/riporta checking)
@@ -205,8 +203,16 @@ const euroText = inEuro;
   };
 
   const clearTracking = async (id) => {
-    const { error } = await supabase.from('ordini').update({ tracking: null, stato: 'pagato' }).eq('id', id);
-    if (error) { alert('Errore rimozione tracking: ' + error.message); return; }
+    const res = await fetch('/api/admin-ordini', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ id, tracking: null }),
+    });
+    const result = await res.json().catch(() => ({}));
+    if (!res.ok || !result.ok) { alert('Errore rimozione tracking: ' + (result.error || res.status)); return; }
     setChecking(c => !c);
     setChecking(c => !c);
   };

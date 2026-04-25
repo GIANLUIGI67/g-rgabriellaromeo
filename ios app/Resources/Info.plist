@@ -20,6 +20,12 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>GR_SUPABASE_ANON_KEY</key>
+	<string>$(SUPABASE_ANON_KEY)</string>
+	<key>GR_SUPABASE_URL</key>
+	<string>$(SUPABASE_URL)</string>
+	<key>GR_WEB_API_BASE_URL</key>
+	<string>$(WEB_API_BASE_URL)</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -27,9 +33,7 @@
 	</dict>
 	<key>UIAppFonts</key>
 	<array>
-		<string>GRGabriellaFinal.ttf</string>
-		<string>GRGabriellaUltraCustom.ttf</string>
-		<string>GRGabriellaModern.ttf</string>
+		<string>Michroma.ttf</string>
 	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>

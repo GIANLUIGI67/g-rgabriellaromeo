@@ -10,6 +10,12 @@ const michroma = Michroma({
 export const metadata = {
   title: 'G-R Gabriella Romeo',
   description: 'Luxury Fashion and Jewelry',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'G-R Gabriella Romeo',
+  },
 };
 
 export default function RootLayout({ children }) {
