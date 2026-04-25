@@ -29,7 +29,9 @@ xcuserdata/
 # Native build output
 android app/.gradle/
 android app/**/build/
+ios app/build/
 ios app/**/xcuserdata/
+ios app/Config/Local.xcconfig
 
 # Vercel deployment folder
 .vercel

@@ -14,6 +14,7 @@
         "cap:open:ios": "npx cap open ios",
         "cap:open:android": "npx cap open android",
         "mobile:assets": "npx -y @capacitor/assets generate --android --ios",
+        "sync:native-env": "node scripts/sync-native-env.mjs",
         "test": "jest",
         "test:watch": "jest --watch",
         "test:ci": "jest --ci --reporters=default --reporters=jest-junit",

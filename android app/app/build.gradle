@@ -2,13 +2,46 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 
+def dotenvValues = new Properties()
+def dotenvFile = rootProject.file("../.env.local")
+if (dotenvFile.exists()) {
+    dotenvFile.eachLine { line ->
+        def trimmed = line.trim()
+        if (trimmed && !trimmed.startsWith("#") && trimmed.contains("=")) {
+            def separator = trimmed.indexOf("=")
+            def key = trimmed.substring(0, separator).trim()
+            def value = trimmed.substring(separator + 1).trim()
+            if ((value.startsWith("\"") && value.endsWith("\"")) || (value.startsWith("'") && value.endsWith("'"))) {
+                value = value.substring(1, value.length() - 1)
+            }
+            dotenvValues.setProperty(key, value)
+        }
+    }
+}
+
+def dotenvAliases = [
+    SUPABASE_URL     : "NEXT_PUBLIC_SUPABASE_URL",
+    SUPABASE_ANON_KEY: "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    STRIPE_PK        : "NEXT_PUBLIC_STRIPE_PUBLIC_KEY"
+]
+
 def secretValue = { String name, String fallback = "" ->
     def local = rootProject.file("local.properties")
     def props = new Properties()
     if (local.exists()) {
         local.withInputStream { props.load(it) }
     }
-    return providers.environmentVariable(name).orElse(props.getProperty(name, fallback)).get()
+    def envProvider = providers.environmentVariable(name)
+    def publicEnvName = dotenvAliases.get(name, "NEXT_PUBLIC_${name}")
+    def publicEnvProvider = providers.environmentVariable(publicEnvName)
+    return envProvider.isPresent() ? envProvider.get() :
+        props.getProperty(name) ?:
+        (publicEnvProvider.isPresent() ? publicEnvProvider.get() : null) ?:
+        dotenvValues.getProperty(publicEnvName, fallback)
+}
+
+def buildConfigString = { String value ->
+    "\"${(value ?: "").replace("\\", "\\\\").replace("\"", "\\\"")}\""
 }
 
 android {
@@ -23,10 +56,10 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField "String", "SUPABASE_URL",      "\"${secretValue("SUPABASE_URL", "https://mdpplumkmxjwyzunpjpg.supabase.co")}\""
-        buildConfigField "String", "SUPABASE_ANON_KEY", "\"${secretValue("SUPABASE_ANON_KEY")}\""
-        buildConfigField "String", "STRIPE_PK",         "\"${secretValue("STRIPE_PK")}\""
-        buildConfigField "String", "SITE_URL",          "\"${secretValue("SITE_URL", "https://www.g-rgabriellaromeo.it")}\""
+        buildConfigField "String", "SUPABASE_URL",      buildConfigString(secretValue("SUPABASE_URL", "https://mdpplumkmxjwyzunpjpg.supabase.co"))
+        buildConfigField "String", "SUPABASE_ANON_KEY", buildConfigString(secretValue("SUPABASE_ANON_KEY"))
+        buildConfigField "String", "STRIPE_PK",         buildConfigString(secretValue("STRIPE_PK"))
+        buildConfigField "String", "SITE_URL",          buildConfigString(secretValue("SITE_URL", "https://g-rgabriellaromeo.vercel.app"))
     }
 
     buildTypes {
