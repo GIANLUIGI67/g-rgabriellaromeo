@@ -11,18 +11,21 @@ struct RootView: View {
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in
+                let headerHorizontalPadding: CGFloat = geometry.size.width < 390 ? 10 : 18
+
                 ZStack(alignment: .top) {
                     HeroBackground()
 
                     VStack(spacing: 0) {
                         WebHeader(
+                            availableWidth: geometry.size.width - (headerHorizontalPadding * 2),
                             isMenuOpen: $isMenuOpen,
                             isContactOpen: $isContactOpen,
                             isAccountOpen: $isAccountOpen,
                             showWishlistMessage: $showWishlistMessage
                         )
                         .padding(.top, max(12, geometry.safeAreaInsets.top + 8))
-                        .padding(.horizontal, 18)
+                        .padding(.horizontal, headerHorizontalPadding)
 
                         Spacer()
 
@@ -112,18 +115,19 @@ struct BundleImage: View {
 }
 
 private struct WebHeader: View {
+    let availableWidth: CGFloat
     @Binding var isMenuOpen: Bool
     @Binding var isContactOpen: Bool
     @Binding var isAccountOpen: Bool
     @Binding var showWishlistMessage: Bool
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: headerSpacing) {
             NavigationLink {
                 ProductListView(category: nil, title: "CERCA")
             } label: {
                 Image(systemName: "magnifyingglass")
-                    .webHeaderIcon(size: 28)
+                    .webHeaderIcon(size: searchIconSize)
             }
 
             Button {
@@ -133,16 +137,17 @@ private struct WebHeader: View {
                     isAccountOpen = false
                 }
             } label: {
-                HStack(spacing: 12) {
+                HStack(spacing: menuItemSpacing) {
                     Image(systemName: "line.3.horizontal")
-                        .font(.system(size: 26, weight: .regular))
+                        .font(.system(size: menuIconSize, weight: .regular))
                     Text("MENU")
-                        .font(.custom("Michroma-Regular", size: 26))
+                        .font(.custom("Michroma-Regular", size: menuTextSize))
                         .lineLimit(1)
-                        .fixedSize()
+                        .minimumScaleFactor(0.78)
                 }
                 .foregroundStyle(Color.grGold)
             }
+            .layoutPriority(1)
 
             Spacer(minLength: 0)
 
@@ -154,7 +159,7 @@ private struct WebHeader: View {
                 }
             } label: {
                 Image(systemName: "phone")
-                    .webHeaderIcon(size: 27)
+                    .webHeaderIcon(size: iconSize)
             }
 
             Button {
@@ -164,14 +169,14 @@ private struct WebHeader: View {
                 showWishlistMessage = true
             } label: {
                 Image(systemName: "heart")
-                    .webHeaderIcon(size: 29)
+                    .webHeaderIcon(size: heartIconSize)
             }
 
             NavigationLink {
                 CheckoutView()
             } label: {
                 Image(systemName: "cart")
-                    .webHeaderIcon(size: 28)
+                    .webHeaderIcon(size: iconSize)
             }
 
             Button {
@@ -182,10 +187,21 @@ private struct WebHeader: View {
                 }
             } label: {
                 Image(systemName: "person")
-                    .webHeaderIcon(size: 28)
+                    .webHeaderIcon(size: iconSize)
             }
         }
+        .frame(maxWidth: .infinity)
     }
+
+    private var isCompact: Bool { availableWidth < 410 }
+    private var isNarrow: Bool { availableWidth < 350 }
+    private var headerSpacing: CGFloat { isCompact ? 8 : 12 }
+    private var menuItemSpacing: CGFloat { isCompact ? 6 : 10 }
+    private var menuTextSize: CGFloat { isNarrow ? 17 : (isCompact ? 18 : 24) }
+    private var menuIconSize: CGFloat { isCompact ? 21 : 25 }
+    private var searchIconSize: CGFloat { isCompact ? 22 : 27 }
+    private var iconSize: CGFloat { isCompact ? 23 : 27 }
+    private var heartIconSize: CGFloat { isCompact ? 24 : 28 }
 }
 
 private struct BrandMark: View {
