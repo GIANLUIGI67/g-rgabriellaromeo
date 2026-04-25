@@ -8,7 +8,9 @@ export async function GET(request) {
 
     const [ordRes, cliRes] = await Promise.all([
       auth.service.from('ordini').select('*').order('data', { ascending: false }),
-      auth.service.from('clienti').select('id,nome,cognome,telefono1,telefono,mobile,phone,indirizzo,citta,cap,paese,email')
+      auth.service
+        .from('clienti')
+        .select('id,nome,cognome,telefono1,telefono2,indirizzo,citta,codice_postale,paese,email')
     ]);
 
     if (ordRes.error) {

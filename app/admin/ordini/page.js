@@ -146,9 +146,10 @@ const euroText = inEuro;
 
         const completati = (ordiniData || []).map(o => {
           const snap = (o?.cliente && typeof o.cliente === 'object') ? o.cliente : {};
-          const fromClienti = o?.cliente_email ? (clientiMap.get(o.cliente_email) || {}) : {};
+          const lookupEmail = o?.cliente_email || snap?.email || '';
+          const fromClienti = lookupEmail ? (clientiMap.get(lookupEmail) || {}) : {};
           const clienteMerged = {
-            email: o?.cliente_email || snap?.email || '',
+            email: lookupEmail,
             nome: snap?.nome || fromClienti?.nome || '',
             cognome: snap?.cognome || fromClienti?.cognome || '',
             indirizzo: snap?.indirizzo || fromClienti?.indirizzo || '',
@@ -386,8 +387,10 @@ const euroText = inEuro;
 
       <section style={{ marginTop: 10 }}>
         <h2 style={styles.h2}>📮 Da spedire</h2>
+        {loading && <div style={styles.empty}>Caricamento ordini...</div>}
+        {errore && <div style={styles.error}>{errore}</div>}
         <div style={styles.list}>
-          {ordiniDaSpedire.length === 0 && <div style={styles.empty}>Nessun ordine da spedire.</div>}
+          {!loading && !errore && ordiniDaSpedire.length === 0 && <div style={styles.empty}>Nessun ordine da spedire.</div>}
           {ordiniDaSpedire.map(renderOrdineCard)}
         </div>
       </section>
@@ -395,7 +398,7 @@ const euroText = inEuro;
       <section style={{ marginTop: 18 }}>
         <h2 style={styles.h2}>🚚 Spediti</h2>
         <div style={styles.list}>
-          {ordiniSpediti.length === 0 && <div style={styles.empty}>Nessun ordine spedito.</div>}
+          {!loading && !errore && ordiniSpediti.length === 0 && <div style={styles.empty}>Nessun ordine spedito.</div>}
           {ordiniSpediti.map(renderOrdineCard)}
         </div>
       </section>
@@ -445,5 +448,6 @@ const styles = {
   btnGreen: { background: '#21b66f', color: 'white', border: 'none', padding: '6px 10px', borderRadius: 6, fontWeight: 'bold', cursor: 'pointer' },
   btnGrey:  { background: '#444', color: 'white', border: 'none', padding: '6px 10px', borderRadius: 6, fontWeight: 'bold', cursor: 'pointer' },
   input: { width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid #555', background: 'white', color: 'black', fontSize: '0.9rem' },
-  empty: { opacity: 0.85, fontSize: '0.9rem' }
+  empty: { opacity: 0.85, fontSize: '0.9rem' },
+  error: { color: '#ff8080', background: '#2a0909', border: '1px solid #7a2222', borderRadius: 6, padding: 8, fontSize: '0.9rem' }
 };
