@@ -1,6 +1,9 @@
 SLASH = /
 SUPABASE_URL = https:$(SLASH)$(SLASH)mdpplumkmxjwyzunpjpg.supabase.co
 SUPABASE_ANON_KEY =
+STRIPE_PK =
+PAYPAL_CLIENT_ID =
+PAYPAL_ENABLED = false
 WEB_API_BASE_URL = https:$(SLASH)$(SLASH)g-rgabriellaromeo.vercel.app
 
 #include "Local.xcconfig"

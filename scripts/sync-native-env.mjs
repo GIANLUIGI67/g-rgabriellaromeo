@@ -68,6 +68,8 @@ const nativeValues = {
   SUPABASE_URL: requireValue(env, "NEXT_PUBLIC_SUPABASE_URL"),
   SUPABASE_ANON_KEY: requireValue(env, "NEXT_PUBLIC_SUPABASE_ANON_KEY"),
   STRIPE_PK: env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY || "",
+  PAYPAL_CLIENT_ID: env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "",
+  PAYPAL_ENABLED: env.NEXT_PUBLIC_PAYPAL_ENABLED || "false",
   SITE_URL: env.NEXT_PUBLIC_SITE_URL || "https://g-rgabriellaromeo.vercel.app",
 };
 
@@ -80,6 +82,9 @@ fs.writeFileSync(
     "SLASH = /",
     `SUPABASE_URL = ${xcconfigValue(nativeValues.SUPABASE_URL)}`,
     `SUPABASE_ANON_KEY = ${nativeValues.SUPABASE_ANON_KEY}`,
+    `STRIPE_PK = ${nativeValues.STRIPE_PK}`,
+    `PAYPAL_CLIENT_ID = ${nativeValues.PAYPAL_CLIENT_ID}`,
+    `PAYPAL_ENABLED = ${nativeValues.PAYPAL_ENABLED}`,
     `WEB_API_BASE_URL = ${xcconfigValue(nativeValues.SITE_URL)}`,
     "",
   ].join("\n"),

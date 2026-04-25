@@ -22,7 +22,9 @@ if (dotenvFile.exists()) {
 def dotenvAliases = [
     SUPABASE_URL     : "NEXT_PUBLIC_SUPABASE_URL",
     SUPABASE_ANON_KEY: "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-    STRIPE_PK        : "NEXT_PUBLIC_STRIPE_PUBLIC_KEY"
+    STRIPE_PK        : "NEXT_PUBLIC_STRIPE_PUBLIC_KEY",
+    PAYPAL_CLIENT_ID : "NEXT_PUBLIC_PAYPAL_CLIENT_ID",
+    PAYPAL_ENABLED   : "NEXT_PUBLIC_PAYPAL_ENABLED"
 ]
 
 def secretValue = { String name, String fallback = "" ->
@@ -59,6 +61,8 @@ android {
         buildConfigField "String", "SUPABASE_URL",      buildConfigString(secretValue("SUPABASE_URL", "https://mdpplumkmxjwyzunpjpg.supabase.co"))
         buildConfigField "String", "SUPABASE_ANON_KEY", buildConfigString(secretValue("SUPABASE_ANON_KEY"))
         buildConfigField "String", "STRIPE_PK",         buildConfigString(secretValue("STRIPE_PK"))
+        buildConfigField "String", "PAYPAL_CLIENT_ID",  buildConfigString(secretValue("PAYPAL_CLIENT_ID"))
+        buildConfigField "String", "PAYPAL_ENABLED",    buildConfigString(secretValue("PAYPAL_ENABLED", "false"))
         buildConfigField "String", "SITE_URL",          buildConfigString(secretValue("SITE_URL", "https://g-rgabriellaromeo.vercel.app"))
     }
 

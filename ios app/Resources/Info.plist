@@ -24,6 +24,12 @@
 	<string>$(SUPABASE_ANON_KEY)</string>
 	<key>GR_SUPABASE_URL</key>
 	<string>$(SUPABASE_URL)</string>
+	<key>GR_STRIPE_PK</key>
+	<string>$(STRIPE_PK)</string>
+	<key>GR_PAYPAL_CLIENT_ID</key>
+	<string>$(PAYPAL_CLIENT_ID)</string>
+	<key>GR_PAYPAL_ENABLED</key>
+	<string>$(PAYPAL_ENABLED)</string>
 	<key>GR_WEB_API_BASE_URL</key>
 	<string>$(WEB_API_BASE_URL)</string>
 	<key>NSAppTransportSecurity</key>

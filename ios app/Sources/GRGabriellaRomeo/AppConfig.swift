@@ -3,6 +3,9 @@ import Foundation
 enum AppConfig {
     static let supabaseURL = URL(string: infoValue("GR_SUPABASE_URL", fallback: "https://mdpplumkmxjwyzunpjpg.supabase.co"))!
     static let supabaseAnonKey = infoValue("GR_SUPABASE_ANON_KEY")
+    static let stripePublishableKey = infoValue("GR_STRIPE_PK")
+    static let paypalClientId = infoValue("GR_PAYPAL_CLIENT_ID")
+    static let paypalEnabled = infoValue("GR_PAYPAL_ENABLED") == "true"
     static let webAPIBaseURL = URL(string: infoValue("GR_WEB_API_BASE_URL", fallback: "https://g-rgabriellaromeo.vercel.app"))!
     static let storageBucket = "immagini"
 
