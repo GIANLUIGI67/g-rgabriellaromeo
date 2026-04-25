@@ -213,21 +213,6 @@ private struct FooterSocialBlock: View {
 
     var body: some View {
         VStack(spacing: 18) {
-            HStack(spacing: 13) {
-                ForEach(AppLanguage.allCases) { language in
-                    Button {
-                        store.language = language
-                    } label: {
-                        Text(language.flag)
-                            .font(.system(size: 20))
-                            .opacity(store.language == language ? 1 : 0.5)
-                            .scaleEffect(store.language == language ? 1.08 : 1)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Lingua \(language.rawValue)")
-                }
-            }
-
             BundleImage(name: "qr-instagram", extensionName: "png")
                 .scaledToFit()
                 .frame(width: 104, height: 104)
@@ -248,6 +233,21 @@ private struct FooterSocialBlock: View {
                 }
             }
             .foregroundStyle(Color.grGold)
+
+            HStack(spacing: 13) {
+                ForEach(AppLanguage.allCases) { language in
+                    Button {
+                        store.language = language
+                    } label: {
+                        Text(language.flag)
+                            .font(.system(size: 20))
+                            .opacity(store.language == language ? 1 : 0.5)
+                            .scaleEffect(store.language == language ? 1.08 : 1)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Lingua \(language.rawValue)")
+                }
+            }
         }
     }
 }
