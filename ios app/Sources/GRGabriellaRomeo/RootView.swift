@@ -137,7 +137,7 @@ private struct WebHeader: View {
                     Image(systemName: "line.3.horizontal")
                         .font(.system(size: 26, weight: .regular))
                     Text("MENU")
-                        .font(.custom("Michroma", size: 26))
+                        .font(.custom("Michroma-Regular", size: 26))
                         .lineLimit(1)
                         .fixedSize()
                 }
@@ -192,10 +192,10 @@ private struct BrandMark: View {
     var body: some View {
         VStack(spacing: 14) {
             Text("G-R")
-                .font(.custom("Michroma", size: 60))
+                .font(.custom("Michroma-Regular", size: 60))
                 .frame(maxWidth: .infinity)
             Text("GABRIELLA ROMEO")
-                .font(.custom("Michroma", size: 30))
+                .font(.custom("Michroma-Regular", size: 30))
                 .frame(maxWidth: .infinity)
         }
         .foregroundStyle(Color.grGold)
@@ -237,14 +237,14 @@ private struct FooterSocialBlock: View {
                     Image(systemName: "camera")
                         .font(.system(size: 18, weight: .regular))
                     Text("Instagram")
-                        .font(.custom("Michroma", size: 18))
+                        .font(.custom("Michroma-Regular", size: 18))
                 }
 
                 HStack(spacing: 7) {
                     Image(systemName: "c.circle")
                         .font(.system(size: 12, weight: .regular))
                     Text("grgabriellaromeo")
-                        .font(.custom("Michroma", size: 12))
+                        .font(.custom("Michroma-Regular", size: 12))
                 }
             }
             .foregroundStyle(Color.grGold)
@@ -271,7 +271,7 @@ private struct NavigationDrawer: View {
         VStack(spacing: 14) {
             HStack {
                 Text("NAVIGAZIONE")
-                    .font(.custom("Michroma", size: 28))
+                    .font(.custom("Michroma-Regular", size: 28))
                     .foregroundStyle(.black)
                 Spacer()
                 Button {
@@ -361,14 +361,14 @@ struct EventsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     Text("EVENTI")
-                        .font(.custom("Michroma", size: 26))
+                        .font(.custom("Michroma-Regular", size: 26))
                         .foregroundStyle(Color.grGold)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.top, 24)
 
                     if store.events.isEmpty {
                         Text("NESSUN EVENTO")
-                            .font(.custom("Michroma", size: 14))
+                            .font(.custom("Michroma-Regular", size: 14))
                             .foregroundStyle(Color.grGold.opacity(0.76))
                             .frame(maxWidth: .infinity, alignment: .center)
                             .padding(.top, 40)
@@ -396,7 +396,7 @@ private struct EventsSection: View {
         if !events.isEmpty {
             VStack(alignment: .leading, spacing: 14) {
                 Text(title)
-                    .font(.custom("Michroma", size: 14))
+                    .font(.custom("Michroma-Regular", size: 14))
                     .foregroundStyle(Color.grGold)
 
                 ForEach(events) { event in
@@ -430,27 +430,27 @@ private struct EventCard: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 Text(event.titolo)
-                    .font(.custom("Michroma", size: 17))
+                    .font(.custom("Michroma-Regular", size: 17))
                     .foregroundStyle(Color.grGold)
                     .lineLimit(2)
                     .minimumScaleFactor(0.78)
 
                 if let dateLabel = event.dateLabel {
                     Text(dateLabel)
-                        .font(.custom("Michroma", size: 11))
+                        .font(.custom("Michroma-Regular", size: 11))
                         .foregroundStyle(Color.grGold.opacity(0.68))
                 }
 
                 if let description = event.descrizione, !description.isEmpty {
                     Text(description)
-                        .font(.custom("Michroma", size: 11))
+                        .font(.custom("Michroma-Regular", size: 11))
                         .foregroundStyle(Color.grGold.opacity(0.82))
                         .lineSpacing(4)
                 }
 
                 if !event.pdfUrls.isEmpty || !event.videoUrls.isEmpty {
                     Text("PDF \(event.pdfUrls.count)  VIDEO \(event.videoUrls.count)")
-                        .font(.custom("Michroma", size: 10))
+                        .font(.custom("Michroma-Regular", size: 10))
                         .foregroundStyle(Color.grGold.opacity(0.74))
                         .padding(.top, 2)
                 }
@@ -469,7 +469,7 @@ private struct ContactCard: View {
         VStack(alignment: .leading, spacing: 15) {
             HStack {
                 Text("CONTATTI")
-                    .font(.custom("Michroma", size: 27))
+                    .font(.custom("Michroma-Regular", size: 27))
                 Spacer()
                 Button {
                     withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }
@@ -484,7 +484,7 @@ private struct ContactCard: View {
             ContactLink(label: "📸 Instagram", url: "https://www.instagram.com/grgabriellaromeo/")
             ContactLink(label: "📘 Facebook", url: "https://www.facebook.com/GRGabriellaRomeoItalianStyle")
         }
-        .font(.custom("Michroma", size: 24))
+        .font(.custom("Michroma-Regular", size: 24))
         .foregroundStyle(Color.grGold)
         .padding(.horizontal, 24)
         .padding(.vertical, 23)
@@ -524,7 +524,7 @@ private extension Image {
 private extension Text {
     func drawerItem() -> some View {
         self
-            .font(.custom("Michroma", size: 28))
+            .font(.custom("Michroma-Regular", size: 28))
             .foregroundStyle(.black)
             .frame(maxWidth: .infinity)
     }
@@ -533,7 +533,7 @@ private extension Text {
 extension View {
     func webButton() -> some View {
         self
-            .font(.custom("Michroma", size: 22))
+            .font(.custom("Michroma-Regular", size: 22))
             .foregroundStyle(Color.grGold)
             .frame(maxWidth: .infinity)
             .frame(height: 52)
@@ -542,7 +542,7 @@ extension View {
 
     func webSectionTitle() -> some View {
         self
-            .font(.custom("Michroma", size: 20))
+            .font(.custom("Michroma-Regular", size: 20))
             .foregroundStyle(Color.grGold)
             .frame(maxWidth: .infinity, alignment: .leading)
     }

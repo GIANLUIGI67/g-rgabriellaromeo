@@ -39,7 +39,7 @@ struct ProductListView: View {
             ScrollView {
                 VStack(spacing: 28) {
                     Text(title)
-                        .font(.custom("Michroma", size: 38))
+                        .font(.custom("Michroma-Regular", size: 38))
                         .tracking(3)
                         .foregroundStyle(Color.grGold)
                         .multilineTextAlignment(.center)
@@ -57,7 +57,7 @@ struct ProductListView: View {
                             .padding(.top, 30)
                     } else if filteredProducts.isEmpty {
                         Text("Nessun prodotto disponibile")
-                            .font(.custom("Michroma", size: 24))
+                            .font(.custom("Michroma-Regular", size: 24))
                             .foregroundStyle(Color.grGold.opacity(0.72))
                             .padding(.top, 30)
                     } else {
@@ -112,7 +112,7 @@ struct ProductListView: View {
         } label: {
             HStack {
                 Text(selectedSubcategory)
-                    .font(.custom("Michroma", size: 24))
+                    .font(.custom("Michroma-Regular", size: 24))
                     .foregroundStyle(Color.grGold)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
@@ -148,11 +148,11 @@ struct ProductCard: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(product.nome)
-                        .font(.custom("Michroma", size: 22))
+                        .font(.custom("Michroma-Regular", size: 22))
                         .foregroundStyle(Color.grGold)
                     if let sottocategoria = product.sottocategoria, !sottocategoria.isEmpty {
                         Text(sottocategoria)
-                            .font(.custom("Michroma", size: 16))
+                            .font(.custom("Michroma-Regular", size: 16))
                             .foregroundStyle(Color.grGold.opacity(0.62))
                     }
                 }
@@ -179,7 +179,7 @@ struct ProductDetailView: View {
                         .clipped()
 
                     Text(product.nome)
-                        .font(.custom("Michroma", size: 38))
+                        .font(.custom("Michroma-Regular", size: 38))
                         .foregroundStyle(Color.grGold)
 
                     Text(product.displayPrice.euro)
@@ -188,7 +188,7 @@ struct ProductDetailView: View {
 
                     if let description = product.descrizione, !description.isEmpty {
                         Text(description)
-                            .font(.custom("Michroma", size: 19))
+                            .font(.custom("Michroma-Regular", size: 19))
                             .foregroundStyle(Color.grGold.opacity(0.78))
                     }
 
@@ -196,7 +196,7 @@ struct ProductDetailView: View {
                         store.addToCart(product)
                     } label: {
                         Text(product.isAvailable ? store.l10n.text(.addToCart) : store.l10n.text(.soldOut))
-                            .font(.custom("Michroma", size: 24))
+                            .font(.custom("Michroma-Regular", size: 24))
                             .foregroundStyle(.black)
                             .frame(maxWidth: .infinity)
                             .frame(height: 54)
@@ -238,7 +238,7 @@ struct ProductImage: View {
                 ZStack {
                     Color.grGold.opacity(0.08)
                     Text("G-R")
-                        .font(.custom("Michroma", size: 46))
+                        .font(.custom("Michroma-Regular", size: 46))
                         .foregroundStyle(Color.grGold.opacity(0.75))
                 }
             @unknown default:

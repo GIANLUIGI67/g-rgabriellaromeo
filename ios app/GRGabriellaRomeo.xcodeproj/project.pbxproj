@@ -11,6 +11,7 @@
 		1AD0556D1B4FB5C2809C8F11 /* GRGabriellaFinal.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F2B6349B9991FBEB6723F01A /* GRGabriellaFinal.ttf */; };
 		202EAB26F9688AFF19994AEA /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B47F5511614C5AA436F567A4 /* APIClient.swift */; };
 		236227DD2AC3B4BDF90EB7EB /* GRGabriellaModern.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A2D0BF84AE197441B3C622BC /* GRGabriellaModern.ttf */; };
+		2B97E5E8BB67D6A7C7F4251F /* Michroma.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8E083DAA45AE7933E64C3959 /* Michroma.ttf */; };
 		31DF6B46CCF75803A84D21DE /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4CA9C5A4322778A705FD940 /* Localization.swift */; };
 		380A9CF749D3C0DA0129C859 /* hero.png in Resources */ = {isa = PBXBuildFile; fileRef = C7071C0754F378D485CE515E /* hero.png */; };
 		47589729E3D00178D2EFB427 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = E37D8F709E52CBC384700AA8 /* AppConfig.swift */; };
@@ -35,6 +36,7 @@
 		9BDAD5AB5B5D89378530CC4E /* AccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
 		9E12B726C34267559A7B9B4E /* CartCheckoutViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartCheckoutViews.swift; sourceTree = "<group>"; };
 		A2D0BF84AE197441B3C622BC /* GRGabriellaModern.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = GRGabriellaModern.ttf; sourceTree = "<group>"; };
+		8E083DAA45AE7933E64C3959 /* Michroma.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Michroma.ttf; sourceTree = "<group>"; };
 		B47F5511614C5AA436F567A4 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		C0DEC0DEC0DEC0DEC0DEC001 /* AppConfig.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/AppConfig.xcconfig; sourceTree = "<group>"; };
 		C7071C0754F378D485CE515E /* hero.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hero.png; sourceTree = "<group>"; };
@@ -69,6 +71,7 @@
 				603E48D79D91CADE7A7FFED3 /* Assets.xcassets */,
 				F2B6349B9991FBEB6723F01A /* GRGabriellaFinal.ttf */,
 				A2D0BF84AE197441B3C622BC /* GRGabriellaModern.ttf */,
+				8E083DAA45AE7933E64C3959 /* Michroma.ttf */,
 				C9889B2F5A422C7AD7F52539 /* GRGabriellaUltraCustom.ttf */,
 				C7071C0754F378D485CE515E /* hero.png */,
 				495A828A769D9EA2BF07EEAD /* qr-instagram.png */,
@@ -166,6 +169,7 @@
 				094725FAB5422F5B158C3A9A /* Assets.xcassets in Resources */,
 				1AD0556D1B4FB5C2809C8F11 /* GRGabriellaFinal.ttf in Resources */,
 				236227DD2AC3B4BDF90EB7EB /* GRGabriellaModern.ttf in Resources */,
+				2B97E5E8BB67D6A7C7F4251F /* Michroma.ttf in Resources */,
 				686BA4D188BC1D4C0E92553E /* GRGabriellaUltraCustom.ttf in Resources */,
 				380A9CF749D3C0DA0129C859 /* hero.png in Resources */,
 				9AEC197D7EB23C00DB4F9369 /* qr-instagram.png in Resources */,
