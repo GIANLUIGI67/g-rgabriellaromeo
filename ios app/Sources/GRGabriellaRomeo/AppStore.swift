@@ -72,9 +72,15 @@ final class AppStore: ObservableObject {
     func refreshCustomer() async {
         guard let session, let email = session.user.email else { return }
         do {
-            customer = try await APIClient.shared.fetchCustomer(email: email, accessToken: session.accessToken)
+            customer = try await withAuthenticatedToken { accessToken in
+                try await APIClient.shared.fetchCustomer(email: email, accessToken: accessToken)
+            }
         } catch {
-            errorMessage = error.localizedDescription
+            if error.isSessionExpired {
+                logout()
+            } else {
+                errorMessage = error.localizedDescription
+            }
         }
     }
 
@@ -110,22 +116,20 @@ final class AppStore: ObservableObject {
     }
 
     func requestQuote(shippingMethod: String) async throws -> CheckoutQuote {
-        guard let token = session?.accessToken else {
-            throw AppError.server(l10n.text(.profileRequired))
+        try await withAuthenticatedToken { accessToken in
+            try await APIClient.shared.quote(cart: cart, shippingMethod: shippingMethod, accessToken: accessToken)
         }
-        return try await APIClient.shared.quote(cart: cart, shippingMethod: shippingMethod, accessToken: token)
     }
 
     func confirmBankTransfer(shippingMethod: String, productionPolicyAccepted: Bool) async throws -> FinalizeResponse {
-        guard let token = session?.accessToken else {
-            throw AppError.server(l10n.text(.profileRequired))
+        let result = try await withAuthenticatedToken { accessToken in
+            try await APIClient.shared.finalizeBankTransfer(
+                cart: cart,
+                shippingMethod: shippingMethod,
+                accessToken: accessToken,
+                productionPolicyAccepted: productionPolicyAccepted
+            )
         }
-        let result = try await APIClient.shared.finalizeBankTransfer(
-            cart: cart,
-            shippingMethod: shippingMethod,
-            accessToken: token,
-            productionPolicyAccepted: productionPolicyAccepted
-        )
         cart.removeAll()
         persistCart()
         await refreshProducts()
@@ -152,6 +156,43 @@ final class AppStore: ObservableObject {
     private func persistCart() {
         guard let data = try? JSONEncoder().encode(cart) else { return }
         UserDefaults.standard.set(data, forKey: cartKey)
+    }
+
+    private func withAuthenticatedToken<T>(_ operation: (String) async throws -> T) async throws -> T {
+        let currentSession = try await validSession()
+        do {
+            return try await operation(currentSession.accessToken)
+        } catch {
+            guard error.isSessionExpired else { throw error }
+            let refreshedSession = try await refreshSession(from: session ?? currentSession)
+            return try await operation(refreshedSession.accessToken)
+        }
+    }
+
+    private func validSession() async throws -> AuthSession {
+        guard let session else {
+            throw AppError.server(l10n.text(.profileRequired))
+        }
+        if session.isExpiringSoon {
+            return try await refreshSession(from: session)
+        }
+        return session
+    }
+
+    private func refreshSession(from currentSession: AuthSession) async throws -> AuthSession {
+        guard let refreshToken = currentSession.refreshToken, !refreshToken.isEmpty else {
+            logout()
+            throw AppError.sessionExpired
+        }
+        do {
+            let refreshedSession = try await APIClient.shared.refreshSession(refreshToken: refreshToken)
+            session = refreshedSession
+            persistSession()
+            return refreshedSession
+        } catch {
+            logout()
+            throw AppError.sessionExpired
+        }
     }
 }
 

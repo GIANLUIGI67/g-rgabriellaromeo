@@ -98,12 +98,21 @@ struct CartItem: Identifiable, Codable, Hashable {
 struct AuthSession: Codable {
     let accessToken: String
     let refreshToken: String?
+    let expiresIn: Int?
+    let expiresAt: Int?
     let user: AuthUser
 
     enum CodingKeys: String, CodingKey {
         case accessToken = "access_token"
         case refreshToken = "refresh_token"
+        case expiresIn = "expires_in"
+        case expiresAt = "expires_at"
         case user
+    }
+
+    var isExpiringSoon: Bool {
+        guard let expiresAt else { return false }
+        return Date().timeIntervalSince1970 >= Double(expiresAt - 60)
     }
 }
 
@@ -298,6 +307,34 @@ struct FinalizeResponse: Codable {
 
 struct APIErrorResponse: Codable {
     let error: String?
+    let message: String?
+    let msg: String?
+    let code: String?
+
+    enum CodingKeys: String, CodingKey {
+        case error, message, msg, code
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        error = try container.decodeIfPresent(String.self, forKey: .error)
+        message = try container.decodeIfPresent(String.self, forKey: .message)
+        msg = try container.decodeIfPresent(String.self, forKey: .msg)
+        if let stringCode = try? container.decodeIfPresent(String.self, forKey: .code) {
+            code = stringCode
+        } else if let intCode = try? container.decodeIfPresent(Int.self, forKey: .code) {
+            code = String(intCode)
+        } else {
+            code = nil
+        }
+    }
+
+    var displayMessage: String? {
+        [error, message, msg].compactMap { value in
+            let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines)
+            return trimmed?.isEmpty == false ? trimmed : nil
+        }.first
+    }
 }
 
 extension KeyedDecodingContainer {

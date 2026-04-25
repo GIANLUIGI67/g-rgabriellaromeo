@@ -45,6 +45,16 @@ final class APIClient {
         return try await send(request)
     }
 
+    func refreshSession(refreshToken: String) async throws -> AuthSession {
+        var components = URLComponents(url: AppConfig.supabaseURL.appending(path: "auth/v1/token"), resolvingAgainstBaseURL: false)!
+        components.queryItems = [URLQueryItem(name: "grant_type", value: "refresh_token")]
+        var request = URLRequest(url: components.url!)
+        request.httpMethod = "POST"
+        applySupabaseHeaders(to: &request)
+        request.httpBody = try jsonEncoder.encode(["refresh_token": refreshToken])
+        return try await send(request)
+    }
+
     func register(_ payload: SignupPayload) async throws {
         var request = URLRequest(url: AppConfig.webAPIBaseURL.appending(path: "api/auth/signup"))
         request.httpMethod = "POST"
@@ -122,18 +132,21 @@ final class APIClient {
         }
 
         guard (200..<300).contains(http.statusCode) else {
+            if isSessionExpired(statusCode: http.statusCode, data: data) {
+                throw AppError.sessionExpired
+            }
             if http.statusCode == 400,
                let body = String(data: data, encoding: .utf8),
                body.localizedCaseInsensitiveContains("invalid login credentials") {
                 throw AppError.server("Credenziali non valide")
             }
             if let apiError = try? jsonDecoder.decode(APIErrorResponse.self, from: data),
-               let message = apiError.error,
+               let message = apiError.displayMessage,
                !message.isEmpty {
                 throw AppError.server(message)
             }
             let body = String(data: data, encoding: .utf8) ?? "HTTP \(http.statusCode)"
-            throw AppError.server(body)
+            throw AppError.server(cleanServerMessage(body, statusCode: http.statusCode))
         }
 
         if T.self == EmptyResponse.self {
@@ -144,6 +157,23 @@ final class APIClient {
         }
         return try jsonDecoder.decode(T.self, from: data)
     }
+
+    private func isSessionExpired(statusCode: Int, data: Data) -> Bool {
+        guard let body = String(data: data, encoding: .utf8) else {
+            return statusCode == 401
+        }
+        return statusCode == 401 ||
+            body.localizedCaseInsensitiveContains("jwt expired") ||
+            body.localizedCaseInsensitiveContains("PGRST303")
+    }
+
+    private func cleanServerMessage(_ body: String, statusCode: Int) -> String {
+        let trimmed = body.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.hasPrefix("{") || trimmed.hasPrefix("[") {
+            return "Errore server. Riprova piu tardi."
+        }
+        return trimmed.isEmpty ? "HTTP \(statusCode)" : trimmed
+    }
 }
 
 struct EmptyResponse: Decodable {}
@@ -151,11 +181,25 @@ struct EmptyResponse: Decodable {}
 enum AppError: LocalizedError {
     case server(String)
     case network(String)
+    case sessionExpired
 
     var errorDescription: String? {
         switch self {
         case .server(let message), .network(let message):
             return message
+        case .sessionExpired:
+            return "Sessione scaduta. Accedi di nuovo."
         }
+    }
+
+    var isSessionExpired: Bool {
+        if case .sessionExpired = self { return true }
+        return false
+    }
+}
+
+extension Error {
+    var isSessionExpired: Bool {
+        (self as? AppError)?.isSessionExpired == true
     }
 }
