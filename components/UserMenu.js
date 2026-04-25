@@ -59,6 +59,8 @@ const fetchNomeUtente = async (email) => {
   }
 };
 
+const normalizeAuthEmail = (value) => String(value || '').trim().toLowerCase();
+
 export default function UserMenu({ lang }) {
   const langPulito = ['it','en','fr','de','es','ar','zh','ja'].includes(lang) ? lang : 'it';
   const [isOpen, setIsOpen] = useState(false);
@@ -356,11 +358,18 @@ export default function UserMenu({ lang }) {
   };
 
   const loginEmail = async () => {
+    const authEmail = normalizeAuthEmail(email);
+
+    if (!authEmail || !password) {
+      setErrore('Inserisci email e password');
+      return;
+    }
+
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email: authEmail, password });
 
       if (error || !data?.user) {
-        setErrore(translations.invalidLogin[langPulito]);
+        setErrore(getReadableAuthErrorMessage(error, translations.invalidLogin[langPulito]));
         setUtente(null);
         return;
       }
@@ -378,13 +387,15 @@ export default function UserMenu({ lang }) {
   };
 
   const passwordDimenticata = async () => {
-    if (!email) {
+    const authEmail = normalizeAuthEmail(email);
+
+    if (!authEmail) {
       setErrore('Inserisci la tua email');
       return;
     }
   
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(authEmail, {
         redirectTo: `${window.location.origin}/reset-password`
       });
   
@@ -435,8 +446,9 @@ export default function UserMenu({ lang }) {
     setAuthLoading(true);
     setErrore('');
     setRegistrationMessage('');
+    const authEmail = normalizeAuthEmail(email);
     
-    if (!email || !password) {
+    if (!authEmail || !password) {
       setErrore('Inserisci email e password');
       setAuthLoading(false);
       return;
@@ -449,7 +461,7 @@ export default function UserMenu({ lang }) {
 
     try {
       await registerCustomerWithBackend({
-        email,
+        email: authEmail,
         password,
         nome,
         cognome,
@@ -461,7 +473,7 @@ export default function UserMenu({ lang }) {
         codice_postale: cap,
       });
 
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email: authEmail, password });
       if (error || !data?.user) {
         setUtente(null);
         setNomeUtente('');
@@ -479,11 +491,18 @@ export default function UserMenu({ lang }) {
       setErrore('');
       setModalitaRegistrazione(false);
       setRegistrationMessage(translations.registrationSuccess[langPulito]);
-      tracciaAccesso(email);
+      tracciaAccesso(authEmail);
       sessionStorage.setItem('checkout_redirect', 'true');
     } catch (error) {
       console.error('Errore registrazione:', error);
-      setErrore(getReadableAuthErrorMessage(error, 'Errore durante la registrazione'));
+      const readableError = getReadableAuthErrorMessage(error, 'Errore durante la registrazione');
+      if (/account con questa email|user already registered|gia un account/i.test(readableError)) {
+        setModalitaRegistrazione(false);
+        setPassword('');
+        setErrore('Esiste gia un account con questa email. Usa Password dimenticata per impostare una nuova password.');
+      } else {
+        setErrore(readableError);
+      }
     } finally {
       setAuthLoading(false);
     }
