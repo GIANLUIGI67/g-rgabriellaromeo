@@ -1,0 +1,6 @@
+</div> <!-- end .content_holder -->
+<?php fullscreenBG(); ?>
+
+<?php wp_footer(); ?>
+</body>
+</html>

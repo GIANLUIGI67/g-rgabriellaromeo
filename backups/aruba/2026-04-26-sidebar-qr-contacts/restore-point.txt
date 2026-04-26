@@ -1,0 +1,4 @@
+timestamp=20260426-184717
+/www.g-rgabriellaromeo.it/wordpress/wp-content/themes/architectos/header.php.codex-restore-sidebar-qr-contacts-20260426-184717
+/www.g-rgabriellaromeo.it/wordpress/wp-content/themes/architectos/footer.php.codex-restore-sidebar-qr-contacts-20260426-184717
+/www.g-rgabriellaromeo.it/wordpress/wp-content/themes/architectos/custom.css.codex-restore-sidebar-qr-contacts-20260426-184717

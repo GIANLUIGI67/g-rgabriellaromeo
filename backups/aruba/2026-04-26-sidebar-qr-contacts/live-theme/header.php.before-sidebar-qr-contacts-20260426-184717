@@ -1,0 +1,148 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" <?php language_attributes(); ?>>
+<head>
+<meta http-equiv="Content-Type" content="<?php bloginfo('html_type'); ?>; charset=<?php bloginfo('charset'); ?>" />
+<title><?php wp_title('-', true, 'right'); ?> <?php bloginfo('name'); ?></title>
+<?php $favicon = get_option('wpb_favicon'); if ( $favicon != '' ) : ?>
+<link rel="shortcut icon" href="<?php echo $favicon; ?>" />
+<?php endif; ?>
+<link rel="pingback" href="<?php bloginfo('pingback_url'); ?>" />	
+
+
+
+
+
+<script type="text/javascript">
+	var templatepaths = '<?php echo get_bloginfo('template_directory'); ?>/',
+		blockrc = '<?php echo (get_option('wpb_blockrc')) ? get_option('wpb_blockrc') : "false"; ?>';
+</script>
+
+<?php wp_enqueue_script('comment-reply'); ?>
+<?php wp_head(); ?>
+
+
+
+<?php /* Widgetized sidebar */
+    if ( !function_exists('dynamic_sidebar') || !dynamic_sidebar('my_mega_menu') ) : ?><?php endif; ?>
+
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-28834010-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+</head>
+
+<?php
+global $fullscreen;
+$extra = '';
+if ( ( $post->post_type == 'wpb_portfolio' && $_GET['ss'] == 'true' ) || $fullscreen == true ) { $extra .= ' fullscreen_slideshow'; }
+if ( post_password_required() ) { $extra .= ' pasword_protected_page'; }
+?>
+<body <?php body_class($extra); ?>>
+
+<div id="header">
+
+<div class="menu_logo">
+		<div class="menu_holder">
+				
+<?php if(ICL_LANGUAGE_CODE=='it'): ?>
+<a  id="logotype" class="li_logo"  href="http://www.g-rgabriellaromeo.it/"><img src="http://www.g-rgabriellaromeo.it/wordpress/wp-content/uploads/2012/04/logoBK3.png" alt="Gabriella Romeo Gioielli"/></a>
+
+<?php elseif(ICL_LANGUAGE_CODE=='en'): ?>
+<a id="logotype" class="li_logo"  href="http://www.g-rgabriellaromeo.it/?lang=en"><img src="http://www.g-rgabriellaromeo.it/wordpress/wp-content/uploads/2012/04/logoBK3_en.png" alt="Gabriella Romeo Jewels"/></a>
+
+<?php elseif(ICL_LANGUAGE_CODE=='ar'): ?>
+<a  id="logotype" class="li_logo"  href="http://www.g-rgabriellaromeo.it/?lang=ar"><img src="
+http://www.g-rgabriellaromeo.it/wordpress/wp-content/uploads/2012/05/logoBK_ar.png" alt="Gabriella Romeo Gioielli"/></a>
+
+<?php elseif(ICL_LANGUAGE_CODE=='fr'): ?>
+<a id="logotype" class="li_logo"  href="http://www.g-rgabriellaromeo.it/?lang=fr"><img src="http://www.g-rgabriellaromeo.it/wordpress/wp-content/uploads/2012/08/logoBK2_fr.png" alt="Gabriella Romeo Jewels"/></a>
+
+<?php else:
+$gallery_page_id = function_exists('icl_object_id') ? icl_object_id(4, 'page', true, ICL_LANGUAGE_CODE) : 4;
+$gallery_url = get_permalink($gallery_page_id);
+if (!$gallery_url) {
+	$gallery_url = 'http://www.g-rgabriellaromeo.it/collections/';
+}
+if (defined('ICL_LANGUAGE_CODE') && ICL_LANGUAGE_CODE != 'it') {
+	$gallery_url = add_query_arg('lang', ICL_LANGUAGE_CODE, $gallery_url);
+}
+?>
+<a id="logotype" class="li_logo"  href="<?php echo esc_url($gallery_url); ?>"><img src="http://www.g-rgabriellaromeo.it/wordpress/wp-content/uploads/2012/04/logoBK3_en.png" alt="Gabriella Romeo Jewels"/></a>
+
+<?php endif;?>
+
+
+<ul class="header_menu">
+				<?php wp_nav_menu(array('theme_location' => 'primary-menu', 'container' => 'false', 'menu_id' => 'header_site_menu', 'menu_class' => 'header_menu', 'fallback_cb' => '', 'depth' => 3, 'items_wrap' => '%3$s')); ?>
+				<?php
+				$store_labels = array(
+					'it' => 'NEGOZIO ONLINE',
+					'en' => 'ONLINE STORE',
+					'fr' => 'BOUTIQUE EN LIGNE',
+					'ar' => 'المتجر الإلكتروني',
+					'de' => 'ONLINE-SHOP',
+					'es' => 'TIENDA ONLINE',
+					'zh' => '在线商店',
+					'zh-hans' => '在线商店',
+					'ja' => 'オンラインストア'
+				);
+				$store_language = defined('ICL_LANGUAGE_CODE') ? ICL_LANGUAGE_CODE : 'it';
+				$store_label = isset($store_labels[$store_language]) ? $store_labels[$store_language] : $store_labels['it'];
+				$store_query_language = ($store_language == 'zh-hans') ? 'zh' : $store_language;
+				$store_url = add_query_arg('lang', $store_query_language, 'https://g-rgabriellaromeo.vercel.app');
+				?>
+				<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-store"><a href="<?php echo esc_url($store_url); ?>"><?php echo esc_html($store_label); ?></a></li>
+			</ul>
+
+            <div class="clear"></div>
+<div id="flags_language_selector"><?php
+	ob_start();
+	language_selector_flags();
+	$language_flags = ob_get_clean();
+	$language_flags = str_replace('/ar.png"', '/sa.png"', $language_flags);
+	$language_flags = str_replace('/zh-hans.png"', '/cn.png"', $language_flags);
+	echo $language_flags;
+
+	$extra_flags = array(
+		'de' => array('flag' => 'de.png', 'alt' => 'de'),
+		'es' => array('flag' => 'es.png', 'alt' => 'es'),
+		'zh-hans' => array('flag' => 'cn.png', 'alt' => 'zh'),
+		'ja' => array('flag' => 'ja.png', 'alt' => 'ja')
+	);
+	foreach ($extra_flags as $language_code => $flag) {
+		if (strpos($language_flags, '?lang=' . $language_code) !== false || strpos($language_flags, 'alt="' . $language_code . '"') !== false || strpos($language_flags, 'alt="' . $flag['alt'] . '"') !== false || strpos($language_flags, '/' . $flag['flag'] . '"') !== false) {
+			continue;
+		}
+		$flag_url = 'https://www.g-rgabriellaromeo.it/wordpress/wp-content/plugins/sitepress-multilingual-cms/res/flags/' . $flag['flag'];
+		$language_url = 'https://www.g-rgabriellaromeo.it/collections/?lang=' . $language_code;
+		if (defined('ICL_LANGUAGE_CODE') && ICL_LANGUAGE_CODE == $language_code) {
+			echo '<img src="' . esc_url($flag_url) . '" height="12" alt="' . esc_attr($flag['alt']) . '" width="18" />';
+		} else {
+			echo '<a href="' . esc_url($language_url) . '"><img src="' . esc_url($flag_url) . '" height="12" alt="' . esc_attr($flag['alt']) . '" width="18" /></a>';
+		}
+	}
+?></div > 
+            <!-- end of megamenu -->
+		</div> 
+	</div>
+	<div id="social_icons">
+        <?php $twitter = get_option('wpb_social_twitter'); if ($twitter != ''): ?><a class="tooltip" href="http://twitter.com/<?php echo $twitter; ?>" title="<?php _e("Follow us on twitter", "wpb"); ?>" target="_blank"><img src="<?php echo get_bloginfo('template_directory'); ?>/images/twitter.png" alt="" /></a><?php endif; ?>
+        <?php $facebook = get_option('wpb_social_facebook'); if ($facebook != ''): ?><a class="tooltip" href="<?php echo $facebook; ?>" title="<?php _e("Become a Facebook fan", "wpb"); ?>" target="_blank"><img src="<?php echo get_bloginfo('template_directory'); ?>/images/facebook.png" alt="" /></a><?php endif; ?>
+        <?php $flickr = get_option('wpb_social_flickr'); if ($flickr != ''): ?><a class="tooltip" href="<?php echo $flickr; ?>" title="<?php _e("Check our photostream", "wpb"); ?>" target="_blank"><img src="<?php echo get_bloginfo('template_directory'); ?>/images/flickr.png" alt="" /></a><?php endif; ?>
+        <a id="search_ico" class="tooltip" href="<?php echo get_option('home'); ?>/?s=search" title="<?php _e("Search"); ?>"><img src="<?php echo get_bloginfo('template_directory'); ?>/images/search.png" alt="" /></a>
+	</div>
+	<?php get_search_form(); ?>
+</div> <!-- end #header -->
+
+<div class="content_holder">
+ <div class="clear"></div>
