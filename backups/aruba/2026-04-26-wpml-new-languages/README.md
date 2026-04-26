@@ -53,9 +53,10 @@ Form/store repair on 2026-04-26:
 
 Form image/menu repair on 2026-04-26:
 1. Copied the four existing product images from each original city contact form into the German, Spanish, Chinese, and Japanese form translations.
-2. Re-forced all 20 translated form slugs after `wp_update_post()` blanked the Berlin form slugs on this older WordPress/WPML install.
-3. Updated the Italian/default 5 Pearls page and menu label from `5 Pearls of the World` to `5 Perle del Mondo`; the English translation remains `5 Pearls of the World`.
-4. Deleted the temporary form image/menu repair script from the server. Its public URL now returns `404`.
+2. Rewrote the translated form image blocks to match the original 2-by-2 layout: two images, one line break, then two images.
+3. Re-forced all 20 translated form slugs after `wp_update_post()` blanked the Berlin form slugs on this older WordPress/WPML install.
+4. Updated the Italian/default 5 Pearls page and menu label from `5 Pearls of the World` to `5 Perle del Mondo`; the English translation remains `5 Pearls of the World`.
+5. Deleted the temporary form image/menu repair script from the server. Its public URL now returns `404`.
 
 Server-side database backups written:
 - `wp-content/uploads/codex-wpml-backups/wpml-new-languages-before-20260426-142918.json`
@@ -68,6 +69,7 @@ Server-side database backups written:
 - `wp-content/uploads/codex-wpml-backups/wpml-forms-store-before-20260426-151438.json`
 - `wp-content/uploads/codex-wpml-backups/wpml-form-images-menu-before-20260426-153734.json`
 - `wp-content/uploads/codex-wpml-backups/wpml-form-images-menu-before-20260426-153943.json`
+- `wp-content/uploads/codex-wpml-backups/wpml-form-images-menu-before-20260426-155013.json`
 
 Remote theme backup written:
 - `wp-content/themes/architectos/single-wpb_portfolio.php.codex-backup-content-repair-20260426-165204`
@@ -87,6 +89,7 @@ Verified public URLs:
 - All five city portfolio links in all four new languages.
 - All 20 new-language city contact/form pages.
 - All 20 new-language city contact/form pages with four product images and active form markup.
+- All 20 new-language city contact/form pages with the product images rendered as a 2-by-2 block.
 - Store menu labels in all eight languages.
 - Italian/default `5 Perle del Mondo` menu and page title; English remains `5 Pearls of the World`.
 

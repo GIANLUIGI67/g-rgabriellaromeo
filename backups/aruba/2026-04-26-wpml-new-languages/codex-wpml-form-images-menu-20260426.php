@@ -85,7 +85,8 @@ function grfim_image_block($source_id) {
         }
         $images = grfim_product_images($post->post_content);
         if (count($images) >= 4) {
-            return '<p>' . implode("\n", array_slice($images, 0, 4)) . '</p>';
+            $images = array_slice($images, 0, 4);
+            return '<p>' . $images[0] . $images[1] . '<br />' . $images[2] . $images[3] . '</p>';
         }
     }
 
