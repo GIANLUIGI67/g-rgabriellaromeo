@@ -23,6 +23,7 @@ fun GRTopBar(
     onMenuClick: () -> Unit,
     onCartClick: () -> Unit,
     onSearchClick: () -> Unit,
+    onContactClick: () -> Unit,
     onUserClick: () -> Unit,
     onLogoClick: () -> Unit
 ) {
@@ -47,6 +48,9 @@ fun GRTopBar(
         actions = {
             IconButton(onClick = onSearchClick) {
                 Icon(Icons.Default.Search, contentDescription = "Search", tint = Gold)
+            }
+            IconButton(onClick = onContactClick) {
+                Icon(Icons.Default.Phone, contentDescription = "Contact", tint = Gold)
             }
             IconButton(onClick = onUserClick) {
                 Icon(Icons.Default.Person, contentDescription = "User", tint = Gold)

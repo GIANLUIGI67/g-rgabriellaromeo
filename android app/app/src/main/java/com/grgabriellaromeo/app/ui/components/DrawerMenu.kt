@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,13 @@ private val menuItems = listOf(
     "cerca" to Screen.Search.route
 )
 
+private val drawerContactLinks = listOf(
+    "Email" to "mailto:info@g-rgabriellaromeo.it",
+    "WhatsApp" to "https://wa.me/393429506938",
+    "Instagram" to "https://www.instagram.com/grgabriellaromeo/",
+    "Facebook" to "https://www.facebook.com/GRGabriellaRomeoItalianStyle"
+)
+
 @Composable
 fun GRDrawerContent(
     lang: String,
@@ -35,6 +43,8 @@ fun GRDrawerContent(
     onNavigate: (String) -> Unit,
     onClose: () -> Unit
 ) {
+    val uriHandler = LocalUriHandler.current
+
     ModalDrawerSheet(
         drawerContainerColor = Color.Black,
         drawerContentColor = Color.White
@@ -78,17 +88,26 @@ fun GRDrawerContent(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "+39 0522 123456",
-                color = Color(0xFF888888),
+                text = "CONTATTI",
+                color = Gold,
                 fontSize = 13.sp,
+                letterSpacing = 2.sp,
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp)
             )
-            Text(
-                text = "info@g-rgabriellaromeo.it",
-                color = Color(0xFF888888),
-                fontSize = 13.sp,
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp)
-            )
+            drawerContactLinks.forEach { (label, uri) ->
+                Text(
+                    text = label,
+                    color = Color(0xFF888888),
+                    fontSize = 13.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            uriHandler.openUri(uri)
+                            onClose()
+                        }
+                        .padding(horizontal = 24.dp, vertical = 6.dp)
+                )
+            }
         }
     }
 }

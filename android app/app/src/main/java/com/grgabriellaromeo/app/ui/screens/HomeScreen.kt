@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Copyright
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
@@ -39,6 +40,7 @@ fun HomeScreen(
     cartCount: Int,
     onMenuClick: () -> Unit,
     onSearchClick: () -> Unit,
+    onContactClick: () -> Unit,
     onUserClick: () -> Unit,
     onCartClick: () -> Unit,
     onLangChange: (String) -> Unit,
@@ -81,6 +83,9 @@ fun HomeScreen(
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onContactClick) {
+                    Icon(Icons.Default.Phone, contentDescription = "Contatti", tint = Gold)
+                }
                 IconButton(onClick = onUserClick) {
                     Icon(Icons.Default.Person, contentDescription = "Account", tint = Gold)
                 }

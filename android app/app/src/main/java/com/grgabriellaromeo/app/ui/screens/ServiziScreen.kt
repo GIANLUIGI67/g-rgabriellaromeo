@@ -1,6 +1,7 @@
 package com.grgabriellaromeo.app.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -10,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,8 +29,17 @@ private val servizi = listOf(
     Servizio("🎁", "regalo", "Servizio di confezioni regalo personalizzate per ogni occasione speciale.", "Personalized gift wrapping service for every special occasion.")
 )
 
+private val serviziContactLinks = listOf(
+    "Email" to "mailto:info@g-rgabriellaromeo.it",
+    "WhatsApp" to "https://wa.me/393429506938",
+    "Instagram" to "https://www.instagram.com/grgabriellaromeo/",
+    "Facebook" to "https://www.facebook.com/GRGabriellaRomeoItalianStyle"
+)
+
 @Composable
 fun ServiziScreen(lang: String) {
+    val uriHandler = LocalUriHandler.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -78,8 +89,17 @@ fun ServiziScreen(lang: String) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = Translations.t("contattaci", lang), color = Gold, fontSize = 16.sp)
             Spacer(Modifier.height(8.dp))
-            Text(text = "+39 0522 123456", color = Color(0xFFCCCCCC), fontSize = 14.sp)
-            Text(text = "info@g-rgabriellaromeo.it", color = Color(0xFFCCCCCC), fontSize = 14.sp)
+            serviziContactLinks.forEach { (label, uri) ->
+                Text(
+                    text = label,
+                    color = Color(0xFFCCCCCC),
+                    fontSize = 14.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { uriHandler.openUri(uri) }
+                        .padding(vertical = 3.dp)
+                )
+            }
         }
 
         Spacer(Modifier.height(48.dp))

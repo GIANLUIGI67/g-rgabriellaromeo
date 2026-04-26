@@ -14,6 +14,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.grgabriellaromeo.app.ui.components.GRDrawerContent
 import com.grgabriellaromeo.app.ui.components.GRTopBar
+import com.grgabriellaromeo.app.ui.components.ContactDialog
 import com.grgabriellaromeo.app.ui.components.UserAuthBottomSheet
 import com.grgabriellaromeo.app.ui.screens.*
 import com.grgabriellaromeo.app.viewmodel.*
@@ -34,6 +35,7 @@ fun GRNavGraph() {
     val cartCount by remember { derivedStateOf { cartVm.count } }
 
     var showAuth by remember { mutableStateOf(false) }
+    var showContacts by remember { mutableStateOf(false) }
 
     val navBackStack by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStack?.destination?.route
@@ -72,6 +74,7 @@ fun GRNavGraph() {
                                 launchSingleTop = true
                             }
                         },
+                        onContactClick = { showContacts = true },
                         onUserClick = { showAuth = true },
                         onLogoClick = {
                             navController.navigate(Screen.Home.route) {
@@ -95,6 +98,7 @@ fun GRNavGraph() {
                         onSearchClick = {
                             navController.navigate(Screen.Search.route) { launchSingleTop = true }
                         },
+                        onContactClick = { showContacts = true },
                         onUserClick = { showAuth = true },
                         onCartClick = {
                             navController.navigate(Screen.Cart.route) { launchSingleTop = true }
@@ -178,5 +182,9 @@ fun GRNavGraph() {
             lang = lang,
             onDismiss = { showAuth = false }
         )
+    }
+
+    if (showContacts) {
+        ContactDialog(onDismiss = { showContacts = false })
     }
 }
