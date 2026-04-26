@@ -1,0 +1,1 @@
+<?php include(TEMPLATEPATH . '/archive-wpb_portfolio.php'); ?>
