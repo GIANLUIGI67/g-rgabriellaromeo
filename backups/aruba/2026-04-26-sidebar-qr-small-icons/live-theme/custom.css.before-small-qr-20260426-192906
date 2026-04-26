@@ -1,0 +1,96 @@
+/* 
+
+INFORMATION
+
+To make it easy to update your theme, you should place your css styles in this file. You can
+copy a style from style.css and paste it in here and it will override the style from
+style.css file.
+
+*/
+
+#flags_language_selector {
+	clear: both !important;
+	float: left !important;
+	margin: 6px 0 0 0 !important;
+	line-height: 14px;
+	max-width: 224px;
+}
+
+#flags_language_selector a,
+#flags_language_selector img {
+	float: none !important;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+#flags_language_selector img {
+	margin: 1px 2px 1px 0 !important;
+}
+
+#codex_store_qr {
+	clear: both;
+	float: left;
+	margin: 8px 0 0 0;
+	width: 72px;
+}
+
+#codex_store_qr a,
+#codex_store_qr img {
+	display: block;
+}
+
+#codex_store_qr img {
+	width: 72px;
+	height: auto;
+	padding: 4px;
+	border: 1px solid #333;
+	background: #fff;
+	box-sizing: border-box;
+}
+
+#social_icons {
+	bottom: 10px;
+}
+
+#social_icons a {
+	display: inline-block;
+	vertical-align: bottom;
+}
+
+#social_icons a img {
+	width: auto;
+	height: 20px;
+}
+
+#social_icons #search_ico img {
+	width: auto;
+	height: 20px;
+}
+
+#dc-slick-3 .tab {
+	font-size: 16px !important;
+	line-height: 16px !important;
+}
+
+#dc-slick-3 .tab span {
+	padding: 10px 12px 10px 32px !important;
+	background-position: 10px 50% !important;
+}
+
+@media screen and (max-height: 660px) {
+	#codex_store_qr {
+		margin-top: 5px;
+		width: 56px;
+	}
+
+	#codex_store_qr img {
+		width: 56px;
+		padding: 3px;
+	}
+
+	#social_icons a img,
+	#social_icons #search_ico img {
+		height: 18px;
+	}
+}
+

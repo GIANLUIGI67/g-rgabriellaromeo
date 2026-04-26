@@ -1,0 +1,4 @@
+timestamp=20260426-192906
+ftp://ftp.g-rgabriellaromeo.it//www.g-rgabriellaromeo.it/wordpress/wp-content/themes/architectos/header.php.codex-restore-small-qr-20260426-192906
+ftp://ftp.g-rgabriellaromeo.it//www.g-rgabriellaromeo.it/wordpress/wp-content/themes/architectos/footer.php.codex-restore-small-qr-20260426-192906
+ftp://ftp.g-rgabriellaromeo.it//www.g-rgabriellaromeo.it/wordpress/wp-content/themes/architectos/custom.css.codex-restore-small-qr-20260426-192906
