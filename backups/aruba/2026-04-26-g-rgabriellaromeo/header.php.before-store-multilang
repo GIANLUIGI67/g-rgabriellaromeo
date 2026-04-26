@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" <?php language_attributes(); ?>>
+<head>
+<meta http-equiv="Content-Type" content="<?php bloginfo('html_type'); ?>; charset=<?php bloginfo('charset'); ?>" />
+<title><?php wp_title('-', true, 'right'); ?> <?php bloginfo('name'); ?></title>
+<?php $favicon = get_option('wpb_favicon'); if ( $favicon != '' ) : ?>
+<link rel="shortcut icon" href="<?php echo $favicon; ?>" />
+<?php endif; ?>
+<link rel="pingback" href="<?php bloginfo('pingback_url'); ?>" />	
+
+
+
+
+
+<script type="text/javascript">
+	var templatepaths = '<?php echo get_bloginfo('template_directory'); ?>/',
+		blockrc = '<?php echo (get_option('wpb_blockrc')) ? get_option('wpb_blockrc') : "false"; ?>';
+</script>
+
+<?php wp_enqueue_script('comment-reply'); ?>
+<?php wp_head(); ?>
+
+
+
+<?php /* Widgetized sidebar */
+    if ( !function_exists('dynamic_sidebar') || !dynamic_sidebar('my_mega_menu') ) : ?><?php endif; ?>
+
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-28834010-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+</head>
+
+<?php
+global $fullscreen;
+$extra = '';
+if ( ( $post->post_type == 'wpb_portfolio' && $_GET['ss'] == 'true' ) || $fullscreen == true ) { $extra .= ' fullscreen_slideshow'; }
+if ( post_password_required() ) { $extra .= ' pasword_protected_page'; }
+?>
+<body <?php body_class($extra); ?>>
+
+<div id="header">
+
+<div class="menu_logo">
+		<div class="menu_holder">
+				
+<?php if(ICL_LANGUAGE_CODE=='it'): ?>
+<a  id="logotype" class="li_logo"  href="http://www.g-rgabriellaromeo.it/"><img src="http://www.g-rgabriellaromeo.it/wordpress/wp-content/uploads/2012/04/logoBK3.png" alt="Gabriella Romeo Gioielli"/></a>
+
+<?php elseif(ICL_LANGUAGE_CODE=='en'): ?>
+<a id="logotype" class="li_logo"  href="http://www.g-rgabriellaromeo.it/?lang=en"><img src="http://www.g-rgabriellaromeo.it/wordpress/wp-content/uploads/2012/04/logoBK3_en.png" alt="Gabriella Romeo Jewels"/></a>
+
+<?php elseif(ICL_LANGUAGE_CODE=='ar'): ?>
+<a  id="logotype" class="li_logo"  href="http://www.g-rgabriellaromeo.it/?lang=ar"><img src="
+http://www.g-rgabriellaromeo.it/wordpress/wp-content/uploads/2012/05/logoBK_ar.png" alt="Gabriella Romeo Gioielli"/></a>
+
+<?php elseif(ICL_LANGUAGE_CODE=='fr'): ?>
+<a id="logotype" class="li_logo"  href="http://www.g-rgabriellaromeo.it/?lang=fr"><img src="http://www.g-rgabriellaromeo.it/wordpress/wp-content/uploads/2012/08/logoBK2_fr.png" alt="Gabriella Romeo Jewels"/></a>
+
+<?php endif;?>
+
+
+<ul class="header_menu">
+				<?php wp_nav_menu(array('theme_location' => 'primary-menu', 'container' => 'false', 'menu_id' => 'header_site_menu', 'menu_class' => 'header_menu', 'fallback_cb' => '', 'depth' => 3, 'items_wrap' => '%3$s')); ?>
+				<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-store"><a href="https://g-rgabriellaromeo.vercel.app">STORE</a></li>
+			</ul>
+
+            <div class="clear"></div>
+<div id="flags_language_selector"><?php language_selector_flags(); ?></div > 
+            <!-- end of megamenu -->
+		</div> 
+	</div>
+	<div id="social_icons">
+        <?php $twitter = get_option('wpb_social_twitter'); if ($twitter != ''): ?><a class="tooltip" href="http://twitter.com/<?php echo $twitter; ?>" title="<?php _e("Follow us on twitter", "wpb"); ?>" target="_blank"><img src="<?php echo get_bloginfo('template_directory'); ?>/images/twitter.png" alt="" /></a><?php endif; ?>
+        <?php $facebook = get_option('wpb_social_facebook'); if ($facebook != ''): ?><a class="tooltip" href="<?php echo $facebook; ?>" title="<?php _e("Become a Facebook fan", "wpb"); ?>" target="_blank"><img src="<?php echo get_bloginfo('template_directory'); ?>/images/facebook.png" alt="" /></a><?php endif; ?>
+        <?php $flickr = get_option('wpb_social_flickr'); if ($flickr != ''): ?><a class="tooltip" href="<?php echo $flickr; ?>" title="<?php _e("Check our photostream", "wpb"); ?>" target="_blank"><img src="<?php echo get_bloginfo('template_directory'); ?>/images/flickr.png" alt="" /></a><?php endif; ?>
+        <a id="search_ico" class="tooltip" href="<?php echo get_option('home'); ?>/?s=search" title="<?php _e("Search"); ?>"><img src="<?php echo get_bloginfo('template_directory'); ?>/images/search.png" alt="" /></a>
+	</div>
+	<?php get_search_form(); ?>
+</div> <!-- end #header -->
+
+<div class="content_holder">
+ <div class="clear"></div>
