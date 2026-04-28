@@ -7,6 +7,7 @@ import { getPublicImageUrl } from '../lib/storageUrl';
 
 export default function AdminPage() {
   const router = useRouter();
+  const EURO = '\u20AC';
 
   // sessione reale Supabase
   const [me, setMe] = useState(null);
@@ -144,7 +145,11 @@ export default function AdminPage() {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     const val = type === 'checkbox' ? checked : value;
-    setForm((prev) => ({ ...prev, [name]: val }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: val,
+      ...(name === 'categoria' ? { sottocategoria: '' } : {}),
+    }));
     if (name === 'categoria') setCategoriaSelezionata(val);
   };
 
@@ -297,6 +302,12 @@ export default function AdminPage() {
     cursor: 'pointer'
   };
   const logoutButtonStyle = { ...buttonStyle, backgroundColor: 'red', color: 'white', marginLeft: '0.5rem' };
+  const normalizeFilterValue = (value) => String(value || '').trim().toLowerCase();
+  const sottocategoriaSelezionata = form.sottocategoria;
+  const prodottiGalleriaAdmin = prodottiFiltrati.filter((prodotto) =>
+    normalizeFilterValue(prodotto.categoria) === normalizeFilterValue(categoriaSelezionata) &&
+    normalizeFilterValue(prodotto.sottocategoria) === normalizeFilterValue(sottocategoriaSelezionata)
+  );
 
   if (!hydrated) return null;
 
@@ -422,9 +433,11 @@ export default function AdminPage() {
         <button onClick={handleLogout} style={logoutButtonStyle}>ESCI</button>
       </div>
 
-      {categoriaSelezionata && (
+      {categoriaSelezionata && sottocategoriaSelezionata && (
         <>
-          <h2 style={{ marginTop: '2rem' }}>Galleria: {categoriaSelezionata.toUpperCase()}</h2>
+          <h2 style={{ marginTop: '2rem' }}>
+            Galleria: {categoriaSelezionata.toUpperCase()} / {sottocategoriaSelezionata.toUpperCase()}
+          </h2>
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
@@ -436,8 +449,7 @@ export default function AdminPage() {
             backgroundColor: '#1a1a1a',
             borderRadius: '10px'
           }}>
-            {prodottiFiltrati
-              .filter(p => p.categoria === categoriaSelezionata)
+            {prodottiGalleriaAdmin
               .map((item) => (
                 <div key={item.id} style={{
                   backgroundColor: 'white',
@@ -468,8 +480,8 @@ export default function AdminPage() {
                   />
                   <strong>{item.nome}</strong>
                   <p>{item.taglia}</p>
-                  <p style={{ fontFamily: 'Arial, sans-serif' }}>
-                    {'\u20AC'} {(Math.round(Number(item.prezzo || 0) * 10) / 10).toFixed(1)}
+                  <p className="gr-price">
+                    {EURO} {(Math.round(Number(item.prezzo || 0) * 10) / 10).toFixed(1)}
                   </p>
                   <p style={{ fontWeight: 'bold', color: item.quantita === 0 ? 'red' : 'black' }}>
                     {item.quantita === 0 ? 'da ordinare' : `Q: ${item.quantita}`}
