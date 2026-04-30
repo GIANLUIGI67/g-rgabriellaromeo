@@ -343,9 +343,19 @@ export default function AdminPage() {
           <button
             type="button"
             onClick={async () => {
-              const { error } = await supabase.auth.resetPasswordForEmail(loginEmail.trim());
-              if (error) alert('❌ Errore invio email: ' + error.message);
-              else alert('✅ Email per reset inviata. Controlla la tua casella.');
+              if (!loginEmail.trim()) { alert('Inserisci prima la tua email.'); return; }
+              try {
+                const res = await fetch('/api/admin-reset-password', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email: loginEmail.trim() }),
+                });
+                const json = await res.json().catch(() => ({}));
+                if (!res.ok) alert('❌ Errore: ' + (json.error || res.status));
+                else alert('✅ Email per reset inviata. Controlla la tua casella.');
+              } catch (e) {
+                alert('❌ Errore di rete: ' + e.message);
+              }
             }}
             style={{ backgroundColor: '#00BFFF', color: 'white', padding: '0.5rem 1rem', borderRadius: '6px', marginTop: '0.5rem' }}
           >
