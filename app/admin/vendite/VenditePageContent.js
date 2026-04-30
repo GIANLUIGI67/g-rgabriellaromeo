@@ -93,6 +93,7 @@ export default function VenditePageContent() {
   const [me, setMe] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [accessToken, setAccessToken] = useState('');
 
   // dati ordini
   const [ordini, setOrdini] = useState([]);
@@ -111,37 +112,41 @@ export default function VenditePageContent() {
     let mounted = true;
 
     const boot = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const [{ data: { user } }, { data: sessionData }] = await Promise.all([
+        supabase.auth.getUser(),
+        supabase.auth.getSession(),
+      ]);
       if (!mounted) return;
       setMe(user ?? null);
+      setAccessToken(sessionData?.session?.access_token || '');
     };
     boot();
 
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setMe(session?.user ?? null);
+      setAccessToken(session?.access_token || '');
     });
 
-    return () => sub?.subscription?.unsubscribe();
+    return () => { mounted = false; sub?.subscription?.unsubscribe(); };
   }, []);
 
-  // --------- check admin
+  // --------- check admin (service role via API — bypasses RLS)
   useEffect(() => {
     const check = async () => {
       setChecking(true);
       try {
-        if (!me?.email) { setIsAdmin(false); return; }
-        const { data, error } = await supabase
-          .from('admin_emails')
-          .select('email')
-          .eq('email', me.email)
-          .maybeSingle();
-        setIsAdmin(!!data && !error);
+        if (!me?.email || !accessToken) { setIsAdmin(false); return; }
+        const res = await fetch('/api/check-admin', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const json = await res.json().catch(() => ({}));
+        setIsAdmin(!!json.isAdmin);
       } finally {
         setChecking(false);
       }
     };
-    check();
-  }, [me]);
+    if (accessToken) check();
+  }, [me, accessToken]);
 
   // --------- carico ordini (tutti, poi filtro shipped)
   useEffect(() => {
@@ -240,13 +245,22 @@ export default function VenditePageContent() {
     );
   }
 
+  if (checking) {
+    return (
+      <main style={{ ...styles.main, justifyContent: 'center', alignItems: 'center' }}>
+        <p style={{ opacity: 0.7 }}>Verifica autorizzazioni…</p>
+      </main>
+    );
+  }
+
   if (!isAdmin) {
     return (
       <main style={styles.main}>
         <h1 style={styles.h1}>💰 Vendite</h1>
         <div style={{ marginBottom: 8 }}>Loggato come: {me.email}</div>
         <div>Il tuo account non ha permessi admin.</div>
-        <div style={{ marginTop: 10 }}>
+        <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
+          <button onClick={() => router.push('/admin')} style={styles.btnWhite}>← Pannello Admin</button>
           <button
             onClick={async () => { await supabase.auth.signOut(); router.push('/admin'); }}
             style={styles.btnRed}
