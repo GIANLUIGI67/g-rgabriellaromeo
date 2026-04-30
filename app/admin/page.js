@@ -13,6 +13,7 @@ export default function AdminPage() {
   const [me, setMe] = useState(null);
   const [hydrated, setHydrated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [checkingAdmin, setCheckingAdmin] = useState(false);
   const [errore, setErrore] = useState('');
   const [isAdminFlag, setIsAdminFlag] = useState(false);
   const [accessToken, setAccessToken] = useState('');
@@ -87,12 +88,17 @@ export default function AdminPage() {
   // verifica se l'utente loggato è nella whitelist admin_emails
   useEffect(() => {
     const checkAdmin = async () => {
-      if (!me?.email) { setIsAdminFlag(false); return; }
-      const res = await fetch('/api/check-admin', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      const json = await res.json().catch(() => ({}));
-      setIsAdminFlag(!!json.isAdmin);
+      if (!me?.email) { setIsAdminFlag(false); setCheckingAdmin(false); return; }
+      setCheckingAdmin(true);
+      try {
+        const res = await fetch('/api/check-admin', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const json = await res.json().catch(() => ({}));
+        setIsAdminFlag(!!json.isAdmin);
+      } finally {
+        setCheckingAdmin(false);
+      }
     };
     if (accessToken) checkAdmin();
   }, [me, accessToken]);
@@ -348,6 +354,15 @@ export default function AdminPage() {
             Invia link reset
           </button>
         </div>
+      </main>
+    );
+  }
+
+  // attendi la verifica admin senza mostrare "no permissions"
+  if (checkingAdmin) {
+    return (
+      <main style={{ padding: '2rem', backgroundColor: 'black', color: 'white', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <p style={{ opacity: 0.7 }}>Verifica autorizzazioni…</p>
       </main>
     );
   }

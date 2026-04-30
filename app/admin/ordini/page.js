@@ -292,6 +292,14 @@ export default function OrdiniPage() {
     );
   }
 
+  if (checking) {
+    return (
+      <main style={{ ...styles.main, justifyContent: 'center', alignItems: 'center' }}>
+        <p style={{ opacity: 0.7 }}>Verifica autorizzazioni…</p>
+      </main>
+    );
+  }
+
   if (!isAdmin) {
     return (
       <main style={styles.main}>
