@@ -628,6 +628,13 @@ export default function CheckoutPage() {
   return (
     <div className="checkout-container">
       <div className="card">
+        <button
+          className="checkout-back-nav"
+          onClick={() => router.back()}
+          aria-label={testi.back}
+        >
+          &#8592; {testi.back}
+        </button>
         <h1 className="title">{testi.titolo}</h1>
 
         {/* Cart Summary */}
@@ -998,6 +1005,26 @@ export default function CheckoutPage() {
         .payment-button:hover { background: #00b84a; }
         .payment-button:disabled { background: #009e40; cursor: not-allowed; }
 
+        .checkout-back-nav {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          background: none;
+          border: none;
+          color: #aaa;
+          font-size: 0.95rem;
+          cursor: pointer;
+          padding: 10px 4px;
+          margin-bottom: 12px;
+          min-height: 44px;
+          min-width: 44px;
+          transition: color 0.2s;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+        }
+        .checkout-back-nav:hover,
+        .checkout-back-nav:active { color: #fff; }
+
         .back-button {
           width: 100%;
           padding: 14px;
@@ -1010,6 +1037,9 @@ export default function CheckoutPage() {
           cursor: pointer;
           transition: background 0.2s;
           margin-top: 20px;
+          min-height: 44px;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
         }
         .back-button:hover { background: #333; }
 
