@@ -54,19 +54,18 @@ export default function OrdiniPage() {
     const check = async () => {
       setChecking(true);
       try {
-        if (!me?.email) { setIsAdmin(false); return; }
-        const { data, error } = await supabase
-          .from('admin_emails')
-          .select('email')
-          .eq('email', me.email)
-          .maybeSingle();
-        setIsAdmin(!!data && !error);
+        if (!me?.email || !accessToken) { setIsAdmin(false); return; }
+        const res = await fetch('/api/check-admin', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const json = await res.json().catch(() => ({}));
+        setIsAdmin(!!json.isAdmin);
       } finally {
         setChecking(false);
       }
     };
-    check();
-  }, [me]);
+    if (accessToken) check();
+  }, [me, accessToken]);
 
   // --------- util
   const inEuro = (val) => {

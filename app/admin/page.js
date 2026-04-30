@@ -88,15 +88,14 @@ export default function AdminPage() {
   useEffect(() => {
     const checkAdmin = async () => {
       if (!me?.email) { setIsAdminFlag(false); return; }
-      const { data, error } = await supabase
-        .from('admin_emails')
-        .select('email')
-        .eq('email', me.email)
-        .maybeSingle();
-      setIsAdminFlag(!!data && !error);
+      const res = await fetch('/api/check-admin', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const json = await res.json().catch(() => ({}));
+      setIsAdminFlag(!!json.isAdmin);
     };
-    checkAdmin();
-  }, [me]);
+    if (accessToken) checkAdmin();
+  }, [me, accessToken]);
 
   // carica i prodotti SOLO quando c'è un admin loggato
   useEffect(() => {
