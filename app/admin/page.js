@@ -43,7 +43,7 @@ export default function AdminPage() {
   };
 
   // form login reale
-  const [loginEmail, setLoginEmail] = useState('gianluigi.grassi@g-rgabriellaromeo.it');
+  const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
