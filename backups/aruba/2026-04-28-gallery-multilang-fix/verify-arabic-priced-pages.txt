@@ -1,0 +1,10 @@
+Arabic priced page verification
+/anello-berlin/ price_lines=1 expected=6.200 يورو expected_hits=1 forbidden=5.200 forbidden_hits=0
+/anello-marrakech-oro-bianco/ price_lines=1 expected=8.500 يورو expected_hits=1 forbidden=7.700 forbidden_hits=0
+/anello-marrakech/ price_lines=1 expected=8.500 يورو expected_hits=1 forbidden=7.700 forbidden_hits=0
+/anello-new-delhi/ price_lines=1 expected=7.600 يورو expected_hits=1 forbidden=6.700 forbidden_hits=0
+/anello-new-delhi-oro-bianco/ price_lines=1 expected=7.600 يورو expected_hits=1 forbidden=6.700 forbidden_hits=0
+/anello-new-york/ price_lines=1 expected=8.100 يورو expected_hits=1 forbidden=7.900 forbidden_hits=0
+/anello-new-york-oro-giallo/ price_lines=1 expected=8.100 يورو expected_hits=1 forbidden=7.900 forbidden_hits=0
+/anello-sydney-oro-bianco/ price_lines=1 expected=7.700 يورو expected_hits=1 forbidden=6.700 forbidden_hits=0
+/anello-sydney/ price_lines=1 expected=7.700 يورو expected_hits=1 forbidden=6.700 forbidden_hits=0

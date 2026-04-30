@@ -1,0 +1,32 @@
+<?php
+
+/* Initialize WPBakery framework and theme options
+---------------------------------------------------------- */
+require_once(TEMPLATEPATH . '/wpbakery/wpb_init.php'); //WPBakery Framework
+
+if (!function_exists('codex_gr_translate_widget_title')) {
+    function codex_gr_translate_widget_title($title) {
+        $plain_title = trim(wp_strip_all_tags((string) $title));
+        if ($plain_title !== 'Categories') {
+            return $title;
+        }
+
+        $language_code = defined('ICL_LANGUAGE_CODE') ? ICL_LANGUAGE_CODE : '';
+        $titles = array(
+            'it' => 'Categorie',
+            'en' => 'Categories',
+            'fr' => 'Catégories',
+            'ar' => 'الفئات',
+            'de' => 'Kategorien',
+            'es' => 'Categorías',
+            'zh-hans' => '分类',
+            'ja' => 'カテゴリー',
+        );
+
+        return isset($titles[$language_code]) ? $titles[$language_code] : $title;
+    }
+
+    add_filter('widget_title', 'codex_gr_translate_widget_title', 10, 1);
+}
+
+?>

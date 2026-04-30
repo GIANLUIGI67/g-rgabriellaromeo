@@ -1,0 +1,905 @@
+DRY RUN
+Array
+(
+    [targets] => Array
+        (
+            [0] => Array
+                (
+                    [source_id] => 354
+                    [post_id] => 1099
+                    [language] => ar
+                    [title] => برلين ::خاتم ذهب أبيض وأصفر
+                    [post_type] => post
+                    [post_name] => anello-berlin
+                    [current_price] => 
+                    [new_price] => € 6.200
+                )
+
+            [1] => Array
+                (
+                    [source_id] => 354
+                    [post_id] => 1699
+                    [language] => de
+                    [title] => Berlin :: Ring aus Weiß- und Gelbgold
+                    [post_type] => post
+                    [post_name] => anello-berlin-de
+                    [current_price] => € 5.200
+                    [new_price] => € 6.200
+                )
+
+            [2] => Array
+                (
+                    [source_id] => 354
+                    [post_id] => 835
+                    [language] => en
+                    [title] => Berlin :: White and Yellow gold Ring
+                    [post_type] => post
+                    [post_name] => berlin-ring
+                    [current_price] => € 5.200
+                    [new_price] => € 6.200
+                )
+
+            [3] => Array
+                (
+                    [source_id] => 354
+                    [post_id] => 1736
+                    [language] => es
+                    [title] => Berlin :: Anillo de oro blanco y amarillo
+                    [post_type] => post
+                    [post_name] => anello-berlin-es
+                    [current_price] => € 5.200
+                    [new_price] => € 6.200
+                )
+
+            [4] => Array
+                (
+                    [source_id] => 354
+                    [post_id] => 1304
+                    [language] => fr
+                    [title] => Berlin :: bague en or blanc et jaune
+                    [post_type] => post
+                    [post_name] => anello-berlin
+                    [current_price] => € 5.200
+                    [new_price] => € 6.200
+                )
+
+            [5] => Array
+                (
+                    [source_id] => 354
+                    [post_id] => 354
+                    [language] => it
+                    [title] => Berlin :: Anello Oro bianco e Oro Giallo
+                    [post_type] => post
+                    [post_name] => anello-berlin
+                    [current_price] => € 5.200
+                    [new_price] => € 6.200
+                )
+
+            [6] => Array
+                (
+                    [source_id] => 354
+                    [post_id] => 1810
+                    [language] => ja
+                    [title] => Berlin :: ホワイトゴールドとイエローゴールドのリング
+                    [post_type] => post
+                    [post_name] => anello-berlin-ja
+                    [current_price] => € 5.200
+                    [new_price] => € 6.200
+                )
+
+            [7] => Array
+                (
+                    [source_id] => 354
+                    [post_id] => 1773
+                    [language] => zh-hans
+                    [title] => Berlin :: 白金和黄金戒指
+                    [post_type] => post
+                    [post_name] => anello-berlin-zh-hans
+                    [current_price] => € 5.200
+                    [new_price] => € 6.200
+                )
+
+            [8] => Array
+                (
+                    [source_id] => 527
+                    [post_id] => 1112
+                    [language] => ar
+                    [title] => مراكش:: خاتم ذهب أبيض
+                    [post_type] => post
+                    [post_name] => anello-marrakech-oro-bianco
+                    [current_price] => 
+                    [new_price] => € 8.500
+                )
+
+            [9] => Array
+                (
+                    [source_id] => 527
+                    [post_id] => 1720
+                    [language] => de
+                    [title] => Marrakech :: Ring aus Weißgold
+                    [post_type] => post
+                    [post_name] => anello-marrakech-oro-bianco-de
+                    [current_price] => € 7.700
+                    [new_price] => € 8.500
+                )
+
+            [10] => Array
+                (
+                    [source_id] => 527
+                    [post_id] => 853
+                    [language] => en
+                    [title] => Marrakech :: White gold Ring
+                    [post_type] => post
+                    [post_name] => amarrakech-White-gold-Ring
+                    [current_price] => € 7.700
+                    [new_price] => € 8.500
+                )
+
+            [11] => Array
+                (
+                    [source_id] => 527
+                    [post_id] => 1757
+                    [language] => es
+                    [title] => Marrakech :: Anillo de oro blanco
+                    [post_type] => post
+                    [post_name] => anello-marrakech-oro-bianco-es
+                    [current_price] => € 7.700
+                    [new_price] => € 8.500
+                )
+
+            [12] => Array
+                (
+                    [source_id] => 527
+                    [post_id] => 1341
+                    [language] => fr
+                    [title] => Marrakech :: bague en or blanc 
+                    [post_type] => post
+                    [post_name] => anello-marrakech-oro-bianco
+                    [current_price] => € 7.700
+                    [new_price] => € 8.500
+                )
+
+            [13] => Array
+                (
+                    [source_id] => 527
+                    [post_id] => 527
+                    [language] => it
+                    [title] => Marrakech :: Anello Oro Bianco
+                    [post_type] => post
+                    [post_name] => anello-marrakech-oro-bianco
+                    [current_price] => € 7.700
+                    [new_price] => € 8.500
+                )
+
+            [14] => Array
+                (
+                    [source_id] => 527
+                    [post_id] => 1831
+                    [language] => ja
+                    [title] => Marrakech :: ホワイトゴールドのリング
+                    [post_type] => post
+                    [post_name] => anello-marrakech-oro-bianco-ja
+                    [current_price] => € 7.700
+                    [new_price] => € 8.500
+                )
+
+            [15] => Array
+                (
+                    [source_id] => 527
+                    [post_id] => 1794
+                    [language] => zh-hans
+                    [title] => Marrakech :: 白金戒指
+                    [post_type] => post
+                    [post_name] => anello-marrakech-oro-bianco-zh-hans
+                    [current_price] => € 7.700
+                    [new_price] => € 8.500
+                )
+
+            [16] => Array
+                (
+                    [source_id] => 442
+                    [post_id] => 1125
+                    [language] => ar
+                    [title] => مراكش ::خاتم ذهب اصفر
+                    [post_type] => post
+                    [post_name] => anello-marrakech
+                    [current_price] => 
+                    [new_price] => € 8.500
+                )
+
+            [17] => Array
+                (
+                    [source_id] => 442
+                    [post_id] => 1709
+                    [language] => de
+                    [title] => Marrakech :: Ring aus Gelbgold
+                    [post_type] => post
+                    [post_name] => anello-marrakech-de
+                    [current_price] =>   € 7.500
+                    [new_price] => € 8.500
+                )
+
+            [18] => Array
+                (
+                    [source_id] => 442
+                    [post_id] => 859
+                    [language] => en
+                    [title] => Marrakech :: Yellow gold Ring
+                    [post_type] => post
+                    [post_name] => marrakech-Yellow-gold-ring
+                    [current_price] =>   € 7.500
+                    [new_price] => € 8.500
+                )
+
+            [19] => Array
+                (
+                    [source_id] => 442
+                    [post_id] => 1746
+                    [language] => es
+                    [title] => Marrakech :: Anillo de oro amarillo
+                    [post_type] => post
+                    [post_name] => anello-marrakech-es
+                    [current_price] =>   € 7.500
+                    [new_price] => € 8.500
+                )
+
+            [20] => Array
+                (
+                    [source_id] => 442
+                    [post_id] => 1337
+                    [language] => fr
+                    [title] => Marrakech ::  Bague en or jaune
+                    [post_type] => post
+                    [post_name] => anello-marrakech
+                    [current_price] =>   € 7.500
+                    [new_price] => € 8.500
+                )
+
+            [21] => Array
+                (
+                    [source_id] => 442
+                    [post_id] => 442
+                    [language] => it
+                    [title] => Marrakech :: Anello Oro Giallo
+                    [post_type] => post
+                    [post_name] => anello-marrakech
+                    [current_price] =>   € 7.500
+                    [new_price] => € 8.500
+                )
+
+            [22] => Array
+                (
+                    [source_id] => 442
+                    [post_id] => 1820
+                    [language] => ja
+                    [title] => Marrakech :: イエローゴールドのリング
+                    [post_type] => post
+                    [post_name] => anello-marrakech-ja
+                    [current_price] =>   € 7.500
+                    [new_price] => € 8.500
+                )
+
+            [23] => Array
+                (
+                    [source_id] => 442
+                    [post_id] => 1783
+                    [language] => zh-hans
+                    [title] => Marrakech :: 黄金戒指
+                    [post_type] => post
+                    [post_name] => anello-marrakech-zh-hans
+                    [current_price] =>   € 7.500
+                    [new_price] => € 8.500
+                )
+
+            [24] => Array
+                (
+                    [source_id] => 467
+                    [post_id] => 1150
+                    [language] => ar
+                    [title] => نيودلهي :: خاتم ذهب اصفر
+                    [post_type] => post
+                    [post_name] => anello-new-delhi
+                    [current_price] => 
+                    [new_price] => € 7.600
+                )
+
+            [25] => Array
+                (
+                    [source_id] => 467
+                    [post_id] => 1711
+                    [language] => de
+                    [title] => New Delhi :: Ring aus Gelbgold
+                    [post_type] => post
+                    [post_name] => anello-new-delhi-de
+                    [current_price] => € 6.700
+                    [new_price] => € 7.600
+                )
+
+            [26] => Array
+                (
+                    [source_id] => 467
+                    [post_id] => 886
+                    [language] => en
+                    [title] => New Delhi :: Yellow gold Ring
+                    [post_type] => post
+                    [post_name] => new-delhi-Yellow-gold-ring
+                    [current_price] => € 6.700
+                    [new_price] => € 7.600
+                )
+
+            [27] => Array
+                (
+                    [source_id] => 467
+                    [post_id] => 1748
+                    [language] => es
+                    [title] => New Delhi :: Anillo de oro amarillo
+                    [post_type] => post
+                    [post_name] => anello-new-delhi-es
+                    [current_price] => € 6.700
+                    [new_price] => € 7.600
+                )
+
+            [28] => Array
+                (
+                    [source_id] => 467
+                    [post_id] => 1369
+                    [language] => fr
+                    [title] => New Delhi :: bague en or jaune
+                    [post_type] => post
+                    [post_name] => anello-new-delhi
+                    [current_price] => € 6.700
+                    [new_price] => € 7.600
+                )
+
+            [29] => Array
+                (
+                    [source_id] => 467
+                    [post_id] => 467
+                    [language] => it
+                    [title] => New Delhi :: Anello Oro Giallo
+                    [post_type] => post
+                    [post_name] => anello-new-delhi
+                    [current_price] => € 6.700
+                    [new_price] => € 7.600
+                )
+
+            [30] => Array
+                (
+                    [source_id] => 467
+                    [post_id] => 1822
+                    [language] => ja
+                    [title] => New Delhi :: イエローゴールドのリング
+                    [post_type] => post
+                    [post_name] => anello-new-delhi-ja
+                    [current_price] => € 6.700
+                    [new_price] => € 7.600
+                )
+
+            [31] => Array
+                (
+                    [source_id] => 467
+                    [post_id] => 1785
+                    [language] => zh-hans
+                    [title] => New Delhi :: 黄金戒指
+                    [post_type] => post
+                    [post_name] => anello-new-delhi-zh-hans
+                    [current_price] => € 6.700
+                    [new_price] => € 7.600
+                )
+
+            [32] => Array
+                (
+                    [source_id] => 553
+                    [post_id] => 1137
+                    [language] => ar
+                    [title] => نيودلهي :: خاتم ذهب ابيض
+                    [post_type] => post
+                    [post_name] => anello-new-delhi-oro-bianco
+                    [current_price] => 
+                    [new_price] => € 7.600
+                )
+
+            [33] => Array
+                (
+                    [source_id] => 553
+                    [post_id] => 1724
+                    [language] => de
+                    [title] => New Delhi :: Ring aus Weißgold
+                    [post_type] => post
+                    [post_name] => anello-new-delhi-oro-bianco-de
+                    [current_price] => € 6.700
+                    [new_price] => € 7.600
+                )
+
+            [34] => Array
+                (
+                    [source_id] => 553
+                    [post_id] => 885
+                    [language] => en
+                    [title] => New Delhi :: White gold Ring
+                    [post_type] => post
+                    [post_name] => new-delhi-Whitegold-Ring
+                    [current_price] => € 6.700
+                    [new_price] => € 7.600
+                )
+
+            [35] => Array
+                (
+                    [source_id] => 553
+                    [post_id] => 1761
+                    [language] => es
+                    [title] => New Delhi :: Anillo de oro blanco
+                    [post_type] => post
+                    [post_name] => anello-new-delhi-oro-bianco-es
+                    [current_price] => € 6.700
+                    [new_price] => € 7.600
+                )
+
+            [36] => Array
+                (
+                    [source_id] => 553
+                    [post_id] => 1364
+                    [language] => fr
+                    [title] => New Delhi :: bague en or blanc	
+                    [post_type] => post
+                    [post_name] => anello-new-delhi-oro-bianco
+                    [current_price] => € 6.700
+                    [new_price] => € 7.600
+                )
+
+            [37] => Array
+                (
+                    [source_id] => 553
+                    [post_id] => 553
+                    [language] => it
+                    [title] => New Delhi :: Anello Oro Bianco
+                    [post_type] => post
+                    [post_name] => anello-new-delhi-oro-bianco
+                    [current_price] => € 6.700
+                    [new_price] => € 7.600
+                )
+
+            [38] => Array
+                (
+                    [source_id] => 553
+                    [post_id] => 1835
+                    [language] => ja
+                    [title] => New Delhi :: ホワイトゴールドのリング
+                    [post_type] => post
+                    [post_name] => anello-new-delhi-oro-bianco-ja
+                    [current_price] => € 6.700
+                    [new_price] => € 7.600
+                )
+
+            [39] => Array
+                (
+                    [source_id] => 553
+                    [post_id] => 1798
+                    [language] => zh-hans
+                    [title] => New Delhi :: 白金戒指
+                    [post_type] => post
+                    [post_name] => anello-new-delhi-oro-bianco-zh-hans
+                    [current_price] => € 6.700
+                    [new_price] => € 7.600
+                )
+
+            [40] => Array
+                (
+                    [source_id] => 431
+                    [post_id] => 1161
+                    [language] => ar
+                    [title] => نيويورك:: خاتم ذهب ابيض
+                    [post_type] => post
+                    [post_name] => anello-new-york
+                    [current_price] => 
+                    [new_price] => € 8.100
+                )
+
+            [41] => Array
+                (
+                    [source_id] => 431
+                    [post_id] => 1705
+                    [language] => de
+                    [title] => New York :: Ring aus Weißgold
+                    [post_type] => post
+                    [post_name] => anello-new-york-de
+                    [current_price] => € 7900
+                    [new_price] => € 8.100
+                )
+
+            [42] => Array
+                (
+                    [source_id] => 431
+                    [post_id] => 913
+                    [language] => en
+                    [title] => New York :: White gold Ring
+                    [post_type] => post
+                    [post_name] => new-york-White-gold-Ring
+                    [current_price] => € 7900
+                    [new_price] => € 8.100
+                )
+
+            [43] => Array
+                (
+                    [source_id] => 431
+                    [post_id] => 1742
+                    [language] => es
+                    [title] => New York :: Anillo de oro blanco
+                    [post_type] => post
+                    [post_name] => anello-new-york-es
+                    [current_price] => € 7900
+                    [new_price] => € 8.100
+                )
+
+            [44] => Array
+                (
+                    [source_id] => 431
+                    [post_id] => 1391
+                    [language] => fr
+                    [title] => New York ::  bague en or blanc
+                    [post_type] => post
+                    [post_name] => anello-new-york
+                    [current_price] => € 7900
+                    [new_price] => € 8.100
+                )
+
+            [45] => Array
+                (
+                    [source_id] => 431
+                    [post_id] => 431
+                    [language] => it
+                    [title] => New York :: Anello Oro Bianco
+                    [post_type] => post
+                    [post_name] => anello-new-york
+                    [current_price] => € 7900
+                    [new_price] => € 8.100
+                )
+
+            [46] => Array
+                (
+                    [source_id] => 431
+                    [post_id] => 1816
+                    [language] => ja
+                    [title] => New York :: ホワイトゴールドのリング
+                    [post_type] => post
+                    [post_name] => anello-new-york-ja
+                    [current_price] => € 7900
+                    [new_price] => € 8.100
+                )
+
+            [47] => Array
+                (
+                    [source_id] => 431
+                    [post_id] => 1779
+                    [language] => zh-hans
+                    [title] => New York :: 白金戒指
+                    [post_type] => post
+                    [post_name] => anello-new-york-zh-hans
+                    [current_price] => € 7900
+                    [new_price] => € 8.100
+                )
+
+            [48] => Array
+                (
+                    [source_id] => 573
+                    [post_id] => 1172
+                    [language] => ar
+                    [title] => نيويورك:: خاتم ذهب اصفر
+                    [post_type] => post
+                    [post_name] => anello-new-york-oro-giallo
+                    [current_price] => 
+                    [new_price] => € 8.100
+                )
+
+            [49] => Array
+                (
+                    [source_id] => 573
+                    [post_id] => 1728
+                    [language] => de
+                    [title] => New York :: Ring aus Gelbgold
+                    [post_type] => post
+                    [post_name] => anello-new-york-oro-giallo-de
+                    [current_price] => € 7900
+                    [new_price] => € 8.100
+                )
+
+            [50] => Array
+                (
+                    [source_id] => 573
+                    [post_id] => 912
+                    [language] => en
+                    [title] => New York :: Yellow gold Ring
+                    [post_type] => post
+                    [post_name] => new-york-Yellow-goldring
+                    [current_price] => € 7900
+                    [new_price] => € 8.100
+                )
+
+            [51] => Array
+                (
+                    [source_id] => 573
+                    [post_id] => 1765
+                    [language] => es
+                    [title] => New York :: Anillo de oro amarillo
+                    [post_type] => post
+                    [post_name] => anello-new-york-oro-giallo-es
+                    [current_price] => € 7900
+                    [new_price] => € 8.100
+                )
+
+            [52] => Array
+                (
+                    [source_id] => 573
+                    [post_id] => 1386
+                    [language] => fr
+                    [title] => New York :: bague en or jaune
+                    [post_type] => post
+                    [post_name] => anello-new-york-oro-giallo
+                    [current_price] => € 7900
+                    [new_price] => € 8.100
+                )
+
+            [53] => Array
+                (
+                    [source_id] => 573
+                    [post_id] => 573
+                    [language] => it
+                    [title] => New York :: Anello Oro Giallo
+                    [post_type] => post
+                    [post_name] => anello-new-york-oro-giallo
+                    [current_price] => € 7900
+                    [new_price] => € 8.100
+                )
+
+            [54] => Array
+                (
+                    [source_id] => 573
+                    [post_id] => 1839
+                    [language] => ja
+                    [title] => New York :: イエローゴールドのリング
+                    [post_type] => post
+                    [post_name] => anello-new-york-oro-giallo-ja
+                    [current_price] => € 7900
+                    [new_price] => € 8.100
+                )
+
+            [55] => Array
+                (
+                    [source_id] => 573
+                    [post_id] => 1802
+                    [language] => zh-hans
+                    [title] => New York :: 黄金戒指
+                    [post_type] => post
+                    [post_name] => anello-new-york-oro-giallo-zh-hans
+                    [current_price] => € 7900
+                    [new_price] => € 8.100
+                )
+
+            [56] => Array
+                (
+                    [source_id] => 585
+                    [post_id] => 1187
+                    [language] => ar
+                    [title] => سيدني:: خاتم ذهب ابيض
+                    [post_type] => post
+                    [post_name] => anello-sydney-oro-bianco
+                    [current_price] => 
+                    [new_price] => € 7.700
+                )
+
+            [57] => Array
+                (
+                    [source_id] => 585
+                    [post_id] => 1729
+                    [language] => de
+                    [title] => Sydney :: Ring aus Weißgold
+                    [post_type] => post
+                    [post_name] => anello-sydney-oro-bianco-de
+                    [current_price] => € 6.700
+                    [new_price] => € 7.700
+                )
+
+            [58] => Array
+                (
+                    [source_id] => 585
+                    [post_id] => 818
+                    [language] => en
+                    [title] => Sydney :: White gold Ring
+                    [post_type] => post
+                    [post_name] => -sydney-White-gold-Ring
+                    [current_price] => € 6.700
+                    [new_price] => € 7.700
+                )
+
+            [59] => Array
+                (
+                    [source_id] => 585
+                    [post_id] => 1766
+                    [language] => es
+                    [title] => Sydney :: Anillo de oro blanco
+                    [post_type] => post
+                    [post_name] => anello-sydney-oro-bianco-es
+                    [current_price] => € 6.700
+                    [new_price] => € 7.700
+                )
+
+            [60] => Array
+                (
+                    [source_id] => 585
+                    [post_id] => 1416
+                    [language] => fr
+                    [title] => Sydney :: bague en or blanc
+                    [post_type] => post
+                    [post_name] => anello-sydney-oro-bianco
+                    [current_price] => € 6.700
+                    [new_price] => € 7.700
+                )
+
+            [61] => Array
+                (
+                    [source_id] => 585
+                    [post_id] => 585
+                    [language] => it
+                    [title] => Sydney :: Anello Oro Bianco
+                    [post_type] => post
+                    [post_name] => anello-sydney-oro-bianco
+                    [current_price] => € 6.700
+                    [new_price] => € 7.700
+                )
+
+            [62] => Array
+                (
+                    [source_id] => 585
+                    [post_id] => 1840
+                    [language] => ja
+                    [title] => Sydney :: ホワイトゴールドのリング
+                    [post_type] => post
+                    [post_name] => anello-sydney-oro-bianco-ja
+                    [current_price] => € 6.700
+                    [new_price] => € 7.700
+                )
+
+            [63] => Array
+                (
+                    [source_id] => 585
+                    [post_id] => 1803
+                    [language] => zh-hans
+                    [title] => Sydney :: 白金戒指
+                    [post_type] => post
+                    [post_name] => anello-sydney-oro-bianco-zh-hans
+                    [current_price] => € 6.700
+                    [new_price] => € 7.700
+                )
+
+            [64] => Array
+                (
+                    [source_id] => 334
+                    [post_id] => 1198
+                    [language] => ar
+                    [title] => سيدني:: خاتم ذهب اصفر
+                    [post_type] => post
+                    [post_name] => anello-sydney
+                    [current_price] => 
+                    [new_price] => € 7.700
+                )
+
+            [65] => Array
+                (
+                    [source_id] => 334
+                    [post_id] => 1704
+                    [language] => de
+                    [title] => Sydney :: Ring aus Gelbgold
+                    [post_type] => post
+                    [post_name] => anello-sydney-de
+                    [current_price] => € 6.700
+                    [new_price] => € 7.700
+                )
+
+            [66] => Array
+                (
+                    [source_id] => 334
+                    [post_id] => 799
+                    [language] => en
+                    [title] => Sydney :: Yellow gold Ring
+                    [post_type] => post
+                    [post_name] => sydney-yellow-gold-ring
+                    [current_price] => € 6.700
+                    [new_price] => € 7.700
+                )
+
+            [67] => Array
+                (
+                    [source_id] => 334
+                    [post_id] => 1741
+                    [language] => es
+                    [title] => Sydney :: Anillo de oro amarillo
+                    [post_type] => post
+                    [post_name] => anello-sydney-es
+                    [current_price] => € 6.700
+                    [new_price] => € 7.700
+                )
+
+            [68] => Array
+                (
+                    [source_id] => 334
+                    [post_id] => 1418
+                    [language] => fr
+                    [title] => Sydney :: bague en or jaune
+                    [post_type] => post
+                    [post_name] => anello-sydney
+                    [current_price] => € 6.700
+                    [new_price] => € 7.700
+                )
+
+            [69] => Array
+                (
+                    [source_id] => 334
+                    [post_id] => 334
+                    [language] => it
+                    [title] => Sydney :: Anello Oro Giallo
+                    [post_type] => post
+                    [post_name] => anello-sydney
+                    [current_price] => € 6.700
+                    [new_price] => € 7.700
+                )
+
+            [70] => Array
+                (
+                    [source_id] => 334
+                    [post_id] => 1815
+                    [language] => ja
+                    [title] => Sydney :: イエローゴールドのリング
+                    [post_type] => post
+                    [post_name] => anello-sydney-ja
+                    [current_price] => € 6.700
+                    [new_price] => € 7.700
+                )
+
+            [71] => Array
+                (
+                    [source_id] => 334
+                    [post_id] => 1778
+                    [language] => zh-hans
+                    [title] => Sydney :: 黄金戒指
+                    [post_type] => post
+                    [post_name] => anello-sydney-zh-hans
+                    [current_price] => € 6.700
+                    [new_price] => € 7.700
+                )
+
+        )
+
+    [slug_conflicts] => Array
+        (
+            [0] => Array
+                (
+                    [ID] => 154
+                    [post_type] => attachment
+                    [post_title] => anello new delhi oro bianco
+                    [post_name] => anello-new-delhi-oro-bianco
+                    [post_status] => inherit
+                )
+
+            [1] => Array
+                (
+                    [ID] => 1137
+                    [post_type] => post
+                    [post_title] => نيودلهي :: خاتم ذهب ابيض
+                    [post_name] => anello-new-delhi-oro-bianco
+                    [post_status] => publish
+                )
+
+            [2] => Array
+                (
+                    [ID] => 1364
+                    [post_type] => post
+                    [post_title] => New Delhi :: bague en or blanc	
+                    [post_name] => anello-new-delhi-oro-bianco
+                    [post_status] => publish
+                )
+
+        )
+
+)
+
+No changes written. Add &apply=1 to update.

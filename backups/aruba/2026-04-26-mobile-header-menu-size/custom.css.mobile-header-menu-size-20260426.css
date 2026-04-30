@@ -1,0 +1,75 @@
+/*
+
+INFORMATION
+
+To make it easy to update your theme, you should place your css styles in this file. You can
+copy a style from style.css and paste it in here and it will override the style from
+style.css file.
+
+*/
+
+/*
+ * Mobile readability override.
+ * Enlarges the logo image and primary navigation buttons on narrow screens while
+ * preserving the existing fonts, colors, menu order, and desktop layout.
+ */
+@media screen and (max-width: 768px), screen and (max-device-width: 768px) {
+	#header {
+		width: 300px;
+		overflow-y: auto;
+		overflow-x: hidden;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.content_holder {
+		margin-left: 300px;
+	}
+
+	.menu_holder .li_logo {
+		margin: 36px 0 24px 0;
+		max-width: 300px;
+	}
+
+	.li_logo img {
+		box-sizing: border-box;
+		width: 240px;
+		max-width: 280px;
+		height: auto;
+		padding: 24px 20px;
+	}
+
+	.header_menu {
+		font-size: 20px;
+		line-height: 1.35em;
+	}
+
+	.header_menu li {
+		margin: 0 0 2px 0;
+	}
+
+	.header_menu a {
+		box-sizing: border-box;
+		max-width: 268px;
+		padding: 10px 16px;
+		white-space: normal;
+		overflow-wrap: anywhere;
+		word-break: normal;
+	}
+
+	.header_menu li .sub-menu {
+		min-width: 180px;
+		max-width: 300px;
+	}
+
+	#social_icons {
+		box-sizing: border-box;
+		width: 268px;
+		max-width: 268px;
+		margin-left: 15px;
+		overflow: hidden;
+	}
+
+	#search_ico {
+		right: 16px;
+	}
+}

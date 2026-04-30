@@ -1,0 +1,2 @@
+Remote restore file: wp-content/themes/architectos/header.php.codex-restore-twitter-to-x-20260428-101957
+Local restore file: /Users/globalmindgianluigigrassi/Projects/g-rgabriellaromeo/backups/aruba/2026-04-28-twitter-to-x/live-theme/restore-20260428-101957/header.php.before-twitter-to-x-20260428-101957

@@ -1,0 +1,2 @@
+Remote restore file: wp-content/themes/architectos/header.php.codex-restore-social-left-align-20260428-103351
+Local restore file: /Users/globalmindgianluigigrassi/Projects/g-rgabriellaromeo/backups/aruba/2026-04-28-social-left-align/live-theme/restore-20260428-103351/header.php.before-social-left-align-20260428-103351

@@ -1,0 +1,3462 @@
+DRY RUN
+Array
+(
+    [0] => Array
+        (
+            [source_id] => 354
+            [post_id] => 354
+            [language] => it
+            [title] => Berlin :: Anello Oro bianco e Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 6.200
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [1] => Array
+        (
+            [source_id] => 354
+            [post_id] => 835
+            [language] => en
+            [title] => Berlin :: White and Yellow gold Ring
+            [mode] => normalize-existing-content
+            [price_number] => 6.200
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [2] => Array
+        (
+            [source_id] => 354
+            [post_id] => 1304
+            [language] => fr
+            [title] => Berlin :: bague en or blanc et jaune
+            [mode] => normalize-existing-content
+            [price_number] => 6.200
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [3] => Array
+        (
+            [source_id] => 354
+            [post_id] => 1099
+            [language] => ar
+            [title] => برلين ::خاتم ذهب أبيض وأصفر
+            [mode] => normalize-existing-content
+            [price_number] => 6.200
+            [price_lines_before] => 2
+            [feature_lines_from_source] => 3
+        )
+
+    [4] => Array
+        (
+            [source_id] => 354
+            [post_id] => 1699
+            [language] => de
+            [title] => Berlin :: Ring aus Weiß- und Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 6.200
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [5] => Array
+        (
+            [source_id] => 354
+            [post_id] => 1736
+            [language] => es
+            [title] => Berlin :: Anillo de oro blanco y amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 6.200
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [6] => Array
+        (
+            [source_id] => 354
+            [post_id] => 1773
+            [language] => zh-hans
+            [title] => Berlin :: 白金和黄金戒指
+            [mode] => regenerate-translated-content
+            [price_number] => 6.200
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [7] => Array
+        (
+            [source_id] => 354
+            [post_id] => 1810
+            [language] => ja
+            [title] => Berlin :: ホワイトゴールドとイエローゴールドのリング
+            [mode] => regenerate-translated-content
+            [price_number] => 6.200
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [8] => Array
+        (
+            [source_id] => 351
+            [post_id] => 351
+            [language] => it
+            [title] => Berlin :: Bracciale Oro bianco e Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [9] => Array
+        (
+            [source_id] => 351
+            [post_id] => 838
+            [language] => en
+            [title] => Berlin :: White and Yellow gold Bracelet
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [10] => Array
+        (
+            [source_id] => 351
+            [post_id] => 1326
+            [language] => fr
+            [title] => Berlin :: bracelet en or jaune et blanc
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [11] => Array
+        (
+            [source_id] => 351
+            [post_id] => 1096
+            [language] => ar
+            [title] => برلين :: أسوارة ذهب أبيض وأصفر
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [12] => Array
+        (
+            [source_id] => 351
+            [post_id] => 1698
+            [language] => de
+            [title] => Berlin :: Armband aus Weiß- und Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [13] => Array
+        (
+            [source_id] => 351
+            [post_id] => 1735
+            [language] => es
+            [title] => Berlin :: Pulsera de oro blanco y amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [14] => Array
+        (
+            [source_id] => 351
+            [post_id] => 1772
+            [language] => zh-hans
+            [title] => Berlin :: 白金和黄金手链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [15] => Array
+        (
+            [source_id] => 351
+            [post_id] => 1809
+            [language] => ja
+            [title] => Berlin :: ホワイトゴールドとイエローゴールドのブレスレット
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [16] => Array
+        (
+            [source_id] => 408
+            [post_id] => 408
+            [language] => it
+            [title] => Berlin :: Orecchini Oro bianco e Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [17] => Array
+        (
+            [source_id] => 408
+            [post_id] => 832
+            [language] => en
+            [title] => Berlin :: White and Yellow gold Earrings
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [18] => Array
+        (
+            [source_id] => 408
+            [post_id] => 1328
+            [language] => fr
+            [title] => Berlin :: boucles d’oreilles en or blanc et jaune
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [19] => Array
+        (
+            [source_id] => 408
+            [post_id] => 1102
+            [language] => ar
+            [title] => برلين :: أقراط ذهب أبيض واصفر
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [20] => Array
+        (
+            [source_id] => 408
+            [post_id] => 1700
+            [language] => de
+            [title] => Berlin :: Ohrringe aus Weiß- und Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [21] => Array
+        (
+            [source_id] => 408
+            [post_id] => 1737
+            [language] => es
+            [title] => Berlin :: Pendientes de oro blanco y amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [22] => Array
+        (
+            [source_id] => 408
+            [post_id] => 1774
+            [language] => zh-hans
+            [title] => Berlin :: 白金和黄金耳环
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [23] => Array
+        (
+            [source_id] => 408
+            [post_id] => 1811
+            [language] => ja
+            [title] => Berlin :: ホワイトゴールドとイエローゴールドのイヤリング
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [24] => Array
+        (
+            [source_id] => 413
+            [post_id] => 413
+            [language] => it
+            [title] => Berlin :: Collana Oro bianco e Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [25] => Array
+        (
+            [source_id] => 413
+            [post_id] => 829
+            [language] => en
+            [title] => Berlin :: White and Yellow gold Necklace
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [26] => Array
+        (
+            [source_id] => 413
+            [post_id] => 1333
+            [language] => fr
+            [title] => Berlin :: collier en or blanc et jaune
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [27] => Array
+        (
+            [source_id] => 413
+            [post_id] => 1105
+            [language] => ar
+            [title] => برلين:: عقد ذهب أبيض وأصفر
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [28] => Array
+        (
+            [source_id] => 413
+            [post_id] => 1701
+            [language] => de
+            [title] => Berlin :: Halskette aus Weiß- und Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [29] => Array
+        (
+            [source_id] => 413
+            [post_id] => 1738
+            [language] => es
+            [title] => Berlin :: Collar de oro blanco y amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [30] => Array
+        (
+            [source_id] => 413
+            [post_id] => 1775
+            [language] => zh-hans
+            [title] => Berlin :: 白金和黄金项链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [31] => Array
+        (
+            [source_id] => 413
+            [post_id] => 1812
+            [language] => ja
+            [title] => Berlin :: ホワイトゴールドとイエローゴールドのネックレス
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [32] => Array
+        (
+            [source_id] => 527
+            [post_id] => 527
+            [language] => it
+            [title] => Marrakech :: Anello Oro Bianco
+            [mode] => normalize-existing-content
+            [price_number] => 8.500
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [33] => Array
+        (
+            [source_id] => 527
+            [post_id] => 853
+            [language] => en
+            [title] => Marrakech :: White gold Ring
+            [mode] => normalize-existing-content
+            [price_number] => 8.500
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [34] => Array
+        (
+            [source_id] => 527
+            [post_id] => 1341
+            [language] => fr
+            [title] => Marrakech :: bague en or blanc 
+            [mode] => normalize-existing-content
+            [price_number] => 8.500
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [35] => Array
+        (
+            [source_id] => 527
+            [post_id] => 1112
+            [language] => ar
+            [title] => مراكش:: خاتم ذهب أبيض
+            [mode] => normalize-existing-content
+            [price_number] => 8.500
+            [price_lines_before] => 2
+            [feature_lines_from_source] => 3
+        )
+
+    [36] => Array
+        (
+            [source_id] => 527
+            [post_id] => 1720
+            [language] => de
+            [title] => Marrakech :: Ring aus Weißgold
+            [mode] => regenerate-translated-content
+            [price_number] => 8.500
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [37] => Array
+        (
+            [source_id] => 527
+            [post_id] => 1757
+            [language] => es
+            [title] => Marrakech :: Anillo de oro blanco
+            [mode] => regenerate-translated-content
+            [price_number] => 8.500
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [38] => Array
+        (
+            [source_id] => 527
+            [post_id] => 1794
+            [language] => zh-hans
+            [title] => Marrakech :: 白金戒指
+            [mode] => regenerate-translated-content
+            [price_number] => 8.500
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [39] => Array
+        (
+            [source_id] => 527
+            [post_id] => 1831
+            [language] => ja
+            [title] => Marrakech :: ホワイトゴールドのリング
+            [mode] => regenerate-translated-content
+            [price_number] => 8.500
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [40] => Array
+        (
+            [source_id] => 444
+            [post_id] => 444
+            [language] => it
+            [title] => Marrakech :: Bracciale Oro Bianco
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [41] => Array
+        (
+            [source_id] => 444
+            [post_id] => 867
+            [language] => en
+            [title] => Marrakech :: White gold Bracelet
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [42] => Array
+        (
+            [source_id] => 444
+            [post_id] => 1342
+            [language] => fr
+            [title] => Marrakech :: bracelet en or blanc 
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [43] => Array
+        (
+            [source_id] => 444
+            [post_id] => 1116
+            [language] => ar
+            [title] => مراكش:: اسوارة ذهب أبيض.
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [44] => Array
+        (
+            [source_id] => 444
+            [post_id] => 1710
+            [language] => de
+            [title] => Marrakech :: Armband aus Weißgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [45] => Array
+        (
+            [source_id] => 444
+            [post_id] => 1747
+            [language] => es
+            [title] => Marrakech :: Pulsera de oro blanco
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [46] => Array
+        (
+            [source_id] => 444
+            [post_id] => 1784
+            [language] => zh-hans
+            [title] => Marrakech :: 白金手链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [47] => Array
+        (
+            [source_id] => 444
+            [post_id] => 1821
+            [language] => ja
+            [title] => Marrakech :: ホワイトゴールドのブレスレット
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [48] => Array
+        (
+            [source_id] => 506
+            [post_id] => 506
+            [language] => it
+            [title] => Marrakech :: Orecchini Oro Bianco
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [49] => Array
+        (
+            [source_id] => 506
+            [post_id] => 870
+            [language] => en
+            [title] => Marrakech :: White gold Earrings
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [50] => Array
+        (
+            [source_id] => 506
+            [post_id] => 1343
+            [language] => fr
+            [title] => Marrakech :: boucles d’oreilles en or blanc 
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [51] => Array
+        (
+            [source_id] => 506
+            [post_id] => 1119
+            [language] => ar
+            [title] => مراكش:: أقراط ذهب أبيض.
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [52] => Array
+        (
+            [source_id] => 506
+            [post_id] => 1718
+            [language] => de
+            [title] => Marrakech :: Ohrringe aus Weißgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [53] => Array
+        (
+            [source_id] => 506
+            [post_id] => 1755
+            [language] => es
+            [title] => Marrakech :: Pendientes de oro blanco
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [54] => Array
+        (
+            [source_id] => 506
+            [post_id] => 1792
+            [language] => zh-hans
+            [title] => Marrakech :: 白金耳环
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [55] => Array
+        (
+            [source_id] => 506
+            [post_id] => 1829
+            [language] => ja
+            [title] => Marrakech :: ホワイトゴールドのイヤリング
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [56] => Array
+        (
+            [source_id] => 519
+            [post_id] => 519
+            [language] => it
+            [title] => Marrakech ::  Collana Oro Bianco
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [57] => Array
+        (
+            [source_id] => 519
+            [post_id] => 879
+            [language] => en
+            [title] => Marrakech :: White gold Necklace
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [58] => Array
+        (
+            [source_id] => 519
+            [post_id] => 1344
+            [language] => fr
+            [title] => Marrakech ::  collier en or blanc 
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [59] => Array
+        (
+            [source_id] => 519
+            [post_id] => 1122
+            [language] => ar
+            [title] => مراكش:: عقد ذهب أبيض.
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [60] => Array
+        (
+            [source_id] => 519
+            [post_id] => 1719
+            [language] => de
+            [title] => Marrakech :: Halskette aus Weißgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [61] => Array
+        (
+            [source_id] => 519
+            [post_id] => 1756
+            [language] => es
+            [title] => Marrakech :: Collar de oro blanco
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [62] => Array
+        (
+            [source_id] => 519
+            [post_id] => 1793
+            [language] => zh-hans
+            [title] => Marrakech :: 白金项链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [63] => Array
+        (
+            [source_id] => 519
+            [post_id] => 1830
+            [language] => ja
+            [title] => Marrakech :: ホワイトゴールドのネックレス
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [64] => Array
+        (
+            [source_id] => 442
+            [post_id] => 442
+            [language] => it
+            [title] => Marrakech :: Anello Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 8.500
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [65] => Array
+        (
+            [source_id] => 442
+            [post_id] => 859
+            [language] => en
+            [title] => Marrakech :: Yellow gold Ring
+            [mode] => normalize-existing-content
+            [price_number] => 8.500
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [66] => Array
+        (
+            [source_id] => 442
+            [post_id] => 1337
+            [language] => fr
+            [title] => Marrakech ::  Bague en or jaune
+            [mode] => normalize-existing-content
+            [price_number] => 8.500
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [67] => Array
+        (
+            [source_id] => 442
+            [post_id] => 1125
+            [language] => ar
+            [title] => مراكش ::خاتم ذهب اصفر
+            [mode] => normalize-existing-content
+            [price_number] => 8.500
+            [price_lines_before] => 2
+            [feature_lines_from_source] => 3
+        )
+
+    [68] => Array
+        (
+            [source_id] => 442
+            [post_id] => 1709
+            [language] => de
+            [title] => Marrakech :: Ring aus Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 8.500
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [69] => Array
+        (
+            [source_id] => 442
+            [post_id] => 1746
+            [language] => es
+            [title] => Marrakech :: Anillo de oro amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 8.500
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [70] => Array
+        (
+            [source_id] => 442
+            [post_id] => 1783
+            [language] => zh-hans
+            [title] => Marrakech :: 黄金戒指
+            [mode] => regenerate-translated-content
+            [price_number] => 8.500
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [71] => Array
+        (
+            [source_id] => 442
+            [post_id] => 1820
+            [language] => ja
+            [title] => Marrakech :: イエローゴールドのリング
+            [mode] => regenerate-translated-content
+            [price_number] => 8.500
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [72] => Array
+        (
+            [source_id] => 535
+            [post_id] => 535
+            [language] => it
+            [title] => Marrakech :: Bracciale Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [73] => Array
+        (
+            [source_id] => 535
+            [post_id] => 863
+            [language] => en
+            [title] => Marrakech :: Yellow gold Bracelet
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [74] => Array
+        (
+            [source_id] => 535
+            [post_id] => 1338
+            [language] => fr
+            [title] => Marrakech :: bracelet en or jaune
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [75] => Array
+        (
+            [source_id] => 535
+            [post_id] => 1127
+            [language] => ar
+            [title] => مراكش:: اسوارة ذهب اصفر.
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [76] => Array
+        (
+            [source_id] => 535
+            [post_id] => 1721
+            [language] => de
+            [title] => Marrakech :: Armband aus Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [77] => Array
+        (
+            [source_id] => 535
+            [post_id] => 1758
+            [language] => es
+            [title] => Marrakech :: Pulsera de oro amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [78] => Array
+        (
+            [source_id] => 535
+            [post_id] => 1795
+            [language] => zh-hans
+            [title] => Marrakech :: 黄金手链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [79] => Array
+        (
+            [source_id] => 535
+            [post_id] => 1832
+            [language] => ja
+            [title] => Marrakech :: イエローゴールドのブレスレット
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [80] => Array
+        (
+            [source_id] => 499
+            [post_id] => 499
+            [language] => it
+            [title] => Marrakech :: Orecchini Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [81] => Array
+        (
+            [source_id] => 499
+            [post_id] => 871
+            [language] => en
+            [title] => Marrakech :: Yellow gold Earrings
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [82] => Array
+        (
+            [source_id] => 499
+            [post_id] => 1339
+            [language] => fr
+            [title] => Marrakech :: boucles d’oreilles en or jaune
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [83] => Array
+        (
+            [source_id] => 499
+            [post_id] => 1131
+            [language] => ar
+            [title] => مراكش:: أقراط ذهب اصفر.
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [84] => Array
+        (
+            [source_id] => 499
+            [post_id] => 1716
+            [language] => de
+            [title] => Marrakech :: Ohrringe aus Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [85] => Array
+        (
+            [source_id] => 499
+            [post_id] => 1753
+            [language] => es
+            [title] => Marrakech :: Pendientes de oro amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [86] => Array
+        (
+            [source_id] => 499
+            [post_id] => 1790
+            [language] => zh-hans
+            [title] => Marrakech :: 黄金耳环
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [87] => Array
+        (
+            [source_id] => 499
+            [post_id] => 1827
+            [language] => ja
+            [title] => Marrakech :: イエローゴールドのイヤリング
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [88] => Array
+        (
+            [source_id] => 487
+            [post_id] => 487
+            [language] => it
+            [title] => Marrakech :: Collana Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [89] => Array
+        (
+            [source_id] => 487
+            [post_id] => 878
+            [language] => en
+            [title] => Marrakech :: Yellow gold Necklace
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [90] => Array
+        (
+            [source_id] => 487
+            [post_id] => 1340
+            [language] => fr
+            [title] => Marrakech :: collier en or jaune
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [91] => Array
+        (
+            [source_id] => 487
+            [post_id] => 1134
+            [language] => ar
+            [title] => مراكش:: عقد ذهب اصفر
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [92] => Array
+        (
+            [source_id] => 487
+            [post_id] => 1714
+            [language] => de
+            [title] => Marrakech :: Halskette aus Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [93] => Array
+        (
+            [source_id] => 487
+            [post_id] => 1751
+            [language] => es
+            [title] => Marrakech :: Collar de oro amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [94] => Array
+        (
+            [source_id] => 487
+            [post_id] => 1788
+            [language] => zh-hans
+            [title] => Marrakech :: 黄金项链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [95] => Array
+        (
+            [source_id] => 487
+            [post_id] => 1825
+            [language] => ja
+            [title] => Marrakech :: イエローゴールドのネックレス
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [96] => Array
+        (
+            [source_id] => 553
+            [post_id] => 553
+            [language] => it
+            [title] => New Delhi :: Anello Oro Bianco
+            [mode] => normalize-existing-content
+            [price_number] => 7.600
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [97] => Array
+        (
+            [source_id] => 553
+            [post_id] => 885
+            [language] => en
+            [title] => New Delhi :: White gold Ring
+            [mode] => normalize-existing-content
+            [price_number] => 7.600
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [98] => Array
+        (
+            [source_id] => 553
+            [post_id] => 1364
+            [language] => fr
+            [title] => New Delhi :: bague en or blanc	
+            [mode] => normalize-existing-content
+            [price_number] => 7.600
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [99] => Array
+        (
+            [source_id] => 553
+            [post_id] => 1137
+            [language] => ar
+            [title] => نيودلهي :: خاتم ذهب ابيض
+            [mode] => normalize-existing-content
+            [price_number] => 7.600
+            [price_lines_before] => 2
+            [feature_lines_from_source] => 3
+        )
+
+    [100] => Array
+        (
+            [source_id] => 553
+            [post_id] => 1724
+            [language] => de
+            [title] => New Delhi :: Ring aus Weißgold
+            [mode] => regenerate-translated-content
+            [price_number] => 7.600
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [101] => Array
+        (
+            [source_id] => 553
+            [post_id] => 1761
+            [language] => es
+            [title] => New Delhi :: Anillo de oro blanco
+            [mode] => regenerate-translated-content
+            [price_number] => 7.600
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [102] => Array
+        (
+            [source_id] => 553
+            [post_id] => 1798
+            [language] => zh-hans
+            [title] => New Delhi :: 白金戒指
+            [mode] => regenerate-translated-content
+            [price_number] => 7.600
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [103] => Array
+        (
+            [source_id] => 553
+            [post_id] => 1835
+            [language] => ja
+            [title] => New Delhi :: ホワイトゴールドのリング
+            [mode] => regenerate-translated-content
+            [price_number] => 7.600
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [104] => Array
+        (
+            [source_id] => 547
+            [post_id] => 547
+            [language] => it
+            [title] =>  New Delhi ::  Bracciale Oro Bianco
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [105] => Array
+        (
+            [source_id] => 547
+            [post_id] => 893
+            [language] => en
+            [title] => New Delhi :: White gold Bracelet
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [106] => Array
+        (
+            [source_id] => 547
+            [post_id] => 1365
+            [language] => fr
+            [title] =>  New Delhi ::  bracelet en or blanc 
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [107] => Array
+        (
+            [source_id] => 547
+            [post_id] => 1140
+            [language] => ar
+            [title] => نيودلهي:: اسوارة ذهب ابيض
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [108] => Array
+        (
+            [source_id] => 547
+            [post_id] => 1723
+            [language] => de
+            [title] => New Delhi :: Armband aus Weißgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [109] => Array
+        (
+            [source_id] => 547
+            [post_id] => 1760
+            [language] => es
+            [title] => New Delhi :: Pulsera de oro blanco
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [110] => Array
+        (
+            [source_id] => 547
+            [post_id] => 1797
+            [language] => zh-hans
+            [title] => New Delhi :: 白金手链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [111] => Array
+        (
+            [source_id] => 547
+            [post_id] => 1834
+            [language] => ja
+            [title] => New Delhi :: ホワイトゴールドのブレスレット
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [112] => Array
+        (
+            [source_id] => 474
+            [post_id] => 474
+            [language] => it
+            [title] => New Delhi :: Orecchini Oro Bianco
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [113] => Array
+        (
+            [source_id] => 474
+            [post_id] => 899
+            [language] => en
+            [title] => New Delhi  :: White gold Earrings
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [114] => Array
+        (
+            [source_id] => 474
+            [post_id] => 1368
+            [language] => fr
+            [title] => New Delhi :: boucles d’oreilles or blanc
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [115] => Array
+        (
+            [source_id] => 474
+            [post_id] => 1146
+            [language] => ar
+            [title] => نيودلهي:: اقراط ذهب ابيض
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [116] => Array
+        (
+            [source_id] => 474
+            [post_id] => 1713
+            [language] => de
+            [title] => New Delhi :: Ohrringe aus Weißgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [117] => Array
+        (
+            [source_id] => 474
+            [post_id] => 1750
+            [language] => es
+            [title] => New Delhi :: Pendientes de oro blanco
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [118] => Array
+        (
+            [source_id] => 474
+            [post_id] => 1787
+            [language] => zh-hans
+            [title] => New Delhi :: 白金耳环
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [119] => Array
+        (
+            [source_id] => 474
+            [post_id] => 1824
+            [language] => ja
+            [title] => New Delhi :: ホワイトゴールドのイヤリング
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [120] => Array
+        (
+            [source_id] => 496
+            [post_id] => 496
+            [language] => it
+            [title] => New Delhi :: Collana Oro Bianco
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [121] => Array
+        (
+            [source_id] => 496
+            [post_id] => 906
+            [language] => en
+            [title] => New Delhi :: White gold Necklace
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [122] => Array
+        (
+            [source_id] => 496
+            [post_id] => 1367
+            [language] => fr
+            [title] => New Delhi :: collier or blanc	
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [123] => Array
+        (
+            [source_id] => 496
+            [post_id] => 1143
+            [language] => ar
+            [title] => نيودلهي:: عقد ذهب ابيض.
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [124] => Array
+        (
+            [source_id] => 496
+            [post_id] => 1715
+            [language] => de
+            [title] => New Delhi :: Halskette aus Weißgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [125] => Array
+        (
+            [source_id] => 496
+            [post_id] => 1752
+            [language] => es
+            [title] => New Delhi :: Collar de oro blanco
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [126] => Array
+        (
+            [source_id] => 496
+            [post_id] => 1789
+            [language] => zh-hans
+            [title] => New Delhi :: 白金项链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [127] => Array
+        (
+            [source_id] => 496
+            [post_id] => 1826
+            [language] => ja
+            [title] => New Delhi :: ホワイトゴールドのネックレス
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [128] => Array
+        (
+            [source_id] => 467
+            [post_id] => 467
+            [language] => it
+            [title] => New Delhi :: Anello Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 7.600
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [129] => Array
+        (
+            [source_id] => 467
+            [post_id] => 886
+            [language] => en
+            [title] => New Delhi :: Yellow gold Ring
+            [mode] => normalize-existing-content
+            [price_number] => 7.600
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [130] => Array
+        (
+            [source_id] => 467
+            [post_id] => 1369
+            [language] => fr
+            [title] => New Delhi :: bague en or jaune
+            [mode] => normalize-existing-content
+            [price_number] => 7.600
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [131] => Array
+        (
+            [source_id] => 467
+            [post_id] => 1150
+            [language] => ar
+            [title] => نيودلهي :: خاتم ذهب اصفر
+            [mode] => normalize-existing-content
+            [price_number] => 7.600
+            [price_lines_before] => 2
+            [feature_lines_from_source] => 3
+        )
+
+    [132] => Array
+        (
+            [source_id] => 467
+            [post_id] => 1711
+            [language] => de
+            [title] => New Delhi :: Ring aus Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 7.600
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [133] => Array
+        (
+            [source_id] => 467
+            [post_id] => 1748
+            [language] => es
+            [title] => New Delhi :: Anillo de oro amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 7.600
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [134] => Array
+        (
+            [source_id] => 467
+            [post_id] => 1785
+            [language] => zh-hans
+            [title] => New Delhi :: 黄金戒指
+            [mode] => regenerate-translated-content
+            [price_number] => 7.600
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [135] => Array
+        (
+            [source_id] => 467
+            [post_id] => 1822
+            [language] => ja
+            [title] => New Delhi :: イエローゴールドのリング
+            [mode] => regenerate-translated-content
+            [price_number] => 7.600
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [136] => Array
+        (
+            [source_id] => 471
+            [post_id] => 471
+            [language] => it
+            [title] => New Delhi :: Bracciale Oro Gialllo
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [137] => Array
+        (
+            [source_id] => 471
+            [post_id] => 892
+            [language] => en
+            [title] => New Delhi :: Yellow gold Bracelet
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [138] => Array
+        (
+            [source_id] => 471
+            [post_id] => 1370
+            [language] => fr
+            [title] => New Delhi :: bracelet en or jaune
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [139] => Array
+        (
+            [source_id] => 471
+            [post_id] => 1153
+            [language] => ar
+            [title] => نيودلهي:: اسوارة ذهب اصفر
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [140] => Array
+        (
+            [source_id] => 471
+            [post_id] => 1712
+            [language] => de
+            [title] => New Delhi :: Armband aus Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [141] => Array
+        (
+            [source_id] => 471
+            [post_id] => 1749
+            [language] => es
+            [title] => New Delhi :: Pulsera de oro amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [142] => Array
+        (
+            [source_id] => 471
+            [post_id] => 1786
+            [language] => zh-hans
+            [title] => New Delhi :: 黄金手链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [143] => Array
+        (
+            [source_id] => 471
+            [post_id] => 1823
+            [language] => ja
+            [title] => New Delhi :: イエローゴールドのブレスレット
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [144] => Array
+        (
+            [source_id] => 615
+            [post_id] => 615
+            [language] => it
+            [title] => New Delhi :: Orecchini Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [145] => Array
+        (
+            [source_id] => 615
+            [post_id] => 898
+            [language] => en
+            [title] => New Delhi :: Yellow gold Earrings
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [146] => Array
+        (
+            [source_id] => 615
+            [post_id] => 1281
+            [language] => fr
+            [title] => New Delhi :: boucles d’oreilles or jaune
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [147] => Array
+        (
+            [source_id] => 615
+            [post_id] => 1155
+            [language] => ar
+            [title] => نيودلهي:: اقراط ذهب اصفر
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [148] => Array
+        (
+            [source_id] => 615
+            [post_id] => 1732
+            [language] => de
+            [title] => New Delhi :: Ohrringe aus Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [149] => Array
+        (
+            [source_id] => 615
+            [post_id] => 1769
+            [language] => es
+            [title] => New Delhi :: Pendientes de oro amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [150] => Array
+        (
+            [source_id] => 615
+            [post_id] => 1806
+            [language] => zh-hans
+            [title] => New Delhi :: 黄金耳环
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [151] => Array
+        (
+            [source_id] => 615
+            [post_id] => 1843
+            [language] => ja
+            [title] => New Delhi :: イエローゴールドのイヤリング
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [152] => Array
+        (
+            [source_id] => 542
+            [post_id] => 542
+            [language] => it
+            [title] => New Delhi :: Collana Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [153] => Array
+        (
+            [source_id] => 542
+            [post_id] => 905
+            [language] => en
+            [title] => New Delhi :: Yellow gold Necklace
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [154] => Array
+        (
+            [source_id] => 542
+            [post_id] => 1366
+            [language] => fr
+            [title] => New Delhi :: collier or jaune
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [155] => Array
+        (
+            [source_id] => 542
+            [post_id] => 1158
+            [language] => ar
+            [title] => نيودلهي:: عقد ذهب اصفر.
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [156] => Array
+        (
+            [source_id] => 542
+            [post_id] => 1722
+            [language] => de
+            [title] => New Delhi :: Halskette aus Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [157] => Array
+        (
+            [source_id] => 542
+            [post_id] => 1759
+            [language] => es
+            [title] => New Delhi :: Collar de oro amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [158] => Array
+        (
+            [source_id] => 542
+            [post_id] => 1796
+            [language] => zh-hans
+            [title] => New Delhi :: 黄金项链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [159] => Array
+        (
+            [source_id] => 542
+            [post_id] => 1833
+            [language] => ja
+            [title] => New Delhi :: イエローゴールドのネックレス
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [160] => Array
+        (
+            [source_id] => 431
+            [post_id] => 431
+            [language] => it
+            [title] => New York :: Anello Oro Bianco
+            [mode] => normalize-existing-content
+            [price_number] => 8.100
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [161] => Array
+        (
+            [source_id] => 431
+            [post_id] => 913
+            [language] => en
+            [title] => New York :: White gold Ring
+            [mode] => normalize-existing-content
+            [price_number] => 8.100
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [162] => Array
+        (
+            [source_id] => 431
+            [post_id] => 1391
+            [language] => fr
+            [title] => New York ::  bague en or blanc
+            [mode] => normalize-existing-content
+            [price_number] => 8.100
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [163] => Array
+        (
+            [source_id] => 431
+            [post_id] => 1161
+            [language] => ar
+            [title] => نيويورك:: خاتم ذهب ابيض
+            [mode] => normalize-existing-content
+            [price_number] => 8.100
+            [price_lines_before] => 2
+            [feature_lines_from_source] => 3
+        )
+
+    [164] => Array
+        (
+            [source_id] => 431
+            [post_id] => 1705
+            [language] => de
+            [title] => New York :: Ring aus Weißgold
+            [mode] => regenerate-translated-content
+            [price_number] => 8.100
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [165] => Array
+        (
+            [source_id] => 431
+            [post_id] => 1742
+            [language] => es
+            [title] => New York :: Anillo de oro blanco
+            [mode] => regenerate-translated-content
+            [price_number] => 8.100
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [166] => Array
+        (
+            [source_id] => 431
+            [post_id] => 1779
+            [language] => zh-hans
+            [title] => New York :: 白金戒指
+            [mode] => regenerate-translated-content
+            [price_number] => 8.100
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [167] => Array
+        (
+            [source_id] => 431
+            [post_id] => 1816
+            [language] => ja
+            [title] => New York :: ホワイトゴールドのリング
+            [mode] => regenerate-translated-content
+            [price_number] => 8.100
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [168] => Array
+        (
+            [source_id] => 433
+            [post_id] => 433
+            [language] => it
+            [title] => New York :: Bracciale Oro Bianco
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [169] => Array
+        (
+            [source_id] => 433
+            [post_id] => 926
+            [language] => en
+            [title] => New York :: White gold Bracelet
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [170] => Array
+        (
+            [source_id] => 433
+            [post_id] => 1389
+            [language] => fr
+            [title] => New York ::  bracelet or blanc	
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [171] => Array
+        (
+            [source_id] => 433
+            [post_id] => 1164
+            [language] => ar
+            [title] => نيويورك:: اسوارة ذهب ابيض
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [172] => Array
+        (
+            [source_id] => 433
+            [post_id] => 1708
+            [language] => de
+            [title] => New York :: Armband aus Weißgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [173] => Array
+        (
+            [source_id] => 433
+            [post_id] => 1745
+            [language] => es
+            [title] => New York :: Pulsera de oro blanco
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [174] => Array
+        (
+            [source_id] => 433
+            [post_id] => 1782
+            [language] => zh-hans
+            [title] => New York :: 白金手链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [175] => Array
+        (
+            [source_id] => 433
+            [post_id] => 1819
+            [language] => ja
+            [title] => New York :: ホワイトゴールドのブレスレット
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [176] => Array
+        (
+            [source_id] => 557
+            [post_id] => 557
+            [language] => it
+            [title] => New York :: Orecchini Oro Bianco
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [177] => Array
+        (
+            [source_id] => 557
+            [post_id] => 919
+            [language] => en
+            [title] => New York :: White gold Earrings
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [178] => Array
+        (
+            [source_id] => 557
+            [post_id] => 1388
+            [language] => fr
+            [title] => New York :: boucles d’oreilles or blanc 
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [179] => Array
+        (
+            [source_id] => 557
+            [post_id] => 1167
+            [language] => ar
+            [title] => نيويورك :: اقراط ذهب ابيض
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [180] => Array
+        (
+            [source_id] => 557
+            [post_id] => 1725
+            [language] => de
+            [title] => New York :: Ohrringe aus Weißgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [181] => Array
+        (
+            [source_id] => 557
+            [post_id] => 1762
+            [language] => es
+            [title] => New York :: Pendientes de oro blanco
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [182] => Array
+        (
+            [source_id] => 557
+            [post_id] => 1799
+            [language] => zh-hans
+            [title] => New York :: 白金耳环
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [183] => Array
+        (
+            [source_id] => 557
+            [post_id] => 1836
+            [language] => ja
+            [title] => New York :: ホワイトゴールドのイヤリング
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [184] => Array
+        (
+            [source_id] => 562
+            [post_id] => 562
+            [language] => it
+            [title] => New York :: Collana Oro Bianco
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [185] => Array
+        (
+            [source_id] => 562
+            [post_id] => 931
+            [language] => en
+            [title] => New York :: White gold Necklace
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [186] => Array
+        (
+            [source_id] => 562
+            [post_id] => 1387
+            [language] => fr
+            [title] => New York :: collier en or blanc 
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [187] => Array
+        (
+            [source_id] => 562
+            [post_id] => 1170
+            [language] => ar
+            [title] => نيويورك:: عقد ذهب ابيض
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [188] => Array
+        (
+            [source_id] => 562
+            [post_id] => 1726
+            [language] => de
+            [title] => New York :: Halskette aus Weißgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [189] => Array
+        (
+            [source_id] => 562
+            [post_id] => 1763
+            [language] => es
+            [title] => New York :: Collar de oro blanco
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [190] => Array
+        (
+            [source_id] => 562
+            [post_id] => 1800
+            [language] => zh-hans
+            [title] => New York :: 白金项链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [191] => Array
+        (
+            [source_id] => 562
+            [post_id] => 1837
+            [language] => ja
+            [title] => New York :: ホワイトゴールドのネックレス
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [192] => Array
+        (
+            [source_id] => 573
+            [post_id] => 573
+            [language] => it
+            [title] => New York :: Anello Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 8.100
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [193] => Array
+        (
+            [source_id] => 573
+            [post_id] => 912
+            [language] => en
+            [title] => New York :: Yellow gold Ring
+            [mode] => normalize-existing-content
+            [price_number] => 8.100
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [194] => Array
+        (
+            [source_id] => 573
+            [post_id] => 1386
+            [language] => fr
+            [title] => New York :: bague en or jaune
+            [mode] => normalize-existing-content
+            [price_number] => 8.100
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [195] => Array
+        (
+            [source_id] => 573
+            [post_id] => 1172
+            [language] => ar
+            [title] => نيويورك:: خاتم ذهب اصفر
+            [mode] => normalize-existing-content
+            [price_number] => 8.100
+            [price_lines_before] => 2
+            [feature_lines_from_source] => 3
+        )
+
+    [196] => Array
+        (
+            [source_id] => 573
+            [post_id] => 1728
+            [language] => de
+            [title] => New York :: Ring aus Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 8.100
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [197] => Array
+        (
+            [source_id] => 573
+            [post_id] => 1765
+            [language] => es
+            [title] => New York :: Anillo de oro amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 8.100
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [198] => Array
+        (
+            [source_id] => 573
+            [post_id] => 1802
+            [language] => zh-hans
+            [title] => New York :: 黄金戒指
+            [mode] => regenerate-translated-content
+            [price_number] => 8.100
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [199] => Array
+        (
+            [source_id] => 573
+            [post_id] => 1839
+            [language] => ja
+            [title] => New York :: イエローゴールドのリング
+            [mode] => regenerate-translated-content
+            [price_number] => 8.100
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [200] => Array
+        (
+            [source_id] => 568
+            [post_id] => 568
+            [language] => it
+            [title] => New York :: Bracciale Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [201] => Array
+        (
+            [source_id] => 568
+            [post_id] => 925
+            [language] => en
+            [title] => New York :: Bracciale Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [202] => Array
+        (
+            [source_id] => 568
+            [post_id] => 1385
+            [language] => fr
+            [title] => New York :: bracelet or jaune
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [203] => Array
+        (
+            [source_id] => 568
+            [post_id] => 1175
+            [language] => ar
+            [title] => نيويورك:: اسوارة ذهب اصفر
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [204] => Array
+        (
+            [source_id] => 568
+            [post_id] => 1727
+            [language] => de
+            [title] => New York :: Armband aus Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [205] => Array
+        (
+            [source_id] => 568
+            [post_id] => 1764
+            [language] => es
+            [title] => New York :: Pulsera de oro amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [206] => Array
+        (
+            [source_id] => 568
+            [post_id] => 1801
+            [language] => zh-hans
+            [title] => New York :: 黄金手链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [207] => Array
+        (
+            [source_id] => 568
+            [post_id] => 1838
+            [language] => ja
+            [title] => New York :: イエローゴールドのブレスレット
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 2
+        )
+
+    [208] => Array
+        (
+            [source_id] => 438
+            [post_id] => 438
+            [language] => it
+            [title] => New York :: Orecchini Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [209] => Array
+        (
+            [source_id] => 438
+            [post_id] => 918
+            [language] => en
+            [title] => New York :: Yellow gold Earrings
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [210] => Array
+        (
+            [source_id] => 438
+            [post_id] => 1390
+            [language] => fr
+            [title] => New York :: boucles d’oreilles or jaune
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [211] => Array
+        (
+            [source_id] => 438
+            [post_id] => 1181
+            [language] => ar
+            [title] => نيويورك :: اقراط ذهب اصفر
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [212] => Array
+        (
+            [source_id] => 438
+            [post_id] => 1707
+            [language] => de
+            [title] => New York :: Ohrringe aus Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [213] => Array
+        (
+            [source_id] => 438
+            [post_id] => 1744
+            [language] => es
+            [title] => New York :: Pendientes de oro amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [214] => Array
+        (
+            [source_id] => 438
+            [post_id] => 1781
+            [language] => zh-hans
+            [title] => New York :: 黄金耳环
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [215] => Array
+        (
+            [source_id] => 438
+            [post_id] => 1818
+            [language] => ja
+            [title] => New York :: イエローゴールドのイヤリング
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [216] => Array
+        (
+            [source_id] => 435
+            [post_id] => 435
+            [language] => it
+            [title] => New York :: Collana Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [217] => Array
+        (
+            [source_id] => 435
+            [post_id] => 932
+            [language] => en
+            [title] => New York :: Yellow gold Necklace
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [218] => Array
+        (
+            [source_id] => 435
+            [post_id] => 1392
+            [language] => fr
+            [title] => New York :: collier en or jaune
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [219] => Array
+        (
+            [source_id] => 435
+            [post_id] => 1184
+            [language] => ar
+            [title] => نيويورك:: عقد ذهب اصفر
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [220] => Array
+        (
+            [source_id] => 435
+            [post_id] => 1706
+            [language] => de
+            [title] => New York :: Halskette aus Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [221] => Array
+        (
+            [source_id] => 435
+            [post_id] => 1743
+            [language] => es
+            [title] => New York :: Collar de oro amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [222] => Array
+        (
+            [source_id] => 435
+            [post_id] => 1780
+            [language] => zh-hans
+            [title] => New York :: 黄金项链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [223] => Array
+        (
+            [source_id] => 435
+            [post_id] => 1817
+            [language] => ja
+            [title] => New York :: イエローゴールドのネックレス
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [224] => Array
+        (
+            [source_id] => 585
+            [post_id] => 585
+            [language] => it
+            [title] => Sydney :: Anello Oro Bianco
+            [mode] => normalize-existing-content
+            [price_number] => 7.700
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [225] => Array
+        (
+            [source_id] => 585
+            [post_id] => 818
+            [language] => en
+            [title] => Sydney :: White gold Ring
+            [mode] => normalize-existing-content
+            [price_number] => 7.700
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [226] => Array
+        (
+            [source_id] => 585
+            [post_id] => 1416
+            [language] => fr
+            [title] => Sydney :: bague en or blanc
+            [mode] => normalize-existing-content
+            [price_number] => 7.700
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [227] => Array
+        (
+            [source_id] => 585
+            [post_id] => 1187
+            [language] => ar
+            [title] => سيدني:: خاتم ذهب ابيض
+            [mode] => normalize-existing-content
+            [price_number] => 7.700
+            [price_lines_before] => 2
+            [feature_lines_from_source] => 3
+        )
+
+    [228] => Array
+        (
+            [source_id] => 585
+            [post_id] => 1729
+            [language] => de
+            [title] => Sydney :: Ring aus Weißgold
+            [mode] => regenerate-translated-content
+            [price_number] => 7.700
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [229] => Array
+        (
+            [source_id] => 585
+            [post_id] => 1766
+            [language] => es
+            [title] => Sydney :: Anillo de oro blanco
+            [mode] => regenerate-translated-content
+            [price_number] => 7.700
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [230] => Array
+        (
+            [source_id] => 585
+            [post_id] => 1803
+            [language] => zh-hans
+            [title] => Sydney :: 白金戒指
+            [mode] => regenerate-translated-content
+            [price_number] => 7.700
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [231] => Array
+        (
+            [source_id] => 585
+            [post_id] => 1840
+            [language] => ja
+            [title] => Sydney :: ホワイトゴールドのリング
+            [mode] => regenerate-translated-content
+            [price_number] => 7.700
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [232] => Array
+        (
+            [source_id] => 597
+            [post_id] => 597
+            [language] => it
+            [title] => Sydney ::  Bracciale Oro Bianco
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 1
+        )
+
+    [233] => Array
+        (
+            [source_id] => 597
+            [post_id] => 805
+            [language] => en
+            [title] => Sydney  :: White gold Bracelet
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 1
+        )
+
+    [234] => Array
+        (
+            [source_id] => 597
+            [post_id] => 1415
+            [language] => fr
+            [title] => Sydney ::  bracelet or blanc
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 1
+        )
+
+    [235] => Array
+        (
+            [source_id] => 597
+            [post_id] => 1190
+            [language] => ar
+            [title] => سيدني:: اسوارة ذهب ابيض
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 1
+        )
+
+    [236] => Array
+        (
+            [source_id] => 597
+            [post_id] => 1730
+            [language] => de
+            [title] => Sydney :: Armband aus Weißgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 1
+        )
+
+    [237] => Array
+        (
+            [source_id] => 597
+            [post_id] => 1767
+            [language] => es
+            [title] => Sydney :: Pulsera de oro blanco
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 1
+        )
+
+    [238] => Array
+        (
+            [source_id] => 597
+            [post_id] => 1804
+            [language] => zh-hans
+            [title] => Sydney :: 白金手链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 1
+        )
+
+    [239] => Array
+        (
+            [source_id] => 597
+            [post_id] => 1841
+            [language] => ja
+            [title] => Sydney :: ホワイトゴールドのブレスレット
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 1
+        )
+
+    [240] => Array
+        (
+            [source_id] => 600
+            [post_id] => 600
+            [language] => it
+            [title] => Sydney :: Orecchini Oro Bianco
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [241] => Array
+        (
+            [source_id] => 600
+            [post_id] => 809
+            [language] => en
+            [title] => Sydney :: White gold Earrings
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [242] => Array
+        (
+            [source_id] => 600
+            [post_id] => 1414
+            [language] => fr
+            [title] => Sydney :: boucles d’oreilles or blanc
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [243] => Array
+        (
+            [source_id] => 600
+            [post_id] => 1193
+            [language] => ar
+            [title] => سيدني:: اقراط ذهب ابيض
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [244] => Array
+        (
+            [source_id] => 600
+            [post_id] => 1731
+            [language] => de
+            [title] => Sydney :: Ohrringe aus Weißgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [245] => Array
+        (
+            [source_id] => 600
+            [post_id] => 1768
+            [language] => es
+            [title] => Sydney :: Pendientes de oro blanco
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [246] => Array
+        (
+            [source_id] => 600
+            [post_id] => 1805
+            [language] => zh-hans
+            [title] => Sydney :: 白金耳环
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [247] => Array
+        (
+            [source_id] => 600
+            [post_id] => 1842
+            [language] => ja
+            [title] => Sydney :: ホワイトゴールドのイヤリング
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [248] => Array
+        (
+            [source_id] => 771
+            [post_id] => 771
+            [language] => it
+            [title] => Sydney :: Collana Oro Bianco
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [249] => Array
+        (
+            [source_id] => 771
+            [post_id] => 801
+            [language] => en
+            [title] => Sydney ::  White gold Necklace
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [250] => Array
+        (
+            [source_id] => 771
+            [post_id] => 1417
+            [language] => fr
+            [title] => Sydney :: collier en or blanc 
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [251] => Array
+        (
+            [source_id] => 771
+            [post_id] => 1196
+            [language] => ar
+            [title] => سيدني :: عقد ذهب ابيض
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [252] => Array
+        (
+            [source_id] => 771
+            [post_id] => 1717
+            [language] => de
+            [title] => Sydney :: Halskette aus Weißgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [253] => Array
+        (
+            [source_id] => 771
+            [post_id] => 1754
+            [language] => es
+            [title] => Sydney :: Collar de oro blanco
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [254] => Array
+        (
+            [source_id] => 771
+            [post_id] => 1791
+            [language] => zh-hans
+            [title] => Sydney :: 白金项链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [255] => Array
+        (
+            [source_id] => 771
+            [post_id] => 1828
+            [language] => ja
+            [title] => Sydney :: ホワイトゴールドのネックレス
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [256] => Array
+        (
+            [source_id] => 334
+            [post_id] => 334
+            [language] => it
+            [title] => Sydney :: Anello Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 7.700
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [257] => Array
+        (
+            [source_id] => 334
+            [post_id] => 799
+            [language] => en
+            [title] => Sydney :: Yellow gold Ring
+            [mode] => normalize-existing-content
+            [price_number] => 7.700
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [258] => Array
+        (
+            [source_id] => 334
+            [post_id] => 1418
+            [language] => fr
+            [title] => Sydney :: bague en or jaune
+            [mode] => normalize-existing-content
+            [price_number] => 7.700
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [259] => Array
+        (
+            [source_id] => 334
+            [post_id] => 1198
+            [language] => ar
+            [title] => سيدني:: خاتم ذهب اصفر
+            [mode] => normalize-existing-content
+            [price_number] => 7.700
+            [price_lines_before] => 2
+            [feature_lines_from_source] => 3
+        )
+
+    [260] => Array
+        (
+            [source_id] => 334
+            [post_id] => 1704
+            [language] => de
+            [title] => Sydney :: Ring aus Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 7.700
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [261] => Array
+        (
+            [source_id] => 334
+            [post_id] => 1741
+            [language] => es
+            [title] => Sydney :: Anillo de oro amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 7.700
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [262] => Array
+        (
+            [source_id] => 334
+            [post_id] => 1778
+            [language] => zh-hans
+            [title] => Sydney :: 黄金戒指
+            [mode] => regenerate-translated-content
+            [price_number] => 7.700
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [263] => Array
+        (
+            [source_id] => 334
+            [post_id] => 1815
+            [language] => ja
+            [title] => Sydney :: イエローゴールドのリング
+            [mode] => regenerate-translated-content
+            [price_number] => 7.700
+            [price_lines_before] => 1
+            [feature_lines_from_source] => 3
+        )
+
+    [264] => Array
+        (
+            [source_id] => 424
+            [post_id] => 424
+            [language] => it
+            [title] => Sydney :: Bracciale Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 1
+        )
+
+    [265] => Array
+        (
+            [source_id] => 424
+            [post_id] => 789
+            [language] => en
+            [title] => Sydney ::  Yellow gold Bracelet
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 1
+        )
+
+    [266] => Array
+        (
+            [source_id] => 424
+            [post_id] => 1419
+            [language] => fr
+            [title] => Sydney :: bracelet or jaune
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 1
+        )
+
+    [267] => Array
+        (
+            [source_id] => 424
+            [post_id] => 1200
+            [language] => ar
+            [title] => سيدني:: اسوارة ذهب اصفر
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 1
+        )
+
+    [268] => Array
+        (
+            [source_id] => 424
+            [post_id] => 1703
+            [language] => de
+            [title] => Sydney :: Armband aus Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 1
+        )
+
+    [269] => Array
+        (
+            [source_id] => 424
+            [post_id] => 1740
+            [language] => es
+            [title] => Sydney :: Pulsera de oro amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 1
+        )
+
+    [270] => Array
+        (
+            [source_id] => 424
+            [post_id] => 1777
+            [language] => zh-hans
+            [title] => Sydney :: 黄金手链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 1
+        )
+
+    [271] => Array
+        (
+            [source_id] => 424
+            [post_id] => 1814
+            [language] => ja
+            [title] => Sydney :: イエローゴールドのブレスレット
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 1
+        )
+
+    [272] => Array
+        (
+            [source_id] => 420
+            [post_id] => 420
+            [language] => it
+            [title] => Sydney :: Orecchini Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [273] => Array
+        (
+            [source_id] => 420
+            [post_id] => 796
+            [language] => en
+            [title] => Sydney ::  Yellow gold Earrings
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [274] => Array
+        (
+            [source_id] => 420
+            [post_id] => 1420
+            [language] => fr
+            [title] => Sydney :: boucles d’oreilles or jaune
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [275] => Array
+        (
+            [source_id] => 420
+            [post_id] => 1203
+            [language] => ar
+            [title] => سيدني:: اقراط ذهب اصفر
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [276] => Array
+        (
+            [source_id] => 420
+            [post_id] => 1702
+            [language] => de
+            [title] => Sydney :: Ohrringe aus Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [277] => Array
+        (
+            [source_id] => 420
+            [post_id] => 1739
+            [language] => es
+            [title] => Sydney :: Pendientes de oro amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [278] => Array
+        (
+            [source_id] => 420
+            [post_id] => 1776
+            [language] => zh-hans
+            [title] => Sydney :: 黄金耳环
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [279] => Array
+        (
+            [source_id] => 420
+            [post_id] => 1813
+            [language] => ja
+            [title] => Sydney :: イエローゴールドのイヤリング
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [280] => Array
+        (
+            [source_id] => 605
+            [post_id] => 605
+            [language] => it
+            [title] => Sydney :: Collana Oro Giallo
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [281] => Array
+        (
+            [source_id] => 605
+            [post_id] => 770
+            [language] => en
+            [title] => Sydney :: Yellow gold Necklace
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [282] => Array
+        (
+            [source_id] => 605
+            [post_id] => 1421
+            [language] => fr
+            [title] => Sydney :: collier en or jaune
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [283] => Array
+        (
+            [source_id] => 605
+            [post_id] => 1205
+            [language] => ar
+            [title] => سيدني :: عقد ذهب اصفر
+            [mode] => normalize-existing-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [284] => Array
+        (
+            [source_id] => 605
+            [post_id] => 1697
+            [language] => de
+            [title] => Sydney :: Halskette aus Gelbgold
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [285] => Array
+        (
+            [source_id] => 605
+            [post_id] => 1734
+            [language] => es
+            [title] => Sydney :: Collar de oro amarillo
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [286] => Array
+        (
+            [source_id] => 605
+            [post_id] => 1771
+            [language] => zh-hans
+            [title] => Sydney :: 黄金项链
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+    [287] => Array
+        (
+            [source_id] => 605
+            [post_id] => 1808
+            [language] => ja
+            [title] => Sydney :: イエローゴールドのネックレス
+            [mode] => regenerate-translated-content
+            [price_number] => 
+            [price_lines_before] => 0
+            [feature_lines_from_source] => 3
+        )
+
+)
+
+No changes written. Add &apply=1 to update.

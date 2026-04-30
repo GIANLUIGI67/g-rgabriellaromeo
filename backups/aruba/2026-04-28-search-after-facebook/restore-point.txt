@@ -1,0 +1,2 @@
+Remote restore file: wp-content/themes/architectos/header.php.codex-restore-search-after-facebook-20260428-104533
+Local restore file: /Users/globalmindgianluigigrassi/Projects/g-rgabriellaromeo/backups/aruba/2026-04-28-search-after-facebook/live-theme/restore-20260428-104533/header.php.before-search-after-facebook-20260428-104533

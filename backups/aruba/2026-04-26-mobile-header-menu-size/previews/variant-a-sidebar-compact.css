@@ -1,0 +1,49 @@
+/*
+ * Variant A: keep the original left-column layout.
+ * The logo rectangle is narrower and centered inside a wider, readable sidebar.
+ */
+@media screen and (max-width: 768px), screen and (max-device-width: 768px) {
+	#header {
+		width: 300px;
+		overflow-x: hidden;
+		overflow-y: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.content_holder {
+		margin-left: 300px;
+	}
+
+	.menu_holder .li_logo {
+		width: 260px;
+		max-width: 260px;
+		margin: 36px auto 24px auto;
+	}
+
+	.li_logo img {
+		box-sizing: border-box;
+		width: 260px;
+		height: auto;
+		padding: 20px 16px;
+	}
+
+	.header_menu {
+		font-size: 18px;
+		line-height: 1.35em;
+	}
+
+	.header_menu a {
+		box-sizing: border-box;
+		max-width: 264px;
+		padding: 10px 16px;
+		white-space: normal;
+		overflow-wrap: anywhere;
+	}
+
+	#social_icons {
+		box-sizing: border-box;
+		width: 264px;
+		max-width: 264px;
+		overflow: hidden;
+	}
+}

@@ -1,0 +1,32 @@
+</div> <!-- end .content_holder -->
+<?php fullscreenBG(); ?>
+
+<?php wp_footer(); ?>
+<?php
+$codex_contact_labels = array(
+	'it' => 'CONTATTI',
+	'en' => 'CONTACTS',
+	'fr' => 'CONTACT',
+	'ar' => 'اتصل بنا',
+	'de' => 'KONTAKT',
+	'es' => 'CONTACTO',
+	'zh' => '联系我们',
+	'zh-hans' => '联系我们',
+	'ja' => 'お問い合わせ'
+);
+$codex_contact_language = defined('ICL_LANGUAGE_CODE') ? ICL_LANGUAGE_CODE : 'it';
+$codex_contact_label = isset($codex_contact_labels[$codex_contact_language]) ? $codex_contact_labels[$codex_contact_language] : $codex_contact_labels['it'];
+?>
+<script type="text/javascript">
+jQuery(function($) {
+	var codexContactLabel = '<?php echo esc_js($codex_contact_label); ?>';
+	var codexApplyContactLabel = function() {
+		$('#dc-slick-3 .tab span').text(codexContactLabel);
+	};
+	codexApplyContactLabel();
+	setTimeout(codexApplyContactLabel, 300);
+	setTimeout(codexApplyContactLabel, 1000);
+});
+</script>
+</body>
+</html>

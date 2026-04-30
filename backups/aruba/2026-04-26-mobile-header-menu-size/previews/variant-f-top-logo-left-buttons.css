@@ -1,0 +1,88 @@
+/*
+ * Variant F: logo centered above the full mobile page.
+ * Buttons stay stacked and content starts below the whole header area.
+ */
+@media screen and (max-width: 768px), screen and (max-device-width: 768px) {
+	html,
+	body {
+		overflow-x: hidden;
+	}
+
+	#header {
+		position: relative;
+		width: 100%;
+		height: auto;
+		padding: 18px 0 12px 0;
+		overflow: visible;
+	}
+
+	.menu_logo,
+	.menu_holder {
+		width: 100%;
+		max-width: 100%;
+	}
+
+	.menu_holder .li_logo {
+		width: 260px;
+		max-width: calc(100% - 32px);
+		margin: 0 auto 16px auto;
+	}
+
+	.li_logo img {
+		box-sizing: border-box;
+		width: 260px;
+		max-width: 100%;
+		height: auto;
+		padding: 20px 16px;
+	}
+
+	.header_menu {
+		box-sizing: border-box;
+		width: 260px;
+		max-width: calc(100% - 32px);
+		margin: 0 auto;
+		font-size: 18px;
+		line-height: 1.35em;
+	}
+
+	.header_menu > li {
+		left: auto;
+	}
+
+	.header_menu li {
+		float: none;
+		clear: both;
+		display: block;
+		margin: 0 0 3px 0;
+	}
+
+	.header_menu a {
+		box-sizing: border-box;
+		max-width: 260px;
+		padding: 9px 14px;
+		white-space: normal;
+		overflow-wrap: anywhere;
+	}
+
+	#flags_language_selector {
+		box-sizing: border-box;
+		width: 260px;
+		max-width: calc(100% - 32px);
+		margin: 12px auto 0 auto;
+		overflow: hidden;
+	}
+
+	#social_icons {
+		position: static;
+		box-sizing: border-box;
+		width: 260px;
+		max-width: calc(100% - 32px);
+		margin: 12px auto 0 auto;
+		overflow: hidden;
+	}
+
+	.content_holder {
+		margin-left: 0;
+		margin-top: 16px;
+	}
+}

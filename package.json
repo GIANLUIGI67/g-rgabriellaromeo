@@ -80,5 +80,22 @@
             "postcss": "^8.5.10"
         },
         "qs": "^6.15.1"
-    }
+    },
+    "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).",
+    "main": "postcss.config.js",
+    "directories": {
+        "doc": "docs",
+        "test": "tests"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/GIANLUIGI67/g-rgabriellaromeo.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/GIANLUIGI67/g-rgabriellaromeo/issues"
+    },
+    "homepage": "https://github.com/GIANLUIGI67/g-rgabriellaromeo#readme"
 }

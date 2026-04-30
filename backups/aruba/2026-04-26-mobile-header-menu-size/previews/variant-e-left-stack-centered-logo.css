@@ -1,0 +1,64 @@
+/*
+ * Variant E: preserve the original left stacked navigation.
+ * Only the logo rectangle is centered at the top of the left column; menu text is
+ * enlarged while each button keeps a content-sized black rectangle.
+ */
+@media screen and (max-width: 768px), screen and (max-device-width: 768px) {
+	#header {
+		width: 280px;
+		overflow-x: hidden;
+		overflow-y: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.content_holder {
+		margin-left: 280px;
+	}
+
+	.menu_holder .li_logo {
+		box-sizing: border-box;
+		width: 260px;
+		max-width: 260px;
+		margin: 36px auto 24px auto;
+	}
+
+	.li_logo img {
+		box-sizing: border-box;
+		width: 260px;
+		max-width: 260px;
+		height: auto;
+		padding: 22px 18px;
+	}
+
+	.header_menu {
+		font-size: 18px;
+		line-height: 1.35em;
+	}
+
+	.header_menu li {
+		margin: 0 0 2px 0;
+	}
+
+	.header_menu a {
+		box-sizing: border-box;
+		max-width: 250px;
+		padding: 9px 14px;
+		white-space: normal;
+		overflow-wrap: anywhere;
+	}
+
+	#flags_language_selector {
+		box-sizing: border-box;
+		width: 250px;
+		max-width: 250px;
+		overflow: hidden;
+	}
+
+	#social_icons {
+		box-sizing: border-box;
+		width: 250px;
+		max-width: 250px;
+		margin-left: 15px;
+		overflow: hidden;
+	}
+}

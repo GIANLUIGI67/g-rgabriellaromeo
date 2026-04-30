@@ -1,0 +1,73 @@
+/*
+ * Variant C: mobile top header with centered logo and stacked full-width buttons.
+ * This is the clearest layout and avoids horizontal overflow on narrow devices.
+ */
+@media screen and (max-width: 768px), screen and (max-device-width: 768px) {
+	#header {
+		position: relative;
+		width: 100%;
+		height: auto;
+		overflow: visible;
+		padding: 14px 0 12px 0;
+	}
+
+	.content_holder {
+		margin-left: 0;
+		margin-top: 16px;
+	}
+
+	.menu_holder .li_logo {
+		width: 260px;
+		max-width: calc(100% - 32px);
+		margin: 0 auto 12px auto;
+	}
+
+	.li_logo img {
+		box-sizing: border-box;
+		width: 260px;
+		max-width: 100%;
+		height: auto;
+		padding: 20px 16px;
+	}
+
+	.header_menu {
+		box-sizing: border-box;
+		width: 100%;
+		padding: 0 16px;
+		font-size: 17px;
+		line-height: 1.3em;
+	}
+
+	.header_menu > li {
+		left: auto;
+	}
+
+	.header_menu li {
+		float: none;
+		clear: none;
+		display: block;
+		margin: 0 auto 4px auto;
+	}
+
+	.header_menu a {
+		box-sizing: border-box;
+		display: block;
+		width: 100%;
+		max-width: 340px;
+		margin: 0 auto;
+		padding: 10px 12px;
+		text-align: center;
+		white-space: normal;
+		overflow-wrap: anywhere;
+	}
+
+	#social_icons {
+		position: static;
+		box-sizing: border-box;
+		width: 100%;
+		max-width: 340px;
+		margin: 14px auto 0 auto;
+		padding: 0 16px;
+		overflow: hidden;
+	}
+}

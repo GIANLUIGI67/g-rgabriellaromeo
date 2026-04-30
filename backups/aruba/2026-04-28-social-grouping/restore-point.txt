@@ -1,0 +1,2 @@
+Remote restore file: wp-content/themes/architectos/header.php.codex-restore-social-grouping-20260428-102612
+Local restore file: /Users/globalmindgianluigigrassi/Projects/g-rgabriellaromeo/backups/aruba/2026-04-28-social-grouping/live-theme/restore-20260428-102612/header.php.before-social-grouping-20260428-102612
