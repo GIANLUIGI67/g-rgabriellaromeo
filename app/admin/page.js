@@ -343,9 +343,7 @@ export default function AdminPage() {
           <button
             type="button"
             onClick={async () => {
-              const { error } = await supabase.auth.resetPasswordForEmail(loginEmail, {
-                redirectTo: 'https://g-rgabriellaromeo.vercel.app/admin/reset-password'
-              });
+              const { error } = await supabase.auth.resetPasswordForEmail(loginEmail.trim());
               if (error) alert('❌ Errore invio email: ' + error.message);
               else alert('✅ Email per reset inviata. Controlla la tua casella.');
             }}
