@@ -519,7 +519,7 @@ export default function PagamentoContent({ lang }) {
           return;
         }
         
-        const session = data.session;
+        const { session } = data;
         setAccessToken(session?.access_token || '');
         if (!session?.user) {
           localStorage.removeItem('carrello');
@@ -606,7 +606,9 @@ export default function PagamentoContent({ lang }) {
 
     setIsLoading(true);
     try {
-      const response = await fetch(resolveBackendEndpoint('checkout-finalize', '/api/checkout/finalize'), {
+      // Reserve inventory and create ordini_temporanei record.
+      // The order stays pending until the admin confirms receipt of the transfer.
+      const response = await fetch('/api/checkout/reserve', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -615,8 +617,6 @@ export default function PagamentoContent({ lang }) {
         body: JSON.stringify({
           cart: carrello,
           shippingMethod: spedizione,
-          paymentMethod: 'bonifico',
-          paymentStatus: 'in attesa bonifico',
           productionPolicyAccepted: accettaPolicyProduzione,
         }),
       });
@@ -625,8 +625,8 @@ export default function PagamentoContent({ lang }) {
         throw new Error(result?.error || t.errori.generico);
       }
 
-      localStorage.setItem('ordineId', result.orderId);
-      localStorage.setItem('nomeCliente', cliente.nome);
+      localStorage.setItem('ordineId', result.tempOrderId);
+      localStorage.setItem('nomeCliente', cliente?.nome || cliente?.email || '');
       localStorage.removeItem('carrello');
 
       router.push(`/ordine-confermato?lang=${lang}&metodo=bonifico`);

@@ -181,6 +181,137 @@ async function restoreProductInventory(service, adjustments) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// ORDINI TEMPORANEI — bank-transfer orders awaiting admin confirmation
+// ---------------------------------------------------------------------------
+
+/**
+ * Creates an ordini_temporanei record and decrements product inventory.
+ * Must only be called for bonifico (bank-transfer) payment method.
+ * On any DB failure after inventory has been decremented, inventory is restored.
+ */
+export async function createTemporaryOrder({ service, customer, quote, paymentMethod }) {
+  const now = new Date().toISOString();
+  const id = generateOrderId();
+
+  const inventoryAdjustments = [];
+  for (const item of quote.cart) {
+    const adjustment = await decrementProductInventory(service, item);
+    if (adjustment) inventoryAdjustments.push(adjustment);
+  }
+
+  const tempOrder = {
+    id,
+    cliente: customer,
+    cliente_email: customer.email,
+    carrello: quote.cart,
+    spedizione: quote.shippingMethod,
+    pagamento: paymentMethod,
+    totale: quote.total,
+    subtotale: quote.subtotal,
+    valore_sconto: quote.discountAmount,
+    sconto_primo_acquisto: quote.firstDiscountPercent,
+    stato: 'in_attesa_bonifico',
+    inventory_adjustments: inventoryAdjustments,
+    created_at: now,
+    updated_at: now,
+  };
+
+  const { error } = await service.from('ordini_temporanei').insert([tempOrder]);
+  if (error) {
+    await restoreProductInventory(service, inventoryAdjustments);
+    throw error;
+  }
+
+  return tempOrder;
+}
+
+/**
+ * Admin action: moves a temp order to ordini and clears it from ordini_temporanei.
+ * Inventory is NOT touched (was already decremented during reservation).
+ * Idempotent: if the order already exists in ordini it skips re-insertion.
+ */
+export async function adminConfirmTemporaryOrder({ service, tempOrderId }) {
+  const { data: tempOrder, error: fetchError } = await service
+    .from('ordini_temporanei')
+    .select('*')
+    .eq('id', tempOrderId)
+    .single();
+
+  if (fetchError || !tempOrder) throw new Error('Ordine temporaneo non trovato');
+
+  const now = new Date().toISOString();
+  const orderRecord = {
+    id: tempOrder.id,
+    cliente: tempOrder.cliente,
+    carrello: tempOrder.carrello,
+    spedizione: tempOrder.spedizione,
+    pagamento: tempOrder.pagamento,
+    totale: tempOrder.totale,
+    stato: 'pagato',
+    data: now,
+    tracking: null,
+    corriere: null,
+  };
+
+  // Idempotency: skip if already in ordini (e.g. crashed between insert and delete)
+  const { data: existing } = await service
+    .from('ordini')
+    .select('id')
+    .eq('id', tempOrder.id)
+    .maybeSingle();
+
+  if (!existing) {
+    const { error: insertError } = await service.from('ordini').insert([orderRecord]);
+    if (insertError) throw insertError;
+  }
+
+  await service.from('ordini_temporanei').delete().eq('id', tempOrderId);
+
+  // Update clienti JSONB history and clear primo_sconto if a discount was applied
+  const { data: clienteData } = await service
+    .from('clienti')
+    .select('ordini')
+    .eq('email', tempOrder.cliente_email)
+    .single();
+
+  const ordiniEsistenti = Array.isArray(clienteData?.ordini) ? clienteData.ordini : [];
+  const customerUpdate = {
+    ordini: [...ordiniEsistenti, { ...orderRecord }],
+    updated_at: now,
+  };
+  if (Number(tempOrder.valore_sconto) > 0) {
+    customerUpdate.primo_sconto = null;
+  }
+
+  await service.from('clienti').update(customerUpdate).eq('email', tempOrder.cliente_email);
+
+  return orderRecord;
+}
+
+/**
+ * Admin action: rejects a temp order, restoring inventory and deleting the record.
+ * Idempotent: restoreProductInventory sets previousQuantity (safe to run twice).
+ */
+export async function adminRejectTemporaryOrder({ service, tempOrderId }) {
+  const { data: tempOrder, error: fetchError } = await service
+    .from('ordini_temporanei')
+    .select('*')
+    .eq('id', tempOrderId)
+    .single();
+
+  if (fetchError || !tempOrder) throw new Error('Ordine temporaneo non trovato');
+
+  const adjustments = Array.isArray(tempOrder.inventory_adjustments)
+    ? tempOrder.inventory_adjustments
+    : [];
+
+  await restoreProductInventory(service, adjustments);
+  await service.from('ordini_temporanei').delete().eq('id', tempOrderId);
+}
+
+// ---------------------------------------------------------------------------
+
 export async function finalizeCheckout({
   service,
   customer,
