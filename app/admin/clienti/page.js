@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
 import { Download, Mail, MessageSquareText, Star } from 'lucide-react';
 import jsPDF from 'jspdf';
@@ -37,6 +38,7 @@ function totaleOrdine(record) {
 }
 
 export default function ClientiPage() {
+  const router = useRouter();
   const [clienti, setClienti] = useState([]);
   const [selezionati, setSelezionati] = useState([]);
   const [selezionaTutti, setSelezionaTutti] = useState(false);
@@ -208,6 +210,14 @@ export default function ClientiPage() {
 
   return (
     <div className="p-4 max-w-full overflow-x-auto bg-black text-white">
+      <div className="mb-4">
+        <button
+          onClick={() => router.push('/admin')}
+          style={{ background: 'white', color: 'black', border: 'none', padding: '8px 16px', borderRadius: 6, fontWeight: 'bold', cursor: 'pointer', minHeight: 44 }}
+        >
+          ← Pannello Admin
+        </button>
+      </div>
       <h1 className="text-xl font-bold mb-4 text-center">Gestione Clienti</h1>
 
       <div className="flex gap-4 justify-center mb-4 flex-wrap">
