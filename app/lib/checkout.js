@@ -192,7 +192,7 @@ async function restoreProductInventory(service, adjustments) {
  */
 export async function createTemporaryOrder({ service, customer, quote, paymentMethod }) {
   const now = new Date().toISOString();
-  const id = generateOrderId();
+  const id = crypto.randomUUID();
 
   const inventoryAdjustments = [];
   for (const item of quote.cart) {
