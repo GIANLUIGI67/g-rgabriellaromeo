@@ -31,6 +31,7 @@ export default function AdminEventiPage(){
   const [me, setMe] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [accessToken, setAccessToken] = useState('');
 
   // form evento
   const emptyForm = {
@@ -51,25 +52,35 @@ export default function AdminEventiPage(){
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const [{ data: { user } }, { data: sessionData }] = await Promise.all([
+        supabase.auth.getUser(),
+        supabase.auth.getSession(),
+      ]);
       if (!mounted) return;
       setMe(user ?? null);
+      setAccessToken(sessionData?.session?.access_token || '');
     })();
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => { setMe(s?.user ?? null); });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      setMe(s?.user ?? null);
+      setAccessToken(s?.access_token || '');
+    });
     return () => sub?.subscription?.unsubscribe();
   }, []);
 
-  // ---- admin check
+  // ---- admin check via service role (bypasses RLS)
   useEffect(() => {
     (async () => {
       setChecking(true);
-      try{
-        if (!me?.email) { setIsAdmin(false); return; }
-        const { data, error } = await supabase.from('admin_emails').select('email').eq('email', me.email).maybeSingle();
-        setIsAdmin(!!data && !error);
+      try {
+        if (!me?.email || !accessToken) { setIsAdmin(false); return; }
+        const res = await fetch('/api/check-admin', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const json = await res.json().catch(() => ({}));
+        setIsAdmin(!!json.isAdmin);
       } finally { setChecking(false); }
     })();
-  }, [me]);
+  }, [me, accessToken]);
 
   // ---- fetch eventi
   const loadEventi = useCallback(async () => {
@@ -233,6 +244,13 @@ export default function AdminEventiPage(){
       <main style={styles.main}>
         <h1 style={styles.h1}>🎉 Eventi (Admin)</h1>
         <button onClick={()=>router.push('/admin')} style={styles.btn}>Vai al login admin</button>
+      </main>
+    );
+  }
+  if (checking){
+    return (
+      <main style={{ ...styles.main, justifyContent:'center', alignItems:'center' }}>
+        <p style={{ opacity:0.7 }}>Verifica autorizzazioni…</p>
       </main>
     );
   }
