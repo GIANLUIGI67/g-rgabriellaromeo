@@ -71,8 +71,8 @@ export default function MagazzinoPage() {
                     <th style={{ textAlign: 'left', padding: '0.3rem' }}>Descrizione</th>
                     <th style={{ textAlign: 'left', padding: '0.3rem' }}>Taglia</th>
                     <th style={{ textAlign: 'center', padding: '0.3rem' }}>Q.tà</th>
-                    <th style={{ textAlign: 'right', padding: '0.3rem', fontFamily: 'Arial, sans-serif' }}>Prezzo Unit. €</th>
-                    <th style={{ textAlign: 'right', padding: '0.3rem', fontFamily: 'Arial, sans-serif' }}>Totale €</th>
+                    <th className="gr-price" style={{ textAlign: 'right', padding: '0.3rem' }}>Prezzo Unit. €</th>
+                    <th className="gr-price" style={{ textAlign: 'right', padding: '0.3rem' }}>Totale €</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -84,10 +84,10 @@ export default function MagazzinoPage() {
                         <td style={{ padding: '0.3rem' }}>{p.descrizione}</td>
                         <td style={{ padding: '0.3rem' }}>{p.taglia}</td>
                         <td style={{ textAlign: 'center', padding: '0.3rem' }}>{p.quantita}</td>
-                        <td style={{ textAlign: 'right', padding: '0.3rem', fontFamily: 'Arial, sans-serif' }}>
+                        <td className="gr-price" style={{ textAlign: 'right', padding: '0.3rem' }}>
                           {formatEuro(p.prezzo)}
                         </td>
-                        <td style={{ textAlign: 'right', padding: '0.3rem', fontWeight: 'bold', fontFamily: 'Arial, sans-serif' }}>
+                        <td className="gr-price" style={{ textAlign: 'right', padding: '0.3rem', fontWeight: 'bold' }}>
                           {formatEuro(totaleProdotto)}
                         </td>
                       </tr>
@@ -97,9 +97,9 @@ export default function MagazzinoPage() {
                     <td colSpan="5" style={{ textAlign: 'right', fontWeight: 'bold', paddingTop: '0.4rem' }}>
                       Subtotale {sottocategoria}
                     </td>
-                    <td style={{ textAlign: 'right', fontWeight: 'bold', paddingTop: '0.4rem', fontFamily: 'Arial, sans-serif' }}>
+                    <td className="gr-price" style={{ textAlign: 'right', fontWeight: 'bold', paddingTop: '0.4rem' }}>
                       {formatEuro(items.reduce(
-                        (sum, i) => sum + (Number(i.prezzo || 0) * Number(i.quantita || 0)), 
+                        (sum, i) => sum + (Number(i.prezzo || 0) * Number(i.quantita || 0)),
                         0
                       ))}
                     </td>
@@ -111,14 +111,13 @@ export default function MagazzinoPage() {
         </section>
       ))}
 
-      <h2 style={{ 
-        textAlign: 'right', 
-        fontSize: '1.4rem', 
-        marginTop: '2rem', 
+      <h2 className="gr-price" style={{
+        textAlign: 'right',
+        fontSize: '1.4rem',
+        marginTop: '2rem',
         color: 'white',
         borderTop: '2px solid #666',
         paddingTop: '1rem',
-        fontFamily: 'Arial, sans-serif'
       }}>
         Valore Totale Magazzino: {formatEuro(totaleMagazzino)}
       </h2>
