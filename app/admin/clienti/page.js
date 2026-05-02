@@ -184,7 +184,7 @@ export default function ClientiPage() {
   const inviaEmailMultipla = async () => {
     if (selezionati.length === 0) return alert("Nessun cliente selezionato");
 
-    const res = await fetch('/api/email/send-offerte', {
+    const res = await fetch('/api/email/invia-clienti', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ destinatari: selezionati })
@@ -193,7 +193,8 @@ export default function ClientiPage() {
     if (res.ok) {
       alert('Email inviate con successo!');
     } else {
-      alert('Errore durante l\'invio delle email');
+      const json = await res.json().catch(() => ({}));
+      alert('Errore durante l\'invio delle email: ' + (json.error || res.status));
     }
   };
 
@@ -221,11 +222,11 @@ export default function ClientiPage() {
       <h1 className="text-xl font-bold mb-4 text-center">Gestione Clienti</h1>
 
       <div className="flex gap-4 justify-center mb-4 flex-wrap">
-        <button onClick={exportCSV} className="bg-blue-500 text-white px-3 py-1 rounded flex items-center gap-2"><Download size={16}/> CSV</button>
-        <button onClick={exportPDF} className="bg-red-500 text-white px-3 py-1 rounded flex items-center gap-2"><Download size={16}/> PDF</button>
-        <button onClick={inviaEmailMultipla} className="bg-green-600 text-white px-3 py-1 rounded flex items-center gap-2" disabled={selezionati.length === 0}><Mail size={16}/> Invia Email</button>
-        <button onClick={apriWhatsAppPerSelezionati} className="bg-emerald-700 text-white px-3 py-1 rounded flex items-center gap-2" disabled={selezionati.length === 0}><MessageSquareText size={16}/> WhatsApp</button>
-        <button onClick={() => alert('Funzione eventi/promozioni in sviluppo')} className="bg-yellow-500 text-white px-3 py-1 rounded flex items-center gap-2"><Star size={16}/> Eventi/Offerte</button>
+        <button onClick={exportCSV} className="bg-blue-500 white-text px-3 py-1 rounded flex items-center gap-2"><Download size={16}/> CSV</button>
+        <button onClick={exportPDF} className="bg-red-500 white-text px-3 py-1 rounded flex items-center gap-2"><Download size={16}/> PDF</button>
+        <button onClick={inviaEmailMultipla} className="bg-green-600 white-text px-3 py-1 rounded flex items-center gap-2" disabled={selezionati.length === 0} style={{ opacity: selezionati.length === 0 ? 0.5 : 1 }}><Mail size={16}/> Invia Email</button>
+        <button onClick={apriWhatsAppPerSelezionati} className="bg-emerald-700 white-text px-3 py-1 rounded flex items-center gap-2" disabled={selezionati.length === 0} style={{ opacity: selezionati.length === 0 ? 0.5 : 1 }}><MessageSquareText size={16}/> WhatsApp</button>
+        <button onClick={() => alert('Funzione eventi/promozioni in sviluppo')} className="bg-yellow-500 white-text px-3 py-1 rounded flex items-center gap-2"><Star size={16}/> Eventi/Offerte</button>
       </div>
 
       <table className="min-w-full border text-sm text-white" style={{ fontFamily: 'Arial, sans-serif' }}>

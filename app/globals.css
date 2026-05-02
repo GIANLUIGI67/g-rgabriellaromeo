@@ -41,3 +41,7 @@ body * {
 .total-price {
   font-family: Arial, Helvetica, sans-serif !important;
 }
+
+.white-text {
+  color: white !important;
+}
