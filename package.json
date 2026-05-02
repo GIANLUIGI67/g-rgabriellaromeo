@@ -79,7 +79,9 @@
         "next": {
             "postcss": "^8.5.10"
         },
-        "qs": "^6.15.1"
+        "qs": "^6.15.1",
+        "glob": "^10.4.5",
+        "inflight": "^1.0.6"
     },
     "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).",
     "main": "postcss.config.js",
