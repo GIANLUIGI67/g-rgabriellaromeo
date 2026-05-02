@@ -199,14 +199,7 @@ export default function ClientiPage() {
   };
 
   const apriWhatsAppPerSelezionati = () => {
-    clienti
-      .filter(c => selezionati.includes(c.email))
-      .forEach(c => {
-        const numero = (c.telefono1 || '').replace(/\D/g, '');
-        if (numero) {
-          window.open(`https://wa.me/${numero}?text=Scopri%20le%20nuove%20offerte%20G-R%20Gabriella%20Romeo`, '_blank');
-        }
-      });
+    alert('Funzione WhatsApp Business in configurazione. Richiede integrazione Meta Cloud API con numero G-R verificato.');
   };
 
   return (
