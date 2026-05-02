@@ -44,9 +44,9 @@ const itemsSummary = (o) => {
     .join(', ');
 };
 
-const isShipped = (o) => {
+const isPaid = (o) => {
   const trk = o?.tracking && String(o.tracking).trim() !== '';
-  return o?.stato === 'spedito' || trk;
+  return o?.stato === 'pagato' || o?.stato === 'spedito' || trk;
 };
 
 // range tempo da data di riferimento
@@ -148,7 +148,7 @@ export default function VenditePageContent() {
     if (accessToken) check();
   }, [me, accessToken]);
 
-  // --------- carico ordini (tutti, poi filtro shipped)
+  // --------- carico ordini (tutti, poi filtro pagati/spediti)
   useEffect(() => {
     const fetchOrdini = async () => {
       if (!isAdmin) { setOrdini([]); setLoading(false); return; }
@@ -173,7 +173,7 @@ export default function VenditePageContent() {
 
   // --------- filtro per periodo
   const venditeFiltrate = useMemo(() => {
-    const base = (ordini || []).filter(isShipped);
+    const base = (ordini || []).filter(isPaid);
     const d = new Date(refDate);
     let start, end;
     if (periodo === 'giorno') {
