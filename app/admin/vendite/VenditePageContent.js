@@ -310,7 +310,7 @@ export default function VenditePageContent() {
         <div style={styles.totalsRow}>
           <div><b>{periodLabel(periodo, refDate)}</b></div>
           <div><b>Numero ordini:</b> {venditeFiltrate.length}</div>
-          <div><b>Totale vendite:</b> <span style={{ fontFamily: 'Arial, sans-serif' }}>{inEuro(totaleVendite)}</span></div>
+          <div><b>Totale vendite:</b> <span className="gr-price">{inEuro(totaleVendite)}</span></div>
         </div>
       </section>
 
@@ -326,7 +326,7 @@ export default function VenditePageContent() {
                 <div style={styles.row}><b>Data:</b> {fmtData(o.data)}</div>
                 <div style={styles.row}>
                   <b>Totale:</b>{' '}
-                  <span style={{ fontFamily: 'Arial, sans-serif' }}>{inEuro(o.totale)}</span>
+                  <span className="gr-price">{inEuro(o.totale)}</span>
                 </div>
                 <div style={styles.row}><b>Prodotti:</b> {itemsSummary(o)}</div>
                 <div style={styles.row}><b>Stato:</b> {o.stato || '-'}</div>

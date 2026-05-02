@@ -329,7 +329,7 @@ export default function OrdiniPage() {
           <div style={styles.row}><b>Stato:</b> {o.stato || '-'}</div>
           <div style={styles.row}>
             <b>Totale:</b>{' '}
-            <span style={{ fontFamily: 'Arial, sans-serif' }}>{inEuro(o.totale)}</span>
+            <span className="gr-price">{inEuro(o.totale)}</span>
           </div>
           <div style={styles.row}><b>Prodotti:</b> {itemsSummary(o)}</div>
           <div style={styles.row}><b>Email:</b> {c.email}</div>
@@ -384,7 +384,7 @@ export default function OrdiniPage() {
                 <div key={i} style={styles.cartLine}>
                   • {it?.nome || it?.name} {it?.taglia ? `(${it.taglia})` : ''} × {it?.quantita || it?.qty || 1}
                   {' — '}
-                  <span style={{ fontFamily: 'Arial, sans-serif' }}>{euroText(readPrezzoItem(it))}</span>
+                  <span className="gr-price">{euroText(readPrezzoItem(it))}</span>
                 </div>
               ))
             ) : (
@@ -412,7 +412,7 @@ export default function OrdiniPage() {
           <div style={styles.row}><b>Stato:</b> <span style={{ color: '#fbbf24' }}>{o.stato}</span></div>
           <div style={styles.row}>
             <b>Totale:</b>{' '}
-            <span style={{ fontFamily: 'Arial, sans-serif' }}>{inEuro(o.totale)}</span>
+            <span className="gr-price">{inEuro(o.totale)}</span>
           </div>
           <div style={styles.row}><b>Prodotti:</b> {itemsSummary(o)}</div>
           <div style={styles.row}><b>Email:</b> {email}</div>
