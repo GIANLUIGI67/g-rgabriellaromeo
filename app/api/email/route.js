@@ -1,15 +1,7 @@
 import { NextResponse } from 'next/server';
-import { Resend } from 'resend';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { supabase } from '../../lib/supabaseClient';
-
-function getResendClient() {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    throw new Error('Missing RESEND_API_KEY');
-  }
-  return new Resend(apiKey);
-}
+import { sendEmail } from '../../lib/mailer';
 
 export async function POST(req) {
   const { email, nome, ordineId, totale, lang } = await req.json();
@@ -55,30 +47,25 @@ export async function POST(req) {
   drawText(`Totale: €${ordine.totale.toFixed(2)}`, 50, y, 14);
 
   const pdfBytes = await pdfDoc.save();
-  const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
 
   const messaggio = {
     it: `Grazie ${nome}, in allegato trovi la fattura del tuo ordine ${ordineId}.`,
     en: `Thank you ${nome}, attached is the invoice for your order ${ordineId}.`
-  }[lang];
+  }[lang] || `Grazie ${nome}, in allegato trovi la fattura del tuo ordine ${ordineId}.`;
 
   try {
-    const resend = getResendClient();
-    await resend.emails.send({
-      from: 'info@g-rgabriellaromeo.it',
+    await sendEmail({
       to: email,
       subject: `Fattura Ordine ${ordineId}`,
       html: `<p>${messaggio}</p>`,
       attachments: [
         {
           filename: `fattura_${ordineId}.pdf`,
-          content: pdfBase64,
-          type: 'application/pdf',
-          disposition: 'attachment'
-        }
-      ]
+          content: Buffer.from(pdfBytes),
+          contentType: 'application/pdf',
+        },
+      ],
     });
-
     return NextResponse.json({ success: true });
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });

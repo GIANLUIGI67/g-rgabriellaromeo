@@ -1,14 +1,6 @@
 import { NextResponse } from 'next/server';
-import { Resend } from 'resend';
 import { supabase } from '../../../lib/supabaseClient';
-
-function getResendClient() {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    throw new Error('Missing RESEND_API_KEY');
-  }
-  return new Resend(apiKey);
-}
+import { sendEmail } from '../../../lib/mailer';
 
 export async function POST(req) {
   try {
@@ -18,13 +10,11 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Nessun prodotto selezionato' }, { status: 400 });
     }
 
-    // Recupera tutti i clienti registrati
     const { data: clienti, error: clientiError } = await supabase
       .from('clienti')
       .select('email');
 
     if (clientiError) {
-      console.error('Errore lettura clienti:', clientiError.message);
       return NextResponse.json({ error: 'Errore lettura clienti' }, { status: 500 });
     }
 
@@ -45,17 +35,14 @@ export async function POST(req) {
       <p>Visita il nostro sito per vedere tutti i prodotti in offerta!</p>
     `;
 
-    const resend = getResendClient();
-    const result = await resend.emails.send({
-      from: 'info@g-rgabriellaromeo.it',
+    await sendEmail({
       to: destinatari,
       subject: '📣 Nuove Offerte G-R Gabriella Romeo',
       html: corpoHtml,
     });
 
-    return NextResponse.json({ message: '✅ Email inviate correttamente!', result });
+    return NextResponse.json({ message: '✅ Email inviate correttamente!' });
   } catch (error) {
-    console.error('Errore invio email:', error);
-    return NextResponse.json({ error: 'Errore durante invio email' }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
