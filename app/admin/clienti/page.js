@@ -235,7 +235,7 @@ export default function ClientiPage() {
             <th className="border px-2 py-1">Nome</th>
             <th className="border px-2 py-1">Email</th>
             <th className="border px-2 py-1">Telefono</th>
-            <th className="border px-2 py-1">Totale €</th>
+            <th className="border px-2 py-1 gr-price">Totale €</th>
             <th className="border px-2 py-1">N. Ordini</th>
           </tr>
         </thead>
@@ -252,7 +252,7 @@ export default function ClientiPage() {
               <td className="border px-2 py-1 whitespace-normal break-words">{c.nome} {c.cognome}</td>
               <td className="border px-2 py-1 whitespace-normal break-words">{c.email}</td>
               <td className="border px-2 py-1 whitespace-normal break-words">{c.telefono1}</td>
-              <td className="border px-2 py-1 whitespace-nowrap text-right">{euro(c.totaleOrdini)}</td>
+              <td className="border px-2 py-1 whitespace-nowrap text-right gr-price">{euro(c.totaleOrdini)}</td>
               <td className="border px-2 py-1 whitespace-nowrap text-center">{c.numeroOrdini || 0}</td>
             </tr>
           ))}
