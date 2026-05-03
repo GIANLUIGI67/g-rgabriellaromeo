@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function BrandPage() {
   return (
@@ -13,6 +13,7 @@ export default function BrandPage() {
 }
 function BrandPageContent() {
   const params = useSearchParams();
+  const router = useRouter();
   const lang = params.get('lang') || 'it';
 
   const testi = {
@@ -76,6 +77,12 @@ Das ist mein Stil.`,
         position: 'relative',
       }}
     >
+      <button
+        onClick={() => router.push(`/?lang=${lang}`)}
+        style={{ position: 'absolute', top: 16, left: 16, zIndex: 10, background: 'white', color: 'black', border: 'none', padding: '6px 14px', borderRadius: 6, fontWeight: 'bold', cursor: 'pointer' }}
+      >
+        ←
+      </button>
       {/* Semi-transparent overlay for better readability */}
       <div style={{
         position: 'absolute',

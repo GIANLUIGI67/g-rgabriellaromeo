@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const t = {
   it: {
@@ -56,11 +56,15 @@ const t = {
 
 function ServiziContent() {
   const params = useSearchParams();
+  const router = useRouter();
   const lang = params.get('lang') || 'it';
   const tr = t[lang] || t.it;
 
   return (
     <main style={{ padding: '2rem', backgroundColor: 'black', color: 'white', textAlign: 'center', minHeight: '100vh' }}>
+      <div style={{ textAlign: 'left', marginBottom: 16 }}>
+        <button onClick={() => router.push(`/?lang=${lang}`)} style={{ background: 'white', color: 'black', border: 'none', padding: '6px 14px', borderRadius: 6, fontWeight: 'bold', cursor: 'pointer' }}>←</button>
+      </div>
       <h1 style={{ fontSize: '2rem', marginBottom: '1rem' }}>{tr.titolo}</h1>
       <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem', fontWeight: 'normal' }}>{tr.sottotitolo}</h2>
       <p style={{ maxWidth: 480, margin: '0 auto 1.5rem', lineHeight: 1.6 }}>{tr.desc}</p>

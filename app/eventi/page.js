@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 
 const t = {
@@ -112,6 +112,7 @@ const fmt = (ts) => {
 
 function EventiContent() {
   const params = useSearchParams();
+  const router = useRouter();
   const lang = params.get('lang') || 'it';
   const tr = t[lang] || t.it;
 
@@ -180,6 +181,9 @@ function EventiContent() {
 
   return (
     <main style={styles.main}>
+      <div style={{ marginBottom: 12 }}>
+        <button onClick={() => router.push(`/?lang=${lang}`)} style={{ background: 'white', color: 'black', border: 'none', padding: '6px 14px', borderRadius: 6, fontWeight: 'bold', cursor: 'pointer' }}>←</button>
+      </div>
       <h1 style={styles.h1}>{tr.titolo}</h1>
 
       {loading && <div>{tr.caricamento}</div>}
