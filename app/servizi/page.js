@@ -62,6 +62,11 @@ function ServiziContent() {
 
   return (
     <main style={{ padding: '2rem', backgroundColor: 'black', color: 'white', textAlign: 'center', minHeight: '100vh' }}>
+      <style>{`
+        .gr-service-email-link {
+          color: #2b61f5 !important;
+        }
+      `}</style>
       <div style={{ textAlign: 'left', marginBottom: 16 }}>
         <button onClick={() => router.push(`/?lang=${lang}`)} style={{ background: 'white', color: 'black', border: 'none', padding: '6px 14px', borderRadius: 6, fontWeight: 'bold', cursor: 'pointer' }}>←</button>
       </div>
@@ -69,7 +74,11 @@ function ServiziContent() {
       <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem', fontWeight: 'normal' }}>{tr.sottotitolo}</h2>
       <p style={{ maxWidth: 480, margin: '0 auto 1.5rem', lineHeight: 1.6 }}>{tr.desc}</p>
       <p style={{ opacity: 0.8 }}>{tr.contatto}</p>
-      <a href="mailto:info@g-rgabriellaromeo.it" style={{ color: '#d4af37', fontSize: '1.1rem' }}>
+      <a
+        href="mailto:info@g-rgabriellaromeo.it"
+        className="gr-service-email-link !text-[#2b61f5]"
+        style={{ fontSize: '1.1rem' }}
+      >
         info@g-rgabriellaromeo.it
       </a>
     </main>
