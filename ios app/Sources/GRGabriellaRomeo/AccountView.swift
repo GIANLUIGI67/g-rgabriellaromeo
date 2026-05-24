@@ -8,7 +8,7 @@ struct AccountView: View {
             HeroBackground()
             if isPresented {
                 LoginPanel(isPresented: $isPresented)
-                    .frame(maxWidth: 306)
+                    .frame(maxWidth: 282)
                     .frame(height: 390, alignment: .top)
                     .clipped()
                     .padding(.top, 56)
@@ -44,17 +44,19 @@ struct LoginPanel: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 7) {
                 HStack(alignment: .top) {
                     Text(store.session == nil ? "LOGIN" : "ACCOUNT")
-                        .font(.custom("Michroma-Regular", size: 22))
+                        .font(.custom("Michroma-Regular", size: 16))
                         .foregroundStyle(.black)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.72)
                     Spacer()
                     Button {
                         withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }
                     } label: {
                         Image(systemName: "xmark")
-                            .font(.system(size: 22, weight: .regular))
+                            .font(.system(size: 18, weight: .regular))
                             .foregroundStyle(.black)
                     }
                 }
@@ -65,15 +67,15 @@ struct LoginPanel: View {
                     authContent
                 }
             }
-            .padding(.horizontal, 14)
-            .padding(.top, 14)
-            .padding(.bottom, 14)
+            .padding(.horizontal, 12)
+            .padding(.top, 12)
+            .padding(.bottom, 12)
         }
-        .background(Color.grGold)
+        .background(Color.white)
     }
 
     private var authContent: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 7) {
             TextField("Email", text: $email)
                 .keyboardType(.emailAddress)
                 .textInputAutocapitalization(.never)
@@ -84,7 +86,7 @@ struct LoginPanel: View {
                 .loginField()
 
             if isRegistering {
-                VStack(spacing: 12) {
+                VStack(spacing: 7) {
                     TextField("Nome", text: $nome).loginField()
                     TextField("Cognome", text: $cognome).loginField()
                     TextField("Paese", text: $paese).loginField()
@@ -104,11 +106,13 @@ struct LoginPanel: View {
                         ProgressView().tint(.white)
                     } else {
                         Text(isRegistering ? "REGISTRATI" : "LOGIN")
-                            .font(.custom("Michroma-Regular", size: 20))
+                            .font(.custom("Michroma-Regular", size: 14))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.72)
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: 38)
+                .frame(height: 30)
                 .foregroundStyle(Color.grGold)
                 .background(Color.black)
             }
@@ -119,7 +123,7 @@ struct LoginPanel: View {
                     Task { await handleForgotPassword() }
                 } label: {
                     Text("Password dimenticata?")
-                        .font(.custom("Michroma-Regular", size: 16))
+                        .font(.custom("Michroma-Regular", size: 12))
                         .foregroundStyle(Color(red: 0.17, green: 0.38, blue: 0.96))
                 }
             }
@@ -135,20 +139,22 @@ struct LoginPanel: View {
                 }
             } label: {
                 Text(isRegistering ? "LOGIN" : "CREA ACCOUNT")
-                    .font(.custom("Michroma-Regular", size: 20))
+                    .font(.custom("Michroma-Regular", size: 14))
                     .foregroundStyle(.black)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.62)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 38)
+                    .frame(height: 30)
                     .overlay(Rectangle().stroke(Color.black, lineWidth: 1.2))
             }
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 2) {
                 ForEach(benefits, id: \.self) { benefit in
                     Text("-  \(benefit)")
-                        .font(.custom("Michroma-Regular", size: 14))
+                        .font(.custom("Michroma-Regular", size: 9.5))
                         .foregroundStyle(Color(red: 0.34, green: 0.37, blue: 0.43))
                         .lineLimit(1)
-                        .minimumScaleFactor(0.72)
+                        .minimumScaleFactor(0.58)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -156,7 +162,7 @@ struct LoginPanel: View {
 
             if let infoMessage {
                 Text(infoMessage)
-                    .font(.custom("Michroma-Regular", size: 15))
+                    .font(.custom("Michroma-Regular", size: 12))
                     .foregroundStyle(Color(red: 0.1, green: 0.45, blue: 0.18))
             }
         }
@@ -165,14 +171,14 @@ struct LoginPanel: View {
     private func loggedInContent(email: String) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             Text(email)
-                .font(.custom("Michroma-Regular", size: 18))
+                .font(.custom("Michroma-Regular", size: 13))
                 .foregroundStyle(.black)
             if let customer = store.customer {
                 Text([customer.nome, customer.cognome].compactMap { $0 }.joined(separator: " "))
-                    .font(.custom("Michroma-Regular", size: 22))
+                    .font(.custom("Michroma-Regular", size: 15))
                     .foregroundStyle(.black)
                 Text([customer.indirizzo, customer.citta, customer.codicePostale, customer.paese].compactMap { $0 }.joined(separator: " "))
-                    .font(.custom("Michroma-Regular", size: 18))
+                    .font(.custom("Michroma-Regular", size: 12))
                     .foregroundStyle(.black.opacity(0.72))
             }
 
@@ -180,10 +186,10 @@ struct LoginPanel: View {
                 store.logout()
             } label: {
                 Text("LOGOUT")
-                    .font(.custom("Michroma-Regular", size: 22))
+                    .font(.custom("Michroma-Regular", size: 15))
                     .foregroundStyle(Color.grGold)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 50)
+                    .frame(height: 34)
                     .background(Color.black)
             }
         }
@@ -237,10 +243,10 @@ struct LoginPanel: View {
 private extension View {
     func loginField() -> some View {
         self
-            .font(.custom("Michroma-Regular", size: 18))
+            .font(.custom("Michroma-Regular", size: 13))
             .foregroundStyle(.black)
-            .padding(.horizontal, 12)
-            .frame(height: 40)
+            .padding(.horizontal, 8)
+            .frame(height: 30)
             .overlay(Rectangle().stroke(Color.black, lineWidth: 1.2))
     }
 }

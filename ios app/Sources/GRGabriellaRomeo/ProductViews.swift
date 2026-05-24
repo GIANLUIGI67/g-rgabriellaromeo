@@ -6,6 +6,7 @@ struct ProductListView: View {
     let title: String
     var onlyOffers = false
     @State private var selectedSubcategory = "Tutte le sottocategorie"
+    @State private var isSubcategoryMenuOpen = false
 
     private var subcategories: [String] {
         let values = store.products
@@ -23,6 +24,11 @@ struct ProductListView: View {
         return unique
     }
 
+    private var shouldShowSubcategoryMenu: Bool {
+        guard let category else { return false }
+        return category != "servizi" && !subcategories.isEmpty
+    }
+
     private var filteredProducts: [Product] {
         store.products.filter { product in
             let categoryMatch = category == nil || product.categoria?.localizedCaseInsensitiveContains(category!) == true
@@ -37,17 +43,17 @@ struct ProductListView: View {
             Color.black.ignoresSafeArea()
 
             ScrollView {
-                VStack(spacing: 28) {
+                VStack(spacing: 22) {
                     Text(title)
-                        .font(.custom("Michroma-Regular", size: 38))
-                        .tracking(3)
+                        .font(.custom("Michroma-Regular", size: 30))
+                        .tracking(1.4)
                         .foregroundStyle(Color.grGold)
                         .multilineTextAlignment(.center)
                         .lineLimit(2)
                         .minimumScaleFactor(0.7)
-                        .padding(.top, 92)
+                        .padding(.top, 88)
 
-                    if category != nil {
+                    if shouldShowSubcategoryMenu {
                         subcategoryMenu
                     }
 
@@ -57,11 +63,11 @@ struct ProductListView: View {
                             .padding(.top, 30)
                     } else if filteredProducts.isEmpty {
                         Text("Nessun prodotto disponibile")
-                            .font(.custom("Michroma-Regular", size: 24))
+                            .font(.custom("Michroma-Regular", size: 20))
                             .foregroundStyle(Color.grGold.opacity(0.72))
                             .padding(.top, 30)
                     } else {
-                        LazyVStack(spacing: 22) {
+                        LazyVStack(spacing: 26) {
                             ForEach(filteredProducts) { product in
                                 NavigationLink {
                                     ProductDetailView(product: product)
@@ -74,7 +80,7 @@ struct ProductListView: View {
                         .padding(.top, 6)
                     }
                 }
-                .padding(.horizontal, 24)
+                .padding(.horizontal, 30)
                 .padding(.bottom, 42)
             }
 
@@ -84,55 +90,85 @@ struct ProductListView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .toolbar(.hidden, for: .navigationBar)
+        .task(id: category) {
+            await store.refreshProducts()
+        }
     }
 
     private var subcategoryMenu: some View {
-        Menu {
+        VStack(spacing: 0) {
             Button {
-                selectedSubcategory = "Tutte le sottocategorie"
-            } label: {
-                if selectedSubcategory == "Tutte le sottocategorie" {
-                    Label("Tutte le sottocategorie", systemImage: "checkmark")
-                } else {
-                    Text("Tutte le sottocategorie")
+                withAnimation(.easeInOut(duration: 0.16)) {
+                    isSubcategoryMenuOpen.toggle()
                 }
+            } label: {
+                HStack(spacing: 10) {
+                    Text(selectedSubcategory)
+                        .font(.custom("Michroma-Regular", size: 16))
+                        .foregroundStyle(.black)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.72)
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 17, weight: .regular))
+                        .foregroundStyle(Color.grGold)
+                        .rotationEffect(.degrees(isSubcategoryMenuOpen ? 180 : 0))
+                }
+                .padding(.horizontal, 14)
+                .frame(height: 46)
+                .background(Color.white)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.grGold, lineWidth: 1.4)
+                )
             }
+            .buttonStyle(.plain)
 
-            ForEach(subcategories, id: \.self) { value in
-                Button {
-                    selectedSubcategory = value
-                } label: {
-                    if selectedSubcategory == value {
-                        Label(value, systemImage: "checkmark")
-                    } else {
-                        Text(value)
+            if isSubcategoryMenuOpen {
+                VStack(alignment: .leading, spacing: 0) {
+                    dropdownOption("Tutte le sottocategorie")
+                    ForEach(subcategories, id: \.self) { value in
+                        dropdownOption(value)
                     }
                 }
+                .background(Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.grGold.opacity(0.62), lineWidth: 1)
+                )
+                .padding(.top, 6)
+            }
+        }
+        .padding(.horizontal, 12)
+        .zIndex(20)
+    }
+
+    private func dropdownOption(_ value: String) -> some View {
+        Button {
+            selectedSubcategory = value
+            withAnimation(.easeInOut(duration: 0.16)) {
+                isSubcategoryMenuOpen = false
             }
         } label: {
-            HStack {
-                Text(selectedSubcategory)
-                    .font(.custom("Michroma-Regular", size: 24))
-                    .foregroundStyle(Color.grGold)
+            HStack(spacing: 10) {
+                Text(value)
+                    .font(.custom("Michroma-Regular", size: 14))
+                    .foregroundStyle(.black)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+                    .minimumScaleFactor(0.72)
                 Spacer()
-                Image(systemName: "chevron.down")
-                    .foregroundStyle(Color.grGold)
+                if selectedSubcategory == value {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color.grGold)
+                }
             }
-            .padding(.horizontal, 18)
-            .frame(height: 54)
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.grGold, lineWidth: 2)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color(red: 0.0, green: 0.32, blue: 0.78), lineWidth: 4)
-                    .padding(-5)
-            )
+            .padding(.horizontal, 14)
+            .frame(height: 38)
+            .background(Color.white)
         }
-        .padding(.horizontal, 25)
+        .buttonStyle(.plain)
     }
 }
 
@@ -140,28 +176,40 @@ struct ProductCard: View {
     let product: Product
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             ProductImage(product: product)
-                .frame(height: 280)
+                .frame(height: 222)
                 .clipShape(Rectangle())
 
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(product.nome)
-                        .font(.custom("Michroma-Regular", size: 22))
+                        .font(.custom("Michroma-Regular", size: 17))
                         .foregroundStyle(Color.grGold)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.76)
                     if let sottocategoria = product.sottocategoria, !sottocategoria.isEmpty {
                         Text(sottocategoria)
-                            .font(.custom("Michroma-Regular", size: 16))
+                            .font(.custom("Michroma-Regular", size: 12))
                             .foregroundStyle(Color.grGold.opacity(0.62))
+                            .lineLimit(1)
+                    }
+                    if let description = product.descrizione, !description.isEmpty {
+                        Text(description)
+                            .font(.custom("Michroma-Regular", size: 11))
+                            .foregroundStyle(Color.grGold.opacity(0.58))
+                            .lineLimit(2)
                     }
                 }
                 Spacer()
                 Text(product.displayPrice.euro)
-                    .font(.system(size: 20, weight: .regular))
+                    .font(.system(size: 16, weight: .regular))
                     .foregroundStyle(Color.grGold)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
         }
+        .frame(maxWidth: 326)
     }
 }
 
