@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.grgabriellaromeo.app.data.models.Product
+import com.grgabriellaromeo.app.ui.theme.Gold
+import com.grgabriellaromeo.app.ui.theme.Michroma
 import com.grgabriellaromeo.app.util.formatEuro
 import com.grgabriellaromeo.app.util.Translations
 
@@ -24,111 +26,139 @@ private const val STORAGE_BASE = "https://mdpplumkmxjwyzunpjpg.supabase.co/stora
 
 @Composable
 fun ProductCard(product: Product, lang: String, onClick: () -> Unit) {
-    val imageUrl = product.immagine?.let { "$STORAGE_BASE$it" }
+    val imageUrl = product.immagine?.let { imageUrlFor(it) }
     val name = product.getName(lang)
-    val isSoldOut = !product.disponibile
+    val isSoldOut = product.isSoldOut
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(300.dp)
-            .background(Color.White)
+            .widthIn(max = 326.dp)
+            .background(Color.Black)
             .clickable(enabled = !isSoldOut) { onClick() }
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(190.dp)
-            ) {
-                AsyncImage(
-                    model = imageUrl,
-                    contentDescription = name,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-                if (isSoldOut) {
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .background(Color.Black.copy(alpha = 0.55f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = Translations.t("esaurito", lang).uppercase(),
-                            color = Color.White,
-                            fontSize = 13.sp,
-                            letterSpacing = 2.sp
-                        )
-                    }
-                }
-                if (product.offerta) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .background(Color(0xFFCC0000))
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    ) {
-                        Text(text = "SALE", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                    }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(222.dp)
+        ) {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+            if (isSoldOut) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(Color.Black.copy(alpha = 0.55f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = Translations.t("esaurito", lang).uppercase(),
+                        color = Color.White,
+                        fontFamily = Michroma,
+                        fontSize = 13.sp,
+                        letterSpacing = 2.sp
+                    )
                 }
             }
+            if (product.offerta) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .background(Color(0xFFCC0000))
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                ) {
+                    Text(text = "SALE", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
 
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 9.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
+        ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 6.dp)
+                    .weight(1f)
+                    .padding(end = 10.dp)
             ) {
                 Text(
                     text = name,
-                    color = Color.Black,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
+                    color = Gold,
+                    fontFamily = Michroma,
+                    fontSize = 17.sp,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    lineHeight = 17.sp
+                    lineHeight = 23.sp
                 )
                 if (!product.sottocategoria.isNullOrBlank()) {
                     Text(
                         text = product.sottocategoria,
-                        color = Color(0xFF555555),
-                        fontSize = 11.sp
+                        color = Gold.copy(alpha = 0.62f),
+                        fontFamily = Michroma,
+                        fontSize = 12.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
-                Spacer(modifier = Modifier.height(4.dp))
-                if (product.hasDiscount) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                product.getDescrizione(lang)?.takeIf { it.isNotBlank() }?.let { desc ->
+                    Text(
+                        text = desc,
+                        color = Gold.copy(alpha = 0.58f),
+                        fontFamily = Michroma,
+                        fontSize = 11.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        lineHeight = 16.sp
+                    )
+                }
+            }
+
+            Column(horizontalAlignment = Alignment.End) {
+                if (!product.hasDisplayPrice) {
+                    Text(
+                        text = Translations.t("prezzo_su_richiesta", lang),
+                        color = Color(0xFF2B61F5),
+                        fontFamily = FontFamily.SansSerif,
+                        fontSize = 13.sp,
+                        lineHeight = 16.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                } else {
+                    if (product.hasDiscount) {
                         Text(
                             text = formatEuro(product.prezzo),
-                            color = Color(0xFF888888),
-                            fontSize = 11.sp,
+                            color = Gold.copy(alpha = 0.45f),
                             fontFamily = FontFamily.SansSerif,
-                            textDecoration = TextDecoration.LineThrough
-                        )
-                        Text(
-                            text = formatEuro(product.prezzoEffettivo),
-                            color = Color(0xFFCC0000),
                             fontSize = 13.sp,
-                            fontFamily = FontFamily.SansSerif,
-                            fontWeight = FontWeight.Bold
+                            textDecoration = TextDecoration.LineThrough,
+                            maxLines = 1
                         )
-                        if (product.sconto != null && product.sconto > 0) {
-                            Text(
-                                text = "(-${product.sconto.toInt()}%)",
-                                color = Color(0xFFCC0000),
-                                fontSize = 10.sp
-                            )
-                        }
                     }
-                } else {
                     Text(
-                        text = formatEuro(product.prezzo),
-                        color = Color.Black,
-                        fontSize = 13.sp,
-                        fontFamily = FontFamily.SansSerif
+                        text = formatEuro(product.prezzoEffettivo),
+                        color = Gold,
+                        fontFamily = FontFamily.SansSerif,
+                        fontSize = 16.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
         }
     }
 }
+
+private fun imageUrlFor(value: String): String =
+    when {
+        value.startsWith("http", ignoreCase = true) -> value
+        value.startsWith("old-gallery/") -> "file:///android_asset/product-images/$value"
+        else -> "$STORAGE_BASE$value"
+    }

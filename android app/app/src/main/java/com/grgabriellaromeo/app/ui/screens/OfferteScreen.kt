@@ -2,16 +2,15 @@ package com.grgabriellaromeo.app.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -38,12 +37,16 @@ fun OfferteScreen(
 
     Column(modifier = Modifier.fillMaxSize().background(Color.Black)) {
         Text(
-            text = Translations.t("offerte", lang).uppercase(),
+            text = "OFFERTE",
             color = Gold,
             fontFamily = Michroma,
-            fontSize = 20.sp,
-            letterSpacing = 2.sp,
-            modifier = Modifier.padding(16.dp)
+            fontSize = 28.sp,
+            letterSpacing = 1.4.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 30.dp)
+                .padding(top = 88.dp, bottom = 22.dp)
         )
 
         when (state) {
@@ -60,14 +63,18 @@ fun OfferteScreen(
                         Text(Translations.t("nessun_prodotto", lang), color = Color(0xFF888888))
                     }
                 } else {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    LazyColumn(
+                        contentPadding = PaddingValues(horizontal = 30.dp, vertical = 6.dp),
+                        verticalArrangement = Arrangement.spacedBy(26.dp),
+                        modifier = Modifier.fillMaxSize()
                     ) {
                         items(products) { product ->
-                            ProductCard(product = product, lang = lang, onClick = { selectedProduct = product })
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                ProductCard(product = product, lang = lang, onClick = { selectedProduct = product })
+                            }
                         }
                     }
                 }

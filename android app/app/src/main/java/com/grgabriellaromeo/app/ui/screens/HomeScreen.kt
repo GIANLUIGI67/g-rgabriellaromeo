@@ -86,9 +86,6 @@ fun HomeScreen(
                 IconButton(onClick = onContactClick) {
                     Icon(Icons.Default.Phone, contentDescription = "Contatti", tint = Gold)
                 }
-                IconButton(onClick = onUserClick) {
-                    Icon(Icons.Default.Person, contentDescription = "Account", tint = Gold)
-                }
                 Box {
                     IconButton(onClick = onCartClick) {
                         Icon(Icons.Default.ShoppingCart, contentDescription = "Carrello", tint = Gold)
@@ -101,6 +98,9 @@ fun HomeScreen(
                             Text(cartCount.toString(), color = Color.Black, fontSize = 10.sp)
                         }
                     }
+                }
+                IconButton(onClick = onUserClick) {
+                    Icon(Icons.Default.Person, contentDescription = "Account", tint = Gold)
                 }
             }
         }

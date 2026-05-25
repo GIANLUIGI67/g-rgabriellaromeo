@@ -20,6 +20,7 @@ import com.grgabriellaromeo.app.ui.theme.Michroma
 import com.grgabriellaromeo.app.util.Translations
 
 private data class Servizio(val icon: String, val titleKey: String, val descIt: String, val descEn: String)
+private data class ServiziContactLink(val labelKey: String, val value: String, val uri: String)
 
 private val servizi = listOf(
     Servizio("💍", "gioielli", "Creazione e riparazione di gioielli artigianali su misura con materiali pregiati.", "Creation and repair of custom handcrafted jewellery with precious materials."),
@@ -30,10 +31,11 @@ private val servizi = listOf(
 )
 
 private val serviziContactLinks = listOf(
-    "Email" to "mailto:info@g-rgabriellaromeo.it",
-    "WhatsApp" to "https://wa.me/393429506938",
-    "Instagram" to "https://www.instagram.com/grgabriellaromeo/",
-    "Facebook" to "https://www.facebook.com/GRGabriellaRomeoItalianStyle"
+    ServiziContactLink("email", "info@g-rgabriellaromeo.it", "mailto:info@g-rgabriellaromeo.it"),
+    ServiziContactLink("telefono", "+39 342 950 6938", "tel:+393429506938"),
+    ServiziContactLink("WhatsApp", "+39 342 950 6938", "https://wa.me/393429506938"),
+    ServiziContactLink("Instagram", "@grgabriellaromeo", "https://www.instagram.com/grgabriellaromeo/"),
+    ServiziContactLink("Facebook", "G-R Gabriella Romeo", "https://www.facebook.com/GRGabriellaRomeoItalianStyle")
 )
 
 @Composable
@@ -89,15 +91,21 @@ fun ServiziScreen(lang: String) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = Translations.t("contattaci", lang), color = Gold, fontSize = 16.sp)
             Spacer(Modifier.height(8.dp))
-            serviziContactLinks.forEach { (label, uri) ->
+            serviziContactLinks.forEach { link ->
+                val label = if (link.labelKey in listOf("email", "telefono")) {
+                    Translations.t(link.labelKey, lang)
+                } else {
+                    link.labelKey
+                }
                 Text(
-                    text = label,
-                    color = Color(0xFFCCCCCC),
+                    text = "$label  ${link.value}",
+                    color = if (link.labelKey == "email") Color(0xFF2563EB) else Color(0xFFCCCCCC),
+                    fontFamily = FontFamily.SansSerif,
                     fontSize = 14.sp,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { uriHandler.openUri(uri) }
-                        .padding(vertical = 3.dp)
+                        .clickable { uriHandler.openUri(link.uri) }
+                        .padding(vertical = 5.dp)
                 )
             }
         }

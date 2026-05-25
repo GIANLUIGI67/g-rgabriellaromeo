@@ -9,6 +9,11 @@ import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
 class GRApplication : Application(), SingletonImageLoader.Factory {
+    override fun onCreate() {
+        super.onCreate()
+        appContext = this
+    }
+
     override fun newImageLoader(context: android.content.Context): ImageLoader {
         val okhttp = OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
@@ -19,5 +24,10 @@ class GRApplication : Application(), SingletonImageLoader.Factory {
             .components { add(OkHttpNetworkFetcherFactory(callFactory = { okhttp })) }
             .crossfade(true)
             .build()
+    }
+
+    companion object {
+        lateinit var appContext: GRApplication
+            private set
     }
 }

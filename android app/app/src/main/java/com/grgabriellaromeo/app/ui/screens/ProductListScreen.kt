@@ -3,17 +3,17 @@ package com.grgabriellaromeo.app.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -37,13 +37,16 @@ fun ProductListScreen(
     val state by vm.state.collectAsState()
     var selectedProduct by remember { mutableStateOf<Product?>(null) }
     var selectedSub by remember { mutableStateOf<String?>(null) }
+    var subcategoryMenuOpen by remember { mutableStateOf(false) }
 
     LaunchedEffect(categoria) { vm.load(categoria) }
 
     val subcategories = remember(state) {
         (state as? ProductsState.Success)?.products
             ?.mapNotNull { it.sottocategoria }
+            ?.filter { it.isNotBlank() }
             ?.distinct()
+            ?.sorted()
             ?: emptyList()
     }
 
@@ -52,36 +55,42 @@ fun ProductListScreen(
         if (selectedSub == null) all else all.filter { it.sottocategoria == selectedSub }
     }
 
-    Column(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
         Text(
-            text = Translations.t(categoria, lang).uppercase(),
+            text = titleForCategory(categoria),
             color = Gold,
             fontFamily = Michroma,
-            fontSize = 20.sp,
-            letterSpacing = 2.sp,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+            fontSize = if (categoria == "abbigliamento") 23.sp else 28.sp,
+            letterSpacing = 1.4.sp,
+            lineHeight = if (categoria == "abbigliamento") 34.sp else 38.sp,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Clip,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 18.dp)
+                .padding(top = 88.dp, bottom = 22.dp)
         )
 
         if (subcategories.isNotEmpty()) {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                item {
-                    SubcategoryChip(
-                        label = Translations.t("tutti", lang),
-                        selected = selectedSub == null,
-                        onClick = { selectedSub = null }
-                    )
+            SubcategoryMenu(
+                label = selectedSub ?: "Tutte le sottocategorie",
+                options = subcategories,
+                open = subcategoryMenuOpen,
+                onToggle = { subcategoryMenuOpen = !subcategoryMenuOpen },
+                onSelect = {
+                    selectedSub = it
+                    subcategoryMenuOpen = false
+                },
+                onClear = {
+                    selectedSub = null
+                    subcategoryMenuOpen = false
                 }
-                items(subcategories) { sub ->
-                    SubcategoryChip(
-                        label = sub,
-                        selected = selectedSub == sub,
-                        onClick = { selectedSub = if (selectedSub == sub) null else sub }
-                    )
-                }
-            }
+            )
         }
 
         when (state) {
@@ -101,19 +110,22 @@ fun ProductListScreen(
                         Text(text = Translations.t("nessun_prodotto", lang), color = Color(0xFF888888))
                     }
                 } else {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    LazyColumn(
+                        contentPadding = PaddingValues(horizontal = 30.dp, vertical = 6.dp),
+                        verticalArrangement = Arrangement.spacedBy(26.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(filtered) { product ->
-                            ProductCard(
-                                product = product,
-                                lang = lang,
-                                onClick = { selectedProduct = product }
-                            )
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                ProductCard(
+                                    product = product,
+                                    lang = lang,
+                                    onClick = { selectedProduct = product }
+                                )
+                            }
                         }
                     }
                 }
@@ -135,18 +147,91 @@ fun ProductListScreen(
 }
 
 @Composable
-private fun SubcategoryChip(label: String, selected: Boolean, onClick: () -> Unit) {
-    Box(
+private fun SubcategoryMenu(
+    label: String,
+    options: List<String>,
+    open: Boolean,
+    onToggle: () -> Unit,
+    onSelect: (String) -> Unit,
+    onClear: () -> Unit
+) {
+    Column(
         modifier = Modifier
-            .clickable { onClick() }
-            .background(if (selected) Gold else Color(0xFF1A1A1A))
-            .padding(horizontal = 14.dp, vertical = 7.dp)
+            .fillMaxWidth()
+            .padding(horizontal = 42.dp)
+            .padding(bottom = 22.dp)
     ) {
-        Text(
-            text = label,
-            color = if (selected) Color.Black else Color.White,
-            fontSize = 12.sp,
-            letterSpacing = 1.sp
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(46.dp)
+                .background(Color.White)
+                .clickable { onToggle() }
+                .padding(horizontal = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = label,
+                color = Color.Black,
+                fontFamily = Michroma,
+                fontSize = 16.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                Icons.Default.KeyboardArrowDown,
+                contentDescription = null,
+                tint = Gold,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+
+        if (open) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 6.dp)
+                    .background(Color.White)
+            ) {
+                DropdownOption(
+                    label = "Tutte le sottocategorie",
+                    selected = label == "Tutte le sottocategorie",
+                    onClick = onClear
+                )
+                options.forEach { option ->
+                    DropdownOption(
+                        label = option,
+                        selected = label == option,
+                        onClick = { onSelect(option) }
+                    )
+                }
+            }
+        }
     }
+}
+
+@Composable
+private fun DropdownOption(label: String, selected: Boolean, onClick: () -> Unit) {
+    Text(
+        text = label,
+        color = Color.Black,
+        fontFamily = Michroma,
+        fontSize = 14.sp,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(if (selected) Color(0xFFF7F2E4) else Color.White)
+            .clickable { onClick() }
+            .padding(horizontal = 14.dp, vertical = 10.dp)
+    )
+}
+
+private fun titleForCategory(categoria: String): String = when (categoria) {
+    "gioielli" -> "GALLERIA\nGIOIELLI"
+    "abbigliamento" -> "GALLERIA\nABBIGLIAMENTO"
+    "accessori" -> "GALLERIA\nACCESSORI"
+    "offerte" -> "OFFERTE"
+    else -> categoria.uppercase()
 }

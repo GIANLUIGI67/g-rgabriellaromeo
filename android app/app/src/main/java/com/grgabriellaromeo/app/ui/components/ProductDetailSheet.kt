@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -25,6 +26,8 @@ import com.grgabriellaromeo.app.ui.theme.Gold
 import com.grgabriellaromeo.app.ui.theme.Michroma
 import com.grgabriellaromeo.app.util.formatEuro
 import com.grgabriellaromeo.app.util.Translations
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 private const val STORAGE_BASE = "https://mdpplumkmxjwyzunpjpg.supabase.co/storage/v1/object/public/immagini/"
 
@@ -44,6 +47,7 @@ fun ProductDetailSheet(
     var selectedTaglia by remember { mutableStateOf(taglie.firstOrNull()) }
     var selectedColore by remember { mutableStateOf(colori.firstOrNull()) }
     var quantity by remember { mutableIntStateOf(1) }
+    val uriHandler = LocalUriHandler.current
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -75,7 +79,7 @@ fun ProductDetailSheet(
 
             Box(modifier = Modifier.fillMaxWidth().aspectRatio(1f)) {
                 AsyncImage(
-                    model = images.getOrNull(selectedImage)?.let { "$STORAGE_BASE$it" },
+                    model = images.getOrNull(selectedImage)?.let { imageUrlFor(it) },
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
@@ -89,7 +93,7 @@ fun ProductDetailSheet(
                 ) {
                     images.forEachIndexed { idx, img ->
                         AsyncImage(
-                            model = "$STORAGE_BASE$img",
+                            model = imageUrlFor(img),
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
@@ -111,28 +115,37 @@ fun ProductDetailSheet(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (product.hasDiscount) {
+                if (!product.hasDisplayPrice) {
                     Text(
-                        text = formatEuro(product.prezzo),
-                        color = Color(0xFF888888),
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily.SansSerif,
-                        textDecoration = TextDecoration.LineThrough
+                        text = Translations.t("prezzo_su_richiesta", lang),
+                        color = Color(0xFF2B61F5),
+                        fontSize = 16.sp,
+                        fontFamily = FontFamily.SansSerif
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-                Text(
-                    text = formatEuro(product.prezzoEffettivo),
-                    color = Gold,
-                    fontSize = 20.sp,
-                    fontFamily = FontFamily.SansSerif
-                )
-                if (product.sconto != null && product.sconto > 0) {
+                } else {
+                    if (product.hasDiscount) {
+                        Text(
+                            text = formatEuro(product.prezzo),
+                            color = Color(0xFF888888),
+                            fontSize = 14.sp,
+                            fontFamily = FontFamily.SansSerif,
+                            textDecoration = TextDecoration.LineThrough
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
                     Text(
-                        text = "(-${product.sconto.toInt()}%)",
-                        color = Color(0xFFCC0000),
-                        fontSize = 13.sp
+                        text = formatEuro(product.prezzoEffettivo),
+                        color = Gold,
+                        fontSize = 20.sp,
+                        fontFamily = FontFamily.SansSerif
                     )
+                    if (product.sconto != null && product.sconto > 0) {
+                        Text(
+                            text = "(-${product.sconto.toInt()}%)",
+                            color = Color(0xFFCC0000),
+                            fontSize = 13.sp
+                        )
+                    }
                 }
             }
 
@@ -203,63 +216,113 @@ fun ProductDetailSheet(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Row(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(
-                    text = Translations.t("quantita", lang),
-                    color = Color(0xFF888888),
-                    fontSize = 12.sp
-                )
-                IconButton(onClick = { if (quantity > 1) quantity-- }) {
-                    Text(text = "−", color = Color.White, fontSize = 18.sp)
-                }
-                Text(text = quantity.toString(), color = Color.White)
-                IconButton(onClick = { quantity++ }) {
-                    Text(text = "+", color = Color.White, fontSize = 18.sp)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    onAddToCart(
-                        CartItem(
-                            productId = product.id,
-                            name = product.getName(lang),
-                            price = product.prezzoEffettivo,
-                            imageUrl = product.immagine,
-                            quantity = quantity,
-                            taglia = selectedTaglia,
-                            colore = selectedColore,
-                            availableQuantity = product.quantita,
-                            madeToOrder = product.madeToOrder == true,
-                            allowBackorder = product.allowBackorder == true,
-                            disponibile = product.disponibile,
-                            offerta = product.offerta,
-                            sconto = product.sconto ?: 0.0
-                        )
+            if (product.hasDisplayPrice) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = Translations.t("quantita", lang),
+                        color = Color(0xFF888888),
+                        fontSize = 12.sp
                     )
-                    onDismiss()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = Color.Black),
-                enabled = product.isAvailable
-            ) {
-                Text(
-                    text = if (product.isAvailable)
-                        Translations.t("aggiungi_carrello", lang)
-                    else
-                        Translations.t("esaurito", lang),
-                    letterSpacing = 1.sp
-                )
+                    IconButton(onClick = { if (quantity > 1) quantity-- }) {
+                        Text(text = "−", color = Color.White, fontSize = 18.sp)
+                    }
+                    Text(text = quantity.toString(), color = Color.White)
+                    IconButton(onClick = { quantity++ }) {
+                        Text(text = "+", color = Color.White, fontSize = 18.sp)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        onAddToCart(
+                            CartItem(
+                                productId = product.id,
+                                name = product.getName(lang),
+                                price = product.prezzoEffettivo,
+                                imageUrl = product.immagine,
+                                quantity = quantity,
+                                taglia = selectedTaglia,
+                                colore = selectedColore,
+                                availableQuantity = product.quantita,
+                                madeToOrder = product.madeToOrder == true,
+                                allowBackorder = product.allowBackorder == true,
+                                disponibile = product.disponibile,
+                                offerta = product.offerta,
+                                sconto = product.sconto ?: 0.0
+                            )
+                        )
+                        onDismiss()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .height(50.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = Color.Black),
+                    enabled = product.isAvailable
+                ) {
+                    Text(
+                        text = if (product.isAvailable)
+                            Translations.t("aggiungi_carrello", lang)
+                        else
+                            Translations.t("esaurito", lang),
+                        letterSpacing = 1.sp
+                    )
+                }
+            } else {
+                TextButton(
+                    onClick = { uriHandler.openUri(priceRequestUri(product.getName(lang), lang)) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .height(50.dp)
+                ) {
+                    Text(
+                        text = Translations.t("richiedi_prezzo", lang),
+                        color = Color(0xFF2B61F5),
+                        letterSpacing = 1.sp
+                    )
+                }
             }
         }
     }
 }
+
+private fun imageUrlFor(value: String): String =
+    when {
+        value.startsWith("http", ignoreCase = true) -> value
+        value.startsWith("old-gallery/") -> "file:///android_asset/product-images/$value"
+        else -> "$STORAGE_BASE$value"
+    }
+
+private fun priceRequestUri(productName: String, lang: String): String {
+    val subject = when (lang) {
+        "en" -> "Price request - $productName"
+        "fr" -> "Demande de prix - $productName"
+        "de" -> "Preisanfrage - $productName"
+        "es" -> "Solicitud de precio - $productName"
+        "ar" -> "طلب سعر - $productName"
+        "zh" -> "价格咨询 - $productName"
+        "ja" -> "価格問い合わせ - $productName"
+        else -> "Richiesta prezzo - $productName"
+    }
+    val body = when (lang) {
+        "en" -> "I would like price and ordering information for: $productName"
+        "fr" -> "Je souhaite recevoir le prix et les informations de commande pour : $productName"
+        "de" -> "Ich mochte Preis- und Bestellinformationen fur: $productName"
+        "es" -> "Quisiera recibir informacion sobre precio y pedido para: $productName"
+        "ar" -> "أرغب في معرفة السعر وطريقة الطلب لهذا المنتج: $productName"
+        "zh" -> "我想了解该产品的价格和订购信息：$productName"
+        "ja" -> "この商品の価格と注文情報を希望します: $productName"
+        else -> "Vorrei ricevere informazioni su prezzo e ordine per: $productName"
+    }
+    return "mailto:info@g-rgabriellaromeo.it?subject=${subject.urlEncode()}&body=${body.urlEncode()}"
+}
+
+private fun String.urlEncode(): String =
+    URLEncoder.encode(this, StandardCharsets.UTF_8.toString())

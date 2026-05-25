@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
+import { ChevronLeft } from 'lucide-react';
 
 const t = {
   it: {
@@ -180,10 +181,15 @@ function EventiContent() {
   );
 
   return (
-    <main style={styles.main}>
-      <div style={{ marginBottom: 12 }}>
-        <button onClick={() => router.push(`/?lang=${lang}`)} style={{ background: 'white', color: 'black', border: 'none', padding: '6px 14px', borderRadius: 6, fontWeight: 'bold', cursor: 'pointer' }}>←</button>
-      </div>
+    <main className="gr-simple-page" style={styles.main}>
+      <button
+        type="button"
+        className="gr-gallery-back"
+        onClick={() => router.push(`/?lang=${lang}`)}
+        aria-label="Indietro"
+      >
+        <ChevronLeft aria-hidden="true" />
+      </button>
       <h1 style={styles.h1}>{tr.titolo}</h1>
 
       {loading && <div>{tr.caricamento}</div>}

@@ -4,6 +4,7 @@ import { buildCheckoutQuote, createTemporaryOrder, loadCustomerProfile } from '.
 import { jsonResponse, requireUser } from '../../../lib/serverAuth';
 import { createServerSupabaseServiceClient } from '../../../lib/serverSupabase';
 import { sendEmail } from '../../../lib/mailer';
+import { getSiteUrl } from '../../../lib/siteUrl';
 
 /**
  * POST /api/checkout/reserve
@@ -41,6 +42,8 @@ export async function POST(request) {
 
     // Send pending order email with bank transfer details (non-blocking)
     try {
+      const siteUrl = getSiteUrl();
+
       await sendEmail({
         to: customer.email,
         subject: `Ordine ricevuto N. ${tempOrder.id} — in attesa di bonifico — G-R Gabriella Romeo`,
@@ -58,7 +61,7 @@ export async function POST(request) {
             </div>
             <p>Una volta verificato il pagamento, riceverai una email di conferma e il tuo ordine verrà spedito.</p>
             <br/>
-            <a href="https://g-rgabriellaromeo.vercel.app"
+            <a href="${siteUrl}"
                style="display:inline-block;padding:12px 24px;background:#d4af37;color:#000;text-decoration:none;border-radius:6px;font-weight:bold;">
               Visita il negozio
             </a>

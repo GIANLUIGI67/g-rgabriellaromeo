@@ -37,6 +37,7 @@ fun SearchScreen(
     var query by remember { mutableStateOf("") }
     var selectedProduct by remember { mutableStateOf<Product?>(null) }
     val keyboard = LocalSoftwareKeyboardController.current
+    val trimmedQuery = query.trim()
 
     Column(modifier = Modifier.fillMaxSize().background(Color.Black)) {
         OutlinedTextField(
@@ -47,7 +48,7 @@ fun SearchScreen(
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
-                if (query.isNotBlank()) vm.search(query)
+                if (trimmedQuery.isNotBlank()) vm.search(trimmedQuery)
                 keyboard?.hide()
             }),
             colors = OutlinedTextFieldDefaults.colors(
@@ -62,28 +63,34 @@ fun SearchScreen(
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         )
 
-        when (state) {
-            is ProductsState.Loading -> Box(Modifier.fillMaxSize(), Alignment.Center) {
-                CircularProgressIndicator(color = Gold)
+        if (trimmedQuery.isBlank()) {
+            Box(Modifier.fillMaxSize(), Alignment.Center) {
+                Text(Translations.t("cerca_placeholder", lang), color = Color(0xFF888888))
             }
-            is ProductsState.Error -> Box(Modifier.fillMaxSize(), Alignment.Center) {
-                Text(Translations.t("errore", lang), color = Color(0xFF888888))
-            }
-            is ProductsState.Success -> {
-                val products = (state as ProductsState.Success).products
-                if (products.isEmpty() && query.isNotBlank()) {
-                    Box(Modifier.fillMaxSize(), Alignment.Center) {
-                        Text(Translations.t("nessun_risultato", lang), color = Color(0xFF888888))
-                    }
-                } else {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        items(products) { product ->
-                            ProductCard(product = product, lang = lang, onClick = { selectedProduct = product })
+        } else {
+            when (state) {
+                is ProductsState.Loading -> Box(Modifier.fillMaxSize(), Alignment.Center) {
+                    CircularProgressIndicator(color = Gold)
+                }
+                is ProductsState.Error -> Box(Modifier.fillMaxSize(), Alignment.Center) {
+                    Text(Translations.t("errore", lang), color = Color(0xFF888888))
+                }
+                is ProductsState.Success -> {
+                    val products = (state as ProductsState.Success).products
+                    if (products.isEmpty()) {
+                        Box(Modifier.fillMaxSize(), Alignment.Center) {
+                            Text(Translations.t("nessun_risultato", lang), color = Color(0xFF888888))
+                        }
+                    } else {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            contentPadding = PaddingValues(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            items(products) { product ->
+                                ProductCard(product = product, lang = lang, onClick = { selectedProduct = product })
+                            }
                         }
                     }
                 }

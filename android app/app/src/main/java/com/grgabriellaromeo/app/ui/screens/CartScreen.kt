@@ -63,7 +63,7 @@ fun CartScreen(
                         ) {
                             item.imageUrl?.let { img ->
                                 AsyncImage(
-                                    model = "$STORAGE_BASE$img",
+                                    model = cartImageUrl(img),
                                     contentDescription = null,
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier.size(72.dp)
@@ -121,3 +121,10 @@ fun CartScreen(
         }
     }
 }
+
+private fun cartImageUrl(value: String): String =
+    when {
+        value.startsWith("http", ignoreCase = true) -> value
+        value.startsWith("old-gallery/") -> "file:///android_asset/product-images/$value"
+        else -> "$STORAGE_BASE$value"
+    }

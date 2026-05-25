@@ -28,7 +28,7 @@ data class Product(
     val sottocategoria: String? = null,
     val immagine: String? = null,
     val immagini: String? = null,
-    val taglie: String? = null,
+    val taglia: String? = null,
     val colori: String? = null,
     val disponibile: Boolean = true,
     val offerta: Boolean = false,
@@ -72,7 +72,7 @@ data class Product(
     }
 
     fun getTaglieList(): List<String> =
-        taglie?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() } ?: emptyList()
+        taglia?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() } ?: emptyList()
 
     fun getColoriList(): List<String> =
         colori?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() } ?: emptyList()
@@ -82,7 +82,12 @@ data class Product(
         sconto != null && sconto > 0 -> prezzo * (1.0 - sconto / 100.0)
         else -> prezzo
     }
+    val hasDisplayPrice: Boolean get() = prezzoEffettivo > 0.0
     val hasDiscount: Boolean get() = prezzoScontato != null || (sconto != null && sconto > 0)
-    val isAvailable: Boolean get() = disponibile
+    val isSoldOut: Boolean get() {
+        val stock = quantita
+        return !disponibile || (stock != null && stock <= 0 && madeToOrder != true && allowBackorder != true)
+    }
+    val isAvailable: Boolean get() = !isSoldOut
     fun requiresProduction(quantity: Int): Boolean = quantity > (quantita ?: 0)
 }

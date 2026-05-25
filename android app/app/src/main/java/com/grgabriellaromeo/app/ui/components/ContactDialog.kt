@@ -24,10 +24,11 @@ private data class ContactLink(
 )
 
 private val contactLinks = listOf(
-    ContactLink("Email", "mailto:info@g-rgabriellaromeo.it"),
-    ContactLink("WhatsApp", "https://wa.me/393429506938"),
-    ContactLink("Instagram", "https://www.instagram.com/grgabriellaromeo/"),
-    ContactLink("Facebook", "https://www.facebook.com/GRGabriellaRomeoItalianStyle")
+    ContactLink("Email  info@g-rgabriellaromeo.it", "mailto:info@g-rgabriellaromeo.it"),
+    ContactLink("Telefono  +39 342 950 6938", "tel:+393429506938"),
+    ContactLink("WhatsApp  +39 342 950 6938", "https://wa.me/393429506938"),
+    ContactLink("Instagram  @grgabriellaromeo", "https://www.instagram.com/grgabriellaromeo/"),
+    ContactLink("Facebook  G-R Gabriella Romeo", "https://www.facebook.com/GRGabriellaRomeoItalianStyle")
 )
 
 @Composable

@@ -4,6 +4,7 @@ import { buildCheckoutQuote, finalizeCheckout, loadCustomerProfile } from '../..
 import { jsonResponse, requireUser } from '../../../lib/serverAuth';
 import { createServerSupabaseServiceClient } from '../../../lib/serverSupabase';
 import { sendEmail } from '../../../lib/mailer';
+import { getSiteUrl } from '../../../lib/siteUrl';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
 async function buildInvoicePDF(order) {
@@ -117,6 +118,7 @@ export async function POST(request) {
 
     // Send confirmation email with invoice PDF (non-blocking)
     try {
+      const siteUrl = getSiteUrl();
       const pdfBytes = await buildInvoicePDF(order);
       await sendEmail({
         to: customer.email,
@@ -130,7 +132,7 @@ export async function POST(request) {
             <p>In allegato trovi la ricevuta del tuo ordine in formato PDF.</p>
             <p>Riceverai un'email con il numero di tracking non appena il pacco sarà spedito.</p>
             <br/>
-            <a href="https://g-rgabriellaromeo.vercel.app"
+            <a href="${siteUrl}"
                style="display:inline-block;padding:12px 24px;background:#d4af37;color:#000;text-decoration:none;border-radius:6px;font-weight:bold;">
               Visita il negozio
             </a>

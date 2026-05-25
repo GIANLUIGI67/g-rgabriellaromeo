@@ -121,6 +121,13 @@ fun GRNavGraph() {
                         onAddToCart = { cartVm.addItem(it) }
                     )
                 }
+                composable(Screen.Accessori.route) {
+                    ProductListScreen(
+                        categoria = "accessori",
+                        lang = lang,
+                        onAddToCart = { cartVm.addItem(it) }
+                    )
+                }
                 composable(Screen.Offerte.route) {
                     OfferteScreen(lang = lang, onAddToCart = { cartVm.addItem(it) })
                 }

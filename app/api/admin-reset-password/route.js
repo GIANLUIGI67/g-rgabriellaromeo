@@ -1,6 +1,7 @@
 import { createServerSupabaseServiceClient } from '../../lib/serverSupabase';
 import { jsonResponse } from '../../lib/serverAuth';
 import { sendEmail } from '../../lib/mailer';
+import { getSiteUrlForPath } from '../../lib/siteUrl';
 
 export async function POST(request) {
   const { email } = await request.json().catch(() => ({}));
@@ -20,7 +21,7 @@ export async function POST(request) {
     type: 'recovery',
     email: email.trim(),
     options: {
-      redirectTo: 'https://g-rgabriellaromeo.vercel.app/admin/reset-password',
+      redirectTo: getSiteUrlForPath('/admin/reset-password'),
     },
   });
 

@@ -58,6 +58,7 @@
         "@types/jest": "^30.0.0",
         "@types/node": "^20.11.30",
         "@types/react": "^18.2.42",
+        "agent-browser": "^0.27.0",
         "autoprefixer": "^10.4.21",
         "dotenv": "^17.4.2",
         "eslint": "^9.27.0",

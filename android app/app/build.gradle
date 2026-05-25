@@ -46,6 +46,12 @@ def buildConfigString = { String value ->
     "\"${(value ?: "").replace("\\", "\\\\").replace("\"", "\\\"")}\""
 }
 
+def uploadStoreFile = secretValue("UPLOAD_STORE_FILE")
+def uploadStorePassword = secretValue("UPLOAD_STORE_PASSWORD")
+def uploadKeyAlias = secretValue("UPLOAD_KEY_ALIAS")
+def uploadKeyPassword = secretValue("UPLOAD_KEY_PASSWORD")
+def hasUploadSigning = uploadStoreFile && uploadStorePassword && uploadKeyAlias && uploadKeyPassword
+
 android {
     namespace "com.grgabriellaromeo.app"
     compileSdk 36
@@ -66,9 +72,23 @@ android {
         buildConfigField "String", "SITE_URL",          buildConfigString(secretValue("SITE_URL", "https://g-rgabriellaromeo.vercel.app"))
     }
 
+    signingConfigs {
+        release {
+            if (hasUploadSigning) {
+                storeFile rootProject.file(uploadStoreFile)
+                storePassword uploadStorePassword
+                keyAlias uploadKeyAlias
+                keyPassword uploadKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            if (hasUploadSigning) {
+                signingConfig signingConfigs.release
+            }
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -126,6 +146,7 @@ dependencies {
     // Coil (image loading)
     implementation "io.coil-kt.coil3:coil-compose:3.1.0"
     implementation "io.coil-kt.coil3:coil-network-okhttp:3.1.0"
+    implementation "com.squareup.okhttp3:okhttp:4.12.0"
 
     // DataStore
     implementation "androidx.datastore:datastore-preferences:1.1.4"

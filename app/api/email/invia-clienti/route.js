@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '../../../lib/serverAuth';
 import { sendEmail } from '../../../lib/mailer';
+import { getSiteUrl } from '../../../lib/siteUrl';
 
 export async function POST(request) {
   const auth = await requireAdmin(request);
@@ -12,6 +13,8 @@ export async function POST(request) {
   }
 
   try {
+    const siteUrl = getSiteUrl();
+
     await sendEmail({
       to: destinatari,
       subject: '📣 Novità da G-R Gabriella Romeo',
@@ -20,7 +23,7 @@ export async function POST(request) {
           <h2 style="color:#d4af37;">G-R Gabriella Romeo</h2>
           <p>Ciao! Ti scriviamo per aggiornarti sulle ultime novità e offerte del nostro negozio.</p>
           <p>Visita il nostro sito per scoprire tutti i prodotti disponibili.</p>
-          <a href="https://g-rgabriellaromeo.vercel.app"
+          <a href="${siteUrl}"
              style="display:inline-block;margin-top:16px;padding:12px 24px;background:#d4af37;color:#000;text-decoration:none;border-radius:6px;font-weight:bold;">
             Visita il negozio
           </a>
