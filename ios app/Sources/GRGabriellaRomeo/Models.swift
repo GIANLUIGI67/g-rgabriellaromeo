@@ -78,8 +78,25 @@ struct Product: Identifiable, Codable, Hashable {
         return prezzo - (prezzo * discount / 100)
     }
 
+    var hasDisplayPrice: Bool {
+        displayPrice > 0
+    }
+
+    var isSoldOut: Bool {
+        if disponibile == false {
+            return true
+        }
+        if madeToOrder == true || allowBackorder == true {
+            return false
+        }
+        if let quantita {
+            return quantita <= 0
+        }
+        return false
+    }
+
     var isAvailable: Bool {
-        disponibile != false
+        !isSoldOut
     }
 
     func requiresProduction(for quantity: Int) -> Bool {
@@ -365,7 +382,7 @@ extension KeyedDecodingContainer {
             return Decimal(value)
         }
         if let value = try? decode(String.self, forKey: key) {
-            return Decimal(string: value.replacingOccurrences(of: ",", with: ".")) ?? 0
+            return Self.parseFlexibleDecimal(value)
         }
         return 0
     }
@@ -375,5 +392,28 @@ extension KeyedDecodingContainer {
             return nil
         }
         return try decodeFlexibleDecimal(forKey: key)
+    }
+
+    private static func parseFlexibleDecimal(_ rawValue: String) -> Decimal {
+        let trimmed = rawValue
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "\u{00A0}", with: "")
+            .replacingOccurrences(of: " ", with: "")
+            .replacingOccurrences(of: "€", with: "")
+
+        guard !trimmed.isEmpty else { return 0 }
+
+        let normalized: String
+        if trimmed.contains(",") && trimmed.contains(".") {
+            normalized = trimmed
+                .replacingOccurrences(of: ".", with: "")
+                .replacingOccurrences(of: ",", with: ".")
+        } else if trimmed.contains(",") {
+            normalized = trimmed.replacingOccurrences(of: ",", with: ".")
+        } else {
+            normalized = trimmed
+        }
+
+        return Decimal(string: normalized, locale: Locale(identifier: "en_US_POSIX")) ?? 0
     }
 }

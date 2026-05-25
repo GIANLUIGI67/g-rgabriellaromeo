@@ -4,13 +4,14 @@ object Translations {
 
     private val data: Map<String, Map<String, String>> = mapOf(
         "home" to mapOf("it" to "Home", "en" to "Home", "fr" to "Accueil", "de" to "Startseite", "es" to "Inicio", "ar" to "الرئيسية", "zh" to "首页", "ja" to "ホーム"),
+        "navigazione" to mapOf("it" to "Navigazione", "en" to "Navigation", "fr" to "Navigation", "de" to "Navigation", "es" to "Navegación", "ar" to "التنقل", "zh" to "导航", "ja" to "ナビ"),
         "gioielli" to mapOf("it" to "Gioielli", "en" to "Jewellery", "fr" to "Bijoux", "de" to "Schmuck", "es" to "Joyería", "ar" to "مجوهرات", "zh" to "珠宝", "ja" to "ジュエリー"),
         "abbigliamento" to mapOf("it" to "Abbigliamento", "en" to "Clothing", "fr" to "Vêtements", "de" to "Kleidung", "es" to "Ropa", "ar" to "ملابس", "zh" to "服装", "ja" to "衣類"),
         "accessori" to mapOf("it" to "Accessori", "en" to "Accessories", "fr" to "Accessoires", "de" to "Accessoires", "es" to "Accesorios", "ar" to "إكسسوارات", "zh" to "配饰", "ja" to "アクセサリー"),
         "offerte" to mapOf("it" to "Offerte", "en" to "Offers", "fr" to "Offres", "de" to "Angebote", "es" to "Ofertas", "ar" to "عروض", "zh" to "优惠", "ja" to "オファー"),
         "eventi" to mapOf("it" to "Eventi", "en" to "Events", "fr" to "Événements", "de" to "Veranstaltungen", "es" to "Eventos", "ar" to "أحداث", "zh" to "活动", "ja" to "イベント"),
         "servizi" to mapOf("it" to "Servizi", "en" to "Services", "fr" to "Services", "de" to "Dienstleistungen", "es" to "Servicios", "ar" to "خدمات", "zh" to "服务", "ja" to "サービス"),
-        "brand" to mapOf("it" to "Brand", "en" to "Brand", "fr" to "Marque", "de" to "Marke", "es" to "Marca", "ar" to "ماركة", "zh" to "品牌", "ja" to "ブランド"),
+        "brand" to mapOf("it" to "Il Brand", "en" to "The Brand", "fr" to "La marque", "de" to "Die Marke", "es" to "La marca", "ar" to "العلامة", "zh" to "品牌", "ja" to "ブランド"),
         "cerca" to mapOf("it" to "Cerca", "en" to "Search", "fr" to "Rechercher", "de" to "Suchen", "es" to "Buscar", "ar" to "بحث", "zh" to "搜索", "ja" to "検索"),
         "carrello" to mapOf("it" to "Carrello", "en" to "Cart", "fr" to "Panier", "de" to "Warenkorb", "es" to "Carrito", "ar" to "سلة التسوق", "zh" to "购物车", "ja" to "カート"),
         "profilo" to mapOf("it" to "Profilo", "en" to "Profile", "fr" to "Profil", "de" to "Profil", "es" to "Perfil", "ar" to "الملف الشخصي", "zh" to "个人资料", "ja" to "プロフィール"),

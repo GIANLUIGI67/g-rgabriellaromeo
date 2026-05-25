@@ -49,9 +49,9 @@ fun GRDrawerContent(
                 .padding(top = 12.dp, bottom = 13.dp)
         ) {
             Text(
-                text = "NAVIGAZIONE",
+                text = Translations.t("navigazione", lang),
                 fontFamily = Michroma,
-                fontSize = 14.sp,
+                fontSize = 13.sp,
                 color = Color.Black,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -60,7 +60,7 @@ fun GRDrawerContent(
 
             menuItems.forEach { (key, route) ->
                 Text(
-                    text = if (key == "brand") "Il Brand" else Translations.t(key, lang),
+                    text = Translations.t(key, lang),
                     color = Color.Black,
                     fontFamily = Michroma,
                     fontSize = 14.sp,

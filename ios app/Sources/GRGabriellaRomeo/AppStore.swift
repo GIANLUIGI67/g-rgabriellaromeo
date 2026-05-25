@@ -86,6 +86,10 @@ final class AppStore: ObservableObject {
 
     func addToCart(_ product: Product) {
         guard product.isAvailable else { return }
+        guard product.hasDisplayPrice else {
+            errorMessage = l10n.text(.priceOnRequest)
+            return
+        }
         let currentQuantity = cart.first(where: { $0.id == product.id })?.quantity ?? 0
         guard currentQuantity < 99 else {
             errorMessage = "Quantita non valida"

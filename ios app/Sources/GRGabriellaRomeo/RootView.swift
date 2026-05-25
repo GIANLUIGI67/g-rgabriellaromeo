@@ -57,8 +57,8 @@ struct RootView: View {
 
                     if isAccountOpen {
                         LoginPanel(isPresented: $isAccountOpen)
-                            .frame(width: min(geometry.size.width * 0.68, 282))
-                            .frame(height: min(geometry.size.height * 0.48, 390), alignment: .top)
+                            .frame(width: min(geometry.size.width * 0.78, 322))
+                            .frame(height: min(geometry.size.height * 0.52, 430), alignment: .top)
                             .clipped()
                             .frame(maxWidth: .infinity, alignment: .trailing)
                             .padding(.top, max(56, geometry.safeAreaInsets.top + 30))
@@ -115,6 +115,7 @@ struct BundleImage: View {
 }
 
 private struct WebHeader: View {
+    @EnvironmentObject private var store: AppStore
     let availableWidth: CGFloat
     @Binding var isMenuOpen: Bool
     @Binding var isContactOpen: Bool
@@ -140,7 +141,7 @@ private struct WebHeader: View {
                 HStack(spacing: menuItemSpacing) {
                     Image(systemName: "line.3.horizontal")
                         .font(.system(size: menuIconSize, weight: .regular))
-                    Text("MENU")
+                    Text(store.l10n.text(.menu))
                         .font(.custom("Michroma-Regular", size: menuTextSize))
                         .lineLimit(1)
                         .minimumScaleFactor(0.78)
@@ -272,25 +273,25 @@ private struct NavigationDrawer: View {
     @Binding var isPresented: Bool
     @EnvironmentObject private var store: AppStore
 
-    private let items: [(L10n.Key?, String?, String)] = [
-        (nil, nil, "Home"),
-        (.gioielli, "gioielli", "Gioielli"),
-        (.abbigliamento, "abbigliamento", "Abbigliamento"),
-        (.accessori, "accessori", "Accessori"),
-        (.offerte, "offerte", "Offerte"),
-        (nil, "servizi", "Servizi"),
-        (nil, "eventi", "Eventi"),
-        (nil, "brand", "Il Brand")
+    private let items: [(L10n.Key, String?)] = [
+        (.home, nil),
+        (.gioielli, "gioielli"),
+        (.abbigliamento, "abbigliamento"),
+        (.accessori, "accessori"),
+        (.offerte, "offerte"),
+        (.servizi, "servizi"),
+        (.eventi, "eventi"),
+        (.brand, "brand")
     ]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack(spacing: 10) {
-                Text("NAVIGAZIONE")
-                    .font(.custom("Michroma-Regular", size: 14))
+                Text(store.l10n.text(.navigation))
+                    .font(.custom("Michroma-Regular", size: 13))
                     .foregroundStyle(.black)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.68)
+                    .minimumScaleFactor(0.62)
                     .allowsTightening(true)
                     .layoutPriority(1)
                 Spacer()
@@ -304,7 +305,7 @@ private struct NavigationDrawer: View {
             }
 
             VStack(alignment: .leading, spacing: 4) {
-                ForEach(items, id: \.2) { item in
+                ForEach(items, id: \.0) { item in
                     if let category = item.1 {
                         NavigationLink {
                             if category == "eventi" {
@@ -314,17 +315,17 @@ private struct NavigationDrawer: View {
                             } else if category == "brand" {
                                 BrandView()
                             } else {
-                                ProductListView(category: category, title: title(for: category))
+                                ProductListView(category: category, title: galleryTitle(for: item.0))
                             }
                         } label: {
-                            Text(label(for: item))
+                            Text(store.l10n.text(item.0))
                                 .drawerItem()
                         }
                     } else {
                         Button {
                             withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }
                         } label: {
-                            Text(label(for: item))
+                            Text(store.l10n.text(item.0))
                                 .drawerItem()
                         }
                     }
@@ -339,32 +340,12 @@ private struct NavigationDrawer: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func label(for item: (L10n.Key?, String?, String)) -> String {
-        if let key = item.0 {
-            return store.l10n.text(key)
+    private func galleryTitle(for key: L10n.Key) -> String {
+        let label = store.l10n.text(key)
+        if key == .offerte {
+            return label.uppercased()
         }
-        return item.2
-    }
-
-    private func title(for category: String) -> String {
-        switch category {
-        case "gioielli":
-            return "GALLERIA GIOIELLI"
-        case "abbigliamento":
-            return "GALLERIA ABBIGLIAMENTO"
-        case "accessori":
-            return "GALLERIA ACCESSORI"
-        case "offerte":
-            return "OFFERTE"
-        case "servizi":
-            return "SERVIZI"
-        case "eventi":
-            return "EVENTI"
-        case "brand":
-            return "IL BRAND"
-        default:
-            return category.uppercased()
-        }
+        return "\(store.l10n.text(.gallery)) \(label)"
     }
 }
 
@@ -418,31 +399,38 @@ struct EventsView: View {
 }
 
 struct ServicesView: View {
+    @EnvironmentObject private var store: AppStore
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
 
             VStack(spacing: 18) {
-                Text("SERVIZI")
+                Text(store.l10n.text(.servizi).uppercased())
                     .font(.custom("Michroma-Regular", size: 34))
                     .foregroundStyle(Color.grGold)
                     .multilineTextAlignment(.center)
                     .padding(.top, 96)
 
-                Text("I nostri servizi")
+                Text(store.l10n.text(.ourServices))
                     .font(.custom("Michroma-Regular", size: 17))
                     .foregroundStyle(Color.grGold.opacity(0.86))
 
-                Text("Offriamo servizi su misura per ogni esigenza. Contattaci per maggiori informazioni.")
+                Text(store.l10n.text(.servicesDescription))
                     .font(.custom("Michroma-Regular", size: 13))
                     .foregroundStyle(Color.grGold.opacity(0.74))
                     .multilineTextAlignment(.center)
                     .lineSpacing(5)
                     .padding(.horizontal, 28)
 
+                Text(store.l10n.text(.servicesEmailIntro))
+                    .font(.custom("Michroma-Regular", size: 12))
+                    .foregroundStyle(Color.grGold.opacity(0.78))
+                    .multilineTextAlignment(.center)
+
                 Link("info@g-rgabriellaromeo.it", destination: URL(string: "mailto:info@g-rgabriellaromeo.it")!)
                     .font(.custom("Michroma-Regular", size: 13))
-                    .foregroundStyle(Color.grGold)
+                    .foregroundStyle(Color(red: 0.17, green: 0.38, blue: 0.96))
 
                 Spacer()
             }
@@ -664,12 +652,15 @@ private struct EventCard: View {
 
 private struct ContactCard: View {
     @Binding var isPresented: Bool
+    @EnvironmentObject private var store: AppStore
 
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
             HStack {
-                Text("CONTATTI")
+                Text(store.l10n.text(.contacts))
                     .font(.custom("Michroma-Regular", size: 27))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.55)
                 Spacer()
                 Button {
                     withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }

@@ -8,8 +8,8 @@ struct AccountView: View {
             HeroBackground()
             if isPresented {
                 LoginPanel(isPresented: $isPresented)
-                    .frame(maxWidth: 282)
-                    .frame(height: 390, alignment: .top)
+                    .frame(maxWidth: 322)
+                    .frame(height: 430, alignment: .top)
                     .clipped()
                     .padding(.top, 56)
             }
@@ -35,18 +35,20 @@ struct LoginPanel: View {
     @State private var isSubmitting = false
     @State private var infoMessage: String?
 
-    private let benefits = [
-        "Aggiungi prodotti alla lista desideri",
-        "Per un checkout piu veloce",
-        "Sconto 10% sul prossimo acquisto",
-        "Referral program per sconti e buoni"
-    ]
+    private var benefits: [String] {
+        [
+            store.l10n.text(.wishlistBenefit),
+            store.l10n.text(.checkoutBenefit),
+            store.l10n.text(.discountBenefit),
+            store.l10n.text(.referralBenefit)
+        ]
+    }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 7) {
                 HStack(alignment: .top) {
-                    Text(store.session == nil ? "LOGIN" : "ACCOUNT")
+                    Text(store.session == nil ? store.l10n.text(.login) : store.l10n.text(.account))
                         .font(.custom("Michroma-Regular", size: 16))
                         .foregroundStyle(.black)
                         .lineLimit(1)
@@ -75,26 +77,26 @@ struct LoginPanel: View {
     }
 
     private var authContent: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            TextField("Email", text: $email)
+            VStack(alignment: .leading, spacing: 7) {
+            TextField(store.l10n.text(.email), text: $email)
                 .keyboardType(.emailAddress)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .loginField()
 
-            SecureField("Password", text: $password)
+            SecureField(store.l10n.text(.password), text: $password)
                 .loginField()
 
             if isRegistering {
                 VStack(spacing: 7) {
-                    TextField("Nome", text: $nome).loginField()
-                    TextField("Cognome", text: $cognome).loginField()
-                    TextField("Paese", text: $paese).loginField()
-                    TextField("Citta", text: $citta).loginField()
-                    TextField("Indirizzo", text: $indirizzo).loginField()
-                    TextField("CAP", text: $codicePostale).keyboardType(.numberPad).loginField()
-                    TextField("Telefono 1", text: $telefono1).keyboardType(.phonePad).loginField()
-                    TextField("Telefono 2", text: $telefono2).keyboardType(.phonePad).loginField()
+                    TextField(store.l10n.text(.name), text: $nome).loginField()
+                    TextField(store.l10n.text(.surname), text: $cognome).loginField()
+                    TextField(store.l10n.text(.country), text: $paese).loginField()
+                    TextField(store.l10n.text(.city), text: $citta).loginField()
+                    TextField(store.l10n.text(.address), text: $indirizzo).loginField()
+                    TextField(store.l10n.text(.postalCode), text: $codicePostale).keyboardType(.numberPad).loginField()
+                    TextField(store.l10n.text(.phone1), text: $telefono1).keyboardType(.phonePad).loginField()
+                    TextField(store.l10n.text(.phone2), text: $telefono2).keyboardType(.phonePad).loginField()
                 }
             }
 
@@ -105,7 +107,7 @@ struct LoginPanel: View {
                     if isSubmitting {
                         ProgressView().tint(.white)
                     } else {
-                        Text(isRegistering ? "REGISTRATI" : "LOGIN")
+                        Text(isRegistering ? store.l10n.text(.register) : store.l10n.text(.login))
                             .font(.custom("Michroma-Regular", size: 14))
                             .lineLimit(1)
                             .minimumScaleFactor(0.72)
@@ -122,9 +124,11 @@ struct LoginPanel: View {
                 Button {
                     Task { await handleForgotPassword() }
                 } label: {
-                    Text("Password dimenticata?")
+                    Text(store.l10n.text(.forgotPassword))
                         .font(.custom("Michroma-Regular", size: 12))
                         .foregroundStyle(Color(red: 0.17, green: 0.38, blue: 0.96))
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.72)
                 }
             }
 
@@ -138,7 +142,7 @@ struct LoginPanel: View {
                     infoMessage = nil
                 }
             } label: {
-                Text(isRegistering ? "LOGIN" : "CREA ACCOUNT")
+                Text(isRegistering ? store.l10n.text(.login) : store.l10n.text(.createAccount))
                     .font(.custom("Michroma-Regular", size: 14))
                     .foregroundStyle(.black)
                     .lineLimit(1)
@@ -185,7 +189,7 @@ struct LoginPanel: View {
             Button {
                 store.logout()
             } label: {
-                Text("LOGOUT")
+                Text(store.l10n.text(.logout))
                     .font(.custom("Michroma-Regular", size: 15))
                     .foregroundStyle(Color.grGold)
                     .frame(maxWidth: .infinity)
@@ -225,7 +229,7 @@ struct LoginPanel: View {
     private func handleForgotPassword() async {
         let normalizedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !normalizedEmail.isEmpty else {
-            store.errorMessage = "Inserisci la tua email"
+            store.errorMessage = store.l10n.text(.enterEmail)
             return
         }
 
@@ -233,7 +237,7 @@ struct LoginPanel: View {
         defer { isSubmitting = false }
         do {
             try await store.requestPasswordReset(email: normalizedEmail)
-            infoMessage = "Ti abbiamo inviato una email per reimpostare la password."
+            infoMessage = store.l10n.text(.resetSent)
         } catch {
             store.errorMessage = error.localizedDescription
         }

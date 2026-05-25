@@ -1,11 +1,12 @@
 import SwiftUI
+import UIKit
 
 struct ProductListView: View {
     @EnvironmentObject private var store: AppStore
     let category: String?
     let title: String
     var onlyOffers = false
-    @State private var selectedSubcategory = "Tutte le sottocategorie"
+    @State private var selectedSubcategory: String?
     @State private var isSubcategoryMenuOpen = false
 
     private var subcategories: [String] {
@@ -33,7 +34,7 @@ struct ProductListView: View {
         store.products.filter { product in
             let categoryMatch = category == nil || product.categoria?.localizedCaseInsensitiveContains(category!) == true
             let offerMatch = !onlyOffers || product.offerta == true
-            let subcategoryMatch = selectedSubcategory == "Tutte le sottocategorie" || product.sottocategoria == selectedSubcategory
+            let subcategoryMatch = selectedSubcategory == nil || product.sottocategoria == selectedSubcategory
             return categoryMatch && offerMatch && subcategoryMatch
         }
     }
@@ -62,7 +63,7 @@ struct ProductListView: View {
                             .tint(.white)
                             .padding(.top, 30)
                     } else if filteredProducts.isEmpty {
-                        Text("Nessun prodotto disponibile")
+                        Text(store.l10n.text(.noProducts))
                             .font(.custom("Michroma-Regular", size: 20))
                             .foregroundStyle(Color.grGold.opacity(0.72))
                             .padding(.top, 30)
@@ -103,7 +104,7 @@ struct ProductListView: View {
                 }
             } label: {
                 HStack(spacing: 10) {
-                    Text(selectedSubcategory)
+                    Text(selectedSubcategory ?? store.l10n.text(.allSubcategories))
                         .font(.custom("Michroma-Regular", size: 16))
                         .foregroundStyle(.black)
                         .lineLimit(1)
@@ -126,7 +127,7 @@ struct ProductListView: View {
 
             if isSubcategoryMenuOpen {
                 VStack(alignment: .leading, spacing: 0) {
-                    dropdownOption("Tutte le sottocategorie")
+                    dropdownOption(nil)
                     ForEach(subcategories, id: \.self) { value in
                         dropdownOption(value)
                     }
@@ -144,7 +145,7 @@ struct ProductListView: View {
         .zIndex(20)
     }
 
-    private func dropdownOption(_ value: String) -> some View {
+    private func dropdownOption(_ value: String?) -> some View {
         Button {
             selectedSubcategory = value
             withAnimation(.easeInOut(duration: 0.16)) {
@@ -152,7 +153,7 @@ struct ProductListView: View {
             }
         } label: {
             HStack(spacing: 10) {
-                Text(value)
+                Text(value ?? store.l10n.text(.allSubcategories))
                     .font(.custom("Michroma-Regular", size: 14))
                     .foregroundStyle(.black)
                     .lineLimit(1)
@@ -173,6 +174,7 @@ struct ProductListView: View {
 }
 
 struct ProductCard: View {
+    @EnvironmentObject private var store: AppStore
     let product: Product
 
     var body: some View {
@@ -202,11 +204,11 @@ struct ProductCard: View {
                     }
                 }
                 Spacer()
-                Text(product.displayPrice.euro)
+                Text(product.hasDisplayPrice ? product.displayPrice.euro : store.l10n.text(.priceOnRequest))
                     .font(.system(size: 16, weight: .regular))
                     .foregroundStyle(Color.grGold)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+                    .minimumScaleFactor(0.58)
             }
         }
         .frame(maxWidth: 326)
@@ -230,7 +232,7 @@ struct ProductDetailView: View {
                         .font(.custom("Michroma-Regular", size: 38))
                         .foregroundStyle(Color.grGold)
 
-                    Text(product.displayPrice.euro)
+                    Text(product.hasDisplayPrice ? product.displayPrice.euro : store.l10n.text(.priceOnRequest))
                         .font(.system(size: 24, weight: .regular))
                         .foregroundStyle(Color.grGold)
 
@@ -240,18 +242,33 @@ struct ProductDetailView: View {
                             .foregroundStyle(Color.grGold.opacity(0.78))
                     }
 
-                    Button {
-                        store.addToCart(product)
-                    } label: {
-                        Text(product.isAvailable ? store.l10n.text(.addToCart) : store.l10n.text(.soldOut))
-                            .font(.custom("Michroma-Regular", size: 24))
-                            .foregroundStyle(.black)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 54)
-                            .background(Color.grGold)
+                    if product.hasDisplayPrice {
+                        Button {
+                            store.addToCart(product)
+                        } label: {
+                            Text(product.isAvailable ? store.l10n.text(.addToCart) : store.l10n.text(.soldOut))
+                                .font(.custom("Michroma-Regular", size: 24))
+                                .foregroundStyle(.black)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 54)
+                                .background(Color.grGold)
+                        }
+                        .disabled(!product.isAvailable)
+                        .opacity(product.isAvailable ? 1 : 0.45)
+                    } else {
+                        Button {
+                            if let url = priceRequestURL {
+                                UIApplication.shared.open(url)
+                            }
+                        } label: {
+                            Text(store.l10n.text(.requestPrice))
+                                .font(.custom("Michroma-Regular", size: 22))
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 54)
+                                .background(Color(red: 0.17, green: 0.38, blue: 0.96))
+                        }
                     }
-                    .disabled(!product.isAvailable)
-                    .opacity(product.isAvailable ? 1 : 0.45)
                 }
                 .padding(18)
                 .padding(.top, 42)
@@ -264,6 +281,17 @@ struct ProductDetailView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private var priceRequestURL: URL? {
+        var components = URLComponents()
+        components.scheme = "mailto"
+        components.path = "info@g-rgabriellaromeo.it"
+        components.queryItems = [
+            URLQueryItem(name: "subject", value: "Richiesta prezzo \(product.nome)"),
+            URLQueryItem(name: "body", value: "Vorrei informazioni sul prezzo e sull'ordine del prodotto: \(product.nome)")
+        ]
+        return components.url
     }
 }
 
