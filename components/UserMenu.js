@@ -100,6 +100,16 @@ export default function UserMenu({ lang }) {
       ja: 'パスワードをお忘れですか？',
       ar: 'نسيت كلمة المرور؟'
     },
+    close: {
+      it: 'Chiudi',
+      en: 'Close',
+      fr: 'Fermer',
+      de: 'Schließen',
+      es: 'Cerrar',
+      ar: 'إغلاق',
+      zh: '关闭',
+      ja: '閉じる'
+    },
     registerBenefits: {
       it: [
         'Per aggiungere i tuoi prodotti alla lista dei desideri',
@@ -595,11 +605,18 @@ export default function UserMenu({ lang }) {
 
   return (
     <>
-      <button onClick={() => setIsOpen(true)} className="text-white"><User size={22} /></button>
+      <button
+        onClick={() => setIsOpen(true)}
+        className="text-white"
+        aria-label={translations.login[langPulito]}
+      >
+        <User size={22} />
+      </button>
       {isOpen && (
         <div
           ref={menuRef}
           className="gr-login-panel fixed top-0 right-0 w-full max-w-xs bg-white text-black z-50 p-4 shadow-xl"
+          dir={langPulito === 'ar' ? 'rtl' : 'ltr'}
           style={{ 
             maxHeight: 'calc(100vh - 20px)',
             minHeight: 'auto'
@@ -608,10 +625,15 @@ export default function UserMenu({ lang }) {
           <div className="flex flex-col h-full">
             <div className="flex justify-between items-center mb-4">
               <h2 className="gr-login-title text-lg font-bold uppercase">{translations.login[langPulito]}</h2>
-              <button onClick={() => {
-                setIsOpen(false);
-                setModalitaRegistrazione(false);
-              }}><X size={22} /></button>
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  setModalitaRegistrazione(false);
+                }}
+                aria-label={translations.close[langPulito]}
+              >
+                <X size={22} />
+              </button>
             </div>
             
             <div className="gr-login-scroll flex-1 overflow-y-auto pb-6">
