@@ -3,11 +3,11 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
 
 export default function MobileMenu({ lang }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef();
+  const safeLang = ['it', 'en', 'fr', 'de', 'es', 'ar', 'zh', 'ja'].includes(lang) ? lang : 'it';
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -26,6 +26,18 @@ export default function MobileMenu({ lang }) {
   }, [isOpen]);
 
   const translations = {
+    menu: {
+      it: 'Menu', en: 'Menu', fr: 'Menu', es: 'Menú', de: 'Menü',
+      ar: 'القائمة', zh: '菜单', ja: 'メニュー',
+    },
+    navigation: {
+      it: 'Navigazione', en: 'Navigation', fr: 'Navigation', es: 'Navegación', de: 'Navigation',
+      ar: 'التنقل', zh: '导航', ja: 'ナビゲーション',
+    },
+    close: {
+      it: 'Chiudi', en: 'Close', fr: 'Fermer', es: 'Cerrar', de: 'Schließen',
+      ar: 'إغلاق', zh: '关闭', ja: '閉じる',
+    },
     home: {
       it: 'Home', en: 'Home', fr: 'Accueil', es: 'Inicio', de: 'Startseite',
       ar: 'الرئيسية', zh: '首页', ja: 'ホーム',
@@ -77,39 +89,31 @@ export default function MobileMenu({ lang }) {
         <button
           onClick={() => setIsOpen(true)}
           className="bg-transparent text-white"
+          aria-label={translations.menu[safeLang]}
         >
           <Menu size={20} />
         </button>
       )}
 
       {isOpen && (
-        <div className="absolute top-14 left-0 z-50 bg-white text-black w-64 px-6 py-4 shadow-md">
+        <div className="gr-mobile-menu-panel absolute top-14 left-0 z-50 bg-white text-black w-64 px-6 py-4 shadow-md" dir={safeLang === 'ar' ? 'rtl' : 'ltr'}>
           <div className="flex justify-between items-center mb-2">
-            <span className="font-bold text-sm uppercase">
-              {{
-                it: 'Navigazione',
-                en: 'Navigation',
-                fr: 'Navigation',
-                es: 'Navegación',
-                de: 'Navigation',
-                ar: 'التنقل',
-                zh: '导航',
-                ja: 'ナビゲーション'
-              }[lang] || 'Navigazione'}
+            <span className="gr-mobile-menu-heading font-bold text-sm uppercase">
+              {translations.navigation[safeLang]}
             </span>
-            <button onClick={() => setIsOpen(false)}>
+            <button className="gr-mobile-menu-close" onClick={() => setIsOpen(false)} aria-label={translations.close[safeLang]}>
               <X size={20} />
             </button>
           </div>
-          <nav className="flex flex-col gap-2">
+          <nav className="gr-mobile-menu-nav flex flex-col gap-2">
             {menuItems.map((item, index) => (
               <Link
                 key={index}
-                href={`${item.path}?lang=${lang}`}
+                href={`${item.path}?lang=${safeLang}`}
                 onClick={() => setIsOpen(false)}
-                className="text-sm hover:underline"
+                className="gr-mobile-menu-link text-sm hover:underline"
               >
-                {translations[item.key][lang] || translations[item.key].en}
+                {translations[item.key][safeLang] || translations[item.key].en}
               </Link>
             ))}
           </nav>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getReadableAuthErrorMessage, registerCustomerWithBackend } from '../lib/authHelpers';
 import { supabase } from '../lib/supabaseClient';
 import { loadCartFromStorage, removeProductFromCart, saveCartToStorage } from '../lib/cart';
+import { formatEuro, getPriceOnRequestText, hasDisplayPrice, parsePrice } from '../lib/productDisplay';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -105,22 +106,36 @@ export default function CheckoutPage() {
 
   const validaEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
+  const getQuantity = (product) => {
+    const quantity = Number(product?.quantita || 1);
+    return Number.isFinite(quantity) && quantity > 0 ? quantity : 1;
+  };
+
+  const getDiscountPercent = (product) => {
+    const discount = Number(product?.sconto || 0);
+    return Number.isFinite(discount) && discount > 0 ? discount : 0;
+  };
+
+  const getFinalUnitPrice = (product) => {
+    const basePrice = parsePrice(product?.prezzo);
+    const discount = getDiscountPercent(product);
+    if (!product?.offerta || discount <= 0) return basePrice;
+    return Math.round((basePrice - (basePrice * discount / 100)) * 100) / 100;
+  };
+
+  const getItemTotal = (product) => getFinalUnitPrice(product) * getQuantity(product);
+
   // ---------- CALCOLO TOTALI + PRIMO SCONTO ----------
-  const totaleProdotti = carrello.reduce((tot, p) => {
-    const prezzoBase = parseFloat(p.prezzo || 0);
-    const sconto = p.offerta && p.sconto ? prezzoBase * (p.sconto / 100) : 0;
-    const prezzoFinale = prezzoBase - sconto;
-    return tot + prezzoFinale * (p.quantita || 1);
-  }, 0);
+  const totaleProdotti = carrello.reduce((tot, p) => tot + getItemTotal(p), 0);
 
   // sconto primo ordine se definito (es. 10 → 10%)
   const scontoPrimoOrdine = primoSconto
-    ? Math.round((totaleProdotti * (primoSconto / 100)) * 10) / 10
+    ? Math.round((totaleProdotti * (primoSconto / 100)) * 100) / 100
     : 0;
 
   const totaleFinale = Math.max(
     0,
-    Math.round((totaleProdotti - scontoPrimoOrdine) * 10) / 10
+    Math.round((totaleProdotti - scontoPrimoOrdine) * 100) / 100
   );
 
   const salvaDatiCheckout = () => {
@@ -643,55 +658,62 @@ export default function CheckoutPage() {
         ) : (
           <div className="cart-summary">
             <ul className="cart-items">
-              {carrello.map((p, i) => (
-                <li key={i} className="cart-item">
-                  <div className="item-info">
-                    <span className="quantity">{p.quantita || 1}x</span>
-                    <span className="name">{p.nome}</span>
-                    <div className="price-col">
-                      <span className="price">
-                        {p.offerta && p.sconto ? (
-                          <>
-                            <span style={{ textDecoration: 'line-through', color: '#888', marginRight: '8px' }}>
-                              {'\u20AC'}
-                              {(p.prezzo * (p.quantita || 1)).toFixed(1)}
-                            </span>
-                            <span style={{ color: '#ff5252', fontWeight: 'bold' }}>
-                              {'\u20AC'}
-                              {((p.prezzo - (p.prezzo * p.sconto / 100)) * (p.quantita || 1)).toFixed(1)}
-                            </span>
-                          </>
-                        ) : (
-                          '\u20AC' + (p.prezzo * (p.quantita || 1)).toFixed(1)
-                        )}
-                      </span>
+              {carrello.map((p, i) => {
+                const quantity = getQuantity(p);
+                const baseTotal = parsePrice(p.prezzo) * quantity;
+                const finalTotal = getItemTotal(p);
+                const hasPrice = hasDisplayPrice(p.prezzo);
 
-                      {/* RIMUOVI sotto al prezzo */}
-                      <button onClick={() => rimuoviDalCarrello(p.id)} className="remove-under">
-                        {testi.rimuovi}
-                      </button>
+                return (
+                  <li key={i} className="cart-item">
+                    <div className="item-info">
+                      <span className="quantity">{quantity}x</span>
+                      <span className="name">{p.nome}</span>
+                      <div className="price-col">
+                        <span className="price">
+                          {!hasPrice ? (
+                            getPriceOnRequestText(lingua)
+                          ) : p.offerta && getDiscountPercent(p) > 0 ? (
+                            <>
+                              <span style={{ textDecoration: 'line-through', color: '#888', marginRight: '8px' }}>
+                                {formatEuro(baseTotal)}
+                              </span>
+                              <span style={{ color: '#ff5252', fontWeight: 'bold' }}>
+                                {formatEuro(finalTotal)}
+                              </span>
+                            </>
+                          ) : (
+                            formatEuro(finalTotal)
+                          )}
+                        </span>
+
+                        {/* RIMUOVI sotto al prezzo */}
+                        <button onClick={() => rimuoviDalCarrello(p.id)} className="remove-under">
+                          {testi.rimuovi}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </li>
-              ))}
+                  </li>
+                );
+              })}
             </ul>
 
             {/* Totali + Sconto Primo Ordine */}
             <div className="total-section">
               <span>{testi.totale}</span>
-              <span className="total-price">{'\u20AC'}{(Math.round(totaleProdotti * 10) / 10).toFixed(1)}</span>
+              <span className="total-price">{formatEuro(totaleProdotti)}</span>
             </div>
 
             {scontoPrimoOrdine > 0 && (
               <div className="total-section" style={{ color: '#00e676' }}>
                 <span>{testi.scontoPrimoOrdine} {`(-${primoSconto}%)`}</span>
-                <span className="total-price">- {'\u20AC'}{scontoPrimoOrdine.toFixed(1)}</span>
+                <span className="total-price">- {formatEuro(scontoPrimoOrdine)}</span>
               </div>
             )}
 
             <div className="total-section" style={{ borderTop: '1px solid #333', paddingTop: 12, marginTop: 8 }}>
               <span>{testi.totaleDaPagare}</span>
-              <span className="total-price">{'\u20AC'}{totaleFinale.toFixed(1)}</span>
+              <span className="total-price">{formatEuro(totaleFinale)}</span>
             </div>
           </div>
         )}

@@ -2,13 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ShoppingCart } from 'lucide-react';
+import { ChevronLeft, ShoppingCart } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
-import { addProductToCart, getCartItemCount, getCartQuantityForProduct, loadCartFromStorage, removeProductFromCart, saveCartToStorage } from '../lib/cart';
+import { addProductToCart, getCartItemCount, loadCartFromStorage, removeProductFromCart, saveCartToStorage } from '../lib/cart';
 import { getPublicImageUrl } from '../lib/storageUrl';
 import { Suspense } from 'react';
-
-const EURO = '\u20AC';
+import ProductPrice from '../../components/ProductPrice';
+import {
+  buildPriceRequestHref,
+  getAddedToCartText,
+  getRequestPriceText,
+  hasDisplayPrice,
+  isSoldOut,
+} from '../lib/productDisplay';
 
 function GioielliPage() {
   const params = useSearchParams();
@@ -24,12 +30,7 @@ function GioielliPage() {
   const [showPolicy, setShowPolicy] = useState(false);
   const [erroreQuantita, setErroreQuantita] = useState(false);
   const [accettaPolicy, setAccettaPolicy] = useState(false);
-
-  // Mostra il simbolo euro con escape Unicode per evitare problemi di encoding/font.
-  const formatEuro = (val) => {
-    const value = Number(val || 0);
-    return `${EURO} ${value.toFixed(2)}`;
-  };
+  const [cartNotice, setCartNotice] = useState('');
 
   // ... (il resto del codice rimane invariato)
   const traduzioni = {
@@ -194,10 +195,14 @@ function GioielliPage() {
   };
 
   const aggiungiAlCarrello = (prodotto) => {
+    if (!hasDisplayPrice(prodotto)) return;
+
     const qta = quantita[prodotto.id] || 1;
     const nuovoCarrello = addProductToCart(carrello, prodotto, qta);
     setCarrello(nuovoCarrello);
     saveCartToStorage(nuovoCarrello);
+    setCartNotice(getAddedToCartText(lang));
+    window.setTimeout(() => setCartNotice(''), 2200);
   };
 
   const rimuoviDalCarrello = (prodottoId) => {
@@ -208,7 +213,16 @@ function GioielliPage() {
 
   const baseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/immagini/`;
   return (
-    <main style={{ backgroundColor: 'black', color: 'white', padding: '2rem 1rem', maxWidth: '100vw', overflowX: 'hidden', margin: '0 auto', position: 'relative' }}>
+    <main className="gr-gallery-page" style={{ backgroundColor: 'black', color: 'white', padding: '2rem 1rem', maxWidth: '100vw', overflowX: 'hidden', margin: '0 auto', position: 'relative' }}>
+      <button
+        type="button"
+        className="gr-gallery-back"
+        onClick={() => router.push(`/?lang=${lang}`)}
+        aria-label={t('indietro')}
+      >
+        <ChevronLeft aria-hidden="true" />
+      </button>
+
       {getCartItemCount(carrello) > 0 && (
         <div
           onClick={() => router.push(`/checkout?lang=${lang}`)}
@@ -239,7 +253,7 @@ function GioielliPage() {
         </div>
       )}
 
-      <h1 style={{
+      <h1 className="gr-gallery-heading" style={{
         fontSize: 'clamp(1.5rem, 5vw, 2rem)',
         textAlign: 'center',
         marginBottom: '2rem',
@@ -249,8 +263,9 @@ function GioielliPage() {
         {t('titolo')}
       </h1>
 
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+      <div className="gr-subcategory-wrap" style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <select
+          className="gr-subcategory-select"
           value={sottocategoriaSelezionata}
           onChange={e => setSottocategoriaSelezionata(e.target.value)}
           style={{
@@ -271,17 +286,15 @@ function GioielliPage() {
           ))}
         </select>
       </div>
-      <div style={{
+      <div className="gr-product-grid" style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
         gap: '1.5rem'
       }}>
         {filtrati.map(prodotto => {
-          const prezzoNum = Number(prodotto.prezzo);
-          const scontoNum = Number(prodotto.sconto || 0);
-          const prezzoScontato = Math.round((prezzoNum - (prezzoNum * scontoNum / 100)) * 100) / 100;
+          const esaurito = isSoldOut(prodotto);
           return (
-                <div key={prodotto.id} style={{
+                <div key={prodotto.id} className="gr-product-card" style={{
                   backgroundColor: 'white',
                   color: 'black',
                   padding: '0.5rem',
@@ -291,9 +304,16 @@ function GioielliPage() {
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  height: '340px'  // puoi aumentare o ridurre se serve
+                  height: '340px',
+                  position: 'relative'
                 }}>
+              {esaurito && (
+                <div className="gr-product-soldout">
+                  {t('venduto')}
+                </div>
+              )}
               <img
+                className="gr-product-image"
                 src={baseUrl + prodotto.immagine}
                 alt={prodotto.nome}
                 style={{
@@ -301,18 +321,19 @@ function GioielliPage() {
                   height: '200px',
                   objectFit: 'cover',
                   cursor: 'pointer',
-                  borderRadius: '4px'
+                  borderRadius: '4px',
+                  opacity: esaurito ? 0.5 : 1
                 }}
                 onClick={() => {
                   setPopupProdotto(prodotto);
                   setImmagineAttiva(prodotto.immagine);
                 }}
               />
-              <div style={{ 
+              <div className="gr-product-info" style={{
                 padding: '0.5rem 0',
                 minHeight: '60px'
               }}>
-                <strong style={{ 
+                <strong className="gr-product-title" style={{
                   display: 'block',
                   fontWeight: 'bold',
                   fontSize: '0.9rem',
@@ -324,25 +345,12 @@ function GioielliPage() {
                   {prodotto.nome}
                 </strong>
 
-                <p style={{ 
+                <p className="gr-product-meta" style={{
                   fontSize: '0.8rem',
                   color: '#555',
                   marginBottom: '0.3rem'
                 }}>{prodotto.taglia}</p>
-                <p className="gr-price">
-                  {prodotto.offerta ? (
-                    <>
-                      <span style={{ textDecoration: 'line-through', color: 'gray', marginRight: '4px' }}>
-                        {formatEuro(prezzoNum)}
-                      </span>
-                      <span style={{ color: 'red', fontWeight: 'bold' }}>
-                        {formatEuro(prezzoScontato)} (-{scontoNum}%)
-                      </span>
-                    </>
-                  ) : (
-                    <>{formatEuro(prezzoNum)}</>
-                  )}
-                </p>
+                <ProductPrice product={prodotto} lang={lang} className="gr-product-price gr-price" />
               </div>
             </div>
           );
@@ -350,6 +358,7 @@ function GioielliPage() {
       </div>
       {popupProdotto && (
         <div
+          className="gr-product-modal-overlay"
           onClick={() => {
             setPopupProdotto(null);
             setImmagineAttiva('');
@@ -367,6 +376,7 @@ function GioielliPage() {
           }}
         >
           <div
+            className="gr-product-modal"
             onClick={e => e.stopPropagation()}
             style={{
               maxWidth: '600px',
@@ -380,6 +390,7 @@ function GioielliPage() {
             }}
           >
             <button
+              className="gr-product-modal-close"
               onClick={(e) => {
                 e.stopPropagation();
                 setPopupProdotto(null);
@@ -399,82 +410,93 @@ function GioielliPage() {
             </button>
 
             <img
+              className="gr-product-modal-image"
               src={getPublicImageUrl(immagineAttiva)}
               alt="zoom"
               style={{ width: '100%', height: 'auto', borderRadius: '6px', marginBottom: '1rem' }}
             />
 
-            <h2 style={{ marginBottom: '0.5rem' }}>{popupProdotto.nome}</h2>
-            <p style={{ fontSize: '0.9rem' }}>{popupProdotto.descrizione}</p>
-            <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>{popupProdotto.taglia}</p>
+            <h2 className="gr-product-modal-title" style={{ marginBottom: '0.5rem' }}>{popupProdotto.nome}</h2>
+            <p className="gr-product-modal-description" style={{ fontSize: '0.9rem' }}>{popupProdotto.descrizione}</p>
+            <p className="gr-product-modal-meta" style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>{popupProdotto.taglia}</p>
 
-<p className="gr-price" style={{ fontWeight: 'bold', fontSize: '1rem', margin: '1rem 0' }}>
-  {popupProdotto.offerta ? (
-    <>
-      <span style={{ textDecoration: 'line-through', color: 'gray', marginRight: '8px' }}>
-        {EURO} {Number(popupProdotto.prezzo).toFixed(2)}
-      </span>
-      <span style={{ color: 'red' }}>
-        {EURO} {(Number(popupProdotto.prezzo) * (1 - (popupProdotto.sconto || 0) / 100)).toFixed(2)}
-        {popupProdotto.sconto > 0 && (
-          <span style={{ fontSize: '0.9rem', marginLeft: '4px' }}>
-            (-{popupProdotto.sconto}%)
-          </span>
-        )}
-      </span>
-    </>
-  ) : (
-    <>{EURO} {Number(popupProdotto.prezzo).toFixed(2)}</>
-  )}
-</p>
-            <div
-              style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '0.5rem' }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button onClick={() => cambiaQuantita(popupProdotto.id, -1)} style={{ fontSize: '1.2rem' }}>–</button>
-              <input type="text" value={quantita[popupProdotto.id] || 1} readOnly style={{ width: '2rem', textAlign: 'center' }} />
-              <button onClick={() => cambiaQuantita(popupProdotto.id, 1)} style={{ fontSize: '1.2rem' }}>+</button>
-            </div>
+            <ProductPrice
+              product={popupProdotto}
+              lang={lang}
+              className="gr-product-modal-price gr-price"
+              style={{ fontWeight: 'bold', fontSize: '1rem', margin: '1rem 0' }}
+            />
 
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', gap: '0.5rem' }}>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  aggiungiAlCarrello(popupProdotto);
-                  setPopupProdotto(null);
-                }}
-                style={{
-                  padding: '0.5rem 1rem',
-                  backgroundColor: '#333',
-                  color: 'white',
-                  borderRadius: '6px',
-                  border: 'none',
-                  fontSize: '1rem',
-                  cursor: 'pointer'
-                }}
+            {hasDisplayPrice(popupProdotto) ? (
+              <>
+                <div
+                  className="gr-product-modal-quantity"
+                  style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '0.5rem' }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button onClick={() => cambiaQuantita(popupProdotto.id, -1)} style={{ fontSize: '1.2rem' }}>-</button>
+                  <input type="text" value={quantita[popupProdotto.id] || 1} readOnly style={{ width: '2rem', textAlign: 'center' }} />
+                  <button onClick={() => cambiaQuantita(popupProdotto.id, 1)} style={{ fontSize: '1.2rem' }}>+</button>
+                </div>
+
+                <div className="gr-product-modal-actions" style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', gap: '0.5rem' }}>
+                  <button
+                    className="gr-product-modal-button"
+                    disabled={isSoldOut(popupProdotto)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      aggiungiAlCarrello(popupProdotto);
+                      setPopupProdotto(null);
+                    }}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      backgroundColor: '#333',
+                      color: 'white',
+                      borderRadius: '6px',
+                      border: 'none',
+                      fontSize: '1rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {t('aggiungi')}
+                  </button>
+
+                  <button
+                    className="gr-product-modal-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/checkout?lang=${lang}`);
+                    }}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      backgroundColor: '#333',
+                      color: 'white',
+                      borderRadius: '6px',
+                      border: 'none',
+                      fontSize: '1rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {t('checkout')}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <a
+                className="gr-product-request-button"
+                href={buildPriceRequestHref(popupProdotto, lang)}
+                onClick={(e) => e.stopPropagation()}
               >
-                {t('aggiungi')}
-              </button>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  router.push(`/checkout?lang=${lang}`);
-                }}
-                style={{
-                  padding: '0.5rem 1rem',
-                  backgroundColor: '#333',
-                  color: 'white',
-                  borderRadius: '6px',
-                  border: 'none',
-                  fontSize: '1rem',
-                  cursor: 'pointer'
-                }}
-              >
-                {t('checkout')}
-              </button>
-            </div>
+                {getRequestPriceText(lang)}
+              </a>
+            )}
           </div>
+        </div>
+      )}
+
+      {cartNotice && (
+        <div className="gr-product-toast" role="status" aria-live="polite">
+          {cartNotice}
         </div>
       )}
 

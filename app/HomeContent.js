@@ -13,6 +13,16 @@ export default function HomeContent() {
   const searchParams = useSearchParams();
   const lang = searchParams.get('lang') || 'it';
   const [nomeUtente, setNomeUtente] = useState('');
+  const menuLabel = {
+    it: 'Menu',
+    en: 'Menu',
+    fr: 'Menu',
+    de: 'Menü',
+    es: 'Menú',
+    ar: 'القائمة',
+    zh: '菜单',
+    ja: 'メニュー',
+  }[lang] || 'Menu';
 
   useEffect(() => {
     const fetchUtente = async () => {
@@ -53,7 +63,7 @@ export default function HomeContent() {
         <div className="flex items-center gap-2 text-white">
           <SearchIcon lang={lang} />
           <MobileMenu lang={lang} />
-          <span className="text-sm uppercase tracking-wider">Menu</span>
+          <span className="text-sm uppercase tracking-wider">{menuLabel}</span>
         </div>
 
         {/* RIGHT: TopRightMenu dinamico */}

@@ -13,10 +13,6 @@ export default function TopRightMenu() {
   const contattiRef = useRef();
   const wishlistModalRef = useRef();
 
-  useEffect(() => {
-    sessionStorage.removeItem('carrello');
-  }, []);
-
   // Gestione chiusura modali con ESC
   useEffect(() => {
     const handleEsc = (event) => {
@@ -61,6 +57,36 @@ export default function TopRightMenu() {
       zh: '收藏页面正在开发中，即将上线！',
       ja: 'ウィッシュリストページは現在開発中です。近日中に利用可能になります！',
       ar: 'صفحة قائمة الأمنيات قيد التطوير حالياً. ستكون متاحة قريباً!'
+    },
+    preferiti: {
+      it: 'Preferiti',
+      en: 'Wishlist',
+      fr: 'Favoris',
+      es: 'Favoritos',
+      de: 'Wunschliste',
+      zh: '收藏',
+      ja: 'お気に入り',
+      ar: 'المفضلة'
+    },
+    carrello: {
+      it: 'Carrello',
+      en: 'Cart',
+      fr: 'Panier',
+      es: 'Carrito',
+      de: 'Warenkorb',
+      zh: '购物车',
+      ja: 'カート',
+      ar: 'سلة التسوق'
+    },
+    chiudi: {
+      it: 'Chiudi',
+      en: 'Close',
+      fr: 'Fermer',
+      es: 'Cerrar',
+      de: 'Schließen',
+      zh: '关闭',
+      ja: '閉じる',
+      ar: 'إغلاق'
     }
   }), []);
 
@@ -93,7 +119,7 @@ export default function TopRightMenu() {
               <button 
                 onClick={() => setShowContatti(false)} 
                 className="cursor-pointer"
-                aria-label="Chiudi"
+                aria-label={translations.chiudi[lang] || translations.chiudi.it}
               >
                 <X size={16} aria-hidden="true" />
               </button>
@@ -109,7 +135,7 @@ export default function TopRightMenu() {
 
       {/* Preferiti */}
       <button 
-        aria-label="Preferiti"
+        aria-label={translations.preferiti[lang] || translations.preferiti.it}
         onClick={() => {
           closeContatti();
           setShowWishlistMessage(true);
@@ -121,10 +147,10 @@ export default function TopRightMenu() {
 
       {/* Carrello */}
       <button 
-        aria-label="Carrello"
+        aria-label={translations.carrello[lang] || translations.carrello.it}
         onClick={() => { 
           closeContatti(); 
-          router.push('/checkout'); 
+          router.push(`/checkout?lang=${lang}`); 
         }} 
         className="cursor-pointer"
       >
@@ -152,7 +178,7 @@ export default function TopRightMenu() {
             <button
               className="absolute top-3 right-3 text-white hover:text-gray-300"
               onClick={() => setShowWishlistMessage(false)}
-              aria-label="Chiudi"
+              aria-label={translations.chiudi[lang] || translations.chiudi.it}
             >
               <X size={24} aria-hidden="true" />
             </button>

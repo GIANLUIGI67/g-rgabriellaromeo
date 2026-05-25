@@ -261,6 +261,86 @@ export default function UserMenu({ lang }) {
       ar: 'اكتملت عملية التسجيل بنجاح، لديك الآن خصم 10٪ على مشترياتك القادمة!',
       zh: '注册成功，您现在可享受下次购物九折优惠！',
       ja: '登録が完了しました。次回のご購入で10％割引が適用されます！'
+    },
+    missingCredentials: {
+      it: 'Inserisci email e password',
+      en: 'Enter email and password',
+      fr: 'Saisissez votre e-mail et votre mot de passe',
+      de: 'E-Mail und Passwort eingeben',
+      es: 'Introduce email y contraseña',
+      ar: 'أدخل البريد الإلكتروني وكلمة المرور',
+      zh: '请输入电子邮件和密码',
+      ja: 'メールアドレスとパスワードを入力してください'
+    },
+    missingEmail: {
+      it: 'Inserisci la tua email',
+      en: 'Enter your email',
+      fr: 'Saisissez votre e-mail',
+      de: 'E-Mail eingeben',
+      es: 'Introduce tu email',
+      ar: 'أدخل بريدك الإلكتروني',
+      zh: '请输入您的电子邮件',
+      ja: 'メールアドレスを入力してください'
+    },
+    loginError: {
+      it: 'Si è verificato un errore durante il login',
+      en: 'An error occurred during login',
+      fr: 'Une erreur est survenue lors de la connexion',
+      de: 'Beim Anmelden ist ein Fehler aufgetreten',
+      es: 'Se produjo un error al iniciar sesión',
+      ar: 'حدث خطأ أثناء تسجيل الدخول',
+      zh: '登录时发生错误',
+      ja: 'ログイン中にエラーが発生しました'
+    },
+    resetError: {
+      it: 'Errore durante il recupero password',
+      en: 'Password recovery error',
+      fr: 'Erreur lors de la récupération du mot de passe',
+      de: 'Fehler beim Zurücksetzen des Passworts',
+      es: 'Error al recuperar la contraseña',
+      ar: 'حدث خطأ أثناء استعادة كلمة المرور',
+      zh: '找回密码时出错',
+      ja: 'パスワード再設定中にエラーが発生しました'
+    },
+    resetSent: {
+      it: 'Email inviata. Controlla la posta e lo spam per reimpostare la password.',
+      en: 'Email sent. Check your inbox and spam folder to reset your password.',
+      fr: 'E-mail envoyé. Vérifiez votre boîte de réception et vos spams pour réinitialiser le mot de passe.',
+      de: 'E-Mail gesendet. Prüfen Sie Posteingang und Spam, um das Passwort zurückzusetzen.',
+      es: 'Email enviado. Revisa tu bandeja de entrada y spam para restablecer la contraseña.',
+      ar: 'تم إرسال البريد الإلكتروني. تحقق من البريد الوارد والبريد غير المرغوب لإعادة تعيين كلمة المرور.',
+      zh: '邮件已发送。请检查收件箱和垃圾邮件以重置密码。',
+      ja: 'メールを送信しました。パスワード再設定のため受信箱と迷惑メールを確認してください。'
+    },
+    registrationPending: {
+      it: 'Account creato correttamente. Inserisci la password e premi Login.',
+      en: 'Account created. Enter your password and tap Login.',
+      fr: 'Compte créé. Saisissez votre mot de passe et appuyez sur Connexion.',
+      de: 'Konto erstellt. Geben Sie Ihr Passwort ein und tippen Sie auf Anmelden.',
+      es: 'Cuenta creada. Introduce la contraseña y pulsa Iniciar sesión.',
+      ar: 'تم إنشاء الحساب. أدخل كلمة المرور واضغط تسجيل الدخول.',
+      zh: '账户已创建。请输入密码并点击登录。',
+      ja: 'アカウントを作成しました。パスワードを入力してログインしてください。'
+    },
+    registrationError: {
+      it: 'Errore durante la registrazione',
+      en: 'Registration error',
+      fr: 'Erreur lors de l’inscription',
+      de: 'Fehler bei der Registrierung',
+      es: 'Error durante el registro',
+      ar: 'حدث خطأ أثناء التسجيل',
+      zh: '注册时出错',
+      ja: '登録中にエラーが発生しました'
+    },
+    existingAccount: {
+      it: 'Esiste gia un account con questa email. Usa Password dimenticata per impostare una nuova password.',
+      en: 'An account with this email already exists. Use Forgot password to set a new password.',
+      fr: 'Un compte existe déjà avec cet e-mail. Utilisez Mot de passe oublié pour définir un nouveau mot de passe.',
+      de: 'Mit dieser E-Mail existiert bereits ein Konto. Nutzen Sie Passwort vergessen, um ein neues Passwort festzulegen.',
+      es: 'Ya existe una cuenta con este email. Usa ¿Olvidaste tu contraseña? para configurar una nueva contraseña.',
+      ar: 'يوجد حساب بهذا البريد الإلكتروني. استخدم نسيت كلمة المرور لتعيين كلمة مرور جديدة.',
+      zh: '此电子邮件已存在账户。请使用忘记密码设置新密码。',
+      ja: 'このメールアドレスのアカウントは既に存在します。パスワードをお忘れですか？から新しいパスワードを設定してください。'
     }
   };
 
@@ -361,7 +441,7 @@ export default function UserMenu({ lang }) {
     const authEmail = normalizeAuthEmail(email);
 
     if (!authEmail || !password) {
-      setErrore('Inserisci email e password');
+      setErrore(translations.missingCredentials[langPulito]);
       return;
     }
 
@@ -382,7 +462,7 @@ export default function UserMenu({ lang }) {
       sessionStorage.setItem('checkout_redirect', 'true');
     } catch (err) {
       console.error('Errore login email:', err);
-      setErrore('Si è verificato un errore durante il login');
+      setErrore(translations.loginError[langPulito]);
     }
   };
 
@@ -392,7 +472,7 @@ export default function UserMenu({ lang }) {
     setRegistrationMessage('');
 
     if (!authEmail) {
-      setErrore('Inserisci la tua email');
+      setErrore(translations.missingEmail[langPulito]);
       return;
     }
   
@@ -403,13 +483,13 @@ export default function UserMenu({ lang }) {
       });
   
       if (error) {
-        setErrore(getReadableAuthErrorMessage(error, 'Errore durante il recupero password'));
+        setErrore(getReadableAuthErrorMessage(error, translations.resetError[langPulito]));
       } else {
-        setRegistrationMessage('Email inviata. Controlla la posta e lo spam per reimpostare la password.');
+        setRegistrationMessage(translations.resetSent[langPulito]);
       }
     } catch (err) {
       console.error('Errore recupero password:', err);
-      setErrore(getReadableAuthErrorMessage(err, 'Si è verificato un errore durante il recupero password'));
+      setErrore(getReadableAuthErrorMessage(err, translations.resetError[langPulito]));
     } finally {
       setAuthLoading(false);
     }
@@ -454,7 +534,7 @@ export default function UserMenu({ lang }) {
     const authEmail = normalizeAuthEmail(email);
     
     if (!authEmail || !password) {
-      setErrore('Inserisci email e password');
+      setErrore(translations.missingCredentials[langPulito]);
       setAuthLoading(false);
       return;
     }
@@ -486,7 +566,7 @@ export default function UserMenu({ lang }) {
         setModalitaRegistrazione(false);
         setPassword('');
         setErrore('');
-        setRegistrationMessage('Account creato correttamente. Inserisci la password e premi Login.');
+        setRegistrationMessage(translations.registrationPending[langPulito]);
         return;
       }
 
@@ -500,11 +580,11 @@ export default function UserMenu({ lang }) {
       sessionStorage.setItem('checkout_redirect', 'true');
     } catch (error) {
       console.error('Errore registrazione:', error);
-      const readableError = getReadableAuthErrorMessage(error, 'Errore durante la registrazione');
+      const readableError = getReadableAuthErrorMessage(error, translations.registrationError[langPulito]);
       if (/account con questa email|user already registered|gia un account/i.test(readableError)) {
         setModalitaRegistrazione(false);
         setPassword('');
-        setErrore('Esiste gia un account con questa email. Usa Password dimenticata per impostare una nuova password.');
+        setErrore(translations.existingAccount[langPulito]);
       } else {
         setErrore(readableError);
       }
@@ -519,7 +599,7 @@ export default function UserMenu({ lang }) {
       {isOpen && (
         <div
           ref={menuRef}
-          className="fixed top-0 right-0 w-full max-w-xs bg-white text-black z-50 p-4 shadow-xl"
+          className="gr-login-panel fixed top-0 right-0 w-full max-w-xs bg-white text-black z-50 p-4 shadow-xl"
           style={{ 
             maxHeight: 'calc(100vh - 20px)',
             minHeight: 'auto'
@@ -527,35 +607,35 @@ export default function UserMenu({ lang }) {
         >
           <div className="flex flex-col h-full">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold uppercase">{translations.login[langPulito]}</h2>
+              <h2 className="gr-login-title text-lg font-bold uppercase">{translations.login[langPulito]}</h2>
               <button onClick={() => {
                 setIsOpen(false);
                 setModalitaRegistrazione(false);
               }}><X size={22} /></button>
             </div>
             
-            <div className="flex-1 overflow-y-auto pb-6">
+            <div className="gr-login-scroll flex-1 overflow-y-auto pb-6">
               {!utente ? (
-                <div className="space-y-3">
+                <div className="gr-login-form space-y-3">
                   <input 
                     type="email" 
                     placeholder={translations.email[langPulito]} 
                     value={email} 
                     onChange={(e) => setEmail(e.target.value)} 
-                    className="w-full border border-black px-4 py-2 rounded" 
+                    className="gr-login-field w-full border border-black px-4 py-2 rounded"
                   />
                   <input 
                     type="password" 
                     placeholder={translations.password[langPulito]} 
                     value={password} 
                     onChange={(e) => setPassword(e.target.value)} 
-                    className="w-full border border-black px-4 py-2 rounded" 
+                    className="gr-login-field w-full border border-black px-4 py-2 rounded"
                   />
                   
                   <button 
                     onClick={modalitaRegistrazione ? registraUtente : loginEmail} 
                     disabled={authLoading}
-                    className="w-full bg-black text-white py-2 rounded uppercase disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="gr-login-primary w-full bg-black text-white py-2 rounded uppercase disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {modalitaRegistrazione ? translations.register[langPulito] : translations.login[langPulito]}
                   </button>
@@ -563,20 +643,20 @@ export default function UserMenu({ lang }) {
                   {!modalitaRegistrazione && (
                     <button 
                       onClick={passwordDimenticata} 
-                      className="text-blue-600 text-xs w-full text-left"
+                      className="gr-login-link text-blue-600 text-xs w-full text-left"
                     >
                       {translations.forgotPassword[langPulito]}
                     </button>
                   )}
                   
                   {errore && (
-                    <p className="text-sm text-red-600 mb-4 py-2 px-3 bg-red-50 rounded">
+                    <p className="gr-login-message text-sm text-red-600 mb-4 py-2 px-3 bg-red-50 rounded">
                       {errore}
                     </p>
                   )}
 
                   {registrationMessage && (
-                    <p className="text-sm text-green-600 mb-4 py-2 px-3 bg-green-50 rounded">
+                    <p className="gr-login-message text-sm text-green-600 mb-4 py-2 px-3 bg-green-50 rounded">
                       {registrationMessage}
                     </p>
                   )}
@@ -587,21 +667,21 @@ export default function UserMenu({ lang }) {
                         placeholder={translations.nome[langPulito]} 
                         value={nome} 
                         onChange={(e) => setNome(e.target.value)} 
-                        className="w-full border border-black px-2 py-1 rounded" 
+                        className="gr-login-field w-full border border-black px-2 py-1 rounded"
                         required 
                       />
                       <input 
                         placeholder={translations.cognome[langPulito]} 
                         value={cognome} 
                         onChange={(e) => setCognome(e.target.value)} 
-                        className="w-full border border-black px-2 py-1 rounded" 
+                        className="gr-login-field w-full border border-black px-2 py-1 rounded"
                         required 
                       />
                       
                       <select
                         value={paese}
                         onChange={(e) => setPaese(e.target.value)}
-                        className="w-full border border-black px-2 py-1 rounded bg-white"
+                        className="gr-login-field w-full border border-black px-2 py-1 rounded bg-white"
                         required
                       >
                         <option value="">{translations.selectCountry[langPulito]}</option>
@@ -622,7 +702,7 @@ export default function UserMenu({ lang }) {
                               if (value !== translations.other[langPulito]) setCitta(value);
                               else setCitta('');
                             }}
-                            className="w-full border border-black px-2 py-1 rounded bg-white mt-2"
+                            className="gr-login-field w-full border border-black px-2 py-1 rounded bg-white mt-2"
                             required
                           >
                             <option value="">{translations.selectCity[langPulito]}</option>
@@ -636,7 +716,7 @@ export default function UserMenu({ lang }) {
                               placeholder={translations.enterCity[langPulito]}
                               value={citta}
                               onChange={(e) => setCitta(e.target.value)}
-                              className="w-full border border-black px-2 py-1 rounded mt-2"
+                              className="gr-login-field w-full border border-black px-2 py-1 rounded mt-2"
                               required
                             />
                           )}
@@ -646,7 +726,7 @@ export default function UserMenu({ lang }) {
                           placeholder={translations.enterCity[langPulito]}
                           value={citta}
                           onChange={(e) => setCitta(e.target.value)}
-                          className="w-full border border-black px-2 py-1 rounded mt-2"
+                          className="gr-login-field w-full border border-black px-2 py-1 rounded mt-2"
                           required
                         />
                       )}
@@ -655,28 +735,28 @@ export default function UserMenu({ lang }) {
                         placeholder={translations.indirizzo[langPulito]} 
                         value={indirizzo} 
                         onChange={(e) => setIndirizzo(e.target.value)} 
-                        className="w-full border border-black px-2 py-1 rounded" 
+                        className="gr-login-field w-full border border-black px-2 py-1 rounded"
                         required 
                       />
                       <input 
                         placeholder={translations.cap[langPulito]} 
                         value={cap} 
                         onChange={(e) => setCap(e.target.value)} 
-                        className="w-full border border-black px-2 py-1 rounded" 
+                        className="gr-login-field w-full border border-black px-2 py-1 rounded"
                         required 
                       />
                       <input 
                         placeholder={translations.telefono1[langPulito]} 
                         value={telefono1} 
                         onChange={(e) => setTelefono1(e.target.value)} 
-                        className="w-full border border-black px-2 py-1 rounded" 
+                        className="gr-login-field w-full border border-black px-2 py-1 rounded"
                         required 
                       />
                       <input 
                         placeholder={translations.telefono2[langPulito]} 
                         value={telefono2} 
                         onChange={(e) => setTelefono2(e.target.value)} 
-                        className="w-full border border-black px-2 py-1 rounded" 
+                        className="gr-login-field w-full border border-black px-2 py-1 rounded"
                       />
                     </>
                   )}
@@ -686,11 +766,11 @@ export default function UserMenu({ lang }) {
                       <>
                         <button 
                           onClick={() => setModalitaRegistrazione(true)} 
-                          className="w-full border border-black py-2 rounded uppercase mb-2 font-semibold"
+                          className="gr-login-create w-full border border-black py-2 rounded uppercase mb-2 font-semibold"
                         >
                           {translations.create[langPulito]}
                         </button>
-                        <div className="text-xs text-gray-600 space-y-1 mt-2">
+                        <div className="gr-login-benefits text-xs text-gray-600 space-y-1 mt-2">
                           {translations.registerBenefits[langPulito].map((benefit, index) => (
                             <div key={index} className="flex items-start">
                               {['it', 'en', 'fr', 'es', 'de'].includes(langPulito) && (
@@ -716,13 +796,13 @@ export default function UserMenu({ lang }) {
                 <div className="space-y-4 text-sm">
                   <p>{translations.welcome[langPulito](nomeUtente)}</p>
                   {registrazioneOk && registrationMessage && (
-                    <p className="text-sm text-green-600 font-semibold mb-4 py-2 px-3 bg-green-50 rounded">
+                    <p className="gr-login-message text-sm text-green-600 font-semibold mb-4 py-2 px-3 bg-green-50 rounded">
                       {registrationMessage}
                     </p>
                   )}
                   <button 
                     onClick={logout} 
-                    className="w-full bg-gray-700 text-white py-2 rounded uppercase"
+                    className="gr-login-logout w-full bg-gray-700 text-white py-2 rounded uppercase"
                   >
                     Logout
                   </button>

@@ -5,12 +5,18 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ShoppingCart } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { getPublicImageUrl } from '../lib/storageUrl';
+import ProductPrice from '../../components/ProductPrice';
 import {
   addProductToCart, getCartItemCount,
   loadCartFromStorage, saveCartToStorage,
 } from '../lib/cart';
-
-const EURO = '€';
+import {
+  buildPriceRequestHref,
+  getAddedToCartText,
+  getRequestPriceText,
+  hasDisplayPrice,
+  isSoldOut,
+} from '../lib/productDisplay';
 
 const tr = {
   it: {
@@ -114,6 +120,7 @@ function SearchContent() {
   const [loading, setLoading] = useState(false);
   const [cercato, setCercato] = useState(false);
   const [carrello, setCarrello] = useState([]);
+  const [cartNotice, setCartNotice] = useState('');
   const debounceRef = useRef(null);
 
   useEffect(() => { setCarrello(loadCartFromStorage()); }, []);
@@ -121,7 +128,7 @@ function SearchContent() {
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     const q = query.trim();
-    if (!q) { setProdotti([]); setCercato(false); return; }
+    if (!q) { setProdotti([]); setCercato(false); setLoading(false); return; }
 
     debounceRef.current = setTimeout(async () => {
       setLoading(true);
@@ -141,9 +148,13 @@ function SearchContent() {
   }, [query]);
 
   const aggiungi = (prodotto) => {
+    if (!hasDisplayPrice(prodotto)) return;
+
     const nuovo = addProductToCart(carrello, prodotto, 1);
     setCarrello(nuovo);
     saveCartToStorage(nuovo);
+    setCartNotice(getAddedToCartText(lang));
+    window.setTimeout(() => setCartNotice(''), 2200);
   };
 
   const cartCount = getCartItemCount(carrello);
@@ -200,12 +211,7 @@ function SearchContent() {
         gap: '1rem',
       }}>
         {prodotti.map((p) => {
-          const prezzoNum = Number(p.prezzo || 0);
-          const scontoNum = Number(p.sconto || 0);
-          const prezzoFinale = p.offerta && scontoNum > 0
-            ? Math.round((prezzoNum - prezzoNum * scontoNum / 100) * 100) / 100
-            : prezzoNum;
-          const esaurito = Number(p.quantita) === 0 && !p.made_to_order;
+          const esaurito = isSoldOut(p);
 
           return (
             <div key={p.id} style={{
@@ -231,17 +237,10 @@ function SearchContent() {
               />
               <div style={{ fontWeight: 'bold', marginTop: 4 }}>{p.nome}</div>
               <div style={{ opacity: 0.6 }}>{p.sottocategoria}</div>
-              <div className="gr-price" style={{ fontWeight: 'bold' }}>
-                {p.offerta && scontoNum > 0 && (
-                  <span style={{ textDecoration: 'line-through', opacity: 0.5, marginRight: 4 }}>
-                    {EURO} {prezzoNum.toFixed(2)}
-                  </span>
-                )}
-                {EURO} {prezzoFinale.toFixed(2)}
-              </div>
+              <ProductPrice product={p} lang={lang} className="gr-price" style={{ fontWeight: 'bold' }} />
               {esaurito
                 ? <div style={{ color: 'gray', fontStyle: 'italic' }}>{t.esaurito}</div>
-                : (
+                : hasDisplayPrice(p) ? (
                   <button
                     onClick={() => aggiungi(p)}
                     style={{
@@ -253,12 +252,25 @@ function SearchContent() {
                   >
                     {t.aggiungi}
                   </button>
+                ) : (
+                  <a
+                    href={buildPriceRequestHref(p, lang)}
+                    className="gr-product-request-button"
+                    style={{ marginTop: 4 }}
+                  >
+                    {getRequestPriceText(lang)}
+                  </a>
                 )
               }
             </div>
           );
         })}
       </div>
+      {cartNotice && (
+        <div className="gr-product-toast" role="status" aria-live="polite">
+          {cartNotice}
+        </div>
+      )}
     </main>
   );
 }

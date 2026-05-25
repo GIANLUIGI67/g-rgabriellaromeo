@@ -7,6 +7,13 @@ import { supabase } from '../lib/supabaseClient';
 import { addProductToCart, getCartItemCount, getCartQuantityForProduct, loadCartFromStorage, removeProductFromCart, saveCartToStorage } from '../lib/cart';
 import { getPublicImageUrl } from '../lib/storageUrl';
 import Image from 'next/image';
+import ProductPrice from '../../components/ProductPrice';
+import {
+  buildPriceRequestHref,
+  getAddedToCartText,
+  getRequestPriceText,
+  hasDisplayPrice,
+} from '../lib/productDisplay';
 
 function OffertePageContent() {
   const params = useSearchParams();
@@ -17,6 +24,7 @@ function OffertePageContent() {
   const [quantita, setQuantita] = useState({});
   const [carrello, setCarrello] = useState([]);
   const [popupImg, setPopupImg] = useState(null);
+  const [cartNotice, setCartNotice] = useState('');
 
   const traduzioni = {
     it: { titolo: '🟡 OFFERTE', aggiungi: 'Aggiungi al carrello', checkout: 'Check-out', indietro: 'Indietro', rimuovi: 'Rimuovi', carrello: 'Carrello' },
@@ -60,10 +68,14 @@ function OffertePageContent() {
   };
 
   const aggiungiAlCarrello = (prodotto) => {
+    if (!hasDisplayPrice(prodotto)) return;
+
     const qta = quantita[prodotto.id] || 1;
     const nuovoCarrello = addProductToCart(carrello, prodotto, qta);
     setCarrello(nuovoCarrello);
     saveCartToStorage(nuovoCarrello);
+    setCartNotice(getAddedToCartText(lang));
+    window.setTimeout(() => setCartNotice(''), 2200);
   };
 
   const rimuoviDalCarrello = (prodottoId) => {
@@ -78,9 +90,6 @@ function OffertePageContent() {
 
       <div style={{ display: 'flex', overflowX: 'auto', gap: '1rem', padding: '1rem' }}>
         {prodotti.map(prodotto => {
-          const sconto = prodotto.sconto || 0;
-          const prezzoFinale = (prodotto.prezzo * (1 - sconto / 100)).toFixed(2);
-
           return (
             <div key={prodotto.id} style={{
               backgroundColor: 'white',
@@ -126,21 +135,7 @@ function OffertePageContent() {
               
               <strong>{prodotto.nome}</strong>
               <p>{prodotto.taglia}</p>
-              <p className="gr-price">
-                <span style={{ 
-                  textDecoration: 'line-through', 
-                  color: 'gray', 
-                  fontSize: '0.6rem'
-                }}>
-                  {'\u20AC'} {Number(prodotto.prezzo).toFixed(2)}
-                </span><br />
-                <span style={{ 
-                  color: 'red', 
-                  fontWeight: 'bold'
-                }}>
-                  {'\u20AC'} {prezzoFinale}
-                </span>
-              </p>
+              <ProductPrice product={prodotto} lang={lang} className="gr-price" />
 
               <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem', margin: '0.3rem 0' }}>
                 <button 
@@ -173,21 +168,31 @@ function OffertePageContent() {
                 >+</button>
               </div>
 
-              <button
-                onClick={() => aggiungiAlCarrello(prodotto)}
-                style={{
-                  padding: '0.2rem 0.4rem',
-                  fontSize: '0.6rem',
-                  backgroundColor: '#333',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
-                aria-label="Add to cart"
-              >
-                {t('aggiungi')}
-              </button>
+              {hasDisplayPrice(prodotto) ? (
+                <button
+                  onClick={() => aggiungiAlCarrello(prodotto)}
+                  style={{
+                    padding: '0.2rem 0.4rem',
+                    fontSize: '0.6rem',
+                    backgroundColor: '#333',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                  aria-label="Add to cart"
+                >
+                  {t('aggiungi')}
+                </button>
+              ) : (
+                <a
+                  href={buildPriceRequestHref(prodotto, lang)}
+                  className="gr-product-request-button"
+                  style={{ fontSize: '0.6rem', minHeight: '1.8rem' }}
+                >
+                  {getRequestPriceText(lang)}
+                </a>
+              )}
             </div>
           );
         })}
@@ -296,6 +301,12 @@ function OffertePageContent() {
               borderRadius: '10px'
             }}
           />
+        </div>
+      )}
+
+      {cartNotice && (
+        <div className="gr-product-toast" role="status" aria-live="polite">
+          {cartNotice}
         </div>
       )}
     </main>

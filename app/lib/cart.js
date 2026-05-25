@@ -1,3 +1,5 @@
+import { parsePrice } from './productDisplay';
+
 function toPositiveInteger(value, fallback = 1) {
   const parsed = Number(value);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
@@ -9,7 +11,7 @@ function sanitizeCartItem(item, quantity = 1) {
     id: item.id,
     nome: item.nome || '',
     immagine: item.immagine || '',
-    prezzo: Number(item.prezzo || 0),
+    prezzo: parsePrice(item.prezzo),
     taglia: item.taglia || '',
     descrizione: item.descrizione || '',
     categoria: item.categoria || '',
