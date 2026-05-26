@@ -112,30 +112,16 @@ export function getAddedToCartText(lang) {
   return addedToCartText[safeLang];
 }
 
-export function buildPriceRequestHref(product, lang) {
-  const safeLang = normalizeLang(lang);
-  const productName = product?.nome || 'G-R Gabriella Romeo product';
-  const subject = {
-    it: `Richiesta prezzo - ${productName}`,
-    en: `Price request - ${productName}`,
-    fr: `Demande de prix - ${productName}`,
-    de: `Preisanfrage - ${productName}`,
-    es: `Solicitud de precio - ${productName}`,
-    ar: `طلب سعر - ${productName}`,
-    zh: `价格咨询 - ${productName}`,
-    ja: `価格問い合わせ - ${productName}`,
-  }[safeLang];
-
-  const body = {
-    it: `Vorrei ricevere informazioni su prezzo e ordine per: ${productName}`,
-    en: `I would like price and ordering information for: ${productName}`,
-    fr: `Je souhaite recevoir le prix et les informations de commande pour : ${productName}`,
-    de: `Ich mochte Preis- und Bestellinformationen fur: ${productName}`,
-    es: `Quisiera recibir informacion sobre precio y pedido para: ${productName}`,
-    ar: `أرغب في معرفة السعر وطريقة الطلب لهذا المنتج: ${productName}`,
-    zh: `我想了解该产品的价格和订购信息：${productName}`,
-    ja: `この商品の価格と注文情報を希望します: ${productName}`,
-  }[safeLang];
+export function buildPriceRequestHref(product) {
+  const productName = product?.nome_en || product?.nome || 'G-R Gabriella Romeo product';
+  const subject = `Price request - ${productName}`;
+  const body = [
+    'Hello,',
+    '',
+    `I would like to receive price and ordering information for: ${productName}`,
+    '',
+    'Thank you.',
+  ].join('\n');
 
   return `mailto:info@g-rgabriellaromeo.it?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }

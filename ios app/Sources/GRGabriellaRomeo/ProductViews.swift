@@ -346,9 +346,10 @@ struct ProductDetailView: View {
         var components = URLComponents()
         components.scheme = "mailto"
         components.path = "info@g-rgabriellaromeo.it"
+        let productName = product.englishName
         components.queryItems = [
-            URLQueryItem(name: "subject", value: "Richiesta prezzo \(product.nome)"),
-            URLQueryItem(name: "body", value: "Vorrei informazioni sul prezzo e sull'ordine del prodotto: \(product.nome)")
+            URLQueryItem(name: "subject", value: "Price request - \(productName)"),
+            URLQueryItem(name: "body", value: "Hello,\n\nI would like to receive price and ordering information for: \(productName)\n\nThank you.")
         ]
         return components.url
     }

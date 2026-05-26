@@ -3,6 +3,7 @@ import Foundation
 struct Product: Identifiable, Codable, Hashable {
     let id: String
     let nome: String
+    let nomeEn: String?
     let descrizione: String?
     let prezzo: Decimal
     let taglia: String?
@@ -18,6 +19,7 @@ struct Product: Identifiable, Codable, Hashable {
 
     enum CodingKeys: String, CodingKey {
         case id, nome, descrizione, prezzo, taglia, categoria, sottocategoria, immagine, disponibile, quantita, offerta, sconto
+        case nomeEn = "nome_en"
         case madeToOrder = "made_to_order"
         case allowBackorder = "allow_backorder"
     }
@@ -26,6 +28,7 @@ struct Product: Identifiable, Codable, Hashable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decodeFlexibleString(forKey: .id)
         nome = try container.decodeIfPresent(String.self, forKey: .nome) ?? ""
+        nomeEn = try container.decodeIfPresent(String.self, forKey: .nomeEn)
         descrizione = try container.decodeIfPresent(String.self, forKey: .descrizione)
         prezzo = try container.decodeFlexibleDecimal(forKey: .prezzo)
         taglia = try container.decodeIfPresent(String.self, forKey: .taglia)
@@ -43,6 +46,7 @@ struct Product: Identifiable, Codable, Hashable {
     init(
         id: String,
         nome: String,
+        nomeEn: String? = nil,
         descrizione: String?,
         prezzo: Decimal,
         taglia: String?,
@@ -58,6 +62,7 @@ struct Product: Identifiable, Codable, Hashable {
     ) {
         self.id = id
         self.nome = nome
+        self.nomeEn = nomeEn
         self.descrizione = descrizione
         self.prezzo = prezzo
         self.taglia = taglia
@@ -80,6 +85,11 @@ struct Product: Identifiable, Codable, Hashable {
 
     var hasDisplayPrice: Bool {
         displayPrice > 0
+    }
+
+    var englishName: String {
+        let trimmed = nomeEn?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return trimmed.isEmpty ? nome : trimmed
     }
 
     var isSoldOut: Bool {
