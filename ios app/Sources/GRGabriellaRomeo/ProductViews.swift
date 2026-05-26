@@ -217,70 +217,129 @@ struct ProductCard: View {
 
 struct ProductDetailView: View {
     @EnvironmentObject private var store: AppStore
+    @Environment(\.dismiss) private var dismiss
     let product: Product
+    @State private var showAddedAlert = false
+    @State private var navigateToCheckout = false
 
     var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    ProductImage(product: product)
-                        .frame(height: 430)
-                        .clipped()
+        GeometryReader { geometry in
+            ZStack(alignment: .topLeading) {
+                Color.black.ignoresSafeArea()
 
-                    Text(product.nome)
-                        .font(.custom("Michroma-Regular", size: 38))
-                        .foregroundStyle(Color.grGold)
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 14) {
+                        ProductImage(product: product, contentMode: .fit)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: detailImageHeight(for: geometry))
+                            .background(Color.white)
+                            .clipped()
 
-                    Text(product.hasDisplayPrice ? product.displayPrice.euro : store.l10n.text(.priceOnRequest))
-                        .font(.system(size: 24, weight: .regular))
-                        .foregroundStyle(Color.grGold)
-
-                    if let description = product.descrizione, !description.isEmpty {
-                        Text(description)
-                            .font(.custom("Michroma-Regular", size: 19))
-                            .foregroundStyle(Color.grGold.opacity(0.78))
-                    }
-
-                    if product.hasDisplayPrice {
-                        Button {
-                            store.addToCart(product)
-                        } label: {
-                            Text(product.isAvailable ? store.l10n.text(.addToCart) : store.l10n.text(.soldOut))
-                                .font(.custom("Michroma-Regular", size: 24))
-                                .foregroundStyle(.black)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 54)
-                                .background(Color.grGold)
-                        }
-                        .disabled(!product.isAvailable)
-                        .opacity(product.isAvailable ? 1 : 0.45)
-                    } else {
-                        Button {
-                            if let url = priceRequestURL {
-                                UIApplication.shared.open(url)
-                            }
-                        } label: {
-                            Text(store.l10n.text(.requestPrice))
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text(product.nome)
                                 .font(.custom("Michroma-Regular", size: 22))
-                                .foregroundStyle(.white)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 54)
-                                .background(Color(red: 0.17, green: 0.38, blue: 0.96))
-                        }
-                    }
-                }
-                .padding(18)
-                .padding(.top, 42)
-                .padding(.bottom, 30)
-            }
+                                .foregroundStyle(Color.grGold)
+                                .lineLimit(3)
+                                .minimumScaleFactor(0.62)
+                                .fixedSize(horizontal: false, vertical: true)
 
-            WebBackButton()
-                .padding(.top, 48)
+                            Text(product.hasDisplayPrice ? product.displayPrice.euro : store.l10n.text(.priceOnRequest))
+                                .font(.system(size: 19, weight: .regular))
+                                .foregroundStyle(Color.grGold)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.72)
+
+                            if let description = product.descrizione, !description.isEmpty {
+                                Text(description)
+                                    .font(.custom("Michroma-Regular", size: 13.5))
+                                    .foregroundStyle(Color.grGold.opacity(0.78))
+                                    .lineSpacing(4)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        .padding(.horizontal, 18)
+                    }
+                    .padding(.bottom, 96)
+                }
+
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle(.black)
+                        .frame(width: 46, height: 40)
+                        .background(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 7))
+                        .shadow(color: .black.opacity(0.18), radius: 6, x: 0, y: 2)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Indietro")
+                .padding(.top, max(14, geometry.safeAreaInsets.top + 6))
                 .padding(.leading, 14)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            }
+            .safeAreaInset(edge: .bottom) {
+                detailActionButton
+                    .padding(.horizontal, 14)
+                    .padding(.top, 10)
+                    .padding(.bottom, max(10, geometry.safeAreaInsets.bottom + 4))
+                    .background(Color.black.opacity(0.96))
+            }
+        }
+        .navigationDestination(isPresented: $navigateToCheckout) {
+            CheckoutView()
+        }
+        .alert(store.l10n.text(.addedToCart), isPresented: $showAddedAlert) {
+            Button(store.l10n.text(.continueShopping), role: .cancel) {
+                dismiss()
+            }
+            Button(store.l10n.text(.checkout)) {
+                navigateToCheckout = true
+            }
+        } message: {
+            Text(product.nome)
         }
         .toolbar(.hidden, for: .navigationBar)
+    }
+
+    @ViewBuilder
+    private var detailActionButton: some View {
+        if product.hasDisplayPrice {
+            Button {
+                store.addToCart(product)
+                showAddedAlert = true
+            } label: {
+                Text(product.isAvailable ? store.l10n.text(.addToCart) : store.l10n.text(.soldOut))
+                    .font(.custom("Michroma-Regular", size: 21))
+                    .foregroundStyle(.black)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 54)
+                    .background(Color.grGold)
+            }
+            .disabled(!product.isAvailable)
+            .opacity(product.isAvailable ? 1 : 0.45)
+        } else {
+            Button {
+                if let url = priceRequestURL {
+                    UIApplication.shared.open(url)
+                }
+            } label: {
+                Text(store.l10n.text(.requestPrice))
+                    .font(.custom("Michroma-Regular", size: 19))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 54)
+                    .background(Color(red: 0.17, green: 0.38, blue: 0.96))
+            }
+        }
+    }
+
+    private func detailImageHeight(for geometry: GeometryProxy) -> CGFloat {
+        min(max(geometry.size.height * 0.34, 220), 286)
     }
 
     private var priceRequestURL: URL? {
@@ -297,6 +356,7 @@ struct ProductDetailView: View {
 
 struct ProductImage: View {
     let product: Product
+    var contentMode: ContentMode = .fill
 
     var body: some View {
         AsyncImage(url: AppConfig.imageURL(for: product.immagine)) { phase in
@@ -307,9 +367,15 @@ struct ProductImage: View {
                     ProgressView().tint(.white)
                 }
             case .success(let image):
-                image
-                    .resizable()
-                    .scaledToFill()
+                if contentMode == .fit {
+                    image
+                        .resizable()
+                        .scaledToFit()
+                } else {
+                    image
+                        .resizable()
+                        .scaledToFill()
+                }
             case .failure:
                 ZStack {
                     Color.grGold.opacity(0.08)

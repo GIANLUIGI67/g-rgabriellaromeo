@@ -33,7 +33,7 @@ struct L10n {
         case addToCart, soldOut, checkout, total, emptyCart, continueShopping
         case bankTransfer, confirmBankTransfer, terms, orderConfirmed, profileRequired
         case standardShipping, expressShipping, storePickup, shipping, payment
-        case allSubcategories, noProducts, priceOnRequest, requestPrice
+        case allSubcategories, noProducts, priceOnRequest, requestPrice, addedToCart
         case contacts, ourServices, servicesDescription, servicesEmailIntro
         case wishlistBenefit, checkoutBenefit, discountBenefit, referralBenefit
         case enterEmail, resetSent
@@ -90,6 +90,7 @@ struct L10n {
         .noProducts: [.it: "Nessun prodotto disponibile", .en: "No products available", .fr: "Aucun produit disponible", .de: "Keine Produkte verfügbar", .es: "No hay productos disponibles", .ar: "لا توجد منتجات متاحة", .zh: "暂无可用产品", .ja: "商品はありません"],
         .priceOnRequest: [.it: "Prezzo su richiesta", .en: "Price on request", .fr: "Prix sur demande", .de: "Preis auf Anfrage", .es: "Precio bajo solicitud", .ar: "السعر عند الطلب", .zh: "价格需咨询", .ja: "価格はお問い合わせください"],
         .requestPrice: [.it: "Richiedi prezzo", .en: "Request price", .fr: "Demander le prix", .de: "Preis anfragen", .es: "Solicitar precio", .ar: "اطلب السعر", .zh: "咨询价格", .ja: "価格を問い合わせる"],
+        .addedToCart: [.it: "Aggiunto al carrello", .en: "Added to cart", .fr: "Ajouté au panier", .de: "Zum Warenkorb hinzugefügt", .es: "Añadido al carrito", .ar: "تمت الإضافة إلى السلة", .zh: "已加入购物车", .ja: "カートに追加しました"],
         .contacts: [.it: "Contatti", .en: "Contacts", .fr: "Contacts", .de: "Kontakt", .es: "Contactos", .ar: "اتصال", .zh: "联系方式", .ja: "連絡先"],
         .ourServices: [.it: "I nostri servizi", .en: "Our services", .fr: "Nos services", .de: "Unsere Dienstleistungen", .es: "Nuestros servicios", .ar: "خدماتنا", .zh: "我们的服务", .ja: "サービス"],
         .servicesDescription: [.it: "Offriamo servizi su misura per ogni esigenza. Contattaci per maggiori informazioni.", .en: "We offer tailored services for every need. Contact us for more information.", .fr: "Nous proposons des services sur mesure. Contactez-nous pour plus d'informations.", .de: "Wir bieten maßgeschneiderte Dienstleistungen. Kontaktieren Sie uns für weitere Informationen.", .es: "Ofrecemos servicios a medida. Contáctanos para más información.", .ar: "نقدم خدمات مخصصة لكل احتياج. تواصل معنا لمزيد من المعلومات.", .zh: "我们提供定制服务。请联系我们了解更多信息。", .ja: "ご要望に合わせたサービスをご提供します。詳細はお問い合わせください。"],
