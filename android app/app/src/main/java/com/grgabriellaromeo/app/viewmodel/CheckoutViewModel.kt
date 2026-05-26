@@ -41,6 +41,7 @@ class CheckoutViewModel : ViewModel() {
     var quote = MutableStateFlow<CheckoutQuote?>(null)
     var productionPolicyAccepted = MutableStateFlow(false)
     var shippingMethod = MutableStateFlow("ritiro")
+    var lastConfirmedPaymentMethod = MutableStateFlow<String?>(null)
 
     fun prefillFromCliente(cliente: Cliente) {
         nome.value = cliente.nome
@@ -86,22 +87,35 @@ class CheckoutViewModel : ViewModel() {
     fun submitOrder(items: List<CartItem>) {
         _state.value = CheckoutState.Loading
         viewModelScope.launch {
+            val selectedPaymentMethod = metodoPagamento.value
             runCatching {
                 val token = authRepo.currentAccessToken() ?: throw IllegalStateException("Login required")
                 val currentQuote = quote.value ?: orderRepo.quote(items, shippingMethod.value, token).also { quote.value = it }
                 if (currentQuote.productionPolicyRequired && !productionPolicyAccepted.value) {
                     throw IllegalStateException("Accetta la policy di produzione per procedere")
                 }
-                orderRepo.finalizeCheckout(
-                    items = items,
-                    shippingMethod = shippingMethod.value,
-                    paymentMethod = metodoPagamento.value,
-                    paymentStatus = if (metodoPagamento.value == "bonifico") "in attesa bonifico" else "in attesa pagamento",
-                    accessToken = token,
-                    productionPolicyAccepted = productionPolicyAccepted.value
-                )
+                if (selectedPaymentMethod == "bonifico") {
+                    orderRepo.reserveBankTransfer(
+                        items = items,
+                        shippingMethod = shippingMethod.value,
+                        accessToken = token,
+                        productionPolicyAccepted = productionPolicyAccepted.value
+                    )
+                } else {
+                    orderRepo.finalizeCheckout(
+                        items = items,
+                        shippingMethod = shippingMethod.value,
+                        paymentMethod = selectedPaymentMethod,
+                        paymentStatus = "in attesa pagamento",
+                        accessToken = token,
+                        productionPolicyAccepted = productionPolicyAccepted.value
+                    )
+                }
             }
-                .onSuccess { _state.value = CheckoutState.Success }
+                .onSuccess {
+                    lastConfirmedPaymentMethod.value = selectedPaymentMethod
+                    _state.value = CheckoutState.Success
+                }
                 .onFailure { _state.value = CheckoutState.Error(it.message ?: "Order failed") }
         }
     }

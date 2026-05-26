@@ -127,7 +127,7 @@ final class AppStore: ObservableObject {
 
     func confirmBankTransfer(shippingMethod: String, productionPolicyAccepted: Bool) async throws -> FinalizeResponse {
         let result = try await withAuthenticatedToken { accessToken in
-            try await APIClient.shared.finalizeBankTransfer(
+            try await APIClient.shared.reserveBankTransfer(
                 cart: cart,
                 shippingMethod: shippingMethod,
                 accessToken: accessToken,

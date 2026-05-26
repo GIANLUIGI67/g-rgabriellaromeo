@@ -80,9 +80,23 @@ class OrderRepository {
     )
 
     @Serializable
+    data class ReserveRequest(
+        val cart: List<CheckoutCartItem>,
+        val shippingMethod: String,
+        val productionPolicyAccepted: Boolean
+    )
+
+    @Serializable
     data class FinalizeResponse(
         val ok: Boolean? = null,
         val orderId: String,
+        val total: Double? = null
+    )
+
+    @Serializable
+    data class ReserveResponse(
+        val ok: Boolean? = null,
+        val tempOrderId: String,
         val total: Double? = null
     )
 
@@ -114,6 +128,21 @@ class OrderRepository {
             productionPolicyAccepted = productionPolicyAccepted
         )
         return postJson("api/checkout/finalize", payload, accessToken)
+    }
+
+    suspend fun reserveBankTransfer(
+        items: List<CartItem>,
+        shippingMethod: String,
+        accessToken: String,
+        productionPolicyAccepted: Boolean
+    ): FinalizeResponse {
+        val payload = ReserveRequest(
+            cart = items.toCheckoutCart(),
+            shippingMethod = shippingMethod,
+            productionPolicyAccepted = productionPolicyAccepted
+        )
+        val response = postJson<ReserveRequest, ReserveResponse>("api/checkout/reserve", payload, accessToken)
+        return FinalizeResponse(ok = response.ok, orderId = response.tempOrderId, total = response.total)
     }
 
     suspend fun trackVisit(page: String, lang: String) {

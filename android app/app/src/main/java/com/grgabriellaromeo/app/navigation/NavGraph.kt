@@ -170,8 +170,10 @@ fun GRNavGraph() {
                     )
                 }
                 composable(Screen.OrdineConfermato.route) {
+                    val confirmedPaymentMethod by checkoutVm.lastConfirmedPaymentMethod.collectAsState()
                     OrdineConfermatoScreen(
                         lang = lang,
+                        paymentMethod = confirmedPaymentMethod,
                         onContinue = {
                             navController.navigate(Screen.Home.route) {
                                 popUpTo(Screen.Home.route) { inclusive = true }

@@ -126,10 +126,10 @@ fun PagamentoScreen(
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(text = "IBAN", color = Gold, fontSize = 12.sp, letterSpacing = 1.sp)
                     Spacer(Modifier.height(4.dp))
-                    Text(text = "IT60 X054 2811 1010 0000 0123 456", color = Color.White, fontSize = 14.sp)
+                    Text(text = "IT10 Y050 3426 2010 0000 0204 438", color = Color.White, fontSize = 14.sp)
                     Spacer(Modifier.height(4.dp))
-                    Text(text = "Intestato a: G-R Gabriella Romeo Srl", color = Color(0xFFCCCCCC), fontSize = 13.sp)
-                    Text(text = "BIC: BPMOIT22XXX", color = Color(0xFFCCCCCC), fontSize = 13.sp)
+                    Text(text = "Intestato a: G-R Gabriella Romeo", color = Color(0xFFCCCCCC), fontSize = 13.sp)
+                    Text(text = "Causale: Ordine GR", color = Color(0xFFCCCCCC), fontSize = 13.sp)
                 }
             }
         }

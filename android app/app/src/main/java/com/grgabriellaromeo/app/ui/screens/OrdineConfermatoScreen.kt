@@ -18,7 +18,7 @@ import com.grgabriellaromeo.app.ui.theme.Michroma
 import com.grgabriellaromeo.app.util.Translations
 
 @Composable
-fun OrdineConfermatoScreen(lang: String, onContinue: () -> Unit) {
+fun OrdineConfermatoScreen(lang: String, paymentMethod: String?, onContinue: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -53,6 +53,16 @@ fun OrdineConfermatoScreen(lang: String, onContinue: () -> Unit) {
             textAlign = TextAlign.Center,
             lineHeight = 20.sp
         )
+        if (paymentMethod == "bonifico") {
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = Translations.t("bonifico_attesa_spedizione", lang),
+                color = Gold,
+                fontSize = 13.sp,
+                textAlign = TextAlign.Center,
+                lineHeight = 20.sp
+            )
+        }
         Spacer(Modifier.height(40.dp))
         Button(
             onClick = onContinue,

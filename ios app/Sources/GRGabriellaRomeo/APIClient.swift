@@ -97,26 +97,24 @@ final class APIClient {
         return response.quote
     }
 
-    func finalizeBankTransfer(
+    func reserveBankTransfer(
         cart: [CartItem],
         shippingMethod: String,
         accessToken: String,
         productionPolicyAccepted: Bool
     ) async throws -> FinalizeResponse {
-        let payload = FinalizeRequest(
+        let payload = ReserveRequest(
             cart: cart.map(CheckoutCartItem.init(item:)),
             shippingMethod: shippingMethod,
-            paymentMethod: "bonifico",
-            paymentStatus: "in attesa bonifico",
-            transactionId: nil,
             productionPolicyAccepted: productionPolicyAccepted
         )
-        var request = URLRequest(url: AppConfig.webAPIBaseURL.appending(path: "api/checkout/finalize"))
+        var request = URLRequest(url: AppConfig.webAPIBaseURL.appending(path: "api/checkout/reserve"))
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         request.httpBody = try jsonEncoder.encode(payload)
-        return try await send(request)
+        let response: ReserveResponse = try await send(request)
+        return FinalizeResponse(ok: response.ok, orderId: response.tempOrderId, total: response.total)
     }
 
     private func applySupabaseHeaders(to request: inout URLRequest, accessToken: String? = nil) {

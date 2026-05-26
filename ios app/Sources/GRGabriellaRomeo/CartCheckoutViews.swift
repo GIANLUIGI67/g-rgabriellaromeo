@@ -27,7 +27,7 @@ struct CheckoutView: View {
     @State private var isAccepted = false
     @State private var isProductionPolicyAccepted = false
     @State private var isSubmitting = false
-    @State private var orderId: String?
+    @State private var confirmedOrder: ConfirmedOrderRoute?
     @State private var infoMessage: String?
 
     var body: some View {
@@ -87,8 +87,8 @@ struct CheckoutView: View {
                 telefono2 = customer.telefono2 ?? ""
             }
         }
-        .navigationDestination(item: $orderId) { id in
-            OrderConfirmedView(orderId: id)
+        .navigationDestination(item: $confirmedOrder) { order in
+            OrderConfirmedView(orderId: order.id, isBankTransfer: order.isBankTransfer)
         }
     }
 
@@ -348,7 +348,7 @@ struct CheckoutView: View {
                 shippingMethod: shippingMethod,
                 productionPolicyAccepted: isProductionPolicyAccepted
             )
-            orderId = result.orderId
+            confirmedOrder = ConfirmedOrderRoute(id: result.orderId, isBankTransfer: true)
         } catch {
             store.errorMessage = error.localizedDescription
         }
@@ -397,6 +397,11 @@ struct CheckoutView: View {
             store.errorMessage = error.localizedDescription
         }
     }
+}
+
+private struct ConfirmedOrderRoute: Identifiable, Hashable {
+    let id: String
+    let isBankTransfer: Bool
 }
 
 struct CheckoutStepsView: View {
@@ -503,7 +508,11 @@ struct Row: View {
 }
 
 struct OrderConfirmedView: View {
+    @EnvironmentObject private var store: AppStore
+    @Environment(\.dismiss) private var dismiss
+
     let orderId: String
+    let isBankTransfer: Bool
 
     var body: some View {
         ZStack {
@@ -512,14 +521,47 @@ struct OrderConfirmedView: View {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 58))
                     .foregroundStyle(.green)
-                Text("Ordine confermato")
-                    .font(.custom("Michroma-Regular", size: 38))
+                Text(store.l10n.text(.orderConfirmed))
+                    .font(.custom("Michroma-Regular", size: 30))
                     .foregroundStyle(Color.grGold)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.55)
+                    .multilineTextAlignment(.center)
                 Text(orderId)
                     .font(.custom("Michroma-Regular", size: 18))
                     .foregroundStyle(Color.grGold.opacity(0.75))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                if isBankTransfer {
+                    Text(store.l10n.text(.bankTransferShippingNotice))
+                        .font(.custom("Michroma-Regular", size: 14))
+                        .foregroundStyle(Color.grGold.opacity(0.86))
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
+                        .padding(.top, 4)
+                }
+                Text(store.l10n.text(.orderEmailNotice))
+                    .font(.custom("Michroma-Regular", size: 13))
+                    .foregroundStyle(Color.grGold.opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(4)
+
+                Button {
+                    dismiss()
+                } label: {
+                    Text(store.l10n.text(.continueShopping))
+                        .font(.custom("Michroma-Regular", size: 14))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.62)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 48)
+                        .foregroundStyle(.black)
+                        .background(Color.grGold)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                .padding(.top, 10)
             }
-            .padding()
+            .padding(28)
         }
         .toolbar(.hidden, for: .navigationBar)
     }

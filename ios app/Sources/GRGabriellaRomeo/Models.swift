@@ -252,6 +252,12 @@ struct FinalizeRequest: Codable {
     let productionPolicyAccepted: Bool
 }
 
+struct ReserveRequest: Codable {
+    let cart: [CheckoutCartItem]
+    let shippingMethod: String
+    let productionPolicyAccepted: Bool
+}
+
 struct CheckoutCartItem: Codable {
     let cartItem = true
     let id: String
@@ -320,6 +326,12 @@ struct ProductionItem: Codable, Identifiable {
 struct FinalizeResponse: Codable {
     let ok: Bool?
     let orderId: String
+    let total: Decimal?
+}
+
+struct ReserveResponse: Codable {
+    let ok: Bool?
+    let tempOrderId: String
     let total: Decimal?
 }
 
