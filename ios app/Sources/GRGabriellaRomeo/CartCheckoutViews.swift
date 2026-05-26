@@ -444,15 +444,22 @@ struct CheckoutField: View {
     var keyboard: UIKeyboardType = .default
 
     var body: some View {
-        TextField(placeholder, text: $text)
+        TextField("", text: $text, prompt: placeholderText)
             .font(.custom("Michroma-Regular", size: 15))
             .foregroundStyle(Color.grGold)
+            .tint(Color.grGold)
             .keyboardType(keyboard)
             .padding(.horizontal, 12)
             .frame(height: 48)
             .background(Color(red: 0.16, green: 0.16, blue: 0.16))
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.grGold.opacity(0.12), lineWidth: 1.2))
+            .accessibilityLabel(placeholder)
+    }
+
+    private var placeholderText: Text {
+        Text(placeholder)
+            .foregroundColor(Color.grGold.opacity(0.62))
     }
 }
 
@@ -461,14 +468,21 @@ struct CheckoutSecureField: View {
     let placeholder: String
 
     var body: some View {
-        SecureField(placeholder, text: $text)
+        SecureField("", text: $text, prompt: placeholderText)
             .font(.custom("Michroma-Regular", size: 15))
             .foregroundStyle(Color.grGold)
+            .tint(Color.grGold)
             .padding(.horizontal, 12)
             .frame(height: 48)
             .background(Color(red: 0.16, green: 0.16, blue: 0.16))
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.grGold.opacity(0.12), lineWidth: 1.2))
+            .accessibilityLabel(placeholder)
+    }
+
+    private var placeholderText: Text {
+        Text(placeholder)
+            .foregroundColor(Color.grGold.opacity(0.62))
     }
 }
 
