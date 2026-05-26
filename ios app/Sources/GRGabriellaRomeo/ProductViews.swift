@@ -220,6 +220,7 @@ struct ProductDetailView: View {
     @Environment(\.dismiss) private var dismiss
     let product: Product
     @State private var showAddedAlert = false
+    @State private var showProductionPolicy = false
     @State private var navigateToCheckout = false
 
     var body: some View {
@@ -299,6 +300,14 @@ struct ProductDetailView: View {
         } message: {
             Text(product.nome)
         }
+        .alert(store.l10n.text(.productionPolicyTitle), isPresented: $showProductionPolicy) {
+            Button(store.l10n.text(.cancel), role: .cancel) {}
+            Button(store.l10n.text(.productionPolicyAccept)) {
+                addProductToCart()
+            }
+        } message: {
+            Text("\(product.nome)\n\n\(store.l10n.text(.productionPolicyBody))")
+        }
         .toolbar(.hidden, for: .navigationBar)
     }
 
@@ -306,8 +315,11 @@ struct ProductDetailView: View {
     private var detailActionButton: some View {
         if product.hasDisplayPrice {
             Button {
-                store.addToCart(product)
-                showAddedAlert = true
+                if product.requiresProduction(for: 1) {
+                    showProductionPolicy = true
+                } else {
+                    addProductToCart()
+                }
             } label: {
                 Text(product.isAvailable ? store.l10n.text(.addToCart) : store.l10n.text(.soldOut))
                     .font(.custom("Michroma-Regular", size: 21))
@@ -336,6 +348,11 @@ struct ProductDetailView: View {
                     .background(Color(red: 0.17, green: 0.38, blue: 0.96))
             }
         }
+    }
+
+    private func addProductToCart() {
+        store.addToCart(product)
+        showAddedAlert = true
     }
 
     private func detailImageHeight(for geometry: GeometryProxy) -> CGFloat {

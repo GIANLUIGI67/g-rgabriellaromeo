@@ -56,12 +56,19 @@ export function formatEuro(value) {
   })}`;
 }
 
-export function isSoldOut(product) {
+export function getAvailableQuantity(product) {
   const quantity = Number(product?.quantita);
-  return Number.isFinite(quantity)
-    && quantity <= 0
-    && !product?.made_to_order
-    && !product?.allow_backorder;
+  return Number.isFinite(quantity) && quantity > 0 ? Math.floor(quantity) : 0;
+}
+
+export function requiresProductionPolicy(product, requestedQuantity = 1) {
+  const requested = Number(requestedQuantity);
+  const safeRequested = Number.isFinite(requested) && requested > 0 ? Math.ceil(requested) : 1;
+  return safeRequested > getAvailableQuantity(product);
+}
+
+export function isSoldOut(product) {
+  return product?.disponibile === false;
 }
 
 export const priceOnRequestText = {

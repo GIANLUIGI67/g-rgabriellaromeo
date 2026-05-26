@@ -473,6 +473,114 @@ body * {
   width: min(100%, 18rem) !important;
 }
 
+.gr-production-policy-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 12000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: calc(env(safe-area-inset-top, 0px) + 1rem) 1rem calc(env(safe-area-inset-bottom, 0px) + 1rem) !important;
+  background: rgba(0, 0, 0, 0.78) !important;
+}
+
+.gr-production-policy-card {
+  position: relative !important;
+  width: min(100%, 28rem) !important;
+  max-height: calc(100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 2rem) !important;
+  overflow-y: auto !important;
+  padding: 1.15rem !important;
+  border: 1px solid var(--gr-gold) !important;
+  border-radius: 0.45rem !important;
+  background: #fff !important;
+  color: #050505 !important;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.34) !important;
+}
+
+.gr-production-policy-card,
+.gr-production-policy-card * {
+  font-family: Michroma, sans-serif !important;
+  color: #050505 !important;
+}
+
+.gr-production-policy-card h2 {
+  margin: 0 2rem 0.8rem 0 !important;
+  font-size: clamp(1rem, 4.2vw, 1.25rem) !important;
+  line-height: 1.25 !important;
+}
+
+.gr-production-policy-card p {
+  margin: 0 0 0.85rem !important;
+  font-size: 0.82rem !important;
+  line-height: 1.48 !important;
+}
+
+.gr-production-policy-close {
+  position: absolute !important;
+  top: 0.7rem !important;
+  right: 0.75rem !important;
+  border: 0 !important;
+  background: transparent !important;
+  font-size: 1.2rem !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+}
+
+.gr-production-policy-product {
+  display: grid !important;
+  gap: 0.35rem !important;
+  padding: 0.65rem !important;
+  border: 1px solid rgba(0, 0, 0, 0.14) !important;
+  border-radius: 0.35rem !important;
+  background: #f8f8f8 !important;
+}
+
+.gr-production-policy-check {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 0.55rem !important;
+  margin: 0.9rem 0 1rem !important;
+  font-size: 0.78rem !important;
+  line-height: 1.35 !important;
+}
+
+.gr-production-policy-check input {
+  width: 1rem !important;
+  height: 1rem !important;
+  margin-top: 0.1rem !important;
+  accent-color: var(--gr-gold) !important;
+  flex: 0 0 auto !important;
+}
+
+.gr-production-policy-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 0.65rem !important;
+  flex-wrap: wrap !important;
+}
+
+.gr-production-policy-actions button {
+  min-height: 2.45rem !important;
+  padding: 0.55rem 0.85rem !important;
+  border: 1px solid #050505 !important;
+  border-radius: 0.35rem !important;
+  background: #fff !important;
+  color: #050505 !important;
+  font-size: 0.76rem !important;
+  line-height: 1.15 !important;
+  cursor: pointer !important;
+}
+
+.gr-production-policy-actions button:last-child {
+  background: #050505 !important;
+  color: var(--gr-gold) !important;
+}
+
+.gr-production-policy-actions button:disabled {
+  opacity: 0.42 !important;
+  cursor: not-allowed !important;
+}
+
 @media (min-width: 641px) {
   .gr-gallery-page {
     padding-left: clamp(2rem, 4vw, 4.5rem) !important;

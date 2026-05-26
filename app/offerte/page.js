@@ -8,11 +8,13 @@ import { addProductToCart, getCartItemCount, getCartQuantityForProduct, loadCart
 import { getPublicImageUrl } from '../lib/storageUrl';
 import Image from 'next/image';
 import ProductPrice from '../../components/ProductPrice';
+import ProductionPolicyDialog from '../../components/ProductionPolicyDialog';
 import {
   buildPriceRequestHref,
   getAddedToCartText,
   getRequestPriceText,
   hasDisplayPrice,
+  requiresProductionPolicy,
 } from '../lib/productDisplay';
 
 function OffertePageContent() {
@@ -24,6 +26,7 @@ function OffertePageContent() {
   const [quantita, setQuantita] = useState({});
   const [carrello, setCarrello] = useState([]);
   const [popupImg, setPopupImg] = useState(null);
+  const [pendingProductionItem, setPendingProductionItem] = useState(null);
   const [cartNotice, setCartNotice] = useState('');
 
   const traduzioni = {
@@ -67,15 +70,25 @@ function OffertePageContent() {
     }));
   };
 
-  const aggiungiAlCarrello = (prodotto) => {
-    if (!hasDisplayPrice(prodotto)) return;
-
-    const qta = quantita[prodotto.id] || 1;
+  const aggiungiProdottoAlCarrello = (prodotto, qta) => {
     const nuovoCarrello = addProductToCart(carrello, prodotto, qta);
     setCarrello(nuovoCarrello);
     saveCartToStorage(nuovoCarrello);
     setCartNotice(getAddedToCartText(lang));
     window.setTimeout(() => setCartNotice(''), 2200);
+    return true;
+  };
+
+  const aggiungiAlCarrello = (prodotto) => {
+    if (!hasDisplayPrice(prodotto)) return false;
+
+    const qta = quantita[prodotto.id] || 1;
+    if (requiresProductionPolicy(prodotto, qta)) {
+      setPendingProductionItem({ prodotto, qta });
+      return false;
+    }
+
+    return aggiungiProdottoAlCarrello(prodotto, qta);
   };
 
   const rimuoviDalCarrello = (prodottoId) => {
@@ -309,6 +322,20 @@ function OffertePageContent() {
           {cartNotice}
         </div>
       )}
+
+      <ProductionPolicyDialog
+        open={Boolean(pendingProductionItem)}
+        lang={lang}
+        productName={pendingProductionItem?.prodotto?.nome}
+        quantity={pendingProductionItem?.qta || 1}
+        onCancel={() => setPendingProductionItem(null)}
+        onAccept={() => {
+          if (pendingProductionItem) {
+            aggiungiProdottoAlCarrello(pendingProductionItem.prodotto, pendingProductionItem.qta);
+          }
+          setPendingProductionItem(null);
+        }}
+      />
     </main>
   );
 }

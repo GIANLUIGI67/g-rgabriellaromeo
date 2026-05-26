@@ -93,16 +93,7 @@ struct Product: Identifiable, Codable, Hashable {
     }
 
     var isSoldOut: Bool {
-        if disponibile == false {
-            return true
-        }
-        if madeToOrder == true || allowBackorder == true {
-            return false
-        }
-        if let quantita {
-            return quantita <= 0
-        }
-        return false
+        disponibile == false
     }
 
     var isAvailable: Bool {

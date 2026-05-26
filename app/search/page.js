@@ -6,6 +6,7 @@ import { ShoppingCart } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { getPublicImageUrl } from '../lib/storageUrl';
 import ProductPrice from '../../components/ProductPrice';
+import ProductionPolicyDialog from '../../components/ProductionPolicyDialog';
 import {
   addProductToCart, getCartItemCount,
   loadCartFromStorage, saveCartToStorage,
@@ -16,6 +17,7 @@ import {
   getRequestPriceText,
   hasDisplayPrice,
   isSoldOut,
+  requiresProductionPolicy,
 } from '../lib/productDisplay';
 
 const tr = {
@@ -120,6 +122,7 @@ function SearchContent() {
   const [loading, setLoading] = useState(false);
   const [cercato, setCercato] = useState(false);
   const [carrello, setCarrello] = useState([]);
+  const [pendingProductionItem, setPendingProductionItem] = useState(null);
   const [cartNotice, setCartNotice] = useState('');
   const debounceRef = useRef(null);
 
@@ -147,14 +150,24 @@ function SearchContent() {
     }, 350);
   }, [query]);
 
-  const aggiungi = (prodotto) => {
-    if (!hasDisplayPrice(prodotto)) return;
-
+  const aggiungiProdotto = (prodotto) => {
     const nuovo = addProductToCart(carrello, prodotto, 1);
     setCarrello(nuovo);
     saveCartToStorage(nuovo);
     setCartNotice(getAddedToCartText(lang));
     window.setTimeout(() => setCartNotice(''), 2200);
+    return true;
+  };
+
+  const aggiungi = (prodotto) => {
+    if (!hasDisplayPrice(prodotto)) return false;
+
+    if (requiresProductionPolicy(prodotto, 1)) {
+      setPendingProductionItem({ prodotto, qta: 1 });
+      return false;
+    }
+
+    return aggiungiProdotto(prodotto);
   };
 
   const cartCount = getCartItemCount(carrello);
@@ -271,6 +284,19 @@ function SearchContent() {
           {cartNotice}
         </div>
       )}
+      <ProductionPolicyDialog
+        open={Boolean(pendingProductionItem)}
+        lang={lang}
+        productName={pendingProductionItem?.prodotto?.nome}
+        quantity={pendingProductionItem?.qta || 1}
+        onCancel={() => setPendingProductionItem(null)}
+        onAccept={() => {
+          if (pendingProductionItem) {
+            aggiungiProdotto(pendingProductionItem.prodotto);
+          }
+          setPendingProductionItem(null);
+        }}
+      />
     </main>
   );
 }

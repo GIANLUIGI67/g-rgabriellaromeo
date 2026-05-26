@@ -84,10 +84,7 @@ data class Product(
     }
     val hasDisplayPrice: Boolean get() = prezzoEffettivo > 0.0
     val hasDiscount: Boolean get() = prezzoScontato != null || (sconto != null && sconto > 0)
-    val isSoldOut: Boolean get() {
-        val stock = quantita
-        return !disponibile || (stock != null && stock <= 0 && madeToOrder != true && allowBackorder != true)
-    }
+    val isSoldOut: Boolean get() = !disponibile
     val isAvailable: Boolean get() = !isSoldOut
     fun requiresProduction(quantity: Int): Boolean = quantity > (quantita ?: 0)
 }

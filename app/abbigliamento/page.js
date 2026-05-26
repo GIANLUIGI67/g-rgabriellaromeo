@@ -8,12 +8,14 @@ import { addProductToCart, getCartItemCount, loadCartFromStorage, removeProductF
 import { getPublicImageUrl } from '../lib/storageUrl';
 import { Suspense } from 'react';
 import ProductPrice from '../../components/ProductPrice';
+import ProductionPolicyDialog from '../../components/ProductionPolicyDialog';
 import {
   buildPriceRequestHref,
   getAddedToCartText,
   getRequestPriceText,
   hasDisplayPrice,
   isSoldOut,
+  requiresProductionPolicy,
 } from '../lib/productDisplay';
 
 function AbbigliamentoPage() {
@@ -27,9 +29,7 @@ function AbbigliamentoPage() {
   const [carrello, setCarrello] = useState([]);
   const [popupProdotto, setPopupProdotto] = useState(null);
   const [immagineAttiva, setImmagineAttiva] = useState('');
-  const [showPolicy, setShowPolicy] = useState(false);
-  const [erroreQuantita, setErroreQuantita] = useState(false);
-  const [accettaPolicy, setAccettaPolicy] = useState(false);
+  const [pendingProductionItem, setPendingProductionItem] = useState(null);
   const [cartNotice, setCartNotice] = useState('');
 
   const traduzioni = {
@@ -198,15 +198,25 @@ function AbbigliamentoPage() {
     }));
   };
 
-  const aggiungiAlCarrello = (prodotto) => {
-    if (!hasDisplayPrice(prodotto)) return;
-
-    const qta = quantita[prodotto.id] || 1;
+  const aggiungiProdottoAlCarrello = (prodotto, qta) => {
     const nuovoCarrello = addProductToCart(carrello, prodotto, qta);
     setCarrello(nuovoCarrello);
     saveCartToStorage(nuovoCarrello);
     setCartNotice(getAddedToCartText(lang));
     window.setTimeout(() => setCartNotice(''), 2200);
+    return true;
+  };
+
+  const aggiungiAlCarrello = (prodotto) => {
+    if (!hasDisplayPrice(prodotto)) return false;
+
+    const qta = quantita[prodotto.id] || 1;
+    if (requiresProductionPolicy(prodotto, qta)) {
+      setPendingProductionItem({ prodotto, qta });
+      return false;
+    }
+
+    return aggiungiProdottoAlCarrello(prodotto, qta);
   };
 
   const rimuoviDalCarrello = (prodottoId) => {
@@ -475,8 +485,9 @@ function AbbigliamentoPage() {
                     disabled={isSoldOut(popupProdotto)}
                     onClick={(e) => {
                       e.stopPropagation();
-                      aggiungiAlCarrello(popupProdotto);
-                      setPopupProdotto(null);
+                      if (aggiungiAlCarrello(popupProdotto)) {
+                        setPopupProdotto(null);
+                      }
                     }}
                     style={{
                       padding: '0.5rem 1rem',
@@ -524,6 +535,22 @@ function AbbigliamentoPage() {
         </div>
       )}
 
+      <ProductionPolicyDialog
+        open={Boolean(pendingProductionItem)}
+        lang={lang}
+        productName={pendingProductionItem?.prodotto?.nome}
+        quantity={pendingProductionItem?.qta || 1}
+        onCancel={() => setPendingProductionItem(null)}
+        onAccept={() => {
+          if (pendingProductionItem) {
+            aggiungiProdottoAlCarrello(pendingProductionItem.prodotto, pendingProductionItem.qta);
+          }
+          setPendingProductionItem(null);
+          setPopupProdotto(null);
+          setImmagineAttiva('');
+        }}
+      />
+
       {cartNotice && (
         <div className="gr-product-toast" role="status" aria-live="polite">
           {cartNotice}
@@ -547,111 +574,6 @@ function AbbigliamentoPage() {
           {t('indietro')}
         </button>
       </div>
-      {erroreQuantita && (
-        <div style={{
-          marginTop: '1rem',
-          backgroundColor: '#ffcccc',
-          color: 'red',
-          padding: '1rem',
-          borderRadius: '6px',
-          fontSize: '0.85rem',
-          maxWidth: '420px',
-          textAlign: 'center',
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          position: 'relative'
-        }}>
-          <button
-            onClick={() => setErroreQuantita(false)}
-            style={{
-              position: 'absolute',
-              top: '5px',
-              right: '10px',
-              background: 'none',
-              border: 'none',
-              color: 'red',
-              fontSize: '1rem',
-              cursor: 'pointer'
-            }}
-          >
-            ✕
-          </button>
-          {t('erroreQuantita')}
-        </div>
-      )}
-
-      {/* Policy section commented out for future use */}
-      {/* {showPolicy && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.8)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            color: 'black',
-            padding: '2rem',
-            borderRadius: '10px',
-            width: '90%',
-            maxWidth: '400px',
-            textAlign: 'center',
-            position: 'relative'
-          }}>
-            <button onClick={() => setShowPolicy(false)} style={{
-              position: 'absolute',
-              top: '10px',
-              right: '10px',
-              background: 'none',
-              border: 'none',
-              fontSize: '1.2rem',
-              cursor: 'pointer'
-            }}>✕</button>
-            <h2 style={{ marginBottom: '1rem' }}>{t('policyTitolo')}</h2>
-            <label style={{ fontSize: '0.9rem' }}>
-              <input
-                type="checkbox"
-                checked={accettaPolicy}
-                onChange={() => setAccettaPolicy(!accettaPolicy)}
-                style={{ marginRight: '0.5rem' }}
-              />
-              {t('accetta')}
-            </label>
-            <div style={{ marginTop: '1rem' }}>
-              <button
-                disabled={!accettaPolicy}
-                onClick={() => {
-                  setShowPolicy(false);
-                  setErroreQuantita(false);
-                  setAccettaPolicy(false);
-                  const prodottoDaAggiungere = prodotti.find(p => quantita[p.id] > p.quantita);
-                  if (prodottoDaAggiungere) {
-                    const qta = quantita[prodottoDaAggiungere.id];
-                    const nuovoCarrello = [...carrello, ...Array(qta).fill(prodottoDaAggiungere)];
-                    setCarrello(nuovoCarrello);
-                    localStorage.setItem('carrello', JSON.stringify(nuovoCarrello));
-                  }
-                }}
-                style={{
-                  backgroundColor: accettaPolicy ? 'green' : 'gray',
-                  color: 'white',
-                  padding: '0.5rem 1rem',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: accettaPolicy ? 'pointer' : 'not-allowed',
-                  marginTop: '1rem',
-                  fontSize: '0.9rem'
-                }}
-              >
-                {t('continua')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
     </main>
   );
 }

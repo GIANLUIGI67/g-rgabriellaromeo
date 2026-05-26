@@ -47,7 +47,61 @@ fun ProductDetailSheet(
     var selectedTaglia by remember { mutableStateOf(taglie.firstOrNull()) }
     var selectedColore by remember { mutableStateOf(colori.firstOrNull()) }
     var quantity by remember { mutableIntStateOf(1) }
+    var pendingProductionItem by remember { mutableStateOf<CartItem?>(null) }
     val uriHandler = LocalUriHandler.current
+
+    fun buildCartItem() = CartItem(
+        productId = product.id,
+        name = product.getName(lang),
+        price = product.prezzoEffettivo,
+        imageUrl = product.immagine,
+        quantity = quantity,
+        taglia = selectedTaglia,
+        colore = selectedColore,
+        availableQuantity = product.quantita,
+        madeToOrder = product.madeToOrder == true,
+        allowBackorder = product.allowBackorder == true,
+        disponibile = product.disponibile,
+        offerta = product.offerta,
+        sconto = product.sconto ?: 0.0
+    )
+
+    pendingProductionItem?.let { item ->
+        AlertDialog(
+            onDismissRequest = { pendingProductionItem = null },
+            containerColor = Color.White,
+            title = {
+                Text(
+                    text = Translations.t("policy_produzione_titolo", lang),
+                    color = Color.Black,
+                    fontFamily = Michroma
+                )
+            },
+            text = {
+                Text(
+                    text = "${item.name}\n\n${Translations.t("policy_produzione_testo", lang)}",
+                    color = Color.Black,
+                    lineHeight = 20.sp
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onAddToCart(item)
+                        pendingProductionItem = null
+                        onDismiss()
+                    }
+                ) {
+                    Text(Translations.t("accetto_policy_produzione", lang), color = Color.Black)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingProductionItem = null }) {
+                    Text(Translations.t("annulla", lang), color = Color.Black)
+                }
+            }
+        )
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -240,24 +294,13 @@ fun ProductDetailSheet(
 
                 Button(
                     onClick = {
-                        onAddToCart(
-                            CartItem(
-                                productId = product.id,
-                                name = product.getName(lang),
-                                price = product.prezzoEffettivo,
-                                imageUrl = product.immagine,
-                                quantity = quantity,
-                                taglia = selectedTaglia,
-                                colore = selectedColore,
-                                availableQuantity = product.quantita,
-                                madeToOrder = product.madeToOrder == true,
-                                allowBackorder = product.allowBackorder == true,
-                                disponibile = product.disponibile,
-                                offerta = product.offerta,
-                                sconto = product.sconto ?: 0.0
-                            )
-                        )
-                        onDismiss()
+                        val item = buildCartItem()
+                        if (product.requiresProduction(quantity)) {
+                            pendingProductionItem = item
+                        } else {
+                            onAddToCart(item)
+                            onDismiss()
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
