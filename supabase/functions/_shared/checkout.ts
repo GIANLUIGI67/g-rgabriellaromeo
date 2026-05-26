@@ -18,6 +18,41 @@ function normalizeQuantity(value: unknown) {
   return quantity;
 }
 
+export function buildOrderProductName(cart: unknown[]) {
+  const items = Array.isArray(cart) ? cart : [];
+  return items
+    .map((item: any) => {
+      const name = String(item?.nome || item?.name || '').trim();
+      if (!name) return '';
+
+      const quantity = Number(item?.quantita ?? item?.quantity ?? item?.qty ?? 1);
+      const suffix = Number.isFinite(quantity) && quantity > 1 ? ` x${quantity}` : '';
+      return `${name}${suffix}`;
+    })
+    .filter(Boolean)
+    .join(', ');
+}
+
+function isMissingNameColumnError(error: any) {
+  const message = String(error?.message || '');
+  return /name/i.test(message) && /(schema cache|column|not find|could not find)/i.test(message);
+}
+
+async function insertWithOptionalOrderName(service: any, table: string, record: Record<string, unknown>) {
+  const { error } = await service.from(table).insert([record]);
+  if (!error) return;
+
+  if (Object.prototype.hasOwnProperty.call(record, 'name') && isMissingNameColumnError(error)) {
+    const recordWithoutName = { ...record };
+    delete recordWithoutName.name;
+    const { error: retryError } = await service.from(table).insert([recordWithoutName]);
+    if (!retryError) return;
+    throw retryError;
+  }
+
+  throw error;
+}
+
 export function getShippingCost(shippingMethod: string) {
   if (!(shippingMethod in SHIPPING_COSTS)) {
     throw new Error('Invalid shipping method');
@@ -205,6 +240,7 @@ export async function finalizeCheckout({
   const now = new Date().toISOString();
   const orderDetails = {
     id: generateOrderId(),
+    name: buildOrderProductName(quote.cart),
     cliente: customer,
     carrello: quote.cart,
     spedizione: quote.shippingMethod,
@@ -220,6 +256,7 @@ export async function finalizeCheckout({
 
   const orderRecord = {
     id: orderDetails.id,
+    name: orderDetails.name,
     cliente: orderDetails.cliente,
     carrello: orderDetails.carrello,
     spedizione: orderDetails.spedizione,
@@ -237,8 +274,9 @@ export async function finalizeCheckout({
     if (adjustment) inventoryAdjustments.push(adjustment);
   }
 
-  const { error: orderError } = await service.from('ordini').insert([orderRecord]);
-  if (orderError) {
+  try {
+    await insertWithOptionalOrderName(service, 'ordini', orderRecord);
+  } catch (orderError) {
     await restoreProductInventory(service, inventoryAdjustments);
     throw orderError;
   }

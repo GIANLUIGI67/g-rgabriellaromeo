@@ -85,6 +85,9 @@ export default function OrdiniPage() {
   };
 
   const itemsSummary = (o) => {
+    const storedName = sanitize(o?.name);
+    if (storedName) return storedName;
+
     const items = estraiItems(o);
     if (!items.length) return '—';
     return items

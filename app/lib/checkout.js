@@ -19,6 +19,41 @@ function normalizeQuantity(value) {
   return quantity;
 }
 
+export function buildOrderProductName(cart) {
+  const items = Array.isArray(cart) ? cart : [];
+  return items
+    .map((item) => {
+      const name = String(item?.nome || item?.name || '').trim();
+      if (!name) return '';
+
+      const quantity = Number(item?.quantita ?? item?.quantity ?? item?.qty ?? 1);
+      const suffix = Number.isFinite(quantity) && quantity > 1 ? ` x${quantity}` : '';
+      return `${name}${suffix}`;
+    })
+    .filter(Boolean)
+    .join(', ');
+}
+
+function isMissingNameColumnError(error) {
+  const message = String(error?.message || '');
+  return /name/i.test(message) && /(schema cache|column|not find|could not find)/i.test(message);
+}
+
+async function insertWithOptionalOrderName(service, table, record) {
+  const { error } = await service.from(table).insert([record]);
+  if (!error) return;
+
+  if (Object.prototype.hasOwnProperty.call(record, 'name') && isMissingNameColumnError(error)) {
+    const recordWithoutName = { ...record };
+    delete recordWithoutName.name;
+    const { error: retryError } = await service.from(table).insert([recordWithoutName]);
+    if (!retryError) return;
+    throw retryError;
+  }
+
+  throw error;
+}
+
 export function getShippingCost(shippingMethod) {
   if (!(shippingMethod in SHIPPING_COSTS)) {
     throw new Error('Invalid shipping method');
@@ -203,6 +238,7 @@ export async function createTemporaryOrder({ service, customer, quote, paymentMe
 
   const tempOrder = {
     id,
+    name: buildOrderProductName(quote.cart),
     cliente: customer,
     cliente_email: customer.email,
     carrello: quote.cart,
@@ -218,8 +254,9 @@ export async function createTemporaryOrder({ service, customer, quote, paymentMe
     updated_at: now,
   };
 
-  const { error } = await service.from('ordini_temporanei').insert([tempOrder]);
-  if (error) {
+  try {
+    await insertWithOptionalOrderName(service, 'ordini_temporanei', tempOrder);
+  } catch (error) {
     await restoreProductInventory(service, inventoryAdjustments);
     throw error;
   }
@@ -244,6 +281,7 @@ export async function adminConfirmTemporaryOrder({ service, tempOrderId }) {
   const now = new Date().toISOString();
   const orderRecord = {
     id: tempOrder.id,
+    name: tempOrder.name || buildOrderProductName(tempOrder.carrello),
     cliente: tempOrder.cliente,
     carrello: tempOrder.carrello,
     spedizione: tempOrder.spedizione,
@@ -263,8 +301,7 @@ export async function adminConfirmTemporaryOrder({ service, tempOrderId }) {
     .maybeSingle();
 
   if (!existing) {
-    const { error: insertError } = await service.from('ordini').insert([orderRecord]);
-    if (insertError) throw insertError;
+    await insertWithOptionalOrderName(service, 'ordini', orderRecord);
   }
 
   await service.from('ordini_temporanei').delete().eq('id', tempOrderId);
@@ -324,6 +361,7 @@ export async function finalizeCheckout({
   const now = new Date().toISOString();
   const orderDetails = {
     id: generateOrderId(),
+    name: buildOrderProductName(quote.cart),
     cliente: customer,
     carrello: quote.cart,
     spedizione: quote.shippingMethod,
@@ -339,6 +377,7 @@ export async function finalizeCheckout({
 
   const orderRecord = {
     id: orderDetails.id,
+    name: orderDetails.name,
     cliente: orderDetails.cliente,
     carrello: orderDetails.carrello,
     spedizione: orderDetails.spedizione,
@@ -356,8 +395,9 @@ export async function finalizeCheckout({
     if (adjustment) inventoryAdjustments.push(adjustment);
   }
 
-  const { error: orderError } = await service.from('ordini').insert([orderRecord]);
-  if (orderError) {
+  try {
+    await insertWithOptionalOrderName(service, 'ordini', orderRecord);
+  } catch (orderError) {
     await restoreProductInventory(service, inventoryAdjustments);
     throw orderError;
   }
