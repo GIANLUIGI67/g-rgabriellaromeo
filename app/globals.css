@@ -473,6 +473,66 @@ body * {
   width: min(100%, 18rem) !important;
 }
 
+@media (min-width: 641px) {
+  .gr-gallery-page {
+    padding-left: clamp(2rem, 4vw, 4.5rem) !important;
+    padding-right: clamp(2rem, 4vw, 4.5rem) !important;
+  }
+
+  .gr-product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(17rem, 18.5rem)) !important;
+    justify-content: center !important;
+    justify-items: stretch !important;
+    gap: 2.2rem 1.4rem !important;
+  }
+
+  .gr-product-card {
+    max-width: none !important;
+  }
+
+  .gr-product-image {
+    height: 17rem !important;
+    max-height: none !important;
+  }
+
+  .gr-product-info {
+    display: block !important;
+    padding-top: 0.75rem !important;
+  }
+
+  .gr-product-title {
+    display: block !important;
+    margin-bottom: 0.35rem !important;
+    font-size: 1.05rem !important;
+    line-height: 1.28 !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+
+  .gr-product-meta {
+    margin-bottom: 0.35rem !important;
+    font-size: 0.9rem !important;
+    line-height: 1.25 !important;
+  }
+
+  .gr-product-price {
+    display: block !important;
+    margin-top: 0.25rem !important;
+    font-size: 0.98rem !important;
+    line-height: 1.22 !important;
+    text-align: left !important;
+    white-space: normal !important;
+  }
+
+  .gr-product-price.gr-price-request {
+    max-width: none !important;
+  }
+
+  .gr-price-request-link {
+    display: inline !important;
+  }
+}
+
 .gr-product-modal-quantity button {
   min-width: 2rem !important;
   min-height: 2rem !important;
