@@ -238,6 +238,23 @@ struct SignupPayload: Codable {
     }
 }
 
+struct CustomerProfilePayload: Codable {
+    var email: String?
+    var nome: String?
+    var cognome: String?
+    var paese: String?
+    var citta: String?
+    var indirizzo: String?
+    var codicePostale: String?
+    var telefono1: String?
+    var telefono2: String?
+
+    enum CodingKeys: String, CodingKey {
+        case email, nome, cognome, paese, citta, indirizzo, telefono1, telefono2
+        case codicePostale = "codice_postale"
+    }
+}
+
 struct QuoteRequest: Codable {
     let cart: [CheckoutCartItem]
     let shippingMethod: String
@@ -302,6 +319,11 @@ struct CheckoutCartItem: Codable {
 struct QuoteResponse: Codable {
     let ok: Bool?
     let quote: CheckoutQuote
+}
+
+struct CustomerProfileResponse: Codable {
+    let ok: Bool?
+    let customer: CustomerProfile
 }
 
 struct CheckoutQuote: Codable {

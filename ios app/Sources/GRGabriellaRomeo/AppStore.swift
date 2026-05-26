@@ -125,6 +125,13 @@ final class AppStore: ObservableObject {
         }
     }
 
+    func ensureCustomerProfile(_ payload: CustomerProfilePayload) async throws {
+        let saved = try await withAuthenticatedToken { accessToken in
+            try await APIClient.shared.saveCustomerProfile(payload, accessToken: accessToken)
+        }
+        customer = saved
+    }
+
     func confirmBankTransfer(shippingMethod: String, productionPolicyAccepted: Bool) async throws -> FinalizeResponse {
         let result = try await withAuthenticatedToken { accessToken in
             try await APIClient.shared.reserveBankTransfer(

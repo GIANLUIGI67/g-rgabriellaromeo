@@ -331,6 +331,7 @@ struct CheckoutView: View {
     private func loadQuote() async {
         guard store.session != nil, !store.cart.isEmpty else { return }
         do {
+            try await store.ensureCustomerProfile(currentProfilePayload())
             quote = try await store.requestQuote(shippingMethod: shippingMethod)
             if quote?.productionPolicyRequired != true {
                 isProductionPolicyAccepted = false
@@ -344,6 +345,7 @@ struct CheckoutView: View {
         isSubmitting = true
         defer { isSubmitting = false }
         do {
+            try await store.ensureCustomerProfile(currentProfilePayload())
             let result = try await store.confirmBankTransfer(
                 shippingMethod: shippingMethod,
                 productionPolicyAccepted: isProductionPolicyAccepted
@@ -396,6 +398,27 @@ struct CheckoutView: View {
         } catch {
             store.errorMessage = error.localizedDescription
         }
+    }
+
+    private func currentProfilePayload() -> CustomerProfilePayload {
+        CustomerProfilePayload(
+            email: store.session?.user.email ?? store.customer?.email ?? email.trimmedNonEmpty,
+            nome: nome.trimmedNonEmpty ?? store.customer?.nome,
+            cognome: cognome.trimmedNonEmpty ?? store.customer?.cognome,
+            paese: paese.trimmedNonEmpty ?? store.customer?.paese,
+            citta: citta.trimmedNonEmpty ?? store.customer?.citta,
+            indirizzo: indirizzo.trimmedNonEmpty ?? store.customer?.indirizzo,
+            codicePostale: codicePostale.trimmedNonEmpty ?? store.customer?.codicePostale,
+            telefono1: telefono1.trimmedNonEmpty ?? store.customer?.telefono1,
+            telefono2: telefono2.trimmedNonEmpty ?? store.customer?.telefono2
+        )
+    }
+}
+
+private extension String {
+    var trimmedNonEmpty: String? {
+        let value = trimmingCharacters(in: .whitespacesAndNewlines)
+        return value.isEmpty ? nil : value
     }
 }
 

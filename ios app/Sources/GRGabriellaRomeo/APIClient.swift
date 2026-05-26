@@ -86,6 +86,16 @@ final class APIClient {
         return profiles.first
     }
 
+    func saveCustomerProfile(_ payload: CustomerProfilePayload, accessToken: String) async throws -> CustomerProfile {
+        var request = URLRequest(url: AppConfig.webAPIBaseURL.appending(path: "api/auth/profile"))
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        request.httpBody = try jsonEncoder.encode(payload)
+        let response: CustomerProfileResponse = try await send(request)
+        return response.customer
+    }
+
     func quote(cart: [CartItem], shippingMethod: String, accessToken: String) async throws -> CheckoutQuote {
         let payload = QuoteRequest(cart: cart.map(CheckoutCartItem.init(item:)), shippingMethod: shippingMethod)
         var request = URLRequest(url: AppConfig.webAPIBaseURL.appending(path: "api/checkout/quote"))
