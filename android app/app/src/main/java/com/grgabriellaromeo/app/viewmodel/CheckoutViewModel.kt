@@ -68,6 +68,10 @@ class CheckoutViewModel : ViewModel() {
         }
     }
 
+    fun resetState() {
+        _state.value = CheckoutState.Idle
+    }
+
     fun refreshQuote(items: List<CartItem>) {
         val token = authRepo.currentAccessToken()
         if (token == null || items.isEmpty()) {

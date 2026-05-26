@@ -156,7 +156,7 @@ fun GRNavGraph() {
                         authVm = authVm,
                         cartVm = cartVm,
                         checkoutVm = checkoutVm,
-                        onConfirmed = { navController.navigate(Screen.OrdineConfermato.route) },
+                        onContinueToPayment = { navController.navigate(Screen.Pagamento.route) },
                         onLoginRequired = { showAuth = true }
                     )
                 }

@@ -29,7 +29,7 @@ fun CheckoutScreen(
     authVm: AuthViewModel,
     cartVm: CartViewModel,
     checkoutVm: CheckoutViewModel,
-    onConfirmed: () -> Unit,
+    onContinueToPayment: () -> Unit,
     onLoginRequired: () -> Unit
 ) {
     val authState by authVm.state.collectAsState()
@@ -56,12 +56,10 @@ fun CheckoutScreen(
         cliente?.let { checkoutVm.prefillFromCliente(it) }
     }
 
-    LaunchedEffect(checkoutState) {
-        if (checkoutState is CheckoutState.Success) {
-            cartVm.clear()
-            onConfirmed()
-        }
+    LaunchedEffect(Unit) {
+        checkoutVm.resetState()
     }
+
     LaunchedEffect(items) {
         checkoutVm.refreshQuote(items)
     }
@@ -177,7 +175,23 @@ fun CheckoutScreen(
         Button(
             onClick = {
                 authVm.currentUserId() ?: return@Button
-                checkoutVm.submitOrder(items)
+                cliente?.let {
+                    authVm.updateCliente(
+                        it.copy(
+                            nome = nome,
+                            cognome = cognome,
+                            email = email,
+                            telefono1 = telefono.trim().takeIf { value -> value.isNotEmpty() },
+                            indirizzo = indirizzo.trim().takeIf { value -> value.isNotEmpty() },
+                            citta = citta.trim().takeIf { value -> value.isNotEmpty() },
+                            codicePostale = cap.trim().takeIf { value -> value.isNotEmpty() },
+                            provincia = provincia.trim().takeIf { value -> value.isNotEmpty() },
+                            paese = nazione.trim().takeIf { value -> value.isNotEmpty() }
+                        )
+                    )
+                }
+                checkoutVm.resetState()
+                onContinueToPayment()
             },
             modifier = Modifier.fillMaxWidth().height(50.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = Color.Black),
@@ -186,7 +200,7 @@ fun CheckoutScreen(
             if (checkoutState is CheckoutState.Loading) {
                 CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.Black)
             } else {
-                Text(Translations.t("conferma", lang), letterSpacing = 1.sp)
+                Text(Translations.t("pagamento", lang), letterSpacing = 1.sp)
             }
         }
 

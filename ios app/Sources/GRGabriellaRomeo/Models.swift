@@ -276,7 +276,7 @@ struct ReserveRequest: Codable {
 }
 
 struct CheckoutCartItem: Codable {
-    let cartItem = true
+    let cartItem: Bool
     let id: String
     let nome: String
     let immagine: String?
@@ -299,6 +299,7 @@ struct CheckoutCartItem: Codable {
     }
 
     init(item: CartItem) {
+        cartItem = true
         id = item.product.id
         nome = item.product.nome
         immagine = item.product.immagine
@@ -314,6 +315,25 @@ struct CheckoutCartItem: Codable {
         sconto = item.product.sconto ?? 0
         quantita = item.quantity
     }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        cartItem = try container.decodeIfPresent(Bool.self, forKey: .cartItem) ?? true
+        id = try container.decodeFlexibleString(forKey: .id)
+        nome = try container.decodeIfPresent(String.self, forKey: .nome) ?? ""
+        immagine = try container.decodeIfPresent(String.self, forKey: .immagine)
+        prezzo = try container.decodeFlexibleDecimal(forKey: .prezzo)
+        taglia = try container.decodeIfPresent(String.self, forKey: .taglia)
+        descrizione = try container.decodeIfPresent(String.self, forKey: .descrizione)
+        categoria = try container.decodeIfPresent(String.self, forKey: .categoria)
+        sottocategoria = try container.decodeIfPresent(String.self, forKey: .sottocategoria)
+        disponibile = try container.decodeIfPresent(Bool.self, forKey: .disponibile)
+        madeToOrder = try container.decodeIfPresent(Bool.self, forKey: .madeToOrder) ?? false
+        allowBackorder = try container.decodeIfPresent(Bool.self, forKey: .allowBackorder) ?? false
+        offerta = try container.decodeIfPresent(Bool.self, forKey: .offerta) ?? false
+        sconto = try container.decodeFlexibleDecimalIfPresent(forKey: .sconto) ?? 0
+        quantita = try container.decodeIfPresent(Int.self, forKey: .quantita) ?? 1
+    }
 }
 
 struct QuoteResponse: Codable {
@@ -323,7 +343,7 @@ struct QuoteResponse: Codable {
 
 struct CustomerProfileResponse: Codable {
     let ok: Bool?
-    let customer: CustomerProfile
+    let customer: CustomerProfile?
 }
 
 struct CheckoutQuote: Codable {

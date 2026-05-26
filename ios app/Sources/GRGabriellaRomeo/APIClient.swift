@@ -93,7 +93,15 @@ final class APIClient {
         request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         request.httpBody = try jsonEncoder.encode(payload)
         let response: CustomerProfileResponse = try await send(request)
-        return response.customer
+        if let customer = response.customer {
+            return customer
+        }
+        if let email = payload.email {
+            if let customer = try await fetchCustomer(email: email, accessToken: accessToken) {
+                return customer
+            }
+        }
+        throw AppError.server("Profilo cliente non disponibile. Completa i dati account e riprova.")
     }
 
     func quote(cart: [CartItem], shippingMethod: String, accessToken: String) async throws -> CheckoutQuote {
@@ -163,7 +171,20 @@ final class APIClient {
         if data.isEmpty {
             return EmptyResponse() as! T
         }
-        return try jsonDecoder.decode(T.self, from: data)
+        do {
+            return try jsonDecoder.decode(T.self, from: data)
+        } catch {
+            let body = String(data: data, encoding: .utf8) ?? ""
+            if let apiError = try? jsonDecoder.decode(APIErrorResponse.self, from: data),
+               let message = apiError.displayMessage,
+               !message.isEmpty {
+                throw AppError.server(message)
+            }
+            let message = body.isEmpty
+                ? "Risposta server incompleta."
+                : "Risposta server incompleta: \(body.prefix(220))"
+            throw AppError.server(message)
+        }
     }
 
     private func isSessionExpired(statusCode: Int, data: Data) -> Bool {

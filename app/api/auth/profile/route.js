@@ -88,6 +88,7 @@ export async function POST(request) {
 
     const { data: customer, error } = await query;
     if (error) throw error;
+    if (!customer) throw new Error('Customer profile could not be saved');
 
     return jsonResponse({ ok: true, customer });
   } catch (error) {
