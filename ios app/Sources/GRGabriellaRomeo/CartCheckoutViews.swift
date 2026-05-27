@@ -1,4 +1,5 @@
 import SwiftUI
+import SafariServices
 
 struct CartView: View {
     @EnvironmentObject private var store: AppStore
@@ -30,12 +31,10 @@ struct CheckoutView: View {
     @State private var codicePostale = ""
     @State private var telefono1 = ""
     @State private var telefono2 = ""
-    @State private var shippingMethod = "ritiro"
+    @State private var shippingMethod = ""
     @State private var quote: CheckoutQuote?
-    @State private var isAccepted = false
-    @State private var isProductionPolicyAccepted = false
     @State private var isSubmitting = false
-    @State private var confirmedOrder: ConfirmedOrderRoute?
+    @State private var webCheckoutRoute: WebCheckoutRoute?
     @State private var infoMessage: String?
     @State private var checkoutError: String?
     @State private var selectedPaymentMethod: CheckoutPaymentMethod = .bankTransfer
@@ -102,8 +101,9 @@ struct CheckoutView: View {
         .onChange(of: store.customer?.email) { _, _ in
             syncProfileFieldsFromStore()
         }
-        .navigationDestination(item: $confirmedOrder) { order in
-            OrderConfirmedView(orderId: order.id, isBankTransfer: order.isBankTransfer)
+        .sheet(item: $webCheckoutRoute) { route in
+            InAppCheckoutBrowser(url: route.url)
+                .ignoresSafeArea()
         }
     }
 
@@ -265,20 +265,19 @@ struct CheckoutView: View {
                 CheckoutField(text: $telefono2, placeholder: "Telefono 2", keyboard: .phonePad)
             }
 
-            if selectedPaymentMethod == .bankTransfer {
-                Text(store.l10n.text(.shipping)).webSectionTitle()
+            Text(store.l10n.text(.shipping)).webSectionTitle()
 
-                Picker(store.l10n.text(.shipping), selection: $shippingMethod) {
-                    Text(store.l10n.text(.storePickup)).tag("ritiro")
-                    Text("\(store.l10n.text(.standardShipping)) (5\(euroSymbol))").tag("standard")
-                    Text("\(store.l10n.text(.expressShipping)) (10\(euroSymbol))").tag("express")
-                }
-                .pickerStyle(.menu)
-                .tint(.white)
-                .padding()
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.grGold.opacity(0.35)))
+            Picker(store.l10n.text(.shipping), selection: $shippingMethod) {
+                Text("-- Seleziona --").tag("")
+                Text(store.l10n.text(.storePickup)).tag("ritiro")
+                Text("\(store.l10n.text(.standardShipping)) (5\(euroSymbol))").tag("standard")
+                Text("\(store.l10n.text(.expressShipping)) (10\(euroSymbol))").tag("express")
             }
+            .pickerStyle(.menu)
+            .tint(.white)
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.grGold.opacity(0.35)))
 
             Text(store.l10n.text(.payment)).webSectionTitle()
 
@@ -292,103 +291,34 @@ struct CheckoutView: View {
                 paymentMethodButton(title: store.l10n.text(.bankTransfer), method: .bankTransfer)
             }
 
-            if selectedPaymentMethod == .bankTransfer {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(store.l10n.text(.bankTransfer))
-                    Text("IBAN: IT10 Y050 3426 2010 0000 0204 438")
-                    Text("Intestato a: G-R Gabriella Romeo")
-                    Text("Causale: Ordine GR")
-                }
-                .font(.custom("Michroma-Regular", size: 12))
-                .foregroundStyle(Color.grGold.opacity(0.8))
-                .padding()
-                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.grGold.opacity(0.25)))
-            } else {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(selectedPaymentMethod == .paypal ? "PayPal" : "Carta di Credito")
-                        .foregroundStyle(Color.grGold)
-                    Text("Per completare in modo sicuro questo pagamento, verrai reindirizzato al checkout web ufficiale.")
-                        .foregroundStyle(Color.grGold.opacity(0.8))
-                }
-                .font(.custom("Michroma-Regular", size: 12))
-                .padding()
-                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.grGold.opacity(0.25)))
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Checkout")
+                    .foregroundStyle(Color.grGold)
+                Text("La schermata successiva è identica al checkout desktop e usa le stesse chiamate backend.")
+                    .foregroundStyle(Color.grGold.opacity(0.8))
             }
+            .font(.custom("Michroma-Regular", size: 12))
+            .padding()
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.grGold.opacity(0.25)))
 
-            if selectedPaymentMethod == .bankTransfer, quote?.productionPolicyRequired == true {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Policy di produzione")
+            Button {
+                Task { await continueToWebCheckout() }
+            } label: {
+                if isSubmitting {
+                    ProgressView().tint(.white)
+                } else {
+                    Text("Continua al checkout")
                         .font(.custom("Michroma-Regular", size: 15))
-                        .foregroundStyle(Color.grGold)
-                    Text("Uno o più prodotti non sono disponibili in pronta consegna. Confermando la policy accetti che l'ordine venga prodotto e che i tempi di evasione dipendano dalla produzione.")
-                        .font(.custom("Michroma-Regular", size: 13))
-                        .foregroundStyle(Color.grGold.opacity(0.82))
-                    if let items = quote?.productionItems, !items.isEmpty {
-                        Text(items.map(\.nome).joined(separator: ", "))
-                            .font(.custom("Michroma-Regular", size: 13))
-                            .foregroundStyle(Color.grGold)
-                    }
-                    Toggle("Accetto la policy di produzione", isOn: $isProductionPolicyAccepted)
-                        .font(.custom("Michroma-Regular", size: 13))
-                        .foregroundStyle(Color.grGold.opacity(0.86))
-                        .tint(.blue)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.62)
                 }
-                .padding()
-                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.grGold.opacity(0.35)))
             }
-
-            if selectedPaymentMethod == .bankTransfer {
-                Text(store.l10n.text(.bankTransferShippingNotice))
-                    .font(.custom("Michroma-Regular", size: 12))
-                    .foregroundStyle(Color.grGold.opacity(0.82))
-                    .lineSpacing(3)
-                    .padding(10)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.grGold.opacity(0.25)))
-
-                Toggle(store.l10n.text(.terms), isOn: $isAccepted)
-                    .font(.custom("Michroma-Regular", size: 12))
-                    .foregroundStyle(Color.grGold.opacity(0.82))
-                    .tint(.blue)
-
-                Button {
-                    Task { await confirm() }
-                } label: {
-                    if isSubmitting {
-                        ProgressView().tint(.white)
-                    } else {
-                        Text(store.l10n.text(.confirmBankTransfer))
-                            .font(.custom("Michroma-Regular", size: 15))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.62)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 48)
-                .foregroundStyle(Color.grGold)
-                .background(isSubmitting ? Color.green.opacity(0.35) : Color.green.opacity(0.72))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .disabled(isSubmitting)
-            } else {
-                Button {
-                    Task { await continueToWebCheckout() }
-                } label: {
-                    if isSubmitting {
-                        ProgressView().tint(.white)
-                    } else {
-                        Text(selectedPaymentMethod == .paypal ? "Continua con PayPal" : "Continua con Carta")
-                            .font(.custom("Michroma-Regular", size: 15))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.62)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 48)
-                .foregroundStyle(Color.grGold)
-                .background(isSubmitting ? Color.blue.opacity(0.35) : Color.blue.opacity(0.72))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .disabled(isSubmitting)
-            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 48)
+            .foregroundStyle(Color.grGold)
+            .background(isSubmitting ? Color.blue.opacity(0.35) : Color.blue.opacity(0.72))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .disabled(isSubmitting)
         }
     }
 
@@ -457,19 +387,19 @@ struct CheckoutView: View {
     }
 
     private func loadQuote() async {
-        guard store.session != nil, !store.cart.isEmpty else { return }
+        guard store.session != nil, !store.cart.isEmpty, shippingMethod.trimmedNonEmpty != nil else {
+            quote = nil
+            return
+        }
         do {
             try await store.ensureCustomerProfile(currentProfilePayload())
             quote = try await store.requestQuote(shippingMethod: shippingMethod)
-            if quote?.productionPolicyRequired != true {
-                isProductionPolicyAccepted = false
-            }
         } catch {
             store.errorMessage = error.localizedDescription
         }
     }
 
-    private func validateCheckoutInputs(requireBankTransferAcceptance: Bool) -> Bool {
+    private func validateCheckoutInputs() -> Bool {
         guard store.session != nil else {
             checkoutError = store.l10n.text(.profileRequired)
             return false
@@ -490,14 +420,8 @@ struct CheckoutView: View {
             checkoutError = "Pagamento con carta non disponibile al momento."
             return false
         }
-        guard !requireBankTransferAcceptance || isAccepted else {
-            checkoutError = store.l10n.text(.terms)
-            return false
-        }
-        if selectedPaymentMethod == .bankTransfer,
-           quote?.productionPolicyRequired == true,
-           !isProductionPolicyAccepted {
-            checkoutError = "Accetta la policy di produzione per continuare."
+        guard shippingMethod.trimmedNonEmpty != nil else {
+            checkoutError = "Seleziona un metodo di spedizione."
             return false
         }
         return true
@@ -505,34 +429,16 @@ struct CheckoutView: View {
 
     private func ensureQuoteLoaded() async throws {
         if quote == nil {
+            guard shippingMethod.trimmedNonEmpty != nil else {
+                throw AppError.server("Seleziona un metodo di spedizione.")
+            }
             quote = try await store.requestQuote(shippingMethod: shippingMethod)
         }
     }
 
-    private func confirm() async {
-        guard selectedPaymentMethod == .bankTransfer else { return }
-        checkoutError = nil
-        guard validateCheckoutInputs(requireBankTransferAcceptance: true) else { return }
-
-        isSubmitting = true
-        defer { isSubmitting = false }
-        do {
-            try await store.ensureCustomerProfile(currentProfilePayload())
-            try await ensureQuoteLoaded()
-            let result = try await store.confirmBankTransfer(
-                shippingMethod: shippingMethod,
-                productionPolicyAccepted: isProductionPolicyAccepted
-            )
-            confirmedOrder = ConfirmedOrderRoute(id: result.orderId, isBankTransfer: true)
-        } catch {
-            checkoutError = error.localizedDescription
-        }
-    }
-
     private func continueToWebCheckout() async {
-        guard selectedPaymentMethod != .bankTransfer else { return }
         checkoutError = nil
-        guard validateCheckoutInputs(requireBankTransferAcceptance: false) else { return }
+        guard validateCheckoutInputs() else { return }
 
         isSubmitting = true
         defer { isSubmitting = false }
@@ -545,13 +451,7 @@ struct CheckoutView: View {
                 checkoutError = "Impossibile aprire il checkout web."
                 return
             }
-            await MainActor.run {
-                UIApplication.shared.open(paymentURL, options: [:]) { didOpen in
-                    if !didOpen {
-                        self.checkoutError = "Impossibile aprire il checkout web per PayPal/Carta."
-                    }
-                }
-            }
+            webCheckoutRoute = WebCheckoutRoute(url: paymentURL)
         } catch {
             checkoutError = error.localizedDescription
         }
@@ -653,13 +553,17 @@ struct CheckoutView: View {
             selectedMethod = "bonifico"
         }
 
-        components?.queryItems = [
+        var queryItems: [URLQueryItem] = [
             URLQueryItem(name: "lang", value: store.language.rawValue),
             URLQueryItem(name: "mobile_access_token", value: session.accessToken),
             URLQueryItem(name: "mobile_refresh_token", value: session.refreshToken),
             URLQueryItem(name: "mobile_payment", value: selectedMethod),
             URLQueryItem(name: "mobile_cart", value: base64Cart)
         ]
+        if let normalizedShipping = shippingMethod.trimmedNonEmpty {
+            queryItems.append(URLQueryItem(name: "mobile_shipping", value: normalizedShipping))
+        }
+        components?.queryItems = queryItems
         return components?.url
     }
 }
@@ -684,9 +588,23 @@ private extension String {
     }
 }
 
-private struct ConfirmedOrderRoute: Identifiable, Hashable {
-    let id: String
-    let isBankTransfer: Bool
+private struct WebCheckoutRoute: Identifiable {
+    let id = UUID()
+    let url: URL
+}
+
+private struct InAppCheckoutBrowser: UIViewControllerRepresentable {
+    let url: URL
+
+    func makeUIViewController(context: Context) -> SFSafariViewController {
+        let controller = SFSafariViewController(url: url)
+        controller.dismissButtonStyle = .close
+        controller.preferredBarTintColor = .black
+        controller.preferredControlTintColor = UIColor(Color.grGold)
+        return controller
+    }
+
+    func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {}
 }
 
 struct CheckoutStepsView: View {
