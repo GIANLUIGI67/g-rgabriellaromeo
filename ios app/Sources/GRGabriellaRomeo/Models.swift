@@ -318,7 +318,7 @@ struct CheckoutCartItem: Codable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        cartItem = try container.decodeIfPresent(Bool.self, forKey: .cartItem) ?? true
+        cartItem = try container.decodeFlexibleBoolIfPresent(forKey: .cartItem) ?? true
         id = try container.decodeFlexibleString(forKey: .id)
         nome = try container.decodeIfPresent(String.self, forKey: .nome) ?? ""
         immagine = try container.decodeIfPresent(String.self, forKey: .immagine)
@@ -327,12 +327,12 @@ struct CheckoutCartItem: Codable {
         descrizione = try container.decodeIfPresent(String.self, forKey: .descrizione)
         categoria = try container.decodeIfPresent(String.self, forKey: .categoria)
         sottocategoria = try container.decodeIfPresent(String.self, forKey: .sottocategoria)
-        disponibile = try container.decodeIfPresent(Bool.self, forKey: .disponibile)
-        madeToOrder = try container.decodeIfPresent(Bool.self, forKey: .madeToOrder) ?? false
-        allowBackorder = try container.decodeIfPresent(Bool.self, forKey: .allowBackorder) ?? false
-        offerta = try container.decodeIfPresent(Bool.self, forKey: .offerta) ?? false
+        disponibile = try container.decodeFlexibleBoolIfPresent(forKey: .disponibile)
+        madeToOrder = try container.decodeFlexibleBoolIfPresent(forKey: .madeToOrder) ?? false
+        allowBackorder = try container.decodeFlexibleBoolIfPresent(forKey: .allowBackorder) ?? false
+        offerta = try container.decodeFlexibleBoolIfPresent(forKey: .offerta) ?? false
         sconto = try container.decodeFlexibleDecimalIfPresent(forKey: .sconto) ?? 0
-        quantita = try container.decodeIfPresent(Int.self, forKey: .quantita) ?? 1
+        quantita = try container.decodeFlexibleIntIfPresent(forKey: .quantita) ?? 1
     }
 }
 
