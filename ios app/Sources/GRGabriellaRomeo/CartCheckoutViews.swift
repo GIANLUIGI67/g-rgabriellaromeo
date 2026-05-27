@@ -19,7 +19,6 @@ private enum CheckoutPaymentMethod: String, CaseIterable, Identifiable {
 
 struct CheckoutView: View {
     @EnvironmentObject private var store: AppStore
-    @Environment(\.openURL) private var openURL
     @State private var isRegistering = false
     @State private var email = ""
     @State private var password = ""
@@ -305,11 +304,6 @@ struct CheckoutView: View {
                 .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.grGold.opacity(0.25)))
             }
 
-            Toggle(store.l10n.text(.terms), isOn: $isAccepted)
-                .font(.custom("Michroma-Regular", size: 12))
-                .foregroundStyle(Color.grGold.opacity(0.82))
-                .tint(.blue)
-
             if quote?.productionPolicyRequired == true {
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Policy di produzione")
@@ -333,6 +327,11 @@ struct CheckoutView: View {
             }
 
             if selectedPaymentMethod == .bankTransfer {
+                Toggle(store.l10n.text(.terms), isOn: $isAccepted)
+                    .font(.custom("Michroma-Regular", size: 12))
+                    .foregroundStyle(Color.grGold.opacity(0.82))
+                    .tint(.blue)
+
                 Button {
                     Task { await confirm() }
                 } label: {
@@ -348,9 +347,9 @@ struct CheckoutView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 48)
                 .foregroundStyle(Color.grGold)
-                .background((!canConfirmBankTransfer || isSubmitting) ? Color.green.opacity(0.35) : Color.green.opacity(0.72))
+                .background(isSubmitting ? Color.green.opacity(0.35) : Color.green.opacity(0.72))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                .disabled(!canConfirmBankTransfer || isSubmitting)
+                .disabled(isSubmitting)
             } else {
                 Button {
                     Task { await continueToWebCheckout() }
@@ -367,9 +366,9 @@ struct CheckoutView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 48)
                 .foregroundStyle(Color.grGold)
-                .background((!canContinueToWebCheckout || isSubmitting) ? Color.blue.opacity(0.35) : Color.blue.opacity(0.72))
+                .background(isSubmitting ? Color.blue.opacity(0.35) : Color.blue.opacity(0.72))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                .disabled(!canContinueToWebCheckout || isSubmitting)
+                .disabled(isSubmitting)
             }
         }
     }
@@ -397,22 +396,6 @@ struct CheckoutView: View {
         return true
     }
 
-    private var isCommonCheckoutValid: Bool {
-        isProfileComplete &&
-        isAccepted &&
-        quote != nil &&
-        !store.cart.isEmpty &&
-        (quote?.productionPolicyRequired != true || isProductionPolicyAccepted)
-    }
-
-    private var canConfirmBankTransfer: Bool {
-        selectedPaymentMethod == .bankTransfer && isCommonCheckoutValid
-    }
-
-    private var canContinueToWebCheckout: Bool {
-        selectedPaymentMethod != .bankTransfer && isCommonCheckoutValid
-    }
-
     private func loadQuote() async {
         guard store.session != nil, !store.cart.isEmpty else { return }
         do {
@@ -426,11 +409,45 @@ struct CheckoutView: View {
         }
     }
 
+    private func validateCheckoutInputs(requireBankTransferAcceptance: Bool) -> Bool {
+        guard store.session != nil else {
+            store.errorMessage = store.l10n.text(.profileRequired)
+            return false
+        }
+        guard !store.cart.isEmpty else {
+            store.errorMessage = store.l10n.text(.emptyCart)
+            return false
+        }
+        guard isProfileComplete else {
+            store.errorMessage = "Completa tutti i campi obbligatori prima di procedere al pagamento."
+            return false
+        }
+        guard !requireBankTransferAcceptance || isAccepted else {
+            store.errorMessage = store.l10n.text(.terms)
+            return false
+        }
+        if quote?.productionPolicyRequired == true && !isProductionPolicyAccepted {
+            store.errorMessage = "Accetta la policy di produzione per continuare."
+            return false
+        }
+        return true
+    }
+
+    private func ensureQuoteLoaded() async throws {
+        if quote == nil {
+            quote = try await store.requestQuote(shippingMethod: shippingMethod)
+        }
+    }
+
     private func confirm() async {
+        guard selectedPaymentMethod == .bankTransfer else { return }
+        guard validateCheckoutInputs(requireBankTransferAcceptance: true) else { return }
+
         isSubmitting = true
         defer { isSubmitting = false }
         do {
             try await store.ensureCustomerProfile(currentProfilePayload())
+            try await ensureQuoteLoaded()
             let result = try await store.confirmBankTransfer(
                 shippingMethod: shippingMethod,
                 productionPolicyAccepted: isProductionPolicyAccepted
@@ -443,25 +460,26 @@ struct CheckoutView: View {
 
     private func continueToWebCheckout() async {
         guard selectedPaymentMethod != .bankTransfer else { return }
-        guard store.session != nil else {
-            store.errorMessage = store.l10n.text(.profileRequired)
-            return
-        }
+        guard validateCheckoutInputs(requireBankTransferAcceptance: false) else { return }
 
         isSubmitting = true
         defer { isSubmitting = false }
 
         do {
             try await store.ensureCustomerProfile(currentProfilePayload())
-            if quote == nil {
-                quote = try await store.requestQuote(shippingMethod: shippingMethod)
-            }
+            try await ensureQuoteLoaded()
             guard let session = store.session,
                   let paymentURL = buildWebCheckoutURL(session: session) else {
                 store.errorMessage = "Impossibile aprire il checkout web."
                 return
             }
-            openURL(paymentURL)
+            await MainActor.run {
+                UIApplication.shared.open(paymentURL, options: [:]) { didOpen in
+                    if !didOpen {
+                        self.store.errorMessage = "Impossibile aprire il checkout web per PayPal/Carta."
+                    }
+                }
+            }
         } catch {
             store.errorMessage = error.localizedDescription
         }
