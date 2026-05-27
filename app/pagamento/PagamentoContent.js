@@ -1,13 +1,34 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
-import { loadCartFromStorage } from '../lib/cart';
+import { loadCartFromStorage, saveCartToStorage } from '../lib/cart';
 import { resolveBackendEndpoint } from '../lib/backendApi';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { PayPalScriptProvider, PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
+
+const SHIPPING_COSTS = {
+  standard: 5,
+  express: 15,
+  ritiro: 0,
+};
+
+function shippingCostFor(method) {
+  return SHIPPING_COSTS[method] ?? 0;
+}
+
+function decodeBase64Url(value) {
+  if (!value) return null;
+  try {
+    const base64 = value.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = `${base64}${'='.repeat((4 - (base64.length % 4 || 4)) % 4)}`;
+    return atob(padded);
+  } catch {
+    return null;
+  }
+}
 
 const PayPalWrapper = ({ 
   totaleFinale, 
@@ -38,6 +59,10 @@ const PayPalWrapper = ({
   const onApprove = async (data, actions) => {
     try {
       const details = await actions.order.capture();
+      const captureId = details?.purchase_units?.[0]?.payments?.captures?.[0]?.id;
+      if (!captureId) {
+        throw new Error('PayPal capture id missing');
+      }
       const finalizeRes = await fetch(resolveBackendEndpoint('checkout-finalize', '/api/checkout/finalize'), {
         method: 'POST',
         headers: {
@@ -48,8 +73,7 @@ const PayPalWrapper = ({
           cart: carrello,
           shippingMethod: spedizione,
           paymentMethod: 'PayPal',
-          paymentStatus: 'pagato',
-          transactionId: details.id,
+          transactionId: captureId,
           productionPolicyAccepted,
         }),
       });
@@ -466,6 +490,7 @@ const handleSubmit = async (e) => {
 // componente principale PagamentoContent //
 export default function PagamentoContent({ lang }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [carrello, setCarrello] = useState([]);
   const [cliente, setCliente] = useState(null);
   const [accessToken, setAccessToken] = useState('');
@@ -480,8 +505,14 @@ export default function PagamentoContent({ lang }) {
   const [quote, setQuote] = useState(null);
   const [quoteError, setQuoteError] = useState('');
   const [accettaPolicyProduzione, setAccettaPolicyProduzione] = useState(false);
+  const [mobileBootstrapComplete, setMobileBootstrapComplete] = useState(false);
   const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
   const paypalEnabled = process.env.NEXT_PUBLIC_PAYPAL_ENABLED === 'true' && Boolean(paypalClientId);
+  const mobileAccessToken = searchParams.get('mobile_access_token');
+  const mobileRefreshToken = searchParams.get('mobile_refresh_token');
+  const mobileCartParam = searchParams.get('mobile_cart');
+  const mobileShipping = searchParams.get('mobile_shipping');
+  const mobilePayment = searchParams.get('mobile_payment');
 
   const t = traduzioni[lang] || traduzioni.it;
 
@@ -508,6 +539,64 @@ export default function PagamentoContent({ lang }) {
   }, [totaleProdotti, scontoCalcolato, costoSpedizione]);
 
   useEffect(() => {
+    let isMounted = true;
+
+    const bootstrapFromMobile = async () => {
+      try {
+        if (mobileAccessToken && mobileRefreshToken) {
+          const { error } = await supabase.auth.setSession({
+            access_token: mobileAccessToken,
+            refresh_token: mobileRefreshToken,
+          });
+          if (error) {
+            console.error('Unable to set mobile session:', error);
+          }
+        }
+
+        if (mobileCartParam) {
+          const decoded = decodeBase64Url(mobileCartParam);
+          if (decoded) {
+            try {
+              const parsed = JSON.parse(decoded);
+              if (Array.isArray(parsed)) {
+                const normalized = saveCartToStorage(parsed);
+                if (isMounted) setCarrello(normalized);
+              }
+            } catch (error) {
+              console.error('Unable to parse mobile cart payload:', error);
+            }
+          }
+        }
+
+        if (mobileShipping) {
+          if (isMounted) {
+            setSpedizione(mobileShipping);
+            setCostoSpedizione(shippingCostFor(mobileShipping));
+          }
+        }
+
+        if (mobilePayment) {
+          if (isMounted) setPagamento(mobilePayment);
+        }
+
+        if (mobileAccessToken || mobileRefreshToken || mobileCartParam || mobileShipping || mobilePayment) {
+          window.history.replaceState(null, '', `/pagamento?lang=${lang}`);
+        }
+      } finally {
+        if (isMounted) setMobileBootstrapComplete(true);
+      }
+    };
+
+    bootstrapFromMobile();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [lang, mobileAccessToken, mobileRefreshToken, mobileCartParam, mobileShipping, mobilePayment]);
+
+  useEffect(() => {
+    if (!mobileBootstrapComplete) return;
+
     const fetchCliente = async () => {
       setIsLoading(true);
       try {
@@ -552,8 +641,10 @@ export default function PagamentoContent({ lang }) {
     };
 
     fetchCliente();
-    setCarrello(loadCartFromStorage());
-  }, [lang, router]);
+    if (!mobileCartParam) {
+      setCarrello(loadCartFromStorage());
+    }
+  }, [lang, router, mobileBootstrapComplete, mobileCartParam]);
 
   useEffect(() => {
     const fetchQuote = async () => {
@@ -665,7 +756,7 @@ export default function PagamentoContent({ lang }) {
           value={spedizione}
           onChange={(e) => {
             setSpedizione(e.target.value);
-            setCostoSpedizione(e.target.value === 'express' ? 15 : e.target.value === 'standard' ? 5 : 0);
+            setCostoSpedizione(shippingCostFor(e.target.value));
           }}
           style={{ 
             width: '100%', 
@@ -727,13 +818,13 @@ export default function PagamentoContent({ lang }) {
           <div style={{
             marginBottom: '1rem',
             padding: '1rem',
-            border: '1px solid #b91c1c',
-            borderRadius: '6px',
-            backgroundColor: '#fee2e2',
-            color: '#b91c1c',
+            border: '2px solid #b91c1c',
+            borderRadius: '8px',
+            backgroundColor: '#fff7ed',
+            color: '#111827',
             fontFamily: 'Arial, sans-serif'
           }}>
-            <p style={{ margin: '0 0 0.5rem', fontWeight: 'bold' }}>
+            <p style={{ margin: '0 0 0.5rem', fontWeight: 'bold', color: '#9a3412' }}>
               {t.policy_produzione_titolo || traduzioni.it.policy_produzione_titolo}
             </p>
             <p style={{ margin: '0 0 0.75rem' }}>
@@ -744,14 +835,27 @@ export default function PagamentoContent({ lang }) {
                 {quote.productionItems.map((item) => item.nome).join(', ')}
               </p>
             )}
-            <label htmlFor="accetta-policy-produzione" style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+            <label
+              htmlFor="accetta-policy-produzione"
+              style={{
+                display: 'flex',
+                gap: '0.75rem',
+                alignItems: 'center',
+                padding: '0.75rem',
+                border: '2px solid #b91c1c',
+                borderRadius: '8px',
+                backgroundColor: accettaPolicyProduzione ? '#dcfce7' : '#ffffff',
+                cursor: 'pointer',
+                fontWeight: 700
+              }}
+            >
               <input
                 type="checkbox"
                 id="accetta-policy-produzione"
                 name="accetta-policy-produzione"
                 checked={accettaPolicyProduzione}
                 onChange={() => setAccettaPolicyProduzione(!accettaPolicyProduzione)}
-                style={{ marginTop: '0.2rem' }}
+                style={{ width: '22px', height: '22px', accentColor: '#16a34a' }}
               />
               <span>{t.accetto_policy_produzione || traduzioni.it.accetto_policy_produzione}</span>
             </label>
@@ -787,6 +891,18 @@ export default function PagamentoContent({ lang }) {
             <p><strong>IBAN:</strong> IT10 Y050 3426 2010 0000 0204 438</p>
             <p><strong>{t.intestatario}</strong></p>
             <p><strong>{t.causale} GR</strong></p>
+
+            <div style={{
+              marginTop: '1rem',
+              padding: '1rem',
+              border: '1px solid #d4af37',
+              borderRadius: '6px',
+              backgroundColor: '#1a1a1a',
+              color: '#fff',
+              fontWeight: 700
+            }}>
+              {t.testo_condizione}
+            </div>
 
             <div style={{ marginTop: '1rem' }}>
               <label htmlFor="accetta-condizioni">
