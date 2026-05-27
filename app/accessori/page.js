@@ -31,6 +31,7 @@ function AccessoriPage() {
   const [immagineAttiva, setImmagineAttiva] = useState('');
   const [pendingProductionItem, setPendingProductionItem] = useState(null);
   const [cartNotice, setCartNotice] = useState('');
+  const [desktopCheckoutOffset, setDesktopCheckoutOffset] = useState(false);
   
   const traduzioni = {
     it: {
@@ -185,6 +186,10 @@ function AccessoriPage() {
     fetchProdotti();
   }, []);
 
+  useEffect(() => {
+    setDesktopCheckoutOffset(window.innerWidth >= 1024);
+  }, []);
+
   const filtrati = prodotti.filter(p =>
     !sottocategoriaSelezionata || p.sottocategoria === sottocategoriaSelezionata
   );
@@ -238,11 +243,12 @@ function AccessoriPage() {
 
       {getCartItemCount(carrello) > 0 && (
         <div
+          className="gr-floating-checkout"
           onClick={() => router.push(`/checkout?lang=${lang}`)}
           style={{
             position: 'fixed',
-            top: '0.5rem',
-            left: '0.5rem',
+            top: desktopCheckoutOffset ? 'calc(env(safe-area-inset-top, 0px) + 4.1rem)' : '0.5rem',
+            left: desktopCheckoutOffset ? 'clamp(1rem, 5vw, 2rem)' : '0.5rem',
             background: 'none',
             color: 'white',
             padding: '0.4rem 0.6rem',

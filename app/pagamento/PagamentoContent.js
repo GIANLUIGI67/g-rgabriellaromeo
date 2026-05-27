@@ -1026,17 +1026,6 @@ export default function PagamentoContent({ lang }) {
                 />
                 {t.rivedi_condizioni}
               </label>
-
-              {accettaCondizioni && (
-                <div style={{ 
-                  marginTop: '1rem', 
-                  padding: '1rem', 
-                  border: '1px dashed gray',
-                  fontStyle: 'italic'
-                }}>
-                  {t.testo_condizione}
-                </div>
-              )}
             </div>
 
             <div style={{ marginTop: '1rem' }}>
