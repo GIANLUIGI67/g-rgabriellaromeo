@@ -5,7 +5,18 @@ import { jsonResponse, requireUser } from '../../../lib/serverAuth';
 import { createServerSupabaseServiceClient } from '../../../lib/serverSupabase';
 import { sendEmail } from '../../../lib/mailer';
 import { getSiteUrl } from '../../../lib/siteUrl';
+import { verifyPayPalCapture } from '../../../lib/paypal';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import Stripe from 'stripe';
+
+function withTimeout(promise, timeoutMs, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error(`${label} timeout after ${timeoutMs}ms`)), timeoutMs);
+    }),
+  ]);
+}
 
 async function buildInvoicePDF(order) {
   const pdfDoc = await PDFDocument.create();
@@ -42,37 +53,29 @@ async function buildInvoicePDF(order) {
   return pdfDoc.save();
 }
 
-async function verifyPayPalCapture(transactionId) {
-  const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
-  const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
-  if (!clientId || !clientSecret) {
-    throw new Error('Missing PayPal server credentials');
+function normalizePaymentMethod(value) {
+  const method = String(value || '').trim().toLowerCase();
+  if (method === 'paypal') return 'PayPal';
+  if (['carta', 'card', 'stripe', 'carta di credito', 'credit card', 'carta di credito/debito'].includes(method)) {
+    return 'Carta di Credito';
+  }
+  return null;
+}
+
+async function verifyStripePaymentIntent(transactionId, quote) {
+  const secret = process.env.STRIPE_SECRET_KEY;
+  if (!secret) throw new Error('Missing STRIPE_SECRET_KEY');
+  if (!transactionId) throw new Error('Missing Stripe payment intent id');
+
+  const stripe = new Stripe(secret, { apiVersion: '2024-06-20' });
+  const paymentIntent = await stripe.paymentIntents.retrieve(transactionId);
+  if (paymentIntent.status !== 'succeeded') {
+    throw new Error('Stripe payment is not completed');
   }
 
-  const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
-  const tokenRes = await fetch('https://api-m.paypal.com/v1/oauth2/token', {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${auth}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'grant_type=client_credentials',
-  });
-
-  if (!tokenRes.ok) throw new Error('Unable to authenticate with PayPal');
-
-  const tokenJson = await tokenRes.json();
-  const captureRes = await fetch(`https://api-m.paypal.com/v2/payments/captures/${transactionId}`, {
-    headers: {
-      Authorization: `Bearer ${tokenJson.access_token}`,
-    },
-  });
-
-  if (!captureRes.ok) throw new Error('Unable to verify PayPal capture');
-
-  const capture = await captureRes.json();
-  if (capture.status !== 'COMPLETED') {
-    throw new Error('PayPal capture is not completed');
+  const expectedAmount = Math.round(Number(quote.total) * 100);
+  if (paymentIntent.currency !== 'eur' || paymentIntent.amount_received !== expectedAmount) {
+    throw new Error('Stripe payment amount does not match the order total');
   }
 }
 
@@ -85,7 +88,6 @@ export async function POST(request) {
       cart,
       shippingMethod,
       paymentMethod,
-      paymentStatus,
       transactionId = null,
       productionPolicyAccepted = false,
     } = await request.json();
@@ -100,19 +102,26 @@ export async function POST(request) {
       productionPolicyAccepted,
     });
 
-    if (paymentMethod === 'PayPal') {
+    const normalizedPaymentMethod = normalizePaymentMethod(paymentMethod);
+    if (!normalizedPaymentMethod) {
+      return jsonResponse({ error: 'Unsupported payment method' }, 400);
+    }
+
+    if (normalizedPaymentMethod === 'PayPal') {
       if (!transactionId) {
         return jsonResponse({ error: 'Missing PayPal transaction id' }, 400);
       }
       await verifyPayPalCapture(transactionId);
+    } else if (normalizedPaymentMethod === 'Carta di Credito') {
+      await verifyStripePaymentIntent(transactionId, quote);
     }
 
     const order = await finalizeCheckout({
       service,
       customer,
       quote,
-      paymentMethod,
-      paymentStatus,
+      paymentMethod: normalizedPaymentMethod,
+      paymentStatus: 'pagato',
       transactionId,
     });
 
@@ -120,7 +129,7 @@ export async function POST(request) {
     try {
       const siteUrl = getSiteUrl();
       const pdfBytes = await buildInvoicePDF(order);
-      await sendEmail({
+      await withTimeout(sendEmail({
         to: customer.email,
         subject: `Ordine confermato N. ${order.id} — G-R Gabriella Romeo`,
         html: `
@@ -146,7 +155,7 @@ export async function POST(request) {
             contentType: 'application/pdf',
           },
         ],
-      });
+      }), 4000, 'Confirmation email');
     } catch (emailErr) {
       console.error('Confirmation email failed (order still valid):', emailErr.message);
     }

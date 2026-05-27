@@ -37,6 +37,7 @@ struct CheckoutView: View {
     @State private var isSubmitting = false
     @State private var confirmedOrder: ConfirmedOrderRoute?
     @State private var infoMessage: String?
+    @State private var checkoutError: String?
     @State private var selectedPaymentMethod: CheckoutPaymentMethod = .bankTransfer
 
     var body: some View {
@@ -52,6 +53,17 @@ struct CheckoutView: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.62)
                             .frame(maxWidth: .infinity, alignment: .center)
+
+                        if let checkoutError, !checkoutError.isEmpty {
+                            Text(checkoutError)
+                                .font(.custom("Michroma-Regular", size: 12))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 10)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color.red.opacity(0.82))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
 
                         checkoutSummary
                         CheckoutStepsView(isAuthenticated: store.session != nil)
@@ -85,6 +97,7 @@ struct CheckoutView: View {
         }
         .task {
             syncProfileFieldsFromStore()
+            normalizeSelectedPaymentMethod()
         }
         .onChange(of: store.customer?.email) { _, _ in
             syncProfileFieldsFromStore()
@@ -267,20 +280,15 @@ struct CheckoutView: View {
 
             Text(store.l10n.text(.payment)).webSectionTitle()
 
-            Picker(store.l10n.text(.payment), selection: $selectedPaymentMethod) {
+            VStack(spacing: 8) {
                 if isPayPalEnabled {
-                    Text("PayPal").tag(CheckoutPaymentMethod.paypal)
+                    paymentMethodButton(title: "PayPal", method: .paypal)
                 }
                 if isCardEnabled {
-                    Text("Carta di Credito").tag(CheckoutPaymentMethod.card)
+                    paymentMethodButton(title: "Carta di Credito", method: .card)
                 }
-                Text(store.l10n.text(.bankTransfer)).tag(CheckoutPaymentMethod.bankTransfer)
+                paymentMethodButton(title: store.l10n.text(.bankTransfer), method: .bankTransfer)
             }
-            .pickerStyle(.menu)
-            .tint(.white)
-            .padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.grGold.opacity(0.35)))
 
             if selectedPaymentMethod == .bankTransfer {
                 VStack(alignment: .leading, spacing: 10) {
@@ -381,6 +389,43 @@ struct CheckoutView: View {
         !AppConfig.stripePublishableKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    private func normalizeSelectedPaymentMethod() {
+        switch selectedPaymentMethod {
+        case .paypal where !isPayPalEnabled:
+            selectedPaymentMethod = isCardEnabled ? .card : .bankTransfer
+        case .card where !isCardEnabled:
+            selectedPaymentMethod = isPayPalEnabled ? .paypal : .bankTransfer
+        default:
+            break
+        }
+    }
+
+    private func paymentMethodButton(title: String, method: CheckoutPaymentMethod) -> some View {
+        let isSelected = selectedPaymentMethod == method
+        return Button {
+            checkoutError = nil
+            selectedPaymentMethod = method
+        } label: {
+            HStack {
+                Text(title)
+                    .font(.custom("Michroma-Regular", size: 13))
+                    .foregroundStyle(Color.grGold)
+                Spacer()
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(isSelected ? Color.green : Color.grGold.opacity(0.55))
+            }
+            .padding(.horizontal, 12)
+            .frame(height: 44)
+            .background(Color.black.opacity(0.35))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isSelected ? Color.green.opacity(0.9) : Color.grGold.opacity(0.35), lineWidth: 1.2)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+    }
+
     private var isProfileComplete: Bool {
         guard
             nome.trimmedNonEmpty != nil,
@@ -411,23 +456,31 @@ struct CheckoutView: View {
 
     private func validateCheckoutInputs(requireBankTransferAcceptance: Bool) -> Bool {
         guard store.session != nil else {
-            store.errorMessage = store.l10n.text(.profileRequired)
+            checkoutError = store.l10n.text(.profileRequired)
             return false
         }
         guard !store.cart.isEmpty else {
-            store.errorMessage = store.l10n.text(.emptyCart)
+            checkoutError = store.l10n.text(.emptyCart)
             return false
         }
         guard isProfileComplete else {
-            store.errorMessage = "Completa tutti i campi obbligatori prima di procedere al pagamento."
+            checkoutError = "Completa tutti i campi obbligatori prima di procedere al pagamento."
+            return false
+        }
+        if selectedPaymentMethod == .paypal && !isPayPalEnabled {
+            checkoutError = "PayPal non disponibile al momento."
+            return false
+        }
+        if selectedPaymentMethod == .card && !isCardEnabled {
+            checkoutError = "Pagamento con carta non disponibile al momento."
             return false
         }
         guard !requireBankTransferAcceptance || isAccepted else {
-            store.errorMessage = store.l10n.text(.terms)
+            checkoutError = store.l10n.text(.terms)
             return false
         }
         if quote?.productionPolicyRequired == true && !isProductionPolicyAccepted {
-            store.errorMessage = "Accetta la policy di produzione per continuare."
+            checkoutError = "Accetta la policy di produzione per continuare."
             return false
         }
         return true
@@ -441,6 +494,7 @@ struct CheckoutView: View {
 
     private func confirm() async {
         guard selectedPaymentMethod == .bankTransfer else { return }
+        checkoutError = nil
         guard validateCheckoutInputs(requireBankTransferAcceptance: true) else { return }
 
         isSubmitting = true
@@ -454,12 +508,13 @@ struct CheckoutView: View {
             )
             confirmedOrder = ConfirmedOrderRoute(id: result.orderId, isBankTransfer: true)
         } catch {
-            store.errorMessage = error.localizedDescription
+            checkoutError = error.localizedDescription
         }
     }
 
     private func continueToWebCheckout() async {
         guard selectedPaymentMethod != .bankTransfer else { return }
+        checkoutError = nil
         guard validateCheckoutInputs(requireBankTransferAcceptance: false) else { return }
 
         isSubmitting = true
@@ -470,18 +525,18 @@ struct CheckoutView: View {
             try await ensureQuoteLoaded()
             guard let session = store.session,
                   let paymentURL = buildWebCheckoutURL(session: session) else {
-                store.errorMessage = "Impossibile aprire il checkout web."
+                checkoutError = "Impossibile aprire il checkout web."
                 return
             }
             await MainActor.run {
                 UIApplication.shared.open(paymentURL, options: [:]) { didOpen in
                     if !didOpen {
-                        self.store.errorMessage = "Impossibile aprire il checkout web per PayPal/Carta."
+                        self.checkoutError = "Impossibile aprire il checkout web per PayPal/Carta."
                     }
                 }
             }
         } catch {
-            store.errorMessage = error.localizedDescription
+            checkoutError = error.localizedDescription
         }
     }
 

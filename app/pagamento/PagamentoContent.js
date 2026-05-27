@@ -19,6 +19,22 @@ function shippingCostFor(method) {
   return SHIPPING_COSTS[method] ?? 0;
 }
 
+function normalizeShippingMethod(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (['standard', 'std'].includes(normalized)) return 'standard';
+  if (['express', 'exp'].includes(normalized)) return 'express';
+  if (['ritiro', 'pickup', 'store_pickup', 'store-pickup'].includes(normalized)) return 'ritiro';
+  return '';
+}
+
+function normalizePaymentMethod(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (['paypal', 'pay_pal', 'pay-pal'].includes(normalized)) return 'paypal';
+  if (['carta', 'card', 'stripe', 'credit_card', 'credit-card', 'carta di credito'].includes(normalized)) return 'carta';
+  if (['bonifico', 'bank_transfer', 'bank-transfer', 'banktransfer', 'wire', 'transfer'].includes(normalized)) return 'bonifico';
+  return '';
+}
+
 function decodeBase64Url(value) {
   if (!value) return null;
   try {
@@ -364,7 +380,8 @@ const StripePayment = ({
   t,
   accessToken,
   productionPolicyAccepted,
-  canSubmit
+  canSubmit,
+  onError
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -372,7 +389,26 @@ const StripePayment = ({
 
 const handleSubmit = async (e) => {
   e.preventDefault();
-  if (!stripe || !elements) return;
+  if (!stripe || !elements) {
+    onError?.('Stripe non è pronto. Riprova tra qualche secondo.');
+    return;
+  }
+  if (!accessToken) {
+    onError?.('Sessione non valida. Effettua di nuovo l’accesso.');
+    return;
+  }
+  if (!Array.isArray(carrello) || carrello.length === 0) {
+    onError?.('Carrello vuoto.');
+    return;
+  }
+  if (!spedizione) {
+    onError?.('Seleziona un metodo di spedizione.');
+    return;
+  }
+  if (!canSubmit) {
+    onError?.('Completa i requisiti richiesti prima di pagare.');
+    return;
+  }
 
   setIsProcessing(true);
 
@@ -435,7 +471,7 @@ const handleSubmit = async (e) => {
     router.push(`/ordine-confermato?lang=${lang}&metodo=carta`);
   } catch (error) {
     console.error('Errore pagamento (stripe):', error);
-    alert(error.message || t.errori.carta);
+    onError?.(error?.message || t.errori.carta);
   } finally {
     setIsProcessing(false);
   }
@@ -469,15 +505,15 @@ const handleSubmit = async (e) => {
       </div>
       <button 
         type="submit" 
-        disabled={!stripe || isProcessing || !canSubmit}
+        disabled={!stripe || isProcessing}
         style={{
           width: '100%',
           padding: '0.75rem',
-          backgroundColor: stripe && canSubmit ? '#635bff' : 'gray',
+          backgroundColor: stripe ? '#635bff' : 'gray',
           color: 'white',
           border: 'none',
           borderRadius: '6px',
-          cursor: stripe && canSubmit ? 'pointer' : 'not-allowed',
+          cursor: stripe ? 'pointer' : 'not-allowed',
           fontFamily: 'Arial, sans-serif'
         }}
       >
@@ -506,8 +542,10 @@ export default function PagamentoContent({ lang }) {
   const [quoteError, setQuoteError] = useState('');
   const [accettaPolicyProduzione, setAccettaPolicyProduzione] = useState(false);
   const [mobileBootstrapComplete, setMobileBootstrapComplete] = useState(false);
+  const [actionError, setActionError] = useState('');
   const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
   const paypalEnabled = process.env.NEXT_PUBLIC_PAYPAL_ENABLED === 'true' && Boolean(paypalClientId);
+  const stripeEnabled = Boolean(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
   const mobileAccessToken = searchParams.get('mobile_access_token');
   const mobileRefreshToken = searchParams.get('mobile_refresh_token');
   const mobileCartParam = searchParams.get('mobile_cart');
@@ -569,14 +607,24 @@ export default function PagamentoContent({ lang }) {
         }
 
         if (mobileShipping) {
-          if (isMounted) {
-            setSpedizione(mobileShipping);
-            setCostoSpedizione(shippingCostFor(mobileShipping));
+          const normalizedShipping = normalizeShippingMethod(mobileShipping);
+          if (normalizedShipping && isMounted) {
+            setSpedizione(normalizedShipping);
+            setCostoSpedizione(shippingCostFor(normalizedShipping));
           }
         }
 
         if (mobilePayment) {
-          if (isMounted) setPagamento(mobilePayment);
+          const normalizedPayment = normalizePaymentMethod(mobilePayment);
+          if (isMounted && normalizedPayment) {
+            if (normalizedPayment === 'paypal' && !paypalEnabled) {
+              setPagamento(stripeEnabled ? 'carta' : 'bonifico');
+            } else if (normalizedPayment === 'carta' && !stripeEnabled) {
+              setPagamento(paypalEnabled ? 'paypal' : 'bonifico');
+            } else {
+              setPagamento(normalizedPayment);
+            }
+          }
         }
 
         if (mobileAccessToken || mobileRefreshToken || mobileCartParam || mobileShipping || mobilePayment) {
@@ -592,7 +640,7 @@ export default function PagamentoContent({ lang }) {
     return () => {
       isMounted = false;
     };
-  }, [lang, mobileAccessToken, mobileRefreshToken, mobileCartParam, mobileShipping, mobilePayment]);
+  }, [lang, mobileAccessToken, mobileRefreshToken, mobileCartParam, mobileShipping, mobilePayment, paypalEnabled, stripeEnabled]);
 
   useEffect(() => {
     if (!mobileBootstrapComplete) return;
@@ -689,9 +737,34 @@ export default function PagamentoContent({ lang }) {
     }
   }, [quote?.productionPolicyRequired]);
 
+  useEffect(() => {
+    setActionError('');
+  }, [pagamento, spedizione, accettaCondizioni, accettaBonifico, accettaPolicyProduzione]);
+
   const confermaBonificoEffettuato = async () => {
+    setActionError('');
+    if (!accessToken) {
+      setActionError('Sessione non valida. Effettua di nuovo l’accesso.');
+      return;
+    }
+    if (!spedizione) {
+      setActionError('Seleziona un metodo di spedizione.');
+      return;
+    }
+    if (!Array.isArray(carrello) || carrello.length === 0) {
+      setActionError('Carrello vuoto.');
+      return;
+    }
     if (!accettaCondizioni) {
-      alert(t.errori.condizioni);
+      setActionError(t.errori.condizioni);
+      return;
+    }
+    if (!accettaBonifico) {
+      setActionError(t.confermo_bonifico || 'Conferma di aver effettuato il bonifico per continuare.');
+      return;
+    }
+    if (productionPolicyRequired && !accettaPolicyProduzione) {
+      setActionError('Accetta la policy di produzione per continuare.');
       return;
     }
 
@@ -699,7 +772,7 @@ export default function PagamentoContent({ lang }) {
     try {
       // Reserve inventory and create ordini_temporanei record.
       // The order stays pending until the admin confirms receipt of the transfer.
-      const response = await fetch('/api/checkout/reserve', {
+      const response = await fetch(resolveBackendEndpoint('checkout-reserve', '/api/checkout/reserve'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -723,7 +796,7 @@ export default function PagamentoContent({ lang }) {
       router.push(`/ordine-confermato?lang=${lang}&metodo=bonifico`);
     } catch (error) {
       console.error(error);
-      alert(error?.message || t.errori.generico);
+      setActionError(error?.message || t.errori.generico);
     } finally {
       setIsLoading(false);
     }
@@ -731,11 +804,6 @@ export default function PagamentoContent({ lang }) {
 
   const productionPolicyRequired = Boolean(quote?.productionPolicyRequired);
   const productionPolicyReady = !productionPolicyRequired || accettaPolicyProduzione;
-  const isFormValido =
-    spedizione &&
-    pagamento &&
-    productionPolicyReady &&
-    (pagamento !== 'bonifico' || (accettaCondizioni && accettaBonifico));
   const totaleVisualizzato = quote?.total ?? totaleFinale;
 
   return (
@@ -793,7 +861,7 @@ export default function PagamentoContent({ lang }) {
           <option value="">-- {t.seleziona} --</option>
           {paypalEnabled && <option value="paypal">{t.paypal}</option>}
           <option value="bonifico">{t.bonifico}</option>
-          <option value="carta">{t.carta}</option>
+          {stripeEnabled && <option value="carta">{t.carta}</option>}
         </select>
 
         <p className="gr-price" style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1rem' }}>
@@ -811,6 +879,20 @@ export default function PagamentoContent({ lang }) {
             fontFamily: 'Arial, sans-serif'
           }}>
             {quoteError}
+          </div>
+        )}
+
+        {actionError && (
+          <div style={{
+            marginBottom: '1rem',
+            padding: '0.75rem',
+            backgroundColor: '#fee2e2',
+            color: '#b91c1c',
+            borderRadius: '6px',
+            textAlign: 'center',
+            fontFamily: 'Arial, sans-serif'
+          }}>
+            {actionError}
           </div>
         )}
 
@@ -862,6 +944,34 @@ export default function PagamentoContent({ lang }) {
           </div>
         )}
         
+        {pagamento === 'paypal' && !paypalEnabled && (
+          <div style={{
+            marginTop: '1rem',
+            padding: '0.75rem',
+            border: '1px solid #b91c1c',
+            borderRadius: '6px',
+            backgroundColor: '#fee2e2',
+            color: '#b91c1c',
+            fontFamily: 'Arial, sans-serif'
+          }}>
+            PayPal non disponibile al momento.
+          </div>
+        )}
+
+        {pagamento === 'paypal' && paypalEnabled && !productionPolicyReady && (
+          <div style={{
+            marginTop: '1rem',
+            padding: '0.75rem',
+            border: '1px solid #b91c1c',
+            borderRadius: '6px',
+            backgroundColor: '#fee2e2',
+            color: '#b91c1c',
+            fontFamily: 'Arial, sans-serif'
+          }}>
+            Accetta la policy di produzione per abilitare PayPal.
+          </div>
+        )}
+
 {pagamento === 'paypal' && paypalEnabled && productionPolicyReady && (
           <PayPalScriptProvider 
             options={{
@@ -945,16 +1055,16 @@ export default function PagamentoContent({ lang }) {
 
             <button
               onClick={confermaBonificoEffettuato}
-              disabled={!isFormValido || isLoading}
+              disabled={isLoading}
               style={{
                 marginTop: '1rem',
                 width: '100%',
                 padding: '0.75rem',
-                backgroundColor: isFormValido ? 'green' : 'gray',
+                backgroundColor: isLoading ? 'gray' : 'green',
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',
-                cursor: isFormValido ? 'pointer' : 'not-allowed',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
                 fontFamily: 'Arial, sans-serif'
               }}
             >
@@ -963,7 +1073,21 @@ export default function PagamentoContent({ lang }) {
           </div>
         )}
 
-        {pagamento === 'carta' && (
+        {pagamento === 'carta' && !stripeEnabled && (
+          <div style={{
+            marginTop: '1rem',
+            padding: '0.75rem',
+            border: '1px solid #b91c1c',
+            borderRadius: '6px',
+            backgroundColor: '#fee2e2',
+            color: '#b91c1c',
+            fontFamily: 'Arial, sans-serif'
+          }}>
+            Pagamento con carta non disponibile al momento.
+          </div>
+        )}
+
+        {pagamento === 'carta' && stripeEnabled && (
           <Elements stripe={stripePromise}>
             <StripePayment
               totaleFinale={totaleVisualizzato}
@@ -976,6 +1100,7 @@ export default function PagamentoContent({ lang }) {
               accessToken={accessToken}
               productionPolicyAccepted={accettaPolicyProduzione}
               canSubmit={productionPolicyReady}
+              onError={setActionError}
             />
 
           </Elements>

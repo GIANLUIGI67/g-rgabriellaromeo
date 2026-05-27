@@ -6,6 +6,15 @@ import { createServerSupabaseServiceClient } from '../../../lib/serverSupabase';
 import { sendEmail } from '../../../lib/mailer';
 import { getSiteUrl } from '../../../lib/siteUrl';
 
+function withTimeout(promise, timeoutMs, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error(`${label} timeout after ${timeoutMs}ms`)), timeoutMs);
+    }),
+  ]);
+}
+
 /**
  * POST /api/checkout/reserve
  * Creates an ordini_temporanei record for bank-transfer (bonifico) orders
@@ -44,7 +53,7 @@ export async function POST(request) {
     try {
       const siteUrl = getSiteUrl();
 
-      await sendEmail({
+      await withTimeout(sendEmail({
         to: customer.email,
         subject: `Ordine ricevuto N. ${tempOrder.id} — in attesa di bonifico — G-R Gabriella Romeo`,
         html: `
@@ -68,7 +77,7 @@ export async function POST(request) {
             <p style="margin-top:24px;font-size:12px;color:#666;">G-R Gabriella Romeo — info@g-rgabriellaromeo.it</p>
           </div>
         `,
-      });
+      }), 4000, 'Bonifico email');
     } catch (emailErr) {
       console.error('Bonifico email failed (order still valid):', emailErr.message);
     }
