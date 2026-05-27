@@ -265,18 +265,20 @@ struct CheckoutView: View {
                 CheckoutField(text: $telefono2, placeholder: "Telefono 2", keyboard: .phonePad)
             }
 
-            Text(store.l10n.text(.shipping)).webSectionTitle()
+            if selectedPaymentMethod == .bankTransfer {
+                Text(store.l10n.text(.shipping)).webSectionTitle()
 
-            Picker(store.l10n.text(.shipping), selection: $shippingMethod) {
-                Text(store.l10n.text(.storePickup)).tag("ritiro")
-                Text(store.l10n.text(.standardShipping)).tag("standard")
-                Text(store.l10n.text(.expressShipping)).tag("express")
+                Picker(store.l10n.text(.shipping), selection: $shippingMethod) {
+                    Text(store.l10n.text(.storePickup)).tag("ritiro")
+                    Text("\(store.l10n.text(.standardShipping)) (5\(euroSymbol))").tag("standard")
+                    Text("\(store.l10n.text(.expressShipping)) (10\(euroSymbol))").tag("express")
+                }
+                .pickerStyle(.menu)
+                .tint(.white)
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.grGold.opacity(0.35)))
             }
-            .pickerStyle(.menu)
-            .tint(.white)
-            .padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.grGold.opacity(0.35)))
 
             Text(store.l10n.text(.payment)).webSectionTitle()
 
@@ -304,6 +306,7 @@ struct CheckoutView: View {
             } else {
                 VStack(alignment: .leading, spacing: 10) {
                     Text(selectedPaymentMethod == .paypal ? "PayPal" : "Carta di Credito")
+                        .foregroundStyle(Color.grGold)
                     Text("Per completare in modo sicuro questo pagamento, verrai reindirizzato al checkout web ufficiale.")
                         .foregroundStyle(Color.grGold.opacity(0.8))
                 }
@@ -395,6 +398,10 @@ struct CheckoutView: View {
 
     private var isCardEnabled: Bool {
         !AppConfig.stripePublishableKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var euroSymbol: String {
+        "\u{20AC}"
     }
 
     private func normalizeSelectedPaymentMethod() {
@@ -650,7 +657,6 @@ struct CheckoutView: View {
             URLQueryItem(name: "lang", value: store.language.rawValue),
             URLQueryItem(name: "mobile_access_token", value: session.accessToken),
             URLQueryItem(name: "mobile_refresh_token", value: session.refreshToken),
-            URLQueryItem(name: "mobile_shipping", value: shippingMethod),
             URLQueryItem(name: "mobile_payment", value: selectedMethod),
             URLQueryItem(name: "mobile_cart", value: base64Cart)
         ]

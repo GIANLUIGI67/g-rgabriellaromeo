@@ -3,7 +3,7 @@ import { normalizeCart } from './cart';
 
 const SHIPPING_COSTS = {
   standard: 5,
-  express: 15,
+  express: 10,
   ritiro: 0,
 };
 
