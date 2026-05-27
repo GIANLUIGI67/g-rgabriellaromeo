@@ -312,7 +312,7 @@ struct CheckoutView: View {
                 .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.grGold.opacity(0.25)))
             }
 
-            if quote?.productionPolicyRequired == true {
+            if selectedPaymentMethod == .bankTransfer, quote?.productionPolicyRequired == true {
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Policy di produzione")
                         .font(.custom("Michroma-Regular", size: 15))
@@ -335,6 +335,14 @@ struct CheckoutView: View {
             }
 
             if selectedPaymentMethod == .bankTransfer {
+                Text(store.l10n.text(.bankTransferShippingNotice))
+                    .font(.custom("Michroma-Regular", size: 12))
+                    .foregroundStyle(Color.grGold.opacity(0.82))
+                    .lineSpacing(3)
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.grGold.opacity(0.25)))
+
                 Toggle(store.l10n.text(.terms), isOn: $isAccepted)
                     .font(.custom("Michroma-Regular", size: 12))
                     .foregroundStyle(Color.grGold.opacity(0.82))
@@ -479,7 +487,9 @@ struct CheckoutView: View {
             checkoutError = store.l10n.text(.terms)
             return false
         }
-        if quote?.productionPolicyRequired == true && !isProductionPolicyAccepted {
+        if selectedPaymentMethod == .bankTransfer,
+           quote?.productionPolicyRequired == true,
+           !isProductionPolicyAccepted {
             checkoutError = "Accetta la policy di produzione per continuare."
             return false
         }
