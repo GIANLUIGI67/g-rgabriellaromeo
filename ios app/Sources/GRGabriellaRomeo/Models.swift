@@ -336,9 +336,24 @@ struct CheckoutCartItem: Codable {
     }
 }
 
-struct QuoteResponse: Codable {
+struct QuoteResponse: Decodable {
     let ok: Bool?
     let quote: CheckoutQuote
+
+    enum CodingKeys: String, CodingKey {
+        case ok
+        case quote
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        ok = try container.decodeFlexibleBoolIfPresent(forKey: .ok)
+        if container.contains(.quote) {
+            quote = try container.decode(CheckoutQuote.self, forKey: .quote)
+        } else {
+            quote = try CheckoutQuote(from: decoder)
+        }
+    }
 }
 
 struct CustomerProfileResponse: Codable {
@@ -346,7 +361,7 @@ struct CustomerProfileResponse: Codable {
     let customer: CustomerProfile?
 }
 
-struct CheckoutQuote: Codable {
+struct CheckoutQuote: Decodable {
     let cart: [CheckoutCartItem]?
     let shippingMethod: String
     let shippingCost: Decimal
@@ -356,13 +371,83 @@ struct CheckoutQuote: Codable {
     let total: Decimal
     let productionPolicyRequired: Bool?
     let productionItems: [ProductionItem]?
+
+    enum CodingKeys: String, CodingKey {
+        case cart
+        case shippingMethod
+        case shipping_method
+        case shippingCost
+        case shipping_cost
+        case subtotal
+        case firstDiscountPercent
+        case first_discount_percent
+        case discountAmount
+        case discount_amount
+        case total
+        case productionPolicyRequired
+        case production_policy_required
+        case productionItems
+        case production_items
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        cart = try container.decodeIfPresent([CheckoutCartItem].self, forKey: .cart)
+        shippingMethod =
+            (try? container.decode(String.self, forKey: .shippingMethod)) ??
+            (try? container.decode(String.self, forKey: .shipping_method)) ??
+            "ritiro"
+        shippingCost =
+            (try? container.decodeFlexibleDecimalIfPresent(forKey: .shippingCost)) ??
+            (try? container.decodeFlexibleDecimalIfPresent(forKey: .shipping_cost)) ??
+            0
+        subtotal = (try? container.decodeFlexibleDecimalIfPresent(forKey: .subtotal)) ?? 0
+        firstDiscountPercent =
+            (try? container.decodeFlexibleDecimalIfPresent(forKey: .firstDiscountPercent)) ??
+            (try? container.decodeFlexibleDecimalIfPresent(forKey: .first_discount_percent)) ??
+            0
+        discountAmount =
+            (try? container.decodeFlexibleDecimalIfPresent(forKey: .discountAmount)) ??
+            (try? container.decodeFlexibleDecimalIfPresent(forKey: .discount_amount)) ??
+            0
+        total = (try? container.decodeFlexibleDecimalIfPresent(forKey: .total)) ?? 0
+        productionPolicyRequired =
+            (try? container.decodeFlexibleBoolIfPresent(forKey: .productionPolicyRequired)) ??
+            (try? container.decodeFlexibleBoolIfPresent(forKey: .production_policy_required))
+        productionItems =
+            (try? container.decodeIfPresent([ProductionItem].self, forKey: .productionItems)) ??
+            (try? container.decodeIfPresent([ProductionItem].self, forKey: .production_items))
+    }
 }
 
-struct ProductionItem: Codable, Identifiable {
+struct ProductionItem: Decodable, Identifiable {
     let id: String
     let nome: String
     let requestedQuantity: Int
     let availableQuantity: Int
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case nome
+        case requestedQuantity
+        case requested_quantity
+        case availableQuantity
+        case available_quantity
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = (try? container.decodeFlexibleString(forKey: .id)) ?? UUID().uuidString
+        nome = (try? container.decode(String.self, forKey: .nome)) ?? ""
+        requestedQuantity =
+            (try? container.decodeFlexibleIntIfPresent(forKey: .requestedQuantity)) ??
+            (try? container.decodeFlexibleIntIfPresent(forKey: .requested_quantity)) ??
+            0
+        availableQuantity =
+            (try? container.decodeFlexibleIntIfPresent(forKey: .availableQuantity)) ??
+            (try? container.decodeFlexibleIntIfPresent(forKey: .available_quantity)) ??
+            0
+    }
 }
 
 struct FinalizeResponse: Codable {
@@ -443,10 +528,71 @@ extension KeyedDecodingContainer {
     }
 
     func decodeFlexibleDecimalIfPresent(forKey key: Key) throws -> Decimal? {
-        if try decodeNil(forKey: key) {
+        guard contains(key) else {
+            return nil
+        }
+        if (try? decodeNil(forKey: key)) == true {
             return nil
         }
         return try decodeFlexibleDecimal(forKey: key)
+    }
+
+    func decodeFlexibleInt(forKey key: Key) throws -> Int {
+        if let value = try? decode(Int.self, forKey: key) {
+            return value
+        }
+        if let value = try? decode(Double.self, forKey: key) {
+            return Int(value)
+        }
+        if let value = try? decode(String.self, forKey: key) {
+            let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let intValue = Int(trimmed) {
+                return intValue
+            }
+            if let doubleValue = Double(trimmed) {
+                return Int(doubleValue)
+            }
+        }
+        return 0
+    }
+
+    func decodeFlexibleIntIfPresent(forKey key: Key) throws -> Int? {
+        guard contains(key) else {
+            return nil
+        }
+        if (try? decodeNil(forKey: key)) == true {
+            return nil
+        }
+        return try decodeFlexibleInt(forKey: key)
+    }
+
+    func decodeFlexibleBool(forKey key: Key) throws -> Bool {
+        if let value = try? decode(Bool.self, forKey: key) {
+            return value
+        }
+        if let value = try? decode(Int.self, forKey: key) {
+            return value != 0
+        }
+        if let value = try? decode(String.self, forKey: key) {
+            let normalized = value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            if ["true", "1", "yes", "y", "si"].contains(normalized) {
+                return true
+            }
+            if ["false", "0", "no", "n"].contains(normalized) {
+                return false
+            }
+        }
+        return false
+    }
+
+    func decodeFlexibleBoolIfPresent(forKey key: Key) throws -> Bool? {
+        guard contains(key) else {
+            return nil
+        }
+        if (try? decodeNil(forKey: key)) == true {
+            return nil
+        }
+        return try decodeFlexibleBool(forKey: key)
     }
 
     private static func parseFlexibleDecimal(_ rawValue: String) -> Decimal {

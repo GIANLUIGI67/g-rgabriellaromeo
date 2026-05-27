@@ -616,7 +616,9 @@ struct CheckoutView: View {
 
     private func buildWebCheckoutURL(session: AuthSession) -> URL? {
         var components = URLComponents(url: AppConfig.webAPIBaseURL.appending(path: "pagamento"), resolvingAgainstBaseURL: false)
-        let cartPayload = store.cart.map(CheckoutCartItem.init(item:))
+        let cartPayload = store.cart.map { item in
+            MobileCheckoutCartItem(id: item.product.id, quantita: item.quantity)
+        }
         guard
             let cartData = try? JSONEncoder().encode(cartPayload),
             let base64Cart = cartData.base64EncodedString().base64URLEncoded
@@ -644,6 +646,12 @@ struct CheckoutView: View {
         ]
         return components?.url
     }
+}
+
+private struct MobileCheckoutCartItem: Encodable {
+    let cartItem = true
+    let id: String
+    let quantita: Int
 }
 
 private extension String {
