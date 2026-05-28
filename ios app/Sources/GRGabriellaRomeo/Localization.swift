@@ -38,6 +38,7 @@ struct L10n {
         case contacts, ourServices, servicesDescription, servicesEmailIntro
         case wishlistBenefit, checkoutBenefit, discountBenefit, referralBenefit
         case enterEmail, resetSent
+        case deleteAccount, deleteAccountConfirmTitle, deleteAccountConfirmMessage, deleteAccountConfirmAction
     }
 
     private static let table: [Key: [AppLanguage: String]] = [
@@ -107,6 +108,10 @@ struct L10n {
         .discountBenefit: [.it: "Sconto 10% sul prossimo acquisto", .en: "10% off your next purchase", .fr: "10 % sur votre prochain achat", .de: "10 % Rabatt auf den nächsten Einkauf", .es: "10% en tu próxima compra", .ar: "خصم 10٪ على الشراء التالي", .zh: "下次购买享 10% 优惠", .ja: "次回購入が10%オフ"],
         .referralBenefit: [.it: "Referral program per sconti e buoni", .en: "Referral program for discounts and vouchers", .fr: "Programme de parrainage pour remises", .de: "Empfehlungsprogramm für Rabatte", .es: "Programa de referidos con descuentos", .ar: "برنامج إحالة للخصومات والقسائم", .zh: "推荐计划可获折扣和礼券", .ja: "紹介プログラムで割引と特典"],
         .enterEmail: [.it: "Inserisci la tua email", .en: "Enter your email", .fr: "Saisissez votre email", .de: "E-Mail eingeben", .es: "Introduce tu email", .ar: "أدخل بريدك الإلكتروني", .zh: "请输入电子邮件", .ja: "メールを入力してください"],
-        .resetSent: [.it: "Ti abbiamo inviato una email per reimpostare la password.", .en: "We sent you an email to reset your password.", .fr: "Nous vous avons envoyé un email de réinitialisation.", .de: "Wir haben Ihnen eine E-Mail zum Zurücksetzen gesendet.", .es: "Te enviamos un email para restablecer la contraseña.", .ar: "أرسلنا لك بريدًا لإعادة تعيين كلمة المرور.", .zh: "我们已发送重置密码邮件。", .ja: "パスワード再設定メールを送信しました。"]
+        .resetSent: [.it: "Ti abbiamo inviato una email per reimpostare la password.", .en: "We sent you an email to reset your password.", .fr: "Nous vous avons envoyé un email de réinitialisation.", .de: "Wir haben Ihnen eine E-Mail zum Zurücksetzen gesendet.", .es: "Te enviamos un email para restablecer la contraseña.", .ar: "أرسلنا لك بريدًا لإعادة تعيين كلمة المرور.", .zh: "我们已发送重置密码邮件。", .ja: "パスワード再設定メールを送信しました。"],
+        .deleteAccount: [.it: "Elimina account", .en: "Delete account", .fr: "Supprimer le compte", .de: "Konto loschen", .es: "Eliminar cuenta", .ar: "حذف الحساب", .zh: "删除账户", .ja: "アカウント削除"],
+        .deleteAccountConfirmTitle: [.it: "Conferma eliminazione", .en: "Confirm deletion", .fr: "Confirmer la suppression", .de: "Loschen bestatigen", .es: "Confirmar eliminacion", .ar: "تأكيد الحذف", .zh: "确认删除", .ja: "削除の確認"],
+        .deleteAccountConfirmMessage: [.it: "Questa azione elimina definitivamente il tuo account.", .en: "This action permanently deletes your account.", .fr: "Cette action supprime definitivement votre compte.", .de: "Diese Aktion loscht Ihr Konto dauerhaft.", .es: "Esta accion elimina tu cuenta de forma permanente.", .ar: "هذا الإجراء يحذف حسابك نهائيًا.", .zh: "此操作将永久删除您的账户。", .ja: "この操作でアカウントは完全に削除されます。"],
+        .deleteAccountConfirmAction: [.it: "Elimina", .en: "Delete", .fr: "Supprimer", .de: "Loschen", .es: "Eliminar", .ar: "حذف", .zh: "删除", .ja: "削除"]
     ]
 }

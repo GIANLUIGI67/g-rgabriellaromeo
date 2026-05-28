@@ -74,6 +74,14 @@ final class APIClient {
         let _: EmptyResponse = try await send(request)
     }
 
+    func deleteAccount(accessToken: String) async throws {
+        var request = URLRequest(url: AppConfig.webAPIBaseURL.appending(path: "api/auth/delete-account"))
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        let _: EmptyResponse = try await send(request)
+    }
+
     func fetchCustomer(email: String, accessToken: String) async throws -> CustomerProfile? {
         var components = URLComponents(url: AppConfig.supabaseURL.appending(path: "rest/v1/clienti"), resolvingAgainstBaseURL: false)!
         components.queryItems = [

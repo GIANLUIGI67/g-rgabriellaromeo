@@ -33,6 +33,8 @@ struct LoginPanel: View {
     @State private var telefono1 = ""
     @State private var telefono2 = ""
     @State private var isSubmitting = false
+    @State private var isDeletingAccount = false
+    @State private var showDeleteAccountConfirmation = false
     @State private var infoMessage: String?
 
     private var benefits: [String] {
@@ -74,6 +76,14 @@ struct LoginPanel: View {
             .padding(.bottom, 12)
         }
         .background(Color.white)
+        .alert(store.l10n.text(.deleteAccountConfirmTitle), isPresented: $showDeleteAccountConfirmation) {
+            Button(store.l10n.text(.cancel), role: .cancel) {}
+            Button(store.l10n.text(.deleteAccountConfirmAction), role: .destructive) {
+                Task { await handleDeleteAccount() }
+            }
+        } message: {
+            Text(store.l10n.text(.deleteAccountConfirmMessage))
+        }
     }
 
     private var authContent: some View {
@@ -196,6 +206,29 @@ struct LoginPanel: View {
                     .frame(height: 34)
                     .background(Color.black)
             }
+            .disabled(isDeletingAccount)
+
+            Button {
+                showDeleteAccountConfirmation = true
+            } label: {
+                ZStack {
+                    if isDeletingAccount {
+                        ProgressView()
+                            .tint(Color(red: 0.74, green: 0.12, blue: 0.12))
+                    } else {
+                        Text(store.l10n.text(.deleteAccount))
+                            .font(.custom("Michroma-Regular", size: 13))
+                            .foregroundStyle(Color(red: 0.74, green: 0.12, blue: 0.12))
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 34)
+                .overlay(
+                    Rectangle()
+                        .stroke(Color(red: 0.74, green: 0.12, blue: 0.12), lineWidth: 1.2)
+                )
+            }
+            .disabled(isDeletingAccount)
         }
     }
 
@@ -238,6 +271,19 @@ struct LoginPanel: View {
         do {
             try await store.requestPasswordReset(email: normalizedEmail)
             infoMessage = store.l10n.text(.resetSent)
+        } catch {
+            store.errorMessage = error.localizedDescription
+        }
+    }
+
+    private func handleDeleteAccount() async {
+        guard !isDeletingAccount else { return }
+        isDeletingAccount = true
+        defer { isDeletingAccount = false }
+
+        do {
+            try await store.deleteAccount()
+            withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }
         } catch {
             store.errorMessage = error.localizedDescription
         }

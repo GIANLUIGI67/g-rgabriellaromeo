@@ -63,6 +63,13 @@ final class AppStore: ObservableObject {
         try await APIClient.shared.requestPasswordReset(email: email)
     }
 
+    func deleteAccount() async throws {
+        try await withAuthenticatedToken { accessToken in
+            try await APIClient.shared.deleteAccount(accessToken: accessToken)
+        }
+        logout()
+    }
+
     func logout() {
         session = nil
         customer = nil
