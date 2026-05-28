@@ -137,6 +137,7 @@ dependencies {
 
     // Ktor (required by Supabase-kt 3.x)
     implementation "io.ktor:ktor-client-android:3.1.3"
+    implementation "io.ktor:ktor-client-okhttp:3.1.3"
     implementation "io.ktor:ktor-client-content-negotiation:3.1.3"
     implementation "io.ktor:ktor-serialization-kotlinx-json:3.1.3"
 
@@ -153,6 +154,9 @@ dependencies {
 
     // Coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0"
+
+    // Payments
+    implementation "com.stripe:stripe-android:21.19.0"
 
     // Core
     implementation "androidx.core:core-ktx:1.17.0"

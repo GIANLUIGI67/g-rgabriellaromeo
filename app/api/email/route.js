@@ -3,6 +3,8 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { supabase } from '../../lib/supabaseClient';
 import { sendEmail } from '../../lib/mailer';
 
+const ORDER_NOTIFICATION_CC = process.env.ORDER_NOTIFICATION_CC || 'info@g-rgabriellaromeo.it';
+
 export async function POST(req) {
   const { email, nome, ordineId, totale, lang } = await req.json();
 
@@ -56,6 +58,7 @@ export async function POST(req) {
   try {
     await sendEmail({
       to: email,
+      cc: ORDER_NOTIFICATION_CC,
       subject: `Fattura Ordine ${ordineId}`,
       html: `<p>${messaggio}</p>`,
       attachments: [

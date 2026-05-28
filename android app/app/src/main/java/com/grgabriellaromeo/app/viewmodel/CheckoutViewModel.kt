@@ -2,6 +2,7 @@ package com.grgabriellaromeo.app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.grgabriellaromeo.app.BuildConfig
 import com.grgabriellaromeo.app.data.models.CartItem
 import com.grgabriellaromeo.app.data.models.Cliente
 import com.grgabriellaromeo.app.data.repositories.AuthRepository
@@ -17,6 +18,16 @@ sealed class CheckoutState {
     object Success : CheckoutState()
     data class Error(val message: String) : CheckoutState()
 }
+
+data class StripePaymentRequest(
+    val clientSecret: String,
+    val paymentIntentId: String
+)
+
+data class PayPalApprovalRequest(
+    val orderId: String,
+    val approvalUrl: String
+)
 
 class CheckoutViewModel : ViewModel() {
     private val orderRepo = OrderRepository()
@@ -42,6 +53,11 @@ class CheckoutViewModel : ViewModel() {
     var productionPolicyAccepted = MutableStateFlow(false)
     var shippingMethod = MutableStateFlow("ritiro")
     var lastConfirmedPaymentMethod = MutableStateFlow<String?>(null)
+    var stripePaymentRequest = MutableStateFlow<StripePaymentRequest?>(null)
+    var paypalApprovalRequest = MutableStateFlow<PayPalApprovalRequest?>(null)
+
+    private var pendingStripePaymentIntentId: String? = null
+    private var pendingPayPalOrderId: String? = null
 
     fun prefillFromCliente(cliente: Cliente) {
         nome.value = cliente.nome
@@ -98,29 +114,165 @@ class CheckoutViewModel : ViewModel() {
                 if (currentQuote.productionPolicyRequired && !productionPolicyAccepted.value) {
                     throw IllegalStateException("Accetta la policy di produzione per procedere")
                 }
-                if (selectedPaymentMethod == "bonifico") {
-                    orderRepo.reserveBankTransfer(
-                        items = items,
-                        shippingMethod = shippingMethod.value,
-                        accessToken = token,
-                        productionPolicyAccepted = productionPolicyAccepted.value
-                    )
-                } else {
-                    orderRepo.finalizeCheckout(
-                        items = items,
-                        shippingMethod = shippingMethod.value,
-                        paymentMethod = selectedPaymentMethod,
-                        paymentStatus = "in attesa pagamento",
-                        accessToken = token,
-                        productionPolicyAccepted = productionPolicyAccepted.value
-                    )
+                if (selectedPaymentMethod != "bonifico") {
+                    throw IllegalStateException("Apri il provider di pagamento per completare l'ordine")
                 }
+                orderRepo.reserveBankTransfer(
+                    items = items,
+                    shippingMethod = shippingMethod.value,
+                    accessToken = token,
+                    productionPolicyAccepted = productionPolicyAccepted.value
+                )
             }
                 .onSuccess {
-                    lastConfirmedPaymentMethod.value = selectedPaymentMethod
+                lastConfirmedPaymentMethod.value = selectedPaymentMethod
+                _state.value = CheckoutState.Success
+            }
+                .onFailure { _state.value = CheckoutState.Error(it.message ?: "Order failed") }
+        }
+    }
+
+    fun startStripePayment(items: List<CartItem>) {
+        if (BuildConfig.STRIPE_PK.isBlank()) {
+            _state.value = CheckoutState.Error("Stripe non configurato")
+            return
+        }
+
+        _state.value = CheckoutState.Loading
+        viewModelScope.launch {
+            runCatching {
+                val token = authRepo.currentAccessToken() ?: throw IllegalStateException("Login required")
+                val currentQuote = quote.value ?: orderRepo.quote(items, shippingMethod.value, token).also { quote.value = it }
+                if (currentQuote.productionPolicyRequired && !productionPolicyAccepted.value) {
+                    throw IllegalStateException("Accetta la policy di produzione per procedere")
+                }
+                orderRepo.createPaymentIntent(
+                    items = items,
+                    shippingMethod = shippingMethod.value,
+                    accessToken = token,
+                    productionPolicyAccepted = productionPolicyAccepted.value
+                )
+            }
+                .onSuccess {
+                    val paymentIntentId = it.paymentIntentId ?: it.clientSecret.substringBefore("_secret_")
+                    pendingStripePaymentIntentId = paymentIntentId
+                    stripePaymentRequest.value = StripePaymentRequest(
+                        clientSecret = it.clientSecret,
+                        paymentIntentId = paymentIntentId
+                    )
+                    _state.value = CheckoutState.Idle
+                }
+                .onFailure { _state.value = CheckoutState.Error(it.message ?: "Stripe payment failed") }
+        }
+    }
+
+    fun clearStripePaymentRequest() {
+        stripePaymentRequest.value = null
+    }
+
+    fun completeStripePayment(items: List<CartItem>) {
+        val paymentIntentId = pendingStripePaymentIntentId
+        if (paymentIntentId.isNullOrBlank()) {
+            _state.value = CheckoutState.Error("Pagamento Stripe non verificabile")
+            return
+        }
+
+        _state.value = CheckoutState.Loading
+        viewModelScope.launch {
+            runCatching {
+                val token = authRepo.currentAccessToken() ?: throw IllegalStateException("Login required")
+                orderRepo.finalizeCheckout(
+                    items = items,
+                    shippingMethod = shippingMethod.value,
+                    paymentMethod = "Carta di Credito",
+                    paymentStatus = "pagato",
+                    accessToken = token,
+                    productionPolicyAccepted = productionPolicyAccepted.value,
+                    transactionId = paymentIntentId
+                )
+            }
+                .onSuccess {
+                    pendingStripePaymentIntentId = null
+                    lastConfirmedPaymentMethod.value = "carta"
                     _state.value = CheckoutState.Success
                 }
                 .onFailure { _state.value = CheckoutState.Error(it.message ?: "Order failed") }
         }
+    }
+
+    fun startPayPalPayment(items: List<CartItem>) {
+        if (BuildConfig.PAYPAL_ENABLED != "true") {
+            _state.value = CheckoutState.Error("PayPal non configurato")
+            return
+        }
+
+        _state.value = CheckoutState.Loading
+        viewModelScope.launch {
+            runCatching {
+                val token = authRepo.currentAccessToken() ?: throw IllegalStateException("Login required")
+                val currentQuote = quote.value ?: orderRepo.quote(items, shippingMethod.value, token).also { quote.value = it }
+                if (currentQuote.productionPolicyRequired && !productionPolicyAccepted.value) {
+                    throw IllegalStateException("Accetta la policy di produzione per procedere")
+                }
+                val siteBase = BuildConfig.SITE_URL.trim().trimEnd('/')
+                orderRepo.createPayPalOrder(
+                    items = items,
+                    shippingMethod = shippingMethod.value,
+                    accessToken = token,
+                    productionPolicyAccepted = productionPolicyAccepted.value,
+                    returnUrl = "$siteBase/paypal/android-return",
+                    cancelUrl = "$siteBase/paypal/android-cancel"
+                )
+            }
+                .onSuccess {
+                    pendingPayPalOrderId = it.orderId
+                    paypalApprovalRequest.value = PayPalApprovalRequest(
+                        orderId = it.orderId,
+                        approvalUrl = it.approvalUrl
+                    )
+                    _state.value = CheckoutState.Idle
+                }
+                .onFailure { _state.value = CheckoutState.Error(it.message ?: "PayPal payment failed") }
+        }
+    }
+
+    fun markPayPalApprovalLaunched() {
+        paypalApprovalRequest.value = null
+    }
+
+    fun completePayPalPayment(items: List<CartItem>, returnedOrderId: String?) {
+        val orderId = returnedOrderId?.takeIf { it.isNotBlank() } ?: pendingPayPalOrderId
+        if (orderId.isNullOrBlank()) {
+            _state.value = CheckoutState.Error("Ordine PayPal non verificabile")
+            return
+        }
+
+        _state.value = CheckoutState.Loading
+        viewModelScope.launch {
+            runCatching {
+                val token = authRepo.currentAccessToken() ?: throw IllegalStateException("Login required")
+                orderRepo.capturePayPalOrder(
+                    items = items,
+                    shippingMethod = shippingMethod.value,
+                    orderId = orderId,
+                    accessToken = token,
+                    productionPolicyAccepted = productionPolicyAccepted.value
+                )
+            }
+                .onSuccess {
+                    pendingPayPalOrderId = null
+                    lastConfirmedPaymentMethod.value = "paypal"
+                    _state.value = CheckoutState.Success
+                }
+                .onFailure { _state.value = CheckoutState.Error(it.message ?: "PayPal capture failed") }
+        }
+    }
+
+    fun cancelExternalPayment(message: String = "Pagamento annullato") {
+        pendingPayPalOrderId = null
+        pendingStripePaymentIntentId = null
+        paypalApprovalRequest.value = null
+        stripePaymentRequest.value = null
+        _state.value = CheckoutState.Error(message)
     }
 }

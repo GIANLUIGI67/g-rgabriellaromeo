@@ -6,6 +6,8 @@ import { createServerSupabaseServiceClient } from '../../../lib/serverSupabase';
 import { sendEmail } from '../../../lib/mailer';
 import { getSiteUrl } from '../../../lib/siteUrl';
 
+const ORDER_NOTIFICATION_CC = process.env.ORDER_NOTIFICATION_CC || 'info@g-rgabriellaromeo.it';
+
 function withTimeout(promise, timeoutMs, label) {
   return Promise.race([
     promise,
@@ -55,6 +57,7 @@ export async function POST(request) {
 
       await withTimeout(sendEmail({
         to: customer.email,
+        cc: ORDER_NOTIFICATION_CC,
         subject: `Ordine ricevuto N. ${tempOrder.id} — in attesa di bonifico — G-R Gabriella Romeo`,
         html: `
           <div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:32px;">

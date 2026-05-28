@@ -39,7 +39,7 @@ export async function POST(req) {
       automatic_payment_methods: { enabled: true },
     });
 
-    return jsonResponse({ clientSecret: pi.client_secret, total: quote.total }, 200);
+    return jsonResponse({ clientSecret: pi.client_secret, paymentIntentId: pi.id, total: quote.total }, 200);
   } catch (err) {
     console.error('create-payment-intent error:', err);
     return jsonResponse({ error: err?.message || 'Server error' }, 400);

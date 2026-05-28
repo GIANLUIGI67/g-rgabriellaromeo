@@ -80,6 +80,46 @@ class OrderRepository {
     )
 
     @Serializable
+    data class PaymentIntentRequest(
+        val currency: String = "eur",
+        val cart: List<CheckoutCartItem>,
+        val shippingMethod: String,
+        val productionPolicyAccepted: Boolean
+    )
+
+    @Serializable
+    data class PaymentIntentResponse(
+        val clientSecret: String,
+        val paymentIntentId: String? = null,
+        val total: Double? = null
+    )
+
+    @Serializable
+    data class PayPalCreateRequest(
+        val cart: List<CheckoutCartItem>,
+        val shippingMethod: String,
+        val productionPolicyAccepted: Boolean,
+        val returnUrl: String? = null,
+        val cancelUrl: String? = null
+    )
+
+    @Serializable
+    data class PayPalCreateResponse(
+        val ok: Boolean? = null,
+        val orderId: String,
+        val approvalUrl: String,
+        val total: Double? = null
+    )
+
+    @Serializable
+    data class PayPalCaptureRequest(
+        val cart: List<CheckoutCartItem>,
+        val shippingMethod: String,
+        val orderId: String,
+        val productionPolicyAccepted: Boolean
+    )
+
+    @Serializable
     data class ReserveRequest(
         val cart: List<CheckoutCartItem>,
         val shippingMethod: String,
@@ -118,16 +158,74 @@ class OrderRepository {
         paymentMethod: String,
         paymentStatus: String,
         accessToken: String,
-        productionPolicyAccepted: Boolean
+        productionPolicyAccepted: Boolean,
+        transactionId: String? = null
     ): FinalizeResponse {
         val payload = FinalizeRequest(
             cart = items.toCheckoutCart(),
             shippingMethod = shippingMethod,
             paymentMethod = paymentMethod,
             paymentStatus = paymentStatus,
+            transactionId = transactionId,
             productionPolicyAccepted = productionPolicyAccepted
         )
         return postJson("api/checkout/finalize", payload, accessToken)
+    }
+
+    suspend fun createPaymentIntent(
+        items: List<CartItem>,
+        shippingMethod: String,
+        accessToken: String,
+        productionPolicyAccepted: Boolean
+    ): PaymentIntentResponse {
+        val payload = PaymentIntentRequest(
+            cart = items.toCheckoutCart(),
+            shippingMethod = shippingMethod,
+            productionPolicyAccepted = productionPolicyAccepted
+        )
+        return postJson("api/create-payment-intent", payload, accessToken)
+    }
+
+    suspend fun createPayPalOrder(
+        items: List<CartItem>,
+        shippingMethod: String,
+        accessToken: String,
+        productionPolicyAccepted: Boolean,
+        returnUrl: String? = null,
+        cancelUrl: String? = null
+    ): PayPalCreateResponse {
+        val payload = PayPalCreateRequest(
+            cart = items.toCheckoutCart(),
+            shippingMethod = shippingMethod,
+            productionPolicyAccepted = productionPolicyAccepted,
+            returnUrl = returnUrl,
+            cancelUrl = cancelUrl
+        )
+        return postJsonWithFallback(
+            paths = listOf("api/paypal/create-order", "api/create-paypal-order"),
+            payload = payload,
+            accessToken = accessToken
+        )
+    }
+
+    suspend fun capturePayPalOrder(
+        items: List<CartItem>,
+        shippingMethod: String,
+        orderId: String,
+        accessToken: String,
+        productionPolicyAccepted: Boolean
+    ): FinalizeResponse {
+        val payload = PayPalCaptureRequest(
+            cart = items.toCheckoutCart(),
+            shippingMethod = shippingMethod,
+            orderId = orderId,
+            productionPolicyAccepted = productionPolicyAccepted
+        )
+        return postJsonWithFallback(
+            paths = listOf("api/paypal/capture-order", "api/capture-paypal-order"),
+            payload = payload,
+            accessToken = accessToken
+        )
     }
 
     suspend fun reserveBankTransfer(
@@ -196,5 +294,23 @@ class OrderRepository {
         }
 
         json.decodeFromString(body)
+    }
+
+    private suspend inline fun <reified Req : Any, reified Res : Any> postJsonWithFallback(
+        paths: List<String>,
+        payload: Req,
+        accessToken: String
+    ): Res {
+        var lastError: Throwable? = null
+        for (path in paths) {
+            try {
+                return postJson(path, payload, accessToken)
+            } catch (error: IllegalStateException) {
+                val isNotFound = error.message?.contains("HTTP 404") == true
+                if (!isNotFound) throw error
+                lastError = error
+            }
+        }
+        throw lastError ?: IllegalStateException("HTTP 404")
     }
 }

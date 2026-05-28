@@ -1,6 +1,8 @@
 package com.grgabriellaromeo.app.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -148,25 +150,32 @@ fun CheckoutScreen(
         }
 
         if (productionRequired) {
-            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF111111))) {
+            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF160B0B))) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(text = "Policy di produzione", color = Gold, fontFamily = Michroma, fontSize = 14.sp)
+                    Text(text = Translations.t("policy_produzione_titolo", lang), color = Gold, fontFamily = Michroma, fontSize = 14.sp)
                     Text(
-                        text = "Uno o più prodotti non sono disponibili in pronta consegna. Confermando la policy accetti che l'ordine venga prodotto e che i tempi di evasione dipendano dalla produzione.",
-                        color = Gold,
-                        fontSize = 12.sp,
+                        text = Translations.t("policy_produzione_testo", lang),
+                        color = Color.White,
+                        fontSize = 13.sp,
                         lineHeight = 18.sp
                     )
                     quote?.productionItems?.takeIf { it.isNotEmpty() }?.let { items ->
                         Text(text = items.joinToString { it.nome }, color = Gold, fontSize = 12.sp)
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(1.dp, Gold)
+                            .clickable { checkoutVm.productionPolicyAccepted.value = !productionPolicyAccepted }
+                            .padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Checkbox(
                             checked = productionPolicyAccepted,
                             onCheckedChange = { checkoutVm.productionPolicyAccepted.value = it },
                             colors = CheckboxDefaults.colors(checkedColor = Gold)
                         )
-                        Text(text = "Accetto la policy di produzione", color = Gold, fontSize = 12.sp)
+                        Text(text = Translations.t("accetto_policy_produzione", lang), color = Color.White, fontSize = 13.sp)
                     }
                 }
             }

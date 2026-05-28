@@ -1,13 +1,16 @@
 export const runtime = 'nodejs';
 
 import { buildCheckoutQuote, finalizeCheckout, loadCustomerProfile } from '../../../lib/checkout';
+import {
+  capturePayPalCheckoutOrder,
+  extractPayPalCapturedAmount,
+  extractPayPalCaptureId,
+} from '../../../lib/paypal';
 import { jsonResponse, requireUser } from '../../../lib/serverAuth';
 import { createServerSupabaseServiceClient } from '../../../lib/serverSupabase';
 import { sendEmail } from '../../../lib/mailer';
 import { getSiteUrl } from '../../../lib/siteUrl';
-import { verifyPayPalCapture } from '../../../lib/paypal';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import Stripe from 'stripe';
 
 const ORDER_NOTIFICATION_CC = process.env.ORDER_NOTIFICATION_CC || 'info@g-rgabriellaromeo.it';
 
@@ -40,7 +43,7 @@ async function buildInvoicePDF(order) {
   y -= 28;
   draw('Prodotti:', 50, y, 13);
   y -= 20;
-  (order.carrello || []).forEach(p => {
+  (order.carrello || []).forEach((p) => {
     const taglia = p.taglia ? ` (${p.taglia})` : '';
     draw(`• ${p.nome}${taglia}  x${p.quantita}  —  EUR ${Number(p.prezzo).toFixed(2)}`, 60, y);
     y -= 18;
@@ -55,29 +58,11 @@ async function buildInvoicePDF(order) {
   return pdfDoc.save();
 }
 
-function normalizePaymentMethod(value) {
-  const method = String(value || '').trim().toLowerCase();
-  if (method === 'paypal') return 'PayPal';
-  if (['carta', 'card', 'stripe', 'carta di credito', 'credit card', 'carta di credito/debito'].includes(method)) {
-    return 'Carta di Credito';
-  }
-  return null;
-}
-
-async function verifyStripePaymentIntent(transactionId, quote) {
-  const secret = process.env.STRIPE_SECRET_KEY;
-  if (!secret) throw new Error('Missing STRIPE_SECRET_KEY');
-  if (!transactionId) throw new Error('Missing Stripe payment intent id');
-
-  const stripe = new Stripe(secret, { apiVersion: '2024-06-20' });
-  const paymentIntent = await stripe.paymentIntents.retrieve(transactionId);
-  if (paymentIntent.status !== 'succeeded') {
-    throw new Error('Stripe payment is not completed');
-  }
-
-  const expectedAmount = Math.round(Number(quote.total) * 100);
-  if (paymentIntent.currency !== 'eur' || paymentIntent.amount_received !== expectedAmount) {
-    throw new Error('Stripe payment amount does not match the order total');
+function assertCapturedAmountMatches(captured, quoteTotal) {
+  const expected = Math.round(Number(quoteTotal) * 100);
+  const received = Math.round(Number(captured.value) * 100);
+  if (captured.currency !== 'EUR' || received !== expected) {
+    throw new Error('PayPal payment amount does not match the order total');
   }
 }
 
@@ -89,10 +74,11 @@ export async function POST(request) {
     const {
       cart,
       shippingMethod,
-      paymentMethod,
-      transactionId = null,
+      orderId,
       productionPolicyAccepted = false,
-    } = await request.json();
+    } = await request.json().catch(() => ({}));
+
+    if (!orderId) return jsonResponse({ error: 'Missing PayPal order id' }, 400);
 
     const service = createServerSupabaseServiceClient();
     const customer = await loadCustomerProfile(service, auth.user.email);
@@ -104,27 +90,19 @@ export async function POST(request) {
       productionPolicyAccepted,
     });
 
-    const normalizedPaymentMethod = normalizePaymentMethod(paymentMethod);
-    if (!normalizedPaymentMethod) {
-      return jsonResponse({ error: 'Unsupported payment method' }, 400);
-    }
-
-    if (normalizedPaymentMethod === 'PayPal') {
-      if (!transactionId) {
-        return jsonResponse({ error: 'Missing PayPal transaction id' }, 400);
-      }
-      await verifyPayPalCapture(transactionId);
-    } else if (normalizedPaymentMethod === 'Carta di Credito') {
-      await verifyStripePaymentIntent(transactionId, quote);
-    }
+    const captureOrder = await capturePayPalCheckoutOrder(orderId);
+    const captureId = extractPayPalCaptureId(captureOrder);
+    const capturedAmount = extractPayPalCapturedAmount(captureOrder);
+    if (!captureId) throw new Error('PayPal capture id missing');
+    assertCapturedAmountMatches(capturedAmount, quote.total);
 
     const order = await finalizeCheckout({
       service,
       customer,
       quote,
-      paymentMethod: normalizedPaymentMethod,
+      paymentMethod: 'PayPal',
       paymentStatus: 'pagato',
-      transactionId,
+      transactionId: captureId,
     });
 
     // Send confirmation email with invoice PDF (non-blocking)
@@ -165,6 +143,6 @@ export async function POST(request) {
 
     return jsonResponse({ ok: true, orderId: order.id, total: order.totale });
   } catch (error) {
-    return jsonResponse({ error: error?.message || 'Unable to finalize checkout' }, 400);
+    return jsonResponse({ error: error?.message || 'Unable to capture PayPal order' }, 400);
   }
 }
