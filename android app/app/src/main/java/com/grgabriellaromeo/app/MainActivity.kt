@@ -17,6 +17,11 @@ class MainActivity : ComponentActivity() {
             setOnExitAnimationListener { it.remove() }
         }
         super.onCreate(savedInstanceState)
+        if (BuildConfig.ADMIN_CONTAINER_ONLY) {
+            startActivity(Intent(this, AdminContainerActivity::class.java))
+            finish()
+            return
+        }
         if (BuildConfig.STRIPE_PK.isNotBlank()) {
             PaymentConfiguration.init(applicationContext, BuildConfig.STRIPE_PK)
         }

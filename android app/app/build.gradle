@@ -70,6 +70,9 @@ android {
         buildConfigField "String", "PAYPAL_CLIENT_ID",  buildConfigString(secretValue("PAYPAL_CLIENT_ID"))
         buildConfigField "String", "PAYPAL_ENABLED",    buildConfigString(secretValue("PAYPAL_ENABLED", "false"))
         buildConfigField "String", "SITE_URL",          buildConfigString(secretValue("SITE_URL", "https://g-rgabriellaromeo.vercel.app"))
+        buildConfigField "boolean", "ADMIN_CONTAINER_ONLY", "false"
+        buildConfigField "String", "ADMIN_URL",         buildConfigString(secretValue("ADMIN_URL", "https://g-rgabriellaromeo.vercel.app/admin"))
+        manifestPlaceholders = [appLabel: "@string/app_name"]
     }
 
     signingConfigs {
@@ -84,12 +87,28 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField "boolean", "ADMIN_CONTAINER_ONLY", "false"
+        }
+
         release {
             minifyEnabled false
+            buildConfigField "boolean", "ADMIN_CONTAINER_ONLY", "false"
             if (hasUploadSigning) {
                 signingConfig signingConfigs.release
             }
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+        admin {
+            initWith(release)
+            matchingFallbacks = ['release']
+            applicationIdSuffix ".admin"
+            versionNameSuffix "-admin"
+            debuggable true
+            signingConfig signingConfigs.debug
+            manifestPlaceholders = [appLabel: "G-R Admin"]
+            buildConfigField "boolean", "ADMIN_CONTAINER_ONLY", "true"
         }
     }
 

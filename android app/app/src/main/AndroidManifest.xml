@@ -7,10 +7,14 @@
         android:name=".GRApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="${appLabel}"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GRApp">
+        <activity
+            android:name=".AdminContainerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GRAdminContainer" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">G-R Gabriella Romeo</string>
+    <string name="admin_badge">ADMIN</string>
+    <string name="admin_reload">Ricarica</string>
+    <string name="admin_page_title">G-R Admin</string>
+    <string name="admin_load_error">Impossibile aprire la pagina admin.</string>
 </resources>
