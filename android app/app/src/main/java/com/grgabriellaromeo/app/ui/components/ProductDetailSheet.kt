@@ -85,12 +85,16 @@ fun ProductDetailSheet(
                 )
             },
             confirmButton = {
-                TextButton(
+                Button(
                     onClick = {
                         onAddToCart(item)
                         pendingProductionItem = null
                         onDismiss()
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Gold,
+                        contentColor = Color.Black
+                    )
                 ) {
                     Text(Translations.t("accetto_policy_produzione", lang), color = Color.Black)
                 }

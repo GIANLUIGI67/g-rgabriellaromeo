@@ -238,6 +238,7 @@ fun PagamentoScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .background(Color(0xFF111111))
                             .border(1.dp, Gold)
                             .clickable { checkoutVm.productionPolicyAccepted.value = !productionPolicyAccepted }
                             .padding(10.dp),
@@ -246,9 +247,18 @@ fun PagamentoScreen(
                         Checkbox(
                             checked = productionPolicyAccepted,
                             onCheckedChange = { checkoutVm.productionPolicyAccepted.value = it },
-                            colors = CheckboxDefaults.colors(checkedColor = Gold)
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = Gold,
+                                uncheckedColor = Gold,
+                                checkmarkColor = Color.Black
+                            )
                         )
-                        Text(text = Translations.t("accetto_policy_produzione", lang), color = Color.White, fontSize = 13.sp)
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = Translations.t("accetto_policy_produzione", lang),
+                            color = Color(0xFFFFF1C0),
+                            fontSize = 13.sp
+                        )
                     }
                 }
             }
