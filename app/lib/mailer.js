@@ -29,7 +29,7 @@ export async function sendEmail({ to, cc, subject, html, attachments }) {
 
   const transporter = createTransport();
   await transporter.sendMail({
-    from: `"G-R Gabriella Romeo" <${process.env.SMTP_USER || 'info@g-rgabriellaromeo.it'}>`,
+    from: `"G-R Gabriella Romeo" <${process.env.SMTP_USER || 'info@gabriellaromeo.it'}>`,
     to: toList.join(', '),
     cc: ccList.length ? ccList.join(', ') : undefined,
     subject,

@@ -3,19 +3,6 @@ export const runtime = 'nodejs';
 import { buildCheckoutQuote, createTemporaryOrder, loadCustomerProfile } from '../../../lib/checkout';
 import { jsonResponse, requireUser } from '../../../lib/serverAuth';
 import { createServerSupabaseServiceClient } from '../../../lib/serverSupabase';
-import { sendEmail } from '../../../lib/mailer';
-import { getSiteUrl } from '../../../lib/siteUrl';
-
-const ORDER_NOTIFICATION_CC = process.env.ORDER_NOTIFICATION_CC || 'info@g-rgabriellaromeo.it';
-
-function withTimeout(promise, timeoutMs, label) {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => {
-      setTimeout(() => reject(new Error(`${label} timeout after ${timeoutMs}ms`)), timeoutMs);
-    }),
-  ]);
-}
 
 /**
  * POST /api/checkout/reserve
@@ -50,40 +37,6 @@ export async function POST(request) {
       quote,
       paymentMethod: 'bonifico',
     });
-
-    // Send pending order email with bank transfer details (non-blocking)
-    try {
-      const siteUrl = getSiteUrl();
-
-      await withTimeout(sendEmail({
-        to: customer.email,
-        cc: ORDER_NOTIFICATION_CC,
-        subject: `Ordine ricevuto N. ${tempOrder.id} — in attesa di bonifico — G-R Gabriella Romeo`,
-        html: `
-          <div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:32px;">
-            <h2 style="color:#d4af37;">Ordine ricevuto!</h2>
-            <p>Ciao <strong>${customer.nome || customer.email}</strong>,</p>
-            <p>Abbiamo ricevuto il tuo ordine <strong>${tempOrder.id}</strong> per un totale di <strong>EUR ${Number(tempOrder.totale).toFixed(2)}</strong>.</p>
-            <p>Per completare l'acquisto, effettua il bonifico con i seguenti dati:</p>
-            <div style="background:#f5f5f5;padding:16px;border-radius:6px;margin:16px 0;">
-              <p style="margin:4px 0;color:#000;"><strong>Intestatario:</strong> Gabriella Romeo</p>
-              <p style="margin:4px 0;color:#000;"><strong>IBAN:</strong> IT10 Y050 3426 2010 0000 0204 438</p>
-              <p style="margin:4px 0;color:#000;"><strong>Causale:</strong> Ordine ${tempOrder.id}</p>
-              <p style="margin:4px 0;color:#000;"><strong>Importo:</strong> EUR ${Number(tempOrder.totale).toFixed(2)}</p>
-            </div>
-            <p>Una volta verificato il pagamento, riceverai una email di conferma e il tuo ordine verrà spedito.</p>
-            <br/>
-            <a href="${siteUrl}"
-               style="display:inline-block;padding:12px 24px;background:#d4af37;color:#000;text-decoration:none;border-radius:6px;font-weight:bold;">
-              Visita il negozio
-            </a>
-            <p style="margin-top:24px;font-size:12px;color:#666;">G-R Gabriella Romeo — info@g-rgabriellaromeo.it</p>
-          </div>
-        `,
-      }), 4000, 'Bonifico email');
-    } catch (emailErr) {
-      console.error('Bonifico email failed (order still valid):', emailErr.message);
-    }
 
     return jsonResponse({ ok: true, tempOrderId: tempOrder.id, total: tempOrder.totale });
   } catch (error) {

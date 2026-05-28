@@ -12,7 +12,7 @@ import { sendEmail } from '../../../lib/mailer';
 import { getSiteUrl } from '../../../lib/siteUrl';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
-const ORDER_NOTIFICATION_CC = process.env.ORDER_NOTIFICATION_CC || 'info@g-rgabriellaromeo.it';
+const ORDER_NOTIFICATION_CC = process.env.ORDER_NOTIFICATION_CC || 'info@gabriellaromeo.it';
 
 function withTimeout(promise, timeoutMs, label) {
   return Promise.race([
@@ -126,7 +126,7 @@ export async function POST(request) {
                style="display:inline-block;padding:12px 24px;background:#d4af37;color:#000;text-decoration:none;border-radius:6px;font-weight:bold;">
               Visita il negozio
             </a>
-            <p style="margin-top:24px;font-size:12px;color:#666;">G-R Gabriella Romeo — info@g-rgabriellaromeo.it</p>
+            <p style="margin-top:24px;font-size:12px;color:#666;">G-R Gabriella Romeo — info@gabriellaromeo.it</p>
           </div>
         `,
         attachments: [
