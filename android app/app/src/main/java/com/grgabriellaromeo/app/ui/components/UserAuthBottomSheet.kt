@@ -36,6 +36,7 @@ fun UserAuthBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        modifier = Modifier.heightIn(min = 360.dp),
         containerColor = Color(0xFF111111),
         contentColor = Color.White
     ) {
@@ -126,7 +127,7 @@ fun UserAuthBottomSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(48.dp))
         }
     }
 }

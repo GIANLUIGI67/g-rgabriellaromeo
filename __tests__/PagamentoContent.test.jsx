@@ -87,6 +87,9 @@ beforeEach(() => {
         },
       });
     }
+    if (url.includes("/api/checkout/reserve")) {
+      return okJson({ tempOrderId: "ord-123" });
+    }
     if (url.includes("/api/checkout/finalize")) {
       return okJson({ orderId: "ord-123" });
     }
@@ -180,7 +183,7 @@ describe("PagamentoContent", () => {
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringMatching(/\/api\/checkout\/finalize/),
+        expect.stringMatching(/\/api\/checkout\/reserve/),
         expect.objectContaining({ method: "POST" })
       );
     });

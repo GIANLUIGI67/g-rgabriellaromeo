@@ -1,4 +1,4 @@
-import { parsePrice } from './productDisplay';
+import { parsePrice } from './productDisplay.js';
 
 function toPositiveInteger(value, fallback = 1) {
   const parsed = Number(value);

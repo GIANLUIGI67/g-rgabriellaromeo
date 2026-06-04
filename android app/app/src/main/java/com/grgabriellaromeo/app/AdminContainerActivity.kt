@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.webkit.CookieManager
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -15,6 +16,8 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 
 class AdminContainerActivity : AppCompatActivity() {
     private lateinit var webView: WebView
@@ -40,8 +43,11 @@ class AdminContainerActivity : AppCompatActivity() {
         setContentView(R.layout.activity_admin_container)
         title = getString(R.string.admin_page_title)
 
+        val rootView = findViewById<View>(R.id.adminRoot)
+        val headerView = findViewById<View>(R.id.adminHeader)
         webView = findViewById(R.id.adminWebView)
         findViewById<Button>(R.id.adminReloadButton).setOnClickListener { webView.reload() }
+        applySystemBarInsets(rootView, headerView)
 
         configureWebView()
 
@@ -60,6 +66,39 @@ class AdminContainerActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    private fun applySystemBarInsets(rootView: View, headerView: View) {
+        val initialHeaderLeft = headerView.paddingLeft
+        val initialHeaderTop = headerView.paddingTop
+        val initialHeaderRight = headerView.paddingRight
+        val initialHeaderBottom = headerView.paddingBottom
+
+        val initialWebViewLeft = webView.paddingLeft
+        val initialWebViewTop = webView.paddingTop
+        val initialWebViewRight = webView.paddingRight
+        val initialWebViewBottom = webView.paddingBottom
+
+        ViewCompat.setOnApplyWindowInsetsListener(rootView) { _, insets ->
+            val barsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            headerView.setPadding(
+                initialHeaderLeft + barsInsets.left,
+                initialHeaderTop + barsInsets.top,
+                initialHeaderRight + barsInsets.right,
+                initialHeaderBottom
+            )
+
+            webView.setPadding(
+                initialWebViewLeft + barsInsets.left,
+                initialWebViewTop,
+                initialWebViewRight + barsInsets.right,
+                initialWebViewBottom + barsInsets.bottom
+            )
+
+            insets
+        }
+        ViewCompat.requestApplyInsets(rootView)
     }
 
     private fun configureWebView() {

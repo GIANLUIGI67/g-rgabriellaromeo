@@ -47,7 +47,7 @@ Deno.serve(async (request) => {
       automatic_payment_methods: { enabled: true },
     });
 
-    return jsonResponse({ clientSecret: paymentIntent.client_secret, total: quote.total }, 200);
+    return jsonResponse({ clientSecret: paymentIntent.client_secret, paymentIntentId: paymentIntent.id, total: quote.total }, 200);
   } catch (error) {
     console.error('payment-intent error:', error);
     return jsonResponse({ error: error instanceof Error ? error.message : 'Server error' }, 500);

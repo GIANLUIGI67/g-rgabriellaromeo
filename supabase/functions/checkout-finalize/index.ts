@@ -1,7 +1,15 @@
+import Stripe from 'npm:stripe@18.4.0';
 import { buildCheckoutQuote, finalizeCheckout, loadCustomerProfile } from '../_shared/checkout.ts';
 import { jsonResponse, corsHeaders } from '../_shared/cors.ts';
 import { requireUser } from '../_shared/auth.ts';
 import { createServiceClient } from '../_shared/supabase.ts';
+
+function paypalApiBase() {
+  const fallback = Deno.env.get('NEXT_PUBLIC_PAYPAL_ENV') === 'sandbox'
+    ? 'https://api-m.sandbox.paypal.com'
+    : 'https://api-m.paypal.com';
+  return (Deno.env.get('PAYPAL_API_BASE') || fallback).replace(/\/$/, '');
+}
 
 async function verifyPayPalCapture(transactionId: string) {
   const clientId = Deno.env.get('NEXT_PUBLIC_PAYPAL_CLIENT_ID');
@@ -11,7 +19,7 @@ async function verifyPayPalCapture(transactionId: string) {
   }
 
   const auth = btoa(`${clientId}:${clientSecret}`);
-  const tokenRes = await fetch('https://api-m.paypal.com/v1/oauth2/token', {
+  const tokenRes = await fetch(`${paypalApiBase()}/v1/oauth2/token`, {
     method: 'POST',
     headers: {
       Authorization: `Basic ${auth}`,
@@ -23,7 +31,7 @@ async function verifyPayPalCapture(transactionId: string) {
   if (!tokenRes.ok) throw new Error('Unable to authenticate with PayPal');
 
   const tokenJson = await tokenRes.json();
-  const captureRes = await fetch(`https://api-m.paypal.com/v2/payments/captures/${transactionId}`, {
+  const captureRes = await fetch(`${paypalApiBase()}/v2/payments/captures/${transactionId}`, {
     headers: {
       Authorization: `Bearer ${tokenJson.access_token}`,
     },
@@ -34,6 +42,32 @@ async function verifyPayPalCapture(transactionId: string) {
   const capture = await captureRes.json();
   if (capture.status !== 'COMPLETED') {
     throw new Error('PayPal capture is not completed');
+  }
+}
+
+function normalizePaymentMethod(value: unknown) {
+  const method = String(value || '').trim().toLowerCase();
+  if (method === 'paypal') return 'PayPal';
+  if (['carta', 'card', 'stripe', 'carta di credito', 'credit card', 'carta di credito/debito'].includes(method)) {
+    return 'Carta di Credito';
+  }
+  return null;
+}
+
+async function verifyStripePaymentIntent(transactionId: string | null, quote: { total: number }) {
+  const secret = Deno.env.get('STRIPE_SECRET_KEY');
+  if (!secret) throw new Error('Missing STRIPE_SECRET_KEY');
+  if (!transactionId) throw new Error('Missing Stripe payment intent id');
+
+  const stripe = new Stripe(secret, { apiVersion: '2024-06-20' });
+  const paymentIntent = await stripe.paymentIntents.retrieve(transactionId);
+  if (paymentIntent.status !== 'succeeded') {
+    throw new Error('Stripe payment is not completed');
+  }
+
+  const expectedAmount = Math.round(Number(quote.total) * 100);
+  if (paymentIntent.currency !== 'eur' || paymentIntent.amount_received !== expectedAmount) {
+    throw new Error('Stripe payment amount does not match the order total');
   }
 }
 
@@ -54,7 +88,6 @@ Deno.serve(async (request) => {
       cart,
       shippingMethod,
       paymentMethod,
-      paymentStatus,
       transactionId = null,
       productionPolicyAccepted = false,
     } = await request.json();
@@ -69,19 +102,26 @@ Deno.serve(async (request) => {
       productionPolicyAccepted,
     });
 
-    if (paymentMethod === 'PayPal') {
+    const normalizedPaymentMethod = normalizePaymentMethod(paymentMethod);
+    if (!normalizedPaymentMethod) {
+      return jsonResponse({ error: 'Unsupported payment method' }, 400);
+    }
+
+    if (normalizedPaymentMethod === 'PayPal') {
       if (!transactionId) {
         return jsonResponse({ error: 'Missing PayPal transaction id' }, 400);
       }
       await verifyPayPalCapture(transactionId);
+    } else if (normalizedPaymentMethod === 'Carta di Credito') {
+      await verifyStripePaymentIntent(transactionId, quote);
     }
 
     const order = await finalizeCheckout({
       service,
       customer,
       quote,
-      paymentMethod,
-      paymentStatus,
+      paymentMethod: normalizedPaymentMethod,
+      paymentStatus: 'pagato',
       transactionId,
     });
 

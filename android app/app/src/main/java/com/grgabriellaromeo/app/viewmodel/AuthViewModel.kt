@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.grgabriellaromeo.app.data.models.Cliente
 import com.grgabriellaromeo.app.data.repositories.AuthRepository
 import io.github.jan.supabase.auth.user.UserInfo
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -33,18 +34,18 @@ class AuthViewModel : ViewModel() {
         val user = repo.currentUser()
         if (user != null) {
             _state.value = AuthState.Success(user)
-            loadCliente(user.id)
+            loadCliente(user.id, user.email)
         }
     }
 
     fun login(email: String, password: String) {
         _state.value = AuthState.Loading
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             runCatching { repo.login(email, password) }
                 .onSuccess {
                     val user = repo.currentUser()!!
                     _state.value = AuthState.Success(user)
-                    loadCliente(user.id)
+                    loadCliente(user.id, user.email)
                 }
                 .onFailure { _state.value = AuthState.Error(it.message ?: "Login failed") }
         }
@@ -52,34 +53,34 @@ class AuthViewModel : ViewModel() {
 
     fun register(email: String, password: String, nome: String, cognome: String, telefono: String) {
         _state.value = AuthState.Loading
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             runCatching { repo.register(email, password, nome, cognome, telefono) }
                 .onSuccess {
                     val user = repo.currentUser()!!
                     _state.value = AuthState.Success(user)
-                    loadCliente(user.id)
+                    loadCliente(user.id, user.email)
                 }
                 .onFailure { _state.value = AuthState.Error(it.message ?: "Registration failed") }
         }
     }
 
     fun logout() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             runCatching { repo.logout() }
             _state.value = AuthState.Idle
             _cliente.value = null
         }
     }
 
-    private fun loadCliente(userId: String) {
-        viewModelScope.launch {
-            runCatching { repo.getCliente(userId) }
+    private fun loadCliente(userId: String, email: String? = null) {
+        viewModelScope.launch(Dispatchers.IO) {
+            runCatching { repo.getCliente(userId, email) }
                 .onSuccess { _cliente.value = it }
         }
     }
 
     fun updateCliente(cliente: Cliente) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             runCatching { repo.updateCliente(cliente) }
                 .onSuccess { _cliente.value = cliente }
         }

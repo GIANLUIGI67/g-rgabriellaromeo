@@ -18,6 +18,7 @@ yarn-error.log*
 .next/
 out/
 tmp/
+build/
 
 # IDE/Editor files
 .vscode/
@@ -29,7 +30,11 @@ xcuserdata/
 # Native build output
 android app/.gradle/
 android app/**/build/
+android app/app/capacitor.build.gradle
+android app/capacitor.settings.gradle
 ios app/build/
+ios app/App/
+ios app/capacitor-cordova-ios-plugins/
 ios app/**/xcuserdata/
 ios app/Config/Local.xcconfig
 
