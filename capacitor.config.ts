@@ -4,7 +4,7 @@ import { config as loadEnv } from 'dotenv';
 loadEnv({ path: '.env.local', override: true });
 loadEnv();
 
-const fallbackUrl = 'http://localhost:3000';
+const fallbackUrl = 'https://g-rgabriellaromeo.vercel.app';
 const appUrl = process.env.CAPACITOR_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || fallbackUrl;
 const normalizedUrl = new URL(appUrl);
 

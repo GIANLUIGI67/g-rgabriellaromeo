@@ -77,9 +77,9 @@ export default function HomeContent() {
       </div>
 
       {/* BANDIERE + QR */}
-      <div className="z-10 mt-auto mb-6">
+      <div className="gr-home-bottom z-10 mt-auto mb-6">
         <FlagLanguageSwitcher />
-        <div className="mt-4">
+        <div className="gr-home-social mt-4">
           <a
             href="https://www.instagram.com/grgabriellaromeo"
             target="_blank"

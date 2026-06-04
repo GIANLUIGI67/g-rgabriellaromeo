@@ -3,27 +3,41 @@ import { Phone, Heart, ShoppingCart, X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import UserMenu from './UserMenu';
+import { loadWishlistFromStorage } from '../app/lib/wishlist';
 
 export default function TopRightMenu() {
   const router = useRouter();
   const params = useSearchParams();
   const lang = params.get('lang') || 'it';
   const [showContatti, setShowContatti] = useState(false);
-  const [showWishlistMessage, setShowWishlistMessage] = useState(false);
+  const [wishlistCount, setWishlistCount] = useState(0);
   const contattiRef = useRef();
-  const wishlistModalRef = useRef();
 
   // Gestione chiusura modali con ESC
   useEffect(() => {
     const handleEsc = (event) => {
       if (event.key === 'Escape') {
         setShowContatti(false);
-        setShowWishlistMessage(false);
       }
     };
     
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
+
+  useEffect(() => {
+    const refreshWishlistCount = () => {
+      setWishlistCount(loadWishlistFromStorage().length);
+    };
+
+    refreshWishlistCount();
+    window.addEventListener('storage', refreshWishlistCount);
+    window.addEventListener('gr:wishlist-updated', refreshWishlistCount);
+
+    return () => {
+      window.removeEventListener('storage', refreshWishlistCount);
+      window.removeEventListener('gr:wishlist-updated', refreshWishlistCount);
+    };
   }, []);
 
   // Memoize translations for better performance
@@ -37,26 +51,6 @@ export default function TopRightMenu() {
       zh: '联系方式',
       ja: '連絡先',
       ar: 'اتصل بنا'
-    },
-    wishlistTitle: {
-      it: 'Pagina in Sviluppo',
-      en: 'Page Under Development',
-      fr: 'Page en Développement',
-      es: 'Página en Desarrollo',
-      de: 'Seite in Entwicklung',
-      zh: '页面开发中',
-      ja: '開発中のページ',
-      ar: 'الصفحة قيد التطوير'
-    },
-    wishlistMessage: {
-      it: 'La pagina della wishlist è attualmente in fase di sviluppo. Tornerà presto disponibile!',
-      en: 'The wishlist page is currently under development. It will be available soon!',
-      fr: 'La page de la liste de souhaits est en cours de développement. Elle sera bientôt disponible!',
-      es: 'La página de la lista de deseos está en desarrollo. ¡Estará disponible pronto!',
-      de: 'Die Wunschlistenseite befindet sich derzeit in der Entwicklung. Sie wird bald verfügbar sein!',
-      zh: '收藏页面正在开发中，即将上线！',
-      ja: 'ウィッシュリストページは現在開発中です。近日中に利用可能になります！',
-      ar: 'صفحة قائمة الأمنيات قيد التطوير حالياً. ستكون متاحة قريباً!'
     },
     preferiti: {
       it: 'Preferiti',
@@ -138,11 +132,16 @@ export default function TopRightMenu() {
         aria-label={translations.preferiti[lang] || translations.preferiti.it}
         onClick={() => {
           closeContatti();
-          setShowWishlistMessage(true);
+          router.push(`/wishlist?lang=${lang}`);
         }} 
-        className="cursor-pointer"
+        className="gr-top-wishlist-button cursor-pointer"
       >
         <Heart size={22} aria-hidden="true" />
+        {wishlistCount > 0 && (
+          <span className="gr-top-wishlist-count" aria-label={`${wishlistCount} ${translations.preferiti[lang] || translations.preferiti.it}`}>
+            {wishlistCount}
+          </span>
+        )}
       </button>
 
       {/* Carrello */}
@@ -161,44 +160,6 @@ export default function TopRightMenu() {
       <div onClick={closeContatti}>
         <UserMenu lang={lang} />
       </div>
-
-      {/* Wishlist Modal */}
-      {showWishlistMessage && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[10000]"
-          onClick={() => setShowWishlistMessage(false)}
-          role="dialog"
-          aria-modal="true"
-          ref={wishlistModalRef}
-        >
-          <div 
-            className="bg-gray-900 text-white p-6 rounded-xl max-w-md w-full mx-4 border border-gray-700 relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="absolute top-3 right-3 text-white hover:text-gray-300"
-              onClick={() => setShowWishlistMessage(false)}
-              aria-label={translations.chiudi[lang] || translations.chiudi.it}
-            >
-              <X size={24} aria-hidden="true" />
-            </button>
-            <h3 className="text-xl font-bold mb-3">
-              {translations.wishlistTitle[lang] || 'Page Under Development'}
-            </h3>
-            <p className="mb-4 text-gray-300">
-              {translations.wishlistMessage[lang] || 'The wishlist page is currently under development.'}
-            </p>
-            <div className="flex justify-center">
-              <button
-                className="bg-white text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-                onClick={() => setShowWishlistMessage(false)}
-              >
-                OK
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

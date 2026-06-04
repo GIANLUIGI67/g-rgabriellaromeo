@@ -133,7 +133,7 @@ body * {
   padding: 0.75rem !important;
   background: #ffffff !important;
   color: #050505 !important;
-  max-height: min(25rem, calc(100svh - 10rem)) !important;
+  max-height: min(28rem, calc(100svh - 7.5rem)) !important;
   overflow-y: auto !important;
 }
 
@@ -149,7 +149,7 @@ body * {
 }
 
 .gr-login-scroll {
-  max-height: min(20rem, calc(100svh - 13rem)) !important;
+  max-height: min(23rem, calc(100svh - 10.5rem)) !important;
   overflow-y: auto !important;
   padding-right: 0.1rem !important;
   padding-bottom: 0 !important;
@@ -675,6 +675,417 @@ body * {
 
 .gr-simple-page-card {
   border-radius: 0.4rem !important;
+}
+
+.gr-home-bottom {
+  display: grid !important;
+  gap: 0.9rem !important;
+  width: min(100%, 32rem) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.gr-home-social a {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.45rem !important;
+  color: var(--gr-gold) !important;
+  font-size: 0.82rem !important;
+  text-decoration: none !important;
+}
+
+.gr-top-wishlist-button {
+  position: relative !important;
+  display: inline-flex !important;
+}
+
+.gr-top-wishlist-count {
+  position: absolute !important;
+  top: -0.62rem !important;
+  right: -0.65rem !important;
+  min-width: 1.05rem !important;
+  height: 1.05rem !important;
+  padding: 0 0.24rem !important;
+  border-radius: 999px !important;
+  background: var(--gr-gold) !important;
+  color: #050505 !important;
+  font-size: 0.58rem !important;
+  line-height: 1.05rem !important;
+  text-align: center !important;
+}
+
+.gr-login-danger-link {
+  border-color: #8f1010 !important;
+  background: #fff !important;
+  color: #8f1010 !important;
+  font-size: 0.72rem !important;
+  line-height: 1.1 !important;
+  text-decoration: none !important;
+}
+
+.gr-product-favorite,
+.gr-product-modal-favorite {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 2.15rem !important;
+  height: 2.15rem !important;
+  padding: 0 !important;
+  border: 1px solid rgba(212, 175, 55, 0.82) !important;
+  border-radius: 999px !important;
+  background: rgba(0, 0, 0, 0.72) !important;
+  color: var(--gr-gold) !important;
+  cursor: pointer !important;
+  z-index: 4 !important;
+}
+
+.gr-product-favorite {
+  position: absolute !important;
+  top: 0.45rem !important;
+  right: 0.45rem !important;
+}
+
+.gr-product-modal-favorite {
+  position: absolute !important;
+  top: 0.7rem !important;
+  left: 0.75rem !important;
+}
+
+.gr-product-favorite svg,
+.gr-product-modal-favorite svg,
+.gr-product-modal-favorite * {
+  width: 1.12rem !important;
+  height: 1.12rem !important;
+  color: var(--gr-gold) !important;
+}
+
+.gr-wishlist-page,
+.gr-account-deletion-page,
+.gr-service-page {
+  min-height: 100vh !important;
+  padding: 4.75rem clamp(1.25rem, 6vw, 3rem) 2rem !important;
+  background: #000 !important;
+  color: var(--gr-gold) !important;
+}
+
+.gr-wishlist-page *,
+.gr-account-deletion-page *,
+.gr-service-page * {
+  letter-spacing: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.gr-wishlist-header,
+.gr-service-header {
+  display: grid !important;
+  justify-items: center !important;
+  gap: 0.45rem !important;
+  margin: 0 auto 1.4rem !important;
+  text-align: center !important;
+}
+
+.gr-wishlist-header h1,
+.gr-account-deletion-card h1,
+.gr-service-header h1 {
+  margin: 0 !important;
+  color: var(--gr-gold) !important;
+  font-size: clamp(1.65rem, 7vw, 2.5rem) !important;
+  line-height: 1.14 !important;
+}
+
+.gr-wishlist-header p,
+.gr-service-header p,
+.gr-account-deletion-card p {
+  margin: 0 !important;
+  color: rgba(212, 175, 55, 0.78) !important;
+  font-size: 0.86rem !important;
+  line-height: 1.45 !important;
+}
+
+.gr-wishlist-empty,
+.gr-account-deletion-card,
+.gr-service-shell {
+  width: min(100%, 44rem) !important;
+  margin: 0 auto !important;
+  border: 1px solid rgba(212, 175, 55, 0.52) !important;
+  border-radius: 0.5rem !important;
+  background: rgba(8, 8, 8, 0.92) !important;
+}
+
+.gr-wishlist-empty {
+  display: grid !important;
+  gap: 1rem !important;
+  padding: 1.1rem !important;
+  text-align: center !important;
+}
+
+.gr-wishlist-browse,
+.gr-wishlist-actions,
+.gr-service-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  gap: 0.55rem !important;
+}
+
+.gr-wishlist-browse button,
+.gr-wishlist-actions button,
+.gr-wishlist-actions a,
+.gr-wishlist-checkout,
+.gr-service-actions button,
+.gr-service-actions a,
+.gr-account-deletion-primary,
+.gr-account-deletion-danger {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.45rem !important;
+  min-height: 2.55rem !important;
+  padding: 0.58rem 0.85rem !important;
+  border: 1px solid var(--gr-gold) !important;
+  border-radius: 0.45rem !important;
+  background: #050505 !important;
+  color: var(--gr-gold) !important;
+  font-size: 0.8rem !important;
+  line-height: 1.12 !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+}
+
+.gr-wishlist-actions button:disabled,
+.gr-service-actions button:disabled,
+.gr-account-deletion-danger:disabled {
+  opacity: 0.42 !important;
+  cursor: not-allowed !important;
+}
+
+.gr-wishlist-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)) !important;
+  gap: 1rem !important;
+  width: min(100%, 64rem) !important;
+  margin: 0 auto !important;
+}
+
+.gr-wishlist-card {
+  display: grid !important;
+  gap: 0.85rem !important;
+  padding: 0.75rem !important;
+  border: 1px solid rgba(212, 175, 55, 0.48) !important;
+  border-radius: 0.5rem !important;
+  background: rgba(8, 8, 8, 0.92) !important;
+}
+
+.gr-wishlist-card img {
+  width: 100% !important;
+  aspect-ratio: 4 / 5 !important;
+  object-fit: cover !important;
+  border-radius: 0.35rem !important;
+  background: #111 !important;
+}
+
+.gr-wishlist-card-body {
+  display: grid !important;
+  gap: 0.45rem !important;
+}
+
+.gr-wishlist-card h2 {
+  margin: 0 !important;
+  color: var(--gr-gold) !important;
+  font-size: 1rem !important;
+  line-height: 1.22 !important;
+}
+
+.gr-wishlist-card p,
+.gr-wishlist-price {
+  margin: 0 !important;
+  color: rgba(212, 175, 55, 0.76) !important;
+  font-size: 0.84rem !important;
+  line-height: 1.28 !important;
+}
+
+.gr-wishlist-soldout {
+  color: #ff6969 !important;
+  font-size: 0.76rem !important;
+}
+
+.gr-wishlist-checkout {
+  margin: 1.35rem auto 0 !important;
+}
+
+.gr-account-deletion-card {
+  display: grid !important;
+  gap: 1rem !important;
+  padding: 1.15rem !important;
+}
+
+.gr-account-deletion-back {
+  width: fit-content !important;
+  color: var(--gr-gold) !important;
+  font-size: 0.78rem !important;
+  text-decoration: none !important;
+}
+
+.gr-account-deletion-kicker,
+.gr-account-deletion-box,
+.gr-account-deletion-state {
+  display: grid !important;
+  gap: 0.55rem !important;
+}
+
+.gr-account-deletion-kicker {
+  grid-template-columns: auto 1fr !important;
+  align-items: center !important;
+  color: rgba(212, 175, 55, 0.72) !important;
+  font-size: 0.78rem !important;
+}
+
+.gr-account-deletion-box {
+  padding: 0.85rem !important;
+  border: 1px solid rgba(212, 175, 55, 0.35) !important;
+  border-radius: 0.45rem !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.gr-account-deletion-box strong,
+.gr-account-deletion-box span {
+  color: var(--gr-gold) !important;
+  overflow-wrap: anywhere !important;
+}
+
+.gr-account-deletion-form {
+  display: grid !important;
+  gap: 0.9rem !important;
+}
+
+.gr-account-deletion-form label {
+  display: grid !important;
+  gap: 0.45rem !important;
+  color: var(--gr-gold) !important;
+  font-size: 0.8rem !important;
+}
+
+.gr-account-deletion-form input:not([type="checkbox"]),
+.gr-service-fields input,
+.gr-service-date input,
+.gr-service-form textarea {
+  width: 100% !important;
+  min-height: 2.55rem !important;
+  padding: 0.58rem 0.7rem !important;
+  border: 1px solid rgba(212, 175, 55, 0.58) !important;
+  border-radius: 0.4rem !important;
+  background: #fff !important;
+  color: #050505 !important;
+  font-size: 0.86rem !important;
+}
+
+.gr-account-deletion-check {
+  grid-template-columns: auto 1fr !important;
+  align-items: start !important;
+}
+
+.gr-account-deletion-check input {
+  width: 1rem !important;
+  height: 1rem !important;
+  margin-top: 0.12rem !important;
+  accent-color: var(--gr-gold) !important;
+}
+
+.gr-account-deletion-danger {
+  border-color: #b51f1f !important;
+  color: #ff6969 !important;
+}
+
+.gr-account-deletion-error {
+  color: #ff6969 !important;
+}
+
+.gr-service-shell {
+  padding: 1rem !important;
+}
+
+.gr-service-form {
+  display: grid !important;
+  gap: 1rem !important;
+}
+
+.gr-service-group {
+  display: grid !important;
+  gap: 0.55rem !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+.gr-service-group legend {
+  margin-bottom: 0.4rem !important;
+  color: var(--gr-gold) !important;
+  font-size: 0.82rem !important;
+}
+
+.gr-service-options {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.45rem !important;
+}
+
+.gr-service-options button {
+  min-height: 2.4rem !important;
+  padding: 0.5rem 0.7rem !important;
+  border: 1px solid rgba(212, 175, 55, 0.58) !important;
+  border-radius: 0.45rem !important;
+  background: transparent !important;
+  color: var(--gr-gold) !important;
+  font-size: 0.78rem !important;
+  line-height: 1.12 !important;
+  cursor: pointer !important;
+}
+
+.gr-service-options button.active {
+  background: var(--gr-gold) !important;
+  color: #050505 !important;
+}
+
+.gr-service-fields {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)) !important;
+  gap: 0.65rem !important;
+}
+
+.gr-service-date {
+  display: grid !important;
+  grid-template-columns: auto 1fr !important;
+  align-items: center !important;
+  gap: 0.45rem !important;
+}
+
+.gr-service-date svg {
+  color: var(--gr-gold) !important;
+}
+
+.gr-service-form textarea {
+  min-height: 6rem !important;
+  resize: vertical !important;
+}
+
+.gr-service-status {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.45rem !important;
+  margin: 0 !important;
+  font-size: 0.82rem !important;
+  line-height: 1.35 !important;
+}
+
+.gr-service-status.success,
+.gr-service-status.success * {
+  color: #78e08f !important;
+}
+
+.gr-service-status.error,
+.gr-service-status.error * {
+  color: #ff6969 !important;
 }
 
 @media (max-width: 640px) {

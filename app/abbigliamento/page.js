@@ -9,6 +9,7 @@ import { getPublicImageUrl } from '../lib/storageUrl';
 import { Suspense } from 'react';
 import ProductPrice from '../../components/ProductPrice';
 import ProductionPolicyDialog from '../../components/ProductionPolicyDialog';
+import WishlistToggleButton from '../../components/WishlistToggleButton';
 import {
   buildPriceRequestHref,
   getAddedToCartText,
@@ -352,6 +353,7 @@ function AbbigliamentoPage() {
                   {t('venduto')}
                 </div>
               )}
+              <WishlistToggleButton product={prodotto} lang={lang} />
               <img
                 className="gr-product-image"
                 src={baseUrl + immagini[0]}
@@ -433,6 +435,11 @@ function AbbigliamentoPage() {
             >
               ✕
             </button>
+            <WishlistToggleButton
+              product={popupProdotto}
+              lang={lang}
+              className="gr-product-modal-favorite"
+            />
 
             <img
               className="gr-product-modal-image"

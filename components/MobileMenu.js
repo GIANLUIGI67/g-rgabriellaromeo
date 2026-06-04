@@ -58,6 +58,10 @@ export default function MobileMenu({ lang }) {
       it: 'Offerte', en: 'Offers', fr: 'Offres', es: 'Ofertas', de: 'Angebote',
       ar: 'عروض', zh: '优惠', ja: 'オファー',
     },
+    wishlist: {
+      it: 'Preferiti', en: 'Wishlist', fr: 'Favoris', es: 'Favoritos', de: 'Wunschliste',
+      ar: 'المفضلة', zh: '收藏', ja: 'お気に入り',
+    },
     servizi: {
       it: 'Servizi', en: 'Services', fr: 'Services', es: 'Servicios', de: 'Dienstleistungen',
       ar: 'خدمات', zh: '服务', ja: 'サービス',
@@ -78,6 +82,7 @@ export default function MobileMenu({ lang }) {
     { key: 'abbigliamento', path: '/abbigliamento' },
     { key: 'accessori', path: '/accessori' },
     { key: 'offerte', path: '/offerte' },
+    { key: 'wishlist', path: '/wishlist' },
     { key: 'servizi', path: '/servizi' },
     { key: 'eventi', path: '/eventi' },
     { key: 'brand', path: '/brand' },

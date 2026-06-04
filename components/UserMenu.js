@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { User, X } from 'lucide-react';
 import { supabase } from '../app/lib/supabaseClient';
 import { getReadableAuthErrorMessage, registerCustomerWithBackend } from '../app/lib/authHelpers';
+import { resolveClientAbsoluteAppUrl, resolveClientAppUrl } from '../app/lib/clientAppUrl';
 import paesi from '../app/lib/paesi';
 import { citta as cittaData } from '../app/lib/citta';
 
@@ -351,6 +352,16 @@ export default function UserMenu({ lang }) {
       ar: 'يوجد حساب بهذا البريد الإلكتروني. استخدم نسيت كلمة المرور لتعيين كلمة مرور جديدة.',
       zh: '此电子邮件已存在账户。请使用忘记密码设置新密码。',
       ja: 'このメールアドレスのアカウントは既に存在します。パスワードをお忘れですか？から新しいパスワードを設定してください。'
+    },
+    deleteAccount: {
+      it: 'Elimina account',
+      en: 'Delete account',
+      fr: 'Supprimer le compte',
+      de: 'Konto loschen',
+      es: 'Eliminar cuenta',
+      ar: 'حذف الحساب',
+      zh: '删除账户',
+      ja: 'アカウント削除'
     }
   };
 
@@ -489,7 +500,7 @@ export default function UserMenu({ lang }) {
     setAuthLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(authEmail, {
-        redirectTo: `${window.location.origin}/reset-password`
+        redirectTo: resolveClientAbsoluteAppUrl('/reset-password')
       });
   
       if (error) {
@@ -601,6 +612,10 @@ export default function UserMenu({ lang }) {
     } finally {
       setAuthLoading(false);
     }
+  };
+
+  const openAccountDeletion = () => {
+    window.location.assign(resolveClientAppUrl(`/account-deletion?lang=${langPulito}`));
   };
 
   return (
@@ -827,6 +842,13 @@ export default function UserMenu({ lang }) {
                     className="gr-login-logout w-full bg-gray-700 text-white py-2 rounded uppercase"
                   >
                     Logout
+                  </button>
+                  <button
+                    type="button"
+                    onClick={openAccountDeletion}
+                    className="gr-login-danger-link block w-full border py-2 rounded uppercase text-center"
+                  >
+                    {translations.deleteAccount[langPulito]}
                   </button>
                 </div>
               )}

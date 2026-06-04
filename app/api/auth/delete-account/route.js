@@ -9,22 +9,82 @@ function normalizeEmail(value) {
   return normalized || null;
 }
 
-async function deleteCustomerProfile(service, userId, email) {
-  const { error: deleteByUserIdError } = await service
-    .from('clienti')
+function isOptionalDeleteError(error) {
+  return error?.code === '42P01' || error?.code === '42703';
+}
+
+async function deleteOptionalRows(service, table, column, value) {
+  if (!value) return;
+
+  const { error } = await service
+    .from(table)
     .delete()
-    .eq('user_id', userId);
+    .eq(column, value);
 
-  if (deleteByUserIdError) throw deleteByUserIdError;
+  if (error && !isOptionalDeleteError(error)) throw error;
+}
 
-  if (!email) return;
+async function hasRows(query) {
+  const { data, error } = await query.limit(1).maybeSingle();
+  if (error && !isOptionalDeleteError(error)) throw error;
+  return Boolean(data);
+}
 
-  const { error: deleteByEmailError } = await service
+function hasOrderHistory(customer) {
+  const orders = customer?.ordini;
+  if (Array.isArray(orders)) return orders.length > 0;
+
+  if (typeof orders === 'string') {
+    try {
+      const parsed = JSON.parse(orders);
+      return Array.isArray(parsed) && parsed.length > 0;
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
+}
+
+async function hasCustomerOrderHistory(service, email) {
+  if (!email) return false;
+
+  const { data, error } = await service
     .from('clienti')
-    .delete()
-    .eq('email', email);
+    .select('ordini')
+    .eq('email', email)
+    .maybeSingle();
 
-  if (deleteByEmailError) throw deleteByEmailError;
+  if (error && !isOptionalDeleteError(error)) throw error;
+  return hasOrderHistory(data);
+}
+
+async function hasRelatedOrders(service, email) {
+  if (!email) return false;
+
+  const [hasConfirmedOrders, hasTemporaryOrders, hasProfileOrders] = await Promise.all([
+    hasRows(
+      service
+        .from('ordini')
+        .select('id')
+        .eq('cliente->>email', email)
+    ),
+    hasRows(
+      service
+        .from('ordini_temporanei')
+        .select('id')
+        .eq('cliente_email', email)
+    ),
+    hasCustomerOrderHistory(service, email),
+  ]);
+
+  return hasConfirmedOrders || hasTemporaryOrders || hasProfileOrders;
+}
+
+async function deleteCustomerData(service, userId, email) {
+  await deleteOptionalRows(service, 'clienti', 'user_id', userId);
+  await deleteOptionalRows(service, 'clienti', 'email', email);
+  await deleteOptionalRows(service, 'user_tracking', 'email', email);
 }
 
 export async function POST(request) {
@@ -34,13 +94,16 @@ export async function POST(request) {
 
     const service = createServerSupabaseServiceClient();
     const email = normalizeEmail(auth.user.email);
+    const retainDatabaseData = await hasRelatedOrders(service, email);
 
-    await deleteCustomerProfile(service, auth.user.id, email);
+    if (!retainDatabaseData) {
+      await deleteCustomerData(service, auth.user.id, email);
+    }
 
     const { error: deleteUserError } = await service.auth.admin.deleteUser(auth.user.id);
     if (deleteUserError) throw deleteUserError;
 
-    return jsonResponse({ ok: true });
+    return jsonResponse({ ok: true, retainedData: retainDatabaseData });
   } catch (error) {
     return jsonResponse({ error: error?.message || 'Unable to delete account' }, 400);
   }

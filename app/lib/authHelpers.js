@@ -1,3 +1,5 @@
+import { resolveClientApiUrl } from './clientAppUrl';
+
 const SIGNUP_RATE_LIMIT_REGEX = /For security purposes, you can only request this after (\d+) seconds?/i;
 
 function cleanValue(value) {
@@ -48,7 +50,7 @@ export function getReadableAuthErrorMessage(error, fallbackMessage = 'Errore dur
 }
 
 export async function registerCustomerWithBackend(payload) {
-  const response = await fetch('/api/auth/signup', {
+  const response = await fetch(resolveClientApiUrl('/api/auth/signup'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
