@@ -255,6 +255,24 @@ struct CustomerProfilePayload: Codable {
     }
 }
 
+struct DeleteAccountResponse: Decodable {
+    let ok: Bool?
+    let retainedData: Bool?
+}
+
+struct ServiceRequestPayload: Encodable {
+    let name: String
+    let email: String
+    let phone: String
+    let service: String
+    let occasion: String
+    let budget: String
+    let preferredDate: String
+    let contactMethod: String
+    let notes: String
+    let lang: String
+}
+
 struct QuoteRequest: Codable {
     let cart: [CheckoutCartItem]
     let shippingMethod: String

@@ -39,6 +39,9 @@ struct L10n {
         case wishlistBenefit, checkoutBenefit, discountBenefit, referralBenefit
         case enterEmail, resetSent
         case deleteAccount, deleteAccountConfirmTitle, deleteAccountConfirmMessage, deleteAccountConfirmAction
+        case wishlist, wishlistEmpty, savedProducts, remove
+        case accountDeleted, accountDataRetained, deleteAccountLegalNote
+        case servicesTitle, service, occasion, budget, contactMethod, preferredDate, notes, sendRequest, sending, requestSent, serviceRequired, emailBackup, browseProducts
     }
 
     private static let table: [Key: [AppLanguage: String]] = [
@@ -111,7 +114,27 @@ struct L10n {
         .resetSent: [.it: "Ti abbiamo inviato una email per reimpostare la password.", .en: "We sent you an email to reset your password.", .fr: "Nous vous avons envoyé un email de réinitialisation.", .de: "Wir haben Ihnen eine E-Mail zum Zurücksetzen gesendet.", .es: "Te enviamos un email para restablecer la contraseña.", .ar: "أرسلنا لك بريدًا لإعادة تعيين كلمة المرور.", .zh: "我们已发送重置密码邮件。", .ja: "パスワード再設定メールを送信しました。"],
         .deleteAccount: [.it: "Elimina account", .en: "Delete account", .fr: "Supprimer le compte", .de: "Konto loschen", .es: "Eliminar cuenta", .ar: "حذف الحساب", .zh: "删除账户", .ja: "アカウント削除"],
         .deleteAccountConfirmTitle: [.it: "Conferma eliminazione", .en: "Confirm deletion", .fr: "Confirmer la suppression", .de: "Loschen bestatigen", .es: "Confirmar eliminacion", .ar: "تأكيد الحذف", .zh: "确认删除", .ja: "削除の確認"],
-        .deleteAccountConfirmMessage: [.it: "Questa azione elimina definitivamente il tuo account.", .en: "This action permanently deletes your account.", .fr: "Cette action supprime definitivement votre compte.", .de: "Diese Aktion loscht Ihr Konto dauerhaft.", .es: "Esta accion elimina tu cuenta de forma permanente.", .ar: "هذا الإجراء يحذف حسابك نهائيًا.", .zh: "此操作将永久删除您的账户。", .ja: "この操作でアカウントは完全に削除されます。"],
-        .deleteAccountConfirmAction: [.it: "Elimina", .en: "Delete", .fr: "Supprimer", .de: "Loschen", .es: "Eliminar", .ar: "حذف", .zh: "删除", .ja: "削除"]
+        .deleteAccountConfirmMessage: [.it: "Questa azione elimina definitivamente il tuo account. Se esistono ordini confermati o bonifici in attesa, i dati amministrativi restano conservati per gestione fiscale, spedizioni e assistenza.", .en: "This permanently deletes your account. If confirmed orders or pending bank transfers exist, administrative data is retained for fiscal records, shipping, and support."],
+        .deleteAccountConfirmAction: [.it: "Elimina", .en: "Delete", .fr: "Supprimer", .de: "Loschen", .es: "Eliminar", .ar: "حذف", .zh: "删除", .ja: "削除"],
+        .wishlist: [.it: "Preferiti", .en: "Wishlist"],
+        .wishlistEmpty: [.it: "Salva prodotti dal catalogo toccando il cuore sulle schede prodotto.", .en: "Save products from the catalog by tapping the heart on product cards."],
+        .savedProducts: [.it: "Prodotti salvati", .en: "Saved products"],
+        .remove: [.it: "Rimuovi", .en: "Remove"],
+        .accountDeleted: [.it: "Account eliminato. La sessione e stata chiusa.", .en: "Account deleted. Your session has been closed."],
+        .accountDataRetained: [.it: "I dati collegati a ordini confermati o bonifici in attesa sono rimasti nel database per gestione amministrativa, fiscale e spedizioni.", .en: "Data linked to confirmed orders or pending bank transfers was retained for administration, fiscal records, and shipping."],
+        .deleteAccountLegalNote: [.it: "Gli ordini, i pagamenti e i documenti fiscali completati possono essere conservati quando richiesto dalla legge.", .en: "Completed orders, payments, and fiscal records may be retained when required by law."],
+        .servicesTitle: [.it: "Servizi su misura", .en: "Tailored services"],
+        .service: [.it: "Servizio", .en: "Service"],
+        .occasion: [.it: "Occasione", .en: "Occasion"],
+        .budget: [.it: "Budget", .en: "Budget"],
+        .contactMethod: [.it: "Contatto preferito", .en: "Preferred contact"],
+        .preferredDate: [.it: "Data preferita", .en: "Preferred date"],
+        .notes: [.it: "Note su stile, taglie o occasione", .en: "Notes about style, sizes, or occasion"],
+        .sendRequest: [.it: "Invia richiesta", .en: "Send request"],
+        .sending: [.it: "Invio in corso...", .en: "Sending..."],
+        .requestSent: [.it: "Richiesta inviata. Ti contatteremo a breve.", .en: "Request sent. We will contact you shortly."],
+        .serviceRequired: [.it: "Completa nome, email, servizio, occasione e contatto preferito.", .en: "Complete name, email, service, occasion, and preferred contact."],
+        .emailBackup: [.it: "Apri email di backup", .en: "Open backup email"],
+        .browseProducts: [.it: "Sfoglia prodotti", .en: "Browse products"]
     ]
 }

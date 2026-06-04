@@ -70,12 +70,19 @@ struct ProductListView: View {
                     } else {
                         LazyVStack(spacing: 26) {
                             ForEach(filteredProducts) { product in
-                                NavigationLink {
-                                    ProductDetailView(product: product)
-                                } label: {
-                                    ProductCard(product: product)
+                                ZStack(alignment: .topTrailing) {
+                                    NavigationLink {
+                                        ProductDetailView(product: product)
+                                    } label: {
+                                        ProductCard(product: product)
+                                    }
+                                    .buttonStyle(.plain)
+
+                                    WishlistToggle(product: product)
+                                        .padding(.top, 10)
+                                        .padding(.trailing, 10)
                                 }
-                                .buttonStyle(.plain)
+                                .frame(maxWidth: 326)
                             }
                         }
                         .padding(.top, 6)
@@ -278,6 +285,11 @@ struct ProductDetailView: View {
                 .accessibilityLabel("Indietro")
                 .padding(.top, max(14, geometry.safeAreaInsets.top + 6))
                 .padding(.leading, 14)
+
+                WishlistToggle(product: product)
+                    .padding(.top, max(14, geometry.safeAreaInsets.top + 6))
+                    .padding(.trailing, 14)
+                    .frame(maxWidth: .infinity, alignment: .topTrailing)
             }
             .safeAreaInset(edge: .bottom) {
                 detailActionButton
@@ -369,6 +381,27 @@ struct ProductDetailView: View {
             URLQueryItem(name: "body", value: "Hello,\n\nI would like to receive price and ordering information for: \(productName)\n\nThank you.")
         ]
         return components.url
+    }
+}
+
+private struct WishlistToggle: View {
+    @EnvironmentObject private var store: AppStore
+    let product: Product
+
+    var body: some View {
+        Button {
+            store.toggleWishlist(product)
+        } label: {
+            Image(systemName: store.isInWishlist(product) ? "heart.fill" : "heart")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(Color.grGold)
+                .frame(width: 42, height: 42)
+                .background(Color.black.opacity(0.78))
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Color.grGold.opacity(0.8), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(store.l10n.text(.wishlist))
     }
 }
 

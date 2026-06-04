@@ -6,7 +6,6 @@ struct RootView: View {
     @State private var isMenuOpen = false
     @State private var isContactOpen = false
     @State private var isAccountOpen = false
-    @State private var showWishlistMessage = false
 
     var body: some View {
         NavigationStack {
@@ -21,8 +20,7 @@ struct RootView: View {
                             availableWidth: geometry.size.width - (headerHorizontalPadding * 2),
                             isMenuOpen: $isMenuOpen,
                             isContactOpen: $isContactOpen,
-                            isAccountOpen: $isAccountOpen,
-                            showWishlistMessage: $showWishlistMessage
+                            isAccountOpen: $isAccountOpen
                         )
                         .padding(.top, max(12, geometry.safeAreaInsets.top + 8))
                         .padding(.horizontal, headerHorizontalPadding)
@@ -69,11 +67,6 @@ struct RootView: View {
                 .ignoresSafeArea()
             }
             .toolbar(.hidden, for: .navigationBar)
-            .alert("Pagina in Sviluppo", isPresented: $showWishlistMessage) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text("La pagina della wishlist e attualmente in fase di sviluppo. Tornera presto disponibile!")
-            }
             .alert("Errore", isPresented: Binding(
                 get: { store.errorMessage != nil },
                 set: { if !$0 { store.errorMessage = nil } }
@@ -120,7 +113,6 @@ private struct WebHeader: View {
     @Binding var isMenuOpen: Bool
     @Binding var isContactOpen: Bool
     @Binding var isAccountOpen: Bool
-    @Binding var showWishlistMessage: Bool
 
     var body: some View {
         HStack(spacing: headerSpacing) {
@@ -163,15 +155,28 @@ private struct WebHeader: View {
                     .webHeaderIcon(size: iconSize)
             }
 
-            Button {
+            NavigationLink {
+                WishlistView()
+            } label: {
+                ZStack(alignment: .topTrailing) {
+                    Image(systemName: store.wishlistCount > 0 ? "heart.fill" : "heart")
+                        .webHeaderIcon(size: heartIconSize)
+                    if store.wishlistCount > 0 {
+                        Text("\(store.wishlistCount)")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundStyle(.black)
+                            .frame(minWidth: 16, minHeight: 16)
+                            .background(Color.grGold)
+                            .clipShape(Circle())
+                            .offset(x: 8, y: -8)
+                    }
+                }
+            }
+            .simultaneousGesture(TapGesture().onEnded {
                 isMenuOpen = false
                 isContactOpen = false
                 isAccountOpen = false
-                showWishlistMessage = true
-            } label: {
-                Image(systemName: "heart")
-                    .webHeaderIcon(size: heartIconSize)
-            }
+            })
 
             NavigationLink {
                 CheckoutView()
@@ -279,6 +284,7 @@ private struct NavigationDrawer: View {
         (.abbigliamento, "abbigliamento"),
         (.accessori, "accessori"),
         (.offerte, "offerte"),
+        (.wishlist, "wishlist"),
         (.servizi, "servizi"),
         (.eventi, "eventi"),
         (.brand, "brand")
@@ -312,6 +318,8 @@ private struct NavigationDrawer: View {
                                 EventsView()
                             } else if category == "servizi" {
                                 ServicesView()
+                            } else if category == "wishlist" {
+                                WishlistView()
                             } else if category == "brand" {
                                 BrandView()
                             } else {
@@ -398,43 +406,94 @@ struct EventsView: View {
     }
 }
 
-struct ServicesView: View {
+struct WishlistView: View {
     @EnvironmentObject private var store: AppStore
 
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            VStack(spacing: 18) {
-                Text(store.l10n.text(.servizi).uppercased())
-                    .font(.custom("Michroma-Regular", size: 34))
-                    .foregroundStyle(Color.grGold)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 96)
+            ScrollView {
+                VStack(spacing: 22) {
+                    Text(store.l10n.text(.wishlist))
+                        .font(.custom("Michroma-Regular", size: 30))
+                        .tracking(1.4)
+                        .foregroundStyle(Color.grGold)
+                        .padding(.top, 88)
 
-                Text(store.l10n.text(.ourServices))
-                    .font(.custom("Michroma-Regular", size: 17))
-                    .foregroundStyle(Color.grGold.opacity(0.86))
+                    Text("\(store.wishlistCount) \(store.l10n.text(.savedProducts))")
+                        .font(.custom("Michroma-Regular", size: 13))
+                        .foregroundStyle(Color.grGold.opacity(0.75))
 
-                Text(store.l10n.text(.servicesDescription))
-                    .font(.custom("Michroma-Regular", size: 13))
-                    .foregroundStyle(Color.grGold.opacity(0.74))
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(5)
-                    .padding(.horizontal, 28)
+                    if store.wishlist.isEmpty {
+                        VStack(spacing: 18) {
+                            Text(store.l10n.text(.wishlistEmpty))
+                                .font(.custom("Michroma-Regular", size: 13))
+                                .foregroundStyle(Color.grGold.opacity(0.78))
+                                .multilineTextAlignment(.center)
+                                .lineSpacing(5)
 
-                Text(store.l10n.text(.servicesEmailIntro))
-                    .font(.custom("Michroma-Regular", size: 12))
-                    .foregroundStyle(Color.grGold.opacity(0.78))
-                    .multilineTextAlignment(.center)
+                            NavigationLink {
+                                ProductListView(category: nil, title: store.l10n.text(.gallery).uppercased())
+                            } label: {
+                                Text(store.l10n.text(.browseProducts))
+                                    .webButton()
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .padding(.top, 40)
+                    } else {
+                        LazyVStack(spacing: 28) {
+                            ForEach(store.wishlist) { product in
+                                VStack(spacing: 12) {
+                                    NavigationLink {
+                                        ProductDetailView(product: product)
+                                    } label: {
+                                        ProductCard(product: product)
+                                    }
+                                    .buttonStyle(.plain)
 
-                Link("info@g-rgabriellaromeo.it", destination: URL(string: "mailto:info@g-rgabriellaromeo.it")!)
-                    .font(.custom("Michroma-Regular", size: 13))
-                    .foregroundStyle(Color(red: 0.17, green: 0.38, blue: 0.96))
+                                    HStack(spacing: 10) {
+                                        Button {
+                                            store.removeFromWishlist(product)
+                                        } label: {
+                                            Text(store.l10n.text(.remove))
+                                                .wishlistActionStyle(borderColor: Color(red: 0.74, green: 0.12, blue: 0.12), foregroundColor: Color(red: 0.9, green: 0.25, blue: 0.25))
+                                        }
+                                        .buttonStyle(.plain)
 
-                Spacer()
+                                        if product.hasDisplayPrice {
+                                            Button {
+                                                store.addToCart(product)
+                                            } label: {
+                                                Text(store.l10n.text(.addToCart))
+                                                    .wishlistActionStyle(borderColor: Color.grGold, foregroundColor: Color.grGold)
+                                            }
+                                            .buttonStyle(.plain)
+                                            .disabled(!product.isAvailable)
+                                            .opacity(product.isAvailable ? 1 : 0.45)
+                                        } else if let url = priceRequestURL(for: product) {
+                                            Link(store.l10n.text(.requestPrice), destination: url)
+                                                .wishlistActionStyle(borderColor: Color.grGold, foregroundColor: Color.grGold)
+                                        }
+                                    }
+                                }
+                            }
+
+                            NavigationLink {
+                                CheckoutView()
+                            } label: {
+                                Text(store.l10n.text(.checkout))
+                                    .webButton()
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.top, 8)
+                        }
+                    }
+                }
+                .padding(.horizontal, 30)
+                .padding(.bottom, 42)
             }
-            .padding(.horizontal, 22)
 
             WebBackButton()
                 .padding(.top, 48)
@@ -442,6 +501,216 @@ struct ServicesView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private func priceRequestURL(for product: Product) -> URL? {
+        var components = URLComponents()
+        components.scheme = "mailto"
+        components.path = "info@g-rgabriellaromeo.it"
+        components.queryItems = [
+            URLQueryItem(name: "subject", value: "Price request - \(product.englishName)"),
+            URLQueryItem(name: "body", value: "Hello,\n\nI would like to receive price and ordering information for: \(product.englishName)\n\nThank you.")
+        ]
+        return components.url
+    }
+}
+
+struct ServicesView: View {
+    @EnvironmentObject private var store: AppStore
+    @State private var name = ""
+    @State private var email = ""
+    @State private var phone = ""
+    @State private var preferredDate = ""
+    @State private var notes = ""
+    @State private var selectedService = ""
+    @State private var selectedOccasion = ""
+    @State private var selectedBudget = ""
+    @State private var selectedContact = ""
+    @State private var isSending = false
+    @State private var statusMessage: String?
+    @State private var statusIsError = false
+
+    private let serviceOptions = ["Consulenza gioielli", "Look completo", "Appuntamento atelier"]
+    private let occasionOptions = ["Cerimonia", "Viaggio", "Sera", "Regalo", "Su misura"]
+    private let budgetOptions = ["Fino a 250 EUR", "250-750 EUR", "750-1500 EUR", "Oltre 1500 EUR"]
+    private let contactOptions = ["Email", "WhatsApp", "Telefono"]
+
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+
+            ScrollView {
+                VStack(spacing: 18) {
+                    Text(store.l10n.text(.servicesTitle))
+                        .font(.custom("Michroma-Regular", size: 30))
+                        .foregroundStyle(Color.grGold)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 88)
+
+                    Text(store.l10n.text(.ourServices))
+                        .font(.custom("Michroma-Regular", size: 16))
+                        .foregroundStyle(Color.grGold.opacity(0.86))
+
+                    VStack(alignment: .leading, spacing: 14) {
+                        serviceGroup(label: store.l10n.text(.service), value: selectedService, options: serviceOptions) {
+                            selectedService = $0
+                        }
+                        serviceGroup(label: store.l10n.text(.occasion), value: selectedOccasion, options: occasionOptions) {
+                            selectedOccasion = $0
+                        }
+                        serviceGroup(label: store.l10n.text(.budget), value: selectedBudget, options: budgetOptions) {
+                            selectedBudget = $0
+                        }
+                        serviceGroup(label: store.l10n.text(.contactMethod), value: selectedContact, options: contactOptions) {
+                            selectedContact = $0
+                        }
+
+                        Group {
+                            serviceField(store.l10n.text(.name), text: $name)
+                            serviceField(store.l10n.text(.email), text: $email, keyboard: .emailAddress)
+                            serviceField(store.l10n.text(.phone), text: $phone, keyboard: .phonePad)
+                            serviceField(store.l10n.text(.preferredDate), text: $preferredDate)
+                            serviceField(store.l10n.text(.notes), text: $notes, height: 88)
+                        }
+
+                        if let statusMessage {
+                            Text(statusMessage)
+                                .font(.custom("Michroma-Regular", size: 12))
+                                .foregroundStyle(statusIsError ? Color(red: 0.95, green: 0.28, blue: 0.28) : Color(red: 0.35, green: 0.85, blue: 0.42))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+
+                        Button {
+                            Task { await submitRequest() }
+                        } label: {
+                            ZStack {
+                                if isSending {
+                                    ProgressView().tint(.black)
+                                } else {
+                                    Text(store.l10n.text(.sendRequest))
+                                }
+                            }
+                            .font(.custom("Michroma-Regular", size: 16))
+                            .foregroundStyle(.black)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 48)
+                            .background(Color.grGold)
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(isSending)
+
+                        HStack(spacing: 10) {
+                            if let emailURL {
+                                Link(store.l10n.text(.emailBackup), destination: emailURL)
+                                    .wishlistActionStyle(borderColor: Color.grGold, foregroundColor: Color.grGold)
+                            }
+
+                            NavigationLink {
+                                ProductListView(category: nil, title: store.l10n.text(.gallery).uppercased())
+                            } label: {
+                                Text(store.l10n.text(.browseProducts))
+                                    .wishlistActionStyle(borderColor: Color.grGold, foregroundColor: Color.grGold)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(16)
+                    .background(Color(red: 0.04, green: 0.04, blue: 0.04))
+                    .overlay(Rectangle().stroke(Color.grGold.opacity(0.32), lineWidth: 1))
+                }
+                .padding(.horizontal, 22)
+                .padding(.bottom, 38)
+            }
+
+            WebBackButton()
+                .padding(.top, 48)
+                .padding(.leading, 14)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
+        .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private func serviceGroup(label: String, value: String, options: [String], onSelect: @escaping (String) -> Void) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(label)
+                .font(.custom("Michroma-Regular", size: 12))
+                .foregroundStyle(Color.grGold.opacity(0.85))
+
+            FlowLayout(spacing: 8) {
+                ForEach(options, id: \.self) { option in
+                    Button {
+                        onSelect(option)
+                    } label: {
+                        Text(option)
+                            .font(.custom("Michroma-Regular", size: 11))
+                            .foregroundStyle(value == option ? .black : Color.grGold)
+                            .padding(.horizontal, 10)
+                            .frame(height: 34)
+                            .background(value == option ? Color.grGold : Color.clear)
+                            .overlay(Rectangle().stroke(Color.grGold.opacity(0.62), lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private func serviceField(_ placeholder: String, text: Binding<String>, keyboard: UIKeyboardType = .default, height: CGFloat = 42) -> some View {
+        TextField(placeholder, text: text, axis: height > 50 ? .vertical : .horizontal)
+            .keyboardType(keyboard)
+            .textInputAutocapitalization(keyboard == .emailAddress ? .never : .sentences)
+            .autocorrectionDisabled(keyboard == .emailAddress)
+            .font(.custom("Michroma-Regular", size: 12))
+            .foregroundStyle(.black)
+            .padding(.horizontal, 10)
+            .frame(minHeight: height, alignment: .topLeading)
+            .background(Color.white)
+    }
+
+    private var emailURL: URL? {
+        var components = URLComponents()
+        components.scheme = "mailto"
+        components.path = "info@g-rgabriellaromeo.it"
+        components.queryItems = [
+            URLQueryItem(name: "subject", value: "G-R style request - \(selectedService.isEmpty ? "Service" : selectedService)"),
+            URLQueryItem(name: "body", value: "Nome: \(name)\nEmail: \(email)\nTelefono: \(phone)\nServizio: \(selectedService)\nOccasione: \(selectedOccasion)\nBudget: \(selectedBudget)\nData preferita: \(preferredDate)\nContatto preferito: \(selectedContact)\nNote: \(notes)")
+        ]
+        return components.url
+    }
+
+    private func submitRequest() async {
+        let cleanName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !cleanName.isEmpty, !cleanEmail.isEmpty, !selectedService.isEmpty, !selectedOccasion.isEmpty, !selectedContact.isEmpty else {
+            statusMessage = store.l10n.text(.serviceRequired)
+            statusIsError = true
+            return
+        }
+
+        isSending = true
+        statusMessage = nil
+        defer { isSending = false }
+
+        do {
+            try await store.submitServiceRequest(ServiceRequestPayload(
+                name: cleanName,
+                email: cleanEmail,
+                phone: phone.trimmingCharacters(in: .whitespacesAndNewlines),
+                service: selectedService,
+                occasion: selectedOccasion,
+                budget: selectedBudget,
+                preferredDate: preferredDate.trimmingCharacters(in: .whitespacesAndNewlines),
+                contactMethod: selectedContact,
+                notes: notes.trimmingCharacters(in: .whitespacesAndNewlines),
+                lang: store.language.rawValue
+            ))
+            statusMessage = store.l10n.text(.requestSent)
+            statusIsError = false
+        } catch {
+            statusMessage = error.localizedDescription
+            statusIsError = true
+        }
     }
 }
 
@@ -574,6 +843,51 @@ struct BrandView: View {
         これが私のスタイルです。
         """
     ]
+}
+
+private struct FlowLayout: Layout {
+    var spacing: CGFloat = 8
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let maxWidth = proposal.width ?? 320
+        var rowWidth: CGFloat = 0
+        var rowHeight: CGFloat = 0
+        var totalHeight: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if rowWidth > 0, rowWidth + spacing + size.width > maxWidth {
+                totalHeight += rowHeight + spacing
+                rowWidth = size.width
+                rowHeight = size.height
+            } else {
+                rowWidth += rowWidth > 0 ? spacing + size.width : size.width
+                rowHeight = max(rowHeight, size.height)
+            }
+        }
+
+        totalHeight += rowHeight
+        return CGSize(width: maxWidth, height: totalHeight)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var x = bounds.minX
+        var y = bounds.minY
+        var rowHeight: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x > bounds.minX, x + spacing + size.width > bounds.maxX {
+                x = bounds.minX
+                y += rowHeight + spacing
+                rowHeight = 0
+            }
+
+            subview.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
+            x += size.width + spacing
+            rowHeight = max(rowHeight, size.height)
+        }
+    }
 }
 
 private struct EventsSection: View {
@@ -739,6 +1053,17 @@ extension View {
             .font(.custom("Michroma-Regular", size: 20))
             .foregroundStyle(Color.grGold)
             .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    func wishlistActionStyle(borderColor: Color, foregroundColor: Color) -> some View {
+        self
+            .font(.custom("Michroma-Regular", size: 11.5))
+            .foregroundStyle(foregroundColor)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .frame(maxWidth: .infinity)
+            .frame(height: 36)
+            .overlay(Rectangle().stroke(borderColor.opacity(0.9), lineWidth: 1.1))
     }
 }
 

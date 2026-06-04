@@ -10,6 +10,7 @@ final class AppStore: ObservableObject {
     @Published var products: [Product] = []
     @Published var events: [EventRecord] = []
     @Published var cart: [CartItem] = []
+    @Published var wishlist: [Product] = []
     @Published var session: AuthSession?
     @Published var customer: CustomerProfile?
     @Published var isLoading = false
@@ -17,9 +18,11 @@ final class AppStore: ObservableObject {
 
     private let sessionKey = "gr.auth.session"
     private let cartKey = "gr.cart"
+    private let wishlistKey = "gr.wishlist"
 
     var l10n: L10n { L10n(language: language) }
     var cartCount: Int { cart.reduce(0) { $0 + $1.quantity } }
+    var wishlistCount: Int { wishlist.count }
     var cartTotal: Decimal { cart.reduce(0) { $0 + $1.lineTotal } }
 
     func bootstrap() async {
@@ -63,11 +66,16 @@ final class AppStore: ObservableObject {
         try await APIClient.shared.requestPasswordReset(email: email)
     }
 
-    func deleteAccount() async throws {
-        try await withAuthenticatedToken { accessToken in
+    func deleteAccount() async throws -> DeleteAccountResponse {
+        let response = try await withAuthenticatedToken { accessToken in
             try await APIClient.shared.deleteAccount(accessToken: accessToken)
         }
+        cart.removeAll()
+        wishlist.removeAll()
+        persistCart()
+        persistWishlist()
         logout()
+        return response
     }
 
     func logout() {
@@ -109,6 +117,28 @@ final class AppStore: ObservableObject {
             cart.append(CartItem(product: product, quantity: 1))
         }
         persistCart()
+    }
+
+    func isInWishlist(_ product: Product) -> Bool {
+        wishlist.contains { $0.id == product.id }
+    }
+
+    func toggleWishlist(_ product: Product) {
+        if let index = wishlist.firstIndex(where: { $0.id == product.id }) {
+            wishlist.remove(at: index)
+        } else {
+            wishlist.insert(product, at: 0)
+        }
+        persistWishlist()
+    }
+
+    func removeFromWishlist(_ product: Product) {
+        wishlist.removeAll { $0.id == product.id }
+        persistWishlist()
+    }
+
+    func submitServiceRequest(_ payload: ServiceRequestPayload) async throws {
+        try await APIClient.shared.submitServiceRequest(payload)
     }
 
     func removeFromCart(_ item: CartItem) {
@@ -164,6 +194,10 @@ final class AppStore: ObservableObject {
            let cart = try? JSONDecoder().decode([CartItem].self, from: cartData) {
             self.cart = cart
         }
+        if let wishlistData = UserDefaults.standard.data(forKey: wishlistKey),
+           let wishlist = try? JSONDecoder().decode([Product].self, from: wishlistData) {
+            self.wishlist = deduplicatedWishlist(wishlist)
+        }
     }
 
     private func persistSession() {
@@ -174,6 +208,21 @@ final class AppStore: ObservableObject {
     private func persistCart() {
         guard let data = try? JSONEncoder().encode(cart) else { return }
         UserDefaults.standard.set(data, forKey: cartKey)
+    }
+
+    private func persistWishlist() {
+        wishlist = deduplicatedWishlist(wishlist)
+        guard let data = try? JSONEncoder().encode(wishlist) else { return }
+        UserDefaults.standard.set(data, forKey: wishlistKey)
+    }
+
+    private func deduplicatedWishlist(_ products: [Product]) -> [Product] {
+        var seen = Set<String>()
+        return products.filter { product in
+            guard !seen.contains(product.id) else { return false }
+            seen.insert(product.id)
+            return true
+        }
     }
 
     private func withAuthenticatedToken<T>(_ operation: (String) async throws -> T) async throws -> T {

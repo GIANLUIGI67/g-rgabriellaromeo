@@ -196,6 +196,11 @@ struct LoginPanel: View {
                     .foregroundStyle(.black.opacity(0.72))
             }
 
+            Text(store.l10n.text(.deleteAccountLegalNote))
+                .font(.custom("Michroma-Regular", size: 10.5))
+                .foregroundStyle(.black.opacity(0.62))
+                .fixedSize(horizontal: false, vertical: true)
+
             Button {
                 store.logout()
             } label: {
@@ -229,6 +234,13 @@ struct LoginPanel: View {
                 )
             }
             .disabled(isDeletingAccount)
+
+            if let infoMessage {
+                Text(infoMessage)
+                    .font(.custom("Michroma-Regular", size: 11.5))
+                    .foregroundStyle(Color(red: 0.1, green: 0.45, blue: 0.18))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
     }
 
@@ -282,8 +294,11 @@ struct LoginPanel: View {
         defer { isDeletingAccount = false }
 
         do {
-            try await store.deleteAccount()
-            withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }
+            let response = try await store.deleteAccount()
+            isRegistering = false
+            infoMessage = response.retainedData == true
+                ? store.l10n.text(.accountDataRetained)
+                : store.l10n.text(.accountDeleted)
         } catch {
             store.errorMessage = error.localizedDescription
         }

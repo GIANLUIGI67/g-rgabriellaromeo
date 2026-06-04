@@ -74,11 +74,19 @@ final class APIClient {
         let _: EmptyResponse = try await send(request)
     }
 
-    func deleteAccount(accessToken: String) async throws {
+    func deleteAccount(accessToken: String) async throws -> DeleteAccountResponse {
         var request = URLRequest(url: AppConfig.webAPIBaseURL.appending(path: "api/auth/delete-account"))
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        return try await send(request)
+    }
+
+    func submitServiceRequest(_ payload: ServiceRequestPayload) async throws {
+        var request = URLRequest(url: AppConfig.webAPIBaseURL.appending(path: "api/service-request"))
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try jsonEncoder.encode(payload)
         let _: EmptyResponse = try await send(request)
     }
 
