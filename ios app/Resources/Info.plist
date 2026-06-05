@@ -20,18 +20,22 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>GR_SUPABASE_ANON_KEY</key>
-	<string>$(SUPABASE_ANON_KEY)</string>
-	<key>GR_SUPABASE_URL</key>
-	<string>$(SUPABASE_URL)</string>
-	<key>GR_STRIPE_PK</key>
-	<string>$(STRIPE_PK)</string>
 	<key>GR_PAYPAL_CLIENT_ID</key>
 	<string>$(PAYPAL_CLIENT_ID)</string>
 	<key>GR_PAYPAL_ENABLED</key>
 	<string>$(PAYPAL_ENABLED)</string>
+	<key>GR_STRIPE_PK</key>
+	<string>$(STRIPE_PK)</string>
+	<key>GR_SUPABASE_ANON_KEY</key>
+	<string>$(SUPABASE_ANON_KEY)</string>
+	<key>GR_SUPABASE_URL</key>
+	<string>$(SUPABASE_URL)</string>
 	<key>GR_WEB_API_BASE_URL</key>
 	<string>$(WEB_API_BASE_URL)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.shopping</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

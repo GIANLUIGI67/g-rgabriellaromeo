@@ -8,10 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		094725FAB5422F5B158C3A9A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 603E48D79D91CADE7A7FFED3 /* Assets.xcassets */; };
+		0ABE4ACA7AC728F16853BE60 /* Michroma.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FC355C531E333A939763CC75 /* Michroma.ttf */; };
 		1AD0556D1B4FB5C2809C8F11 /* GRGabriellaFinal.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F2B6349B9991FBEB6723F01A /* GRGabriellaFinal.ttf */; };
 		202EAB26F9688AFF19994AEA /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B47F5511614C5AA436F567A4 /* APIClient.swift */; };
 		236227DD2AC3B4BDF90EB7EB /* GRGabriellaModern.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A2D0BF84AE197441B3C622BC /* GRGabriellaModern.ttf */; };
-		2B97E5E8BB67D6A7C7F4251F /* Michroma.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8E083DAA45AE7933E64C3959 /* Michroma.ttf */; };
 		31DF6B46CCF75803A84D21DE /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4CA9C5A4322778A705FD940 /* Localization.swift */; };
 		380A9CF749D3C0DA0129C859 /* hero.png in Resources */ = {isa = PBXBuildFile; fileRef = C7071C0754F378D485CE515E /* hero.png */; };
 		47589729E3D00178D2EFB427 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = E37D8F709E52CBC384700AA8 /* AppConfig.swift */; };
@@ -28,17 +28,16 @@
 
 /* Begin PBXFileReference section */
 		0AFE40F6388D6A2A109BE41F /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
-		1221DCD926797A2D6ACEB471 /* GRGabriellaRomeo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GRGabriellaRomeo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1221DCD926797A2D6ACEB471 /* GRGabriellaRomeo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = GRGabriellaRomeo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		495A828A769D9EA2BF07EEAD /* qr-instagram.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "qr-instagram.png"; sourceTree = "<group>"; };
 		57E31CCF8FE1CB456A01B2F0 /* ProductViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductViews.swift; sourceTree = "<group>"; };
 		603E48D79D91CADE7A7FFED3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		8E083DAA45AE7933E64C3959 /* Michroma.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Michroma.ttf; sourceTree = "<group>"; };
 		920A6AC81E48076583139EB4 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		9BDAD5AB5B5D89378530CC4E /* AccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
 		9E12B726C34267559A7B9B4E /* CartCheckoutViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartCheckoutViews.swift; sourceTree = "<group>"; };
 		A2D0BF84AE197441B3C622BC /* GRGabriellaModern.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = GRGabriellaModern.ttf; sourceTree = "<group>"; };
+		AE1962006D7A8F0A04F803FA /* AppConfig.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = AppConfig.xcconfig; sourceTree = "<group>"; };
 		B47F5511614C5AA436F567A4 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
-		C0DEC0DEC0DEC0DEC0DEC001 /* Config/AppConfig.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/AppConfig.xcconfig; sourceTree = "<group>"; };
 		C7071C0754F378D485CE515E /* hero.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hero.png; sourceTree = "<group>"; };
 		C9889B2F5A422C7AD7F52539 /* GRGabriellaUltraCustom.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = GRGabriellaUltraCustom.ttf; sourceTree = "<group>"; };
 		D01BAB2B1CFB2EE2B01E2DA4 /* GRGabriellaRomeoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GRGabriellaRomeoApp.swift; sourceTree = "<group>"; };
@@ -46,6 +45,7 @@
 		DE2429766C373F111B9E3CBC /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
 		E37D8F709E52CBC384700AA8 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
 		F2B6349B9991FBEB6723F01A /* GRGabriellaFinal.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = GRGabriellaFinal.ttf; sourceTree = "<group>"; };
+		FC355C531E333A939763CC75 /* Michroma.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Michroma.ttf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -71,9 +71,9 @@
 				603E48D79D91CADE7A7FFED3 /* Assets.xcassets */,
 				F2B6349B9991FBEB6723F01A /* GRGabriellaFinal.ttf */,
 				A2D0BF84AE197441B3C622BC /* GRGabriellaModern.ttf */,
-				8E083DAA45AE7933E64C3959 /* Michroma.ttf */,
 				C9889B2F5A422C7AD7F52539 /* GRGabriellaUltraCustom.ttf */,
 				C7071C0754F378D485CE515E /* hero.png */,
+				FC355C531E333A939763CC75 /* Michroma.ttf */,
 				495A828A769D9EA2BF07EEAD /* qr-instagram.png */,
 			);
 			path = Resources;
@@ -99,11 +99,19 @@
 		CCD70A368CD28AA77AB569E6 = {
 			isa = PBXGroup;
 			children = (
-				C0DEC0DEC0DEC0DEC0DEC001 /* Config/AppConfig.xcconfig */,
+				D951E7045316EC52DDA0904E /* Config */,
 				A4E3CB812170951E085CE71A /* Resources */,
 				52542B42F183D3FDC94B420E /* Sources */,
 				3B05C0A326E50DBA5C1517C9 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		D951E7045316EC52DDA0904E /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				AE1962006D7A8F0A04F803FA /* AppConfig.xcconfig */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -134,7 +142,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2650;
+				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					FF554E9BBEDF54C7A016224C = {
 						DevelopmentTeam = M293D8XT82;
@@ -169,8 +177,8 @@
 				094725FAB5422F5B158C3A9A /* Assets.xcassets in Resources */,
 				1AD0556D1B4FB5C2809C8F11 /* GRGabriellaFinal.ttf in Resources */,
 				236227DD2AC3B4BDF90EB7EB /* GRGabriellaModern.ttf in Resources */,
-				2B97E5E8BB67D6A7C7F4251F /* Michroma.ttf in Resources */,
 				686BA4D188BC1D4C0E92553E /* GRGabriellaUltraCustom.ttf in Resources */,
+				0ABE4ACA7AC728F16853BE60 /* Michroma.ttf in Resources */,
 				380A9CF749D3C0DA0129C859 /* hero.png in Resources */,
 				9AEC197D7EB23C00DB4F9369 /* qr-instagram.png in Resources */,
 			);
@@ -201,11 +209,15 @@
 /* Begin XCBuildConfiguration section */
 		29F8510A7B309921CCE35156 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AE1962006D7A8F0A04F803FA /* AppConfig.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = Config/GRGabriellaRomeoMac.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = NO;
+				DEVELOPMENT_TEAM = M293D8XT82;
 				ENABLE_DEBUG_DYLIB = NO;
 				INFOPLIST_FILE = Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -215,13 +227,14 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grgabriellaromeo.app;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
 		5A49D025F51F13D7023B33D2 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C0DEC0DEC0DEC0DEC0DEC001 /* Config/AppConfig.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -255,7 +268,6 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = M293D8XT82;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -281,7 +293,6 @@
 		};
 		C6C8092E17791F069B50A0BF /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C0DEC0DEC0DEC0DEC0DEC001 /* Config/AppConfig.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -315,7 +326,6 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = M293D8XT82;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -348,11 +358,16 @@
 		};
 		F30C6E67C6F200060DB516C2 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AE1962006D7A8F0A04F803FA /* AppConfig.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = Config/GRGabriellaRomeoMac.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = NO;
+				DEVELOPMENT_TEAM = M293D8XT82;
+				ENABLE_DEBUG_DYLIB = NO;
 				INFOPLIST_FILE = Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -361,6 +376,8 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grgabriellaromeo.app;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
