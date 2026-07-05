@@ -8,34 +8,6 @@ import { citta as cittaData } from '../app/lib/citta';
 import { useRouter } from 'next/navigation';
 
 const getClientIp = async () => {
-  const services = [
-    'https://api.ipify.org?format=json',
-    'https://ipapi.co/json/',
-    'https://ipwho.is/'
-  ];
-
-  const timeoutPromise = new Promise((_, reject) => 
-    setTimeout(() => reject(new Error('Timeout')), 2000)
-  );
-
-  for (const service of services) {
-    try {
-      const response = await Promise.race([
-        fetch(service),
-        timeoutPromise
-      ]);
-      
-      if (!response.ok) continue;
-      
-      const data = await response.json();
-      return data.ip || data.ip_address;
-    } catch (error) {
-      console.debug(`Service ${service} failed:`, error);
-      continue;
-    }
-  }
-  
-  console.warn('All IP services failed');
   return null;
 };
 
